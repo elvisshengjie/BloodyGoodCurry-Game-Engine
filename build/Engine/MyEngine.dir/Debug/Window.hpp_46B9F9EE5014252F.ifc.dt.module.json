@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "MyEngine.dir\\Debug\\Window.obj",
+            "outputs": [
+                "MyEngine.dir\\Debug\\Window.hpp_46B9F9EE5014252F.ifc.dt.module.json",
+                "MyEngine.dir\\Debug\\Window.hpp_46B9F9EE5014252F.ifc.dt.d.json",
+                "MyEngine.dir\\Debug\\Window.hpp.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "C:\\Users\\elvis\\Documents\\csd2401f25_team_sofasqud\\Engine\\Graphics\\Window.hpp",
+                    "source-path": "c:\\users\\elvis\\documents\\csd2401f25_team_sofasqud\\engine\\graphics\\window.hpp",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

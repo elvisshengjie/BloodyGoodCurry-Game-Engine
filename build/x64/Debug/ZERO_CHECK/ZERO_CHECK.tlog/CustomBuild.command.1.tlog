@@ -1,0 +1,10 @@
+^C:\USERS\ELVIS\DOCUMENTS\CSD2401F25_TEAM_SOFASQUD\BUILD\CMAKEFILES\4BD3B43E0CC1579E285C84FA0213437D\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake4.0\bin\cmake.exe" -SC:/Users/elvis/Documents/csd2401f25_team_sofasqud -BC:/Users/elvis/Documents/csd2401f25_team_sofasqud/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/elvis/Documents/csd2401f25_team_sofasqud/build/giraphics.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
