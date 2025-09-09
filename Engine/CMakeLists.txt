@@ -2,11 +2,14 @@
 set(ENGINE_NAME MyEngine)
 
 # Sources
-file(GLOB_RECURSE GRAPHICS_SRC_FILES
-     CONFIGURE_DEPENDS
-     ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[ch]pp)
+file(GLOB_RECURSE ENGINE_SRC_FILES
+    CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[ch]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[ch]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Math/*.[ch]pp
+)
 
-add_library(${ENGINE_NAME} ${GRAPHICS_SRC_FILES})
+add_library(${ENGINE_NAME} ${ENGINE_SRC_FILES})   
 
 # C++ standard
 set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD 20)
