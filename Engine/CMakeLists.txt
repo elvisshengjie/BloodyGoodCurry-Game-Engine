@@ -18,6 +18,13 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Math/*.[hH]
 )
 
+# --- Manual GLAD (vendored) ---
+add_library(glad STATIC
+    ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/glad/src/glad.c
+)
+target_include_directories(glad PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/glad/include
+)
 #Get the Source Files (h)
 add_library(${ENGINE_NAME}
     ${ENGINE_SRC_FILES}
@@ -39,11 +46,23 @@ set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_include_directories(${ENGINE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 # Make sure glfw is added with add_subdirectory() or find_package()
-target_link_libraries(${ENGINE_NAME} PUBLIC glfw)
+target_link_libraries(${ENGINE_NAME} PUBLIC glfw glad stb_image glm::glm)
 
 #Complier Warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(${ENGINE_NAME} PRIVATE -Wall -Wextra)
 elseif (MSVC)
     target_compile_options(${ENGINE_NAME} PRIVATE /W3 /WX-)
+endif()
+
+# Platform OpenGL (required)
+if (WIN32)
+  target_link_libraries(${ENGINE_NAME} PRIVATE opengl32)
+elseif (APPLE)
+  find_library(COCOA_LIBRARY Cocoa REQUIRED)
+  find_library(OpenGL_LIBRARY OpenGL REQUIRED)
+  target_link_libraries(${ENGINE_NAME} PRIVATE ${OpenGL_LIBRARY} ${COCOA_LIBRARY})
+else()
+  find_package(OpenGL REQUIRED)
+  target_link_libraries(${ENGINE_NAME} PRIVATE OpenGL::GL)
 endif()
