@@ -1,11 +1,4 @@
-/*********************************************************************************************
- \file      Collision.cpp
- \par		Cat Feeders
- \author    Choo Jian Wei (jianwei.c@digipen.edu) 100%
 
-
-\copyright All content   2024 DigiPen Institute of Technology Singapore. All rights reserved.
-**********************************************************************************************/
 
 #include "Collision.h"
 #include <cmath>

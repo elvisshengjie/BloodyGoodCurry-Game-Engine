@@ -3,8 +3,6 @@
 #ifndef COLLIDE_ELE_H
 #define COLLIDE_ELE_H
 #include "../Math/Vector_2D.h"
-
-
 namespace Framework {
 
     // Structure representing a point in 2D space
@@ -16,8 +14,6 @@ namespace Framework {
         Point(const Vector2D<float>& pos): Position(pos) {}
         const Vector2D<float>& GetPosition() const { return Position;}
         void SetPosition(const Vector2D<float>& Pos) { Position = Pos; }
-
-
 
     };
 
