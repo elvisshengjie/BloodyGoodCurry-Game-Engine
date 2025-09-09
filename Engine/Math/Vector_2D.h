@@ -1,4 +1,3 @@
-
 #pragma once
 #include <cmath>
 template <typename T = float>

@@ -1,29 +1,49 @@
-# Name of the engine library
+# Set the Engine
 set(ENGINE_NAME MyEngine)
 
-# Sources
+#Get the Source Files (cpp)
 file(GLOB_RECURSE ENGINE_SRC_FILES
     CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[ch]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[ch]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Math/*.[ch]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[cC]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[cC]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Math/*.[cC]pp
 )
 
-add_library(${ENGINE_NAME} ${ENGINE_SRC_FILES})   
+#Get the Source Files (h) and explictly the hpp file (have to be specific)
+file(GLOB_RECURSE ENGINE_HEADER_FILES
+    CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[hH]
+    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[hH]
+    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/Math/*.[hH]
+)
 
-# C++ standard
-set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD 20)
+#Get the Source Files (h)
+add_library(${ENGINE_NAME}
+    ${ENGINE_SRC_FILES}
+    ${ENGINE_HEADER_FILES} 
+)
 
-# If Engine uses GLFW internally, keep PRIVATE.
-# If Engine's PUBLIC headers include GLFW headers/types, change to PUBLIC.
-target_link_libraries(${ENGINE_NAME} PUBLIC glfw)
 
-# Warnings per toolchain
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  target_compile_options(${ENGINE_NAME} PRIVATE -Wall -Wextra)
-elseif (MSVC)
-  target_compile_options(${ENGINE_NAME} PRIVATE /W3 /WX-)
+set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
+if(COMMAND GROUP_FILES_BY_FOLDER)
+    GROUP_FILES_BY_FOLDER(${ALL_ENGINE_FILES})
 endif()
 
-# Expose Engine headers to dependents (so Sandbox can #include "Graphics/...")
+
+set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD 20)
+set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
+
+
+# Expose top-level engine folder so headers are visible
 target_include_directories(${ENGINE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
+# Make sure glfw is added with add_subdirectory() or find_package()
+target_link_libraries(${ENGINE_NAME} PUBLIC glfw)
+
+#Complier Warnings
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(${ENGINE_NAME} PRIVATE -Wall -Wextra)
+elseif (MSVC)
+    target_compile_options(${ENGINE_NAME} PRIVATE /W3 /WX-)
+endif()
