@@ -11,6 +11,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <stb_image.h>
 
+// ImGui
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 
 static void stb_smoke_test(const char* path) {
     int w = 0, h = 0, comp = 0;

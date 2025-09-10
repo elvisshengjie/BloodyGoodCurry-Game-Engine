@@ -60,9 +60,41 @@ macro(import_stb_image)
   endif()
 endmacro()
 
+# ---- ImGui ----
+macro(import_imgui)
+  if (NOT TARGET imgui)
+    include(FetchContent)
+    FetchContent_Declare(
+      imgui
+      GIT_REPOSITORY https://github.com/ocornut/imgui.git
+      GIT_TAG v1.90.4
+    )
+    FetchContent_MakeAvailable(imgui)
+
+    set(IMGUI_SOURCES
+      ${imgui_SOURCE_DIR}/imgui.cpp
+      ${imgui_SOURCE_DIR}/imgui_demo.cpp
+      ${imgui_SOURCE_DIR}/imgui_draw.cpp
+      ${imgui_SOURCE_DIR}/imgui_tables.cpp
+      ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+      ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+      ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+    )
+
+    add_library(imgui STATIC ${IMGUI_SOURCES})
+    target_include_directories(imgui PUBLIC
+      ${imgui_SOURCE_DIR}
+      ${imgui_SOURCE_DIR}/backends
+    )
+    target_link_libraries(imgui PUBLIC glfw)   # uses your existing GLAD loader
+    set_property(TARGET imgui PROPERTY CXX_STANDARD 11)
+  endif()
+endmacro()
+
 # ---- Bundle entrypoint ----
 macro(importDependencies)
    import_glfw()
   import_glm()
   import_stb_image()
+  import_imgui()
 endmacro()

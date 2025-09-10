@@ -46,7 +46,7 @@ set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_include_directories(${ENGINE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 # Make sure glfw is added with add_subdirectory() or find_package()
-target_link_libraries(${ENGINE_NAME} PUBLIC glfw glad stb_image glm::glm)
+target_link_libraries(${ENGINE_NAME} PUBLIC glfw glad stb_image glm::glm imgui)
 
 #Complier Warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
