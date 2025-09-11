@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "MyEngine.dir\\Debug\\Matrix_3x3.obj",
+            "outputs": [
+                "MyEngine.dir\\Debug\\Matrix_3x3.cpp.ifc.dt.module.json",
+                "MyEngine.dir\\Debug\\Matrix_3x3.cpp.ifc.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

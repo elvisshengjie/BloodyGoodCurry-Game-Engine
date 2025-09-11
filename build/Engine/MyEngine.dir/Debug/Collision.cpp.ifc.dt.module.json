@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "MyEngine.dir\\Debug\\Collision.obj",
+            "outputs": [
+                "MyEngine.dir\\Debug\\Collision.cpp.ifc.dt.module.json",
+                "MyEngine.dir\\Debug\\Collision.cpp.ifc.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

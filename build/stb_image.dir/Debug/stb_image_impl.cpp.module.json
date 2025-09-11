@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "stb_image.dir\\Debug\\stb_image_impl.obj",
+            "outputs": [
+                "C:\\Users\\elvis\\Documents\\csd2401f25_team_sofasqud\\build\\Debug\\stb_image.pdb",
+                "stb_image.dir\\Debug\\"
+            ],
+            "requires": []
+        }
+    ]
+}

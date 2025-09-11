@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "MyEngine.dir\\Debug\\Collide_Elements.obj",
+            "outputs": [
+                "MyEngine.dir\\Debug\\Collide_Elements.h_53CB585E71BD47F2.ifc.dt.module.json",
+                "MyEngine.dir\\Debug\\Collide_Elements.h_53CB585E71BD47F2.ifc.dt.d.json",
+                "MyEngine.dir\\Debug\\Collide_Elements.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "C:\\Users\\elvis\\Documents\\csd2401f25_team_sofasqud\\Engine\\Collision_Tools\\Collide_Elements.h",
+                    "source-path": "c:\\users\\elvis\\documents\\csd2401f25_team_sofasqud\\engine\\collision_tools\\collide_elements.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}
