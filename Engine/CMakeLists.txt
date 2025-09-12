@@ -7,6 +7,9 @@ file(GLOB_RECURSE ENGINE_SRC_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[cC]pp
     ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[cC]pp
     ${CMAKE_CURRENT_LIST_DIR}/Math/*.[cC]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Composition/*.[cC]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Serialization/*.[cC]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Engine/*.[cC]pp
 )
 
 #Get the Source Files (h) and explictly the hpp file (have to be specific)
@@ -16,6 +19,10 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[hH]
     ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Math/*.[hH]
+    ${CMAKE_CURRENT_LIST_DIR}/Composition/*.[hH]
+    ${CMAKE_CURRENT_LIST_DIR}/Serialization/*.[hH]
+    ${CMAKE_CURRENT_LIST_DIR}/Engine/*.[hH]
+    
 )
 
 # --- Manual GLAD (vendored) ---
