@@ -1,3 +1,5 @@
+C:/Users/justin/source/csd2401f25_team_sofasqud/build/CMakeFiles/stb_image.dir
+C:/Users/justin/source/csd2401f25_team_sofasqud/build/CMakeFiles/imgui.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/CMakeFiles/INSTALL.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/CMakeFiles/ALL_BUILD.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/CMakeFiles/ZERO_CHECK.dir
@@ -7,6 +9,11 @@ C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glfw-build/CMakeFile
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glfw-build/src/CMakeFiles/update_mappings.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glfw-build/src/CMakeFiles/glfw.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glfw-build/src/CMakeFiles/INSTALL.dir
+C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glm-build/CMakeFiles/INSTALL.dir
+C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glm-build/CMakeFiles/ALL_BUILD.dir
+C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glm-build/glm/CMakeFiles/glm.dir
+C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glm-build/glm/CMakeFiles/INSTALL.dir
+C:/Users/justin/source/csd2401f25_team_sofasqud/build/Engine/CMakeFiles/glad.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/Engine/CMakeFiles/MyEngine.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/Engine/CMakeFiles/INSTALL.dir
 C:/Users/justin/source/csd2401f25_team_sofasqud/build/Sandbox/CMakeFiles/MyGame.dir

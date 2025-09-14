@@ -1,7 +1,7 @@
 ﻿  Building Custom Rule C:/Users/justin/source/csd2401f25_team_sofasqud/Sandbox/CMakeLists.txt
   Scanning sources for module dependencies...
-  main.cpp
   Game.cpp
+  main.cpp
   Compiling...
   main.cpp
   Game.cpp

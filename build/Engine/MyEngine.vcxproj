@@ -82,18 +82,20 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <MinimalRebuild></MinimalRebuild>
+      <MinimalRebuild>
+      </MinimalRebuild>
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <SupportJustMyCode></SupportJustMyCode>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
       <TreatWarningAsError>false</TreatWarningAsError>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
@@ -103,10 +105,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -119,17 +121,19 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <MinimalRebuild></MinimalRebuild>
+      <MinimalRebuild>
+      </MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <SupportJustMyCode></SupportJustMyCode>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
       <TreatWarningAsError>false</TreatWarningAsError>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
@@ -141,10 +145,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -157,17 +161,19 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <MinimalRebuild></MinimalRebuild>
+      <MinimalRebuild>
+      </MinimalRebuild>
       <Optimization>MinSpace</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <SupportJustMyCode></SupportJustMyCode>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
       <TreatWarningAsError>false</TreatWarningAsError>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
@@ -179,10 +185,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -195,18 +201,20 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>Sync</ExceptionHandling>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <MinimalRebuild></MinimalRebuild>
+      <MinimalRebuild>
+      </MinimalRebuild>
       <Optimization>MaxSpeed</Optimization>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <SupportJustMyCode></SupportJustMyCode>
+      <SupportJustMyCode>
+      </SupportJustMyCode>
       <TreatWarningAsError>false</TreatWarningAsError>
       <UseFullPaths>false</UseFullPaths>
       <WarningLevel>Level3</WarningLevel>
@@ -216,10 +224,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\justin\source\csd2401f25_team_sofasqud\Engine;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-src\include;C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\ThirdParty\glad\include;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\stb-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src;C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\imgui-src\backends;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -288,8 +296,16 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collision.cpp" />
     <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Graphics\Window.cpp" />
+    <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Matrix_3x3.cpp" />
+    <ClCompile Include="Engine.cpp" />
+    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collide_Elements.h" />
+    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collision.h" />
     <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Graphics\Window.hpp" />
+    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Matrix_3x3.h" />
+    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Vector_2D.h" />
+    <ClInclude Include="Engine.hpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
@@ -299,9 +315,25 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\justin\source\csd2401f25_team_sofasqud\build\Engine\glad.vcxproj">
+      <Project>{EE97A6E0-4FE2-35FC-9AED-6B7C00067AD7}</Project>
+      <Name>glad</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glfw-build\src\glfw.vcxproj">
       <Project>{0F7F174F-69F1-33BC-BB79-CDD07A3AF6EF}</Project>
       <Name>glfw</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\justin\source\csd2401f25_team_sofasqud\build\_deps\glm-build\glm\glm.vcxproj">
+      <Project>{36B8E77E-3439-38DF-BC6D-D362EAB09CA4}</Project>
+      <Name>glm</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\justin\source\csd2401f25_team_sofasqud\build\imgui.vcxproj">
+      <Project>{1142EFF9-AD9F-3BD8-B836-A8226F950A8D}</Project>
+      <Name>imgui</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\justin\source\csd2401f25_team_sofasqud\build\stb_image.vcxproj">
+      <Project>{03D9F1C6-F2A0-39DC-A9BA-F0310C5089B0}</Project>
+      <Name>stb_image</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

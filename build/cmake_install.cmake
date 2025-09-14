@@ -39,6 +39,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Users/justin/source/csd2401f25_team_sofasqud/build/_deps/glm-build/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Users/justin/source/csd2401f25_team_sofasqud/build/Engine/cmake_install.cmake")
 endif()
 

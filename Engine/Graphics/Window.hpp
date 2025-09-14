@@ -1,17 +1,48 @@
 #pragma once
 #include <string>
+
+// Forward-declare GLFWwindow to avoid leaking GLFW headers in the header file
 struct GLFWwindow;
 
 namespace gfx {
-class Window {
-public:
-    Window(int w, int h, const char* title);
-    ~Window();
-    void run();               // open window and loop until closed
-    static void error_cb(int error, char const* description);
-private:
-    static GLFWwindow* ptr_window;
-    int m_w, m_h;
-    std::string m_title;
-};
-}
+
+    // Minimal window wrapper that exposes per-frame controls,
+    // so the main Game/Engine can own the game loop.
+    class Window {
+    public:
+        // Create an OpenGL context and a window with the given size and title.
+        Window(int width, int height, const char* title);
+
+        // Destroy the window and terminate GLFW (if needed).
+        ~Window();
+
+        // ---- Per-frame controls (call these from your Engine/Game loop) ----
+
+        // Returns true if the OS asked to close the window.
+        bool shouldClose() const;
+
+        // Poll OS / input events (keyboard, mouse, etc.).
+        void pollEvents();
+
+        // Start a new frame (clear color/depth, begin ImGui frame if you use it).
+        void beginFrame();
+
+        // End the frame (end ImGui frame if you use it).
+        void endFrame();
+
+        // Present the back buffer.
+        void swapBuffers();
+
+        // Static GLFW error callback.
+        static void error_cb(int error, const char* description);
+
+    private:
+        // Global raw pointer to the GLFW window. (kept static to match your original design)
+        static GLFWwindow* s_window;
+
+        int m_width;
+        int m_height;
+        std::string m_title;
+    };
+
+} // namespace gfx
