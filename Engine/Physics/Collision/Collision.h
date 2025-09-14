@@ -2,7 +2,7 @@
 #pragma once
 #ifndef COLLISION_H
 #define COLLISION_H
-#include "../Math/Vector_2D.h"
+#include "Math/Vector_2D.h"
 #include "Collide_Elements.h"
 
 

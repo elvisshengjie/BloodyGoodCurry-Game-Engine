@@ -2,28 +2,25 @@
 set(ENGINE_NAME MyEngine)
 
 #Get the Source Files (cpp)
+# Source files
 file(GLOB_RECURSE ENGINE_SRC_FILES
-    CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[cC]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[cC]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Math/*.[cC]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Composition/*.[cC]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Serialization/*.[cC]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Common/*.[cC]pp
+  CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_LIST_DIR}/**/*.[cC]pp
 )
 
-#Get the Source Files (h) and explictly the hpp file (have to be specific)
+# Headers
 file(GLOB_RECURSE ENGINE_HEADER_FILES
-    CONFIGURE_DEPENDS
-    ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[hH]
-    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[hH]
-    ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.hpp
-    ${CMAKE_CURRENT_LIST_DIR}/Math/*.[hH]
-    ${CMAKE_CURRENT_LIST_DIR}/Composition/*.[hH]
-    ${CMAKE_CURRENT_LIST_DIR}/Serialization/*.[hH]
-    ${CMAKE_CURRENT_LIST_DIR}/Common/*.[hH]
-    
+  CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_LIST_DIR}/**/*.[hH]
+  ${CMAKE_CURRENT_LIST_DIR}/**/*.hpp
 )
+
+# Exclude vendored code handled separately (glad)
+list(FILTER ENGINE_SRC_FILES     EXCLUDE REGEX ".*/ThirdParty/.*")
+list(FILTER ENGINE_HEADER_FILES  EXCLUDE REGEX ".*/ThirdParty/.*")
+
+set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${ALL_ENGINE_FILES})
 
 # --- Manual GLAD (vendored) ---
 add_library(glad STATIC
@@ -39,10 +36,6 @@ add_library(${ENGINE_NAME}
 )
 
 
-set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
-if(COMMAND GROUP_FILES_BY_FOLDER)
-    GROUP_FILES_BY_FOLDER(${ALL_ENGINE_FILES})
-endif()
 
 
 set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD 20)

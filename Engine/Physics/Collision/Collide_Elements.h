@@ -2,7 +2,7 @@
 #pragma once
 #ifndef COLLIDE_ELE_H
 #define COLLIDE_ELE_H
-#include "../Math/Vector_2D.h"
+#include "Math/Vector_2D.h"
 namespace Framework {
 
     // Structure representing a point in 2D space
