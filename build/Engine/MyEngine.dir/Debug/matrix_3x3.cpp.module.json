@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "MyEngine.dir\\Debug\\Matrix_3x3.obj",
+            "outputs": [
+                "C:\\Users\\elvis\\Documents\\csd2401f25_team_sofasqud\\build\\Engine\\Debug\\MyEngine.pdb",
+                "MyEngine.dir\\Debug\\"
+            ],
+            "requires": []
+        }
+    ]
+}

@@ -9,7 +9,7 @@ file(GLOB_RECURSE ENGINE_SRC_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Math/*.[cC]pp
     ${CMAKE_CURRENT_LIST_DIR}/Composition/*.[cC]pp
     ${CMAKE_CURRENT_LIST_DIR}/Serialization/*.[cC]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Engine/*.[cC]pp
+    ${CMAKE_CURRENT_LIST_DIR}/Common/*.[cC]pp
 )
 
 #Get the Source Files (h) and explictly the hpp file (have to be specific)
@@ -21,7 +21,7 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Math/*.[hH]
     ${CMAKE_CURRENT_LIST_DIR}/Composition/*.[hH]
     ${CMAKE_CURRENT_LIST_DIR}/Serialization/*.[hH]
-    ${CMAKE_CURRENT_LIST_DIR}/Engine/*.[hH]
+    ${CMAKE_CURRENT_LIST_DIR}/Common/*.[hH]
     
 )
 

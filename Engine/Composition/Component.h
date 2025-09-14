@@ -1,7 +1,7 @@
 
 #pragma once
-#include "Engine/ComponentTypeID.h"
-#include "Engine/Message.h"
+#include "Common/ComponentTypeID.h"
+#include "Common/Message.h"
 
 
 namespace Framework
