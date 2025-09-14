@@ -1,24 +1,22 @@
 #pragma once
+#include <cstdint>
 
 namespace Framework
 {
-	namespace Mid
-	{
-		enum MessageIdType
-		{
-			None,
-			Quit,
-			Collide,
-			MouseClick
-		};
-
-	};
+	enum class MessageId : std::uint16_t {
+		None,
+		Quit,
+		Collide,
+		MouseClick
+	 };
 
 	class Message
 	{
-	public: 
-		Message(Mid::MessageIdType id) : MessageId(id) {};
-		Mid::MessageIdType MessageId;
-		virtual ~Message() {};
+		Message(MessageId id) : MsgId(id) {};
+		virtual ~Message() = default;
+		MessageId MsgId;
+
+
+	
 	};
 }

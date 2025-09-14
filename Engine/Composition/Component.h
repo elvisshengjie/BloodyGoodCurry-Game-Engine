@@ -7,13 +7,13 @@
 namespace Framework
 {
 	//Forwaed declaration of GOC class
-	class GameObjectComposition;
-	typedef GameObjectComposition GOC;
+	class GameObject;
+	using GOC = GameObject;
 
 	class GameComponent
 	{
 	public: 
-		friend class GameObjectComposition;
+		friend class GameObject;
 		
 		//Signal that component is now active in the game world
 		virtual void initialize() {}
@@ -27,7 +27,7 @@ namespace Framework
 
 		GOC* GetOwner() { return Base; }
 		
-		ComponentTypeId TypeId{ CT_None };
+		ComponentTypeId TypeId{ ComponentTypeId::CT_None };
 
 	protected:
 		//Destroy the component
