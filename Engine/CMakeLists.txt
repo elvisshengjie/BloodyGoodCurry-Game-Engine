@@ -31,6 +31,14 @@ add_library(${ENGINE_NAME}
     ${ENGINE_HEADER_FILES} 
 )
 
+# Add FMOD to your libraries list
+set(ALL_LIBS
+    PRIVATE glfw
+    PRIVATE libglew_static
+    PRIVATE imgui
+    PRIVATE fmod_vc  # Note: Use fmod_vc.lib, not fmod.lib
+)
+
 
 set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
 if(COMMAND GROUP_FILES_BY_FOLDER)

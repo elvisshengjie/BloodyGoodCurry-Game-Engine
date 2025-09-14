@@ -4,6 +4,10 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT M
 
 project(giraphics VERSION 0.1 LANGUAGES C CXX)
 
+include_directories(${CMAKE_CURRENT_LIST_DIR}/libs/fmod/inc)
+link_directories(${CMAKE_CURRENT_LIST_DIR}/libs/fmod/lib/x64)
+
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -24,4 +28,7 @@ include(BuildTest OPTIONAL)   # or include(BuildTests OPTIONAL) if that's the fi
 
 
 add_subdirectory(Sandbox)
+
+
+
 
