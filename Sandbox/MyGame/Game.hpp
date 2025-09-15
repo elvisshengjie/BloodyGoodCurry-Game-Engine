@@ -1,2 +1,6 @@
 #pragma once
-namespace mygame { void run(); }
+#include "Graphics/Window.hpp"
+
+namespace mygame {
+    void run();
+}

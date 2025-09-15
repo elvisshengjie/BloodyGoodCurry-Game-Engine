@@ -1,80 +1,107 @@
 #include "Graphics/Window.hpp"
 
-// manual GLAD uses <glad/glad.h>
+// Keep GL/GLFW only in the .cpp to avoid polluting headers.
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <iostream>
+#include <stdexcept>
 
-#define GL_MINOR 5
-#define GL_MAJOR 4
+namespace {
 
-GLFWwindow* gfx::Window::ptr_window = nullptr;
+    // Prefer constexpr over macros (resolves your VCR101 suggestion)
+    constexpr int kGlMajor = 4;
+    constexpr int kGlMinor = 5;
+
+} // anonymous namespace
+
+// Define the static window pointer
+GLFWwindow* gfx::Window::s_window = nullptr;
+
 namespace gfx {
 
-    Window::Window(int w, int h, const char* title)
-        : m_w(w), m_h(h), m_title(title)
+    Window::Window(int width, int height, const char* title)
+        : m_width(width), m_height(height), m_title(title)
     {
         if (!glfwInit()) {
-            std::cout << "GLFW init has failed - abort program" << std::endl;
-
+            std::cerr << "GLFW initialization failed.\n";
+            throw std::runtime_error("GLFW init failed");
         }
 
-        // In case GLFW fail, an error is reported to callback function
+        // Set error callback first so we catch any GLFW errors
         glfwSetErrorCallback(Window::error_cb);
 
-        // specify OpenGL version 4.5
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GL_MAJOR);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GL_MINOR);
-        // MODERN OpenGL
+        // Request a modern OpenGL context (4.5 core)
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, kGlMajor);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, kGlMinor);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        //application will be double buffered
+
+        // Double buffered (default)
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
-        // default behavior: colorbuffer is 32-bit RGBA, depthbuffer is 24-bits
-        // don't change size of window
-        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-        //Size of Viewporrt: width x height
-        Window::ptr_window = glfwCreateWindow(m_w, m_h, m_title.c_str(), NULL, NULL);
-        if (!Window::ptr_window) {
-            std::cerr << "GLFW unable to create OpenGL context - abort program\n";
+        // Non-resizable for now (you can change this to GLFW_TRUE if desired)
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+        // Create the window + context
+        s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
+        if (!s_window) {
+            std::cerr << "Failed to create GLFW window.\n";
             glfwTerminate();
-        
+            throw std::runtime_error("GLFW window creation failed");
         }
-        // make the previously created OpenGL context current
-        glfwMakeContextCurrent(Window::ptr_window);
 
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) { 
-            glfwDestroyWindow(Window::ptr_window); glfwTerminate(); 
-            throw std::runtime_error("Failed to initialize GLAD"); 
+        // Make the context current
+        glfwMakeContextCurrent(s_window);
+
+        // Load GL function pointers with GLAD
+        if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
+            glfwDestroyWindow(s_window);
+            s_window = nullptr;
+            glfwTerminate();
+            throw std::runtime_error("Failed to initialize GLAD");
         }
-        glViewport(0, 0, m_w, m_h);
-        //Enable Vsync
-        glfwSwapInterval(1);
 
-  
+        // Set viewport and vsync
+        glViewport(0, 0, m_width, m_height);
+        glfwSwapInterval(1); // vsync on
     }
 
     Window::~Window() {
-        if (Window::ptr_window) {
-            glfwDestroyWindow(Window::ptr_window);
-            glfwTerminate();
+        if (s_window) {
+            glfwDestroyWindow(s_window);
+            s_window = nullptr;
+        }
+        glfwTerminate();
+    }
+
+    bool Window::shouldClose() const {
+        return glfwWindowShouldClose(s_window) != 0;
+    }
+
+    void Window::pollEvents() {
+        glfwPollEvents();
+
+        // Example: ESC to close (optional)
+        if (glfwGetKey(s_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(s_window, GLFW_TRUE);
         }
     }
 
-    void Window::run() {
-        while (!glfwWindowShouldClose(Window::ptr_window)) {
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-            glfwSwapBuffers(Window::ptr_window);
-            glfwPollEvents();
-            if (glfwGetKey(Window::ptr_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-                glfwSetWindowShouldClose(Window::ptr_window, 1);
-            }
-        }
+    void Window::beginFrame() {
+        // Clear the color buffer (set your preferred clear color)
+        glClearColor(0.10f, 0.10f, 0.12f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
     }
 
-    void Window::error_cb(int error, char const* description)
-    {
+    void Window::endFrame() {
+        // If you use ImGui, you'd typically call ImGui::Render() here.
+    }
+
+    void Window::swapBuffers() {
+        glfwSwapBuffers(s_window);
+    }
+
+    void Window::error_cb(int /*error*/, const char* description) {
         std::cerr << "GLFW error: " << description << std::endl;
     }
 
