@@ -1,6 +1,8 @@
 // Sandbox/MyGame/Game.cpp
 #include "../../Engine/Graphics/Window.hpp"  
 #include "Game.hpp"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <chrono>
 
 using Clock = std::chrono::steady_clock;

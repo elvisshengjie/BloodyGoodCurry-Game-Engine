@@ -15,11 +15,6 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
   ${CMAKE_CURRENT_LIST_DIR}/**/*.hpp
 )
 
-# Explicitly exclude ImagesManager header to avoid OpenGL dependency issues
-list(REMOVE_ITEM ENGINE_HEADER_FILES 
-    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/ImagesManager.h
-)
-
 # Exclude vendored code handled separately (glad)
 list(FILTER ENGINE_SRC_FILES     EXCLUDE REGEX ".*/ThirdParty/.*")
 list(FILTER ENGINE_HEADER_FILES  EXCLUDE REGEX ".*/ThirdParty/.*")
@@ -57,6 +52,11 @@ target_include_directories(${ENGINE_NAME} PUBLIC ${FMOD_INCLUDE_DIR})
 # Link FMOD libraries
 target_link_directories(${ENGINE_NAME} PRIVATE ${FMOD_LIBRARY_DIR})
 target_link_libraries(${ENGINE_NAME} PRIVATE fmod_vc)
+
+set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
+if(COMMAND GROUP_FILES_BY_FOLDER)
+    GROUP_FILES_BY_FOLDER(${ALL_ENGINE_FILES})
+endif()
 
 set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD 20)
 set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
