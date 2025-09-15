@@ -1,4 +1,5 @@
-#include "Images.h"
+#include "ImagesManager.h"
+#include "Graphics/Image.h"
 #include <iostream>
 
 bool Texture::createFromImage(const Image& image)

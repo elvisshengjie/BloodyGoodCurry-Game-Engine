@@ -131,7 +131,7 @@ void AudioManager::stopAllSounds()
     }
     m_channels.clear();
 }
-void AudioManager::pauseSound(const std::string& name, bool pause = true)
+void AudioManager::pauseSound(const std::string& name, bool pause)
 {
     auto it = m_channels.find(name);
     if (it == m_channels.end()){std::cerr << "No active channel for sound '" << name << "'" << std::endl; return;}
@@ -143,7 +143,7 @@ void AudioManager::pauseSound(const std::string& name, bool pause = true)
 }
 
 
-void AudioManager::pauseAllSounds(bool pause = true)
+void AudioManager::pauseAllSounds(bool pause)
 {
   for (auto& [name, channel] : m_channels)
   {FMOD_Channel_SetPaused(channel, pause);std::cout << (pause ? "Paused" : "Resumed") << " sound: " << name << std::endl;}
@@ -190,6 +190,15 @@ bool AudioManager::isSoundPlaying(const std::string& name) const
     if (result != FMOD_OK) return false;
     return paused!=0;
 }
+
+std::vector<std::string> AudioManager::getLoadedSounds() const
+{
+    std::vector<std::string> sounds;
+    for (const auto& [name, sound] : m_sounds) {
+        sounds.push_back(name);
+    }
+    return sounds;
+}
 std::string AudioManager::getFullPath(const std::string& fileName) const 
 {
     // Try to find the audio file in the game-assets directory
@@ -203,8 +212,15 @@ std::string AudioManager::getFullPath(const std::string& fileName) const
     };
     for (const auto& path: possiblePaths)
     {if (std::filesystem::exists(path)){return path.string();}}
+    
+    // If no path found, return the original filename
+    return fileName;
 }
 
 void AudioManager::checkFMODError(FMOD_RESULT result, const std::string& operation) const
-{if (result !=FMOD_OK){std::cerr << "FMOD Error during '" << operation << "': "<< FMOD_ErrorString(result) << " (code " << result << ")" << std::endl;}}
+{
+    if (result != FMOD_OK) {
+        std::cerr << "FMOD Error during '" << operation << "': " << FMOD_ErrorString(result) << " (code " << result << ")" << std::endl;
+    }
+}
 

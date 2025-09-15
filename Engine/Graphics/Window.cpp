@@ -73,6 +73,37 @@ namespace gfx {
         }
     }
 
+    void Window::runWithCallback(std::function<void()> updateCallback) {
+        while (!glfwWindowShouldClose(Window::ptr_window)) {
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            // Call the custom update callback (for audio updates, input handling, etc.)
+            if (updateCallback) {
+                updateCallback();
+            }
+            
+            glfwSwapBuffers(Window::ptr_window);
+            glfwPollEvents();
+            
+            if (glfwGetKey(Window::ptr_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                glfwSetWindowShouldClose(Window::ptr_window, 1);
+            }
+        }
+    }
+
+    bool Window::isKeyPressed(int key) const {
+        return glfwGetKey(Window::ptr_window, key) == GLFW_PRESS;
+    }
+
+    bool Window::isOpen() const {
+        return !glfwWindowShouldClose(Window::ptr_window);
+    }
+
+    void Window::close() {
+        glfwSetWindowShouldClose(Window::ptr_window, 1);
+    }
+
     void Window::error_cb(int error, char const* description)
     {
         std::cerr << "GLFW error: " << description << std::endl;

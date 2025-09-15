@@ -1,2 +1,8 @@
 #pragma once
-namespace mygame { void run(); }
+#include "Resource_Manager/SoundManager.h"
+
+namespace mygame { 
+    void run(); 
+    void initializeAudio();
+    void cleanupAudio();
+}

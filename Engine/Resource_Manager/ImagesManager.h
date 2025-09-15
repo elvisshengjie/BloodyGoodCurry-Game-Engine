@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <memory>
 #include <iostream>
-#include "Image.h"
+#include "Graphics/Image.h"
 class ImagesManager
 {
     public:

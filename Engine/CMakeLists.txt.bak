@@ -7,12 +7,8 @@ file(GLOB_RECURSE ENGINE_SRC_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Collision_Tools/*.[cC]pp
     ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[cC]pp
     ${CMAKE_CURRENT_LIST_DIR}/Math/*.[cC]pp
-    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/*.[cC]pp
-)
-
-# Explicitly exclude ImagesManager files to avoid OpenGL dependency issues
-list(REMOVE_ITEM ENGINE_SRC_FILES 
-    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/ImagesManager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/AudioManager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/SoundManager.cpp
 )
 
 #Get the Source Files (h) and explictly the hpp file (have to be specific)
@@ -22,12 +18,8 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.[hH]
     ${CMAKE_CURRENT_LIST_DIR}/Graphics/*.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Math/*.[hH]
-    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/*.[hH]
-)
-
-# Explicitly exclude ImagesManager header to avoid OpenGL dependency issues
-list(REMOVE_ITEM ENGINE_HEADER_FILES 
-    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/ImagesManager.h
+    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/AudioManager.h
+    ${CMAKE_CURRENT_LIST_DIR}/Resource_Manager/SoundManager.h
 )
 
 # --- Manual GLAD (vendored) ---
