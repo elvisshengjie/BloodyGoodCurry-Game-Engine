@@ -21,7 +21,7 @@ namespace mygame {
 
             // ---- update(dt) ----
             (void)dt;
-
+            
             win.beginFrame();
             // ---- render() ----
             win.endFrame();

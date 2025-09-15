@@ -1,23 +1,36 @@
-# Create the Sandbox executable (your game)
-add_executable(MyGame
-    MyGame/main.cpp
-    MyGame/Game.cpp
+cmake_minimum_required(VERSION 3.20)
+
+# Create the game executable
+add_executable(MyGame)
+
+# Automatically collect source files from MyGame folder
+file(GLOB_RECURSE MYGAME_SRC
+  CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_LIST_DIR}/MyGame/*.[cC]pp
 )
 
+file(GLOB_RECURSE MYGAME_HDR
+  CONFIGURE_DEPENDS
+  ${CMAKE_CURRENT_LIST_DIR}/MyGame/*.[hH]
+  ${CMAKE_CURRENT_LIST_DIR}/MyGame/*.hpp
+)
 
-# Make sure MyGame can find headers in Engine/
-target_include_directories(MyGame PRIVATE ${CMAKE_SOURCE_DIR}/Engine)
+# Attach files to MyGame
+target_sources(MyGame PRIVATE ${MYGAME_SRC} ${MYGAME_HDR})
 
-# Link MyGame with the Engine library
+# Link against the engine
 target_link_libraries(MyGame PRIVATE MyEngine)
 
-# Use C++20
+# Includes for MyGame headers
+target_include_directories(MyGame PRIVATE ${CMAKE_CURRENT_LIST_DIR}/MyGame)
+
+# C++ standard & warnings
 set_property(TARGET MyGame PROPERTY CXX_STANDARD 20)
-
-
-# Platform-specific compiler flags (optional)
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(MyGame PRIVATE -Wall -Wextra)
+  target_compile_options(MyGame PRIVATE -Wall -Wextra)
 elseif (MSVC)
-    target_compile_options(MyGame PRIVATE /W3 /WX-)
+  target_compile_options(MyGame PRIVATE /W3 /WX-)
 endif()
+
+# Optional: Nice grouping in IDEs
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR}/MyGame FILES ${MYGAME_SRC} ${MYGAME_HDR})

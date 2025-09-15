@@ -20,7 +20,7 @@ void Core::Run() {
         auto t_now = Clock::now();
         float dt = std::chrono::duration_cast<SecondsF>(t_now - t_prev).count();
         t_prev = t_now;
-
+       
         Update(dt);
 
         m_Window->beginFrame();
