@@ -10,7 +10,7 @@
     <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Matrix_3x3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine.cpp">
+    <ClCompile Include="Core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -30,7 +30,7 @@
     <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Vector_2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Engine.hpp">
+    <ClInclude Include="Core.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

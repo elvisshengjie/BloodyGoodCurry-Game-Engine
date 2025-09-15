@@ -1,12 +1,6 @@
-﻿  Building Custom Rule C:/Users/justin/source/csd2401f25_team_sofasqud/Engine/CMakeLists.txt
+﻿  Scanning sources for module dependencies...
   Scanning sources for module dependencies...
-  Collision.cpp
-  Matrix_3x3.cpp
-  Engine.cpp
-  Window.cpp
+  Core.cpp
   Compiling...
-  Window.cpp
-  Matrix_3x3.cpp
-  Engine.cpp
-  Collision.cpp
+  Core.cpp
   MyEngine.vcxproj -> C:\Users\justin\source\csd2401f25_team_sofasqud\build\Engine\Debug\MyEngine.lib
