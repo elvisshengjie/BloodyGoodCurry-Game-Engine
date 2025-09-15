@@ -1,6 +1,6 @@
 #pragma once
 #include "Graphics/Window.hpp"
-#include "Resource_Manager/SoundManager.h"
+#include "Managers/SoundManager.h"
 #include <iostream>
 
 namespace mygame {
