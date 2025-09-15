@@ -296,16 +296,13 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collision.cpp" />
+    <ClCompile Include="..\..\Engine\Core\Core.cpp" />
     <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Graphics\Window.cpp" />
     <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Matrix_3x3.cpp" />
-    <ClCompile Include="Core.cpp" />
-    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collide_Elements.h" />
-    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collision.h" />
+    <ClInclude Include="..\..\Engine\Core\Core.hpp" />
     <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Graphics\Window.hpp" />
     <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Matrix_3x3.h" />
     <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Vector_2D.h" />
-    <ClInclude Include="Core.hpp" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

@@ -15,13 +15,5 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{6E53EAF4-BC63-389F-8E7A-DB312CC18C18}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{80f38043-c965-421e-96ec-bc44d70ef61a}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\Sandbox\MyGame\Game.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

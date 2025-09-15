@@ -1,26 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collision.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Graphics\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Matrix_3x3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Core.cpp">
+    <ClCompile Include="..\..\Engine\Core\Core.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collide_Elements.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Collision_Tools\Collision.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Graphics\Window.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -30,7 +21,7 @@
     <ClInclude Include="C:\Users\justin\source\csd2401f25_team_sofasqud\Engine\Math\Vector_2D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core.hpp">
+    <ClInclude Include="..\..\Engine\Core\Core.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

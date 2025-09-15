@@ -4,7 +4,6 @@
 # ENGINE_SRC_FILES at Engine/CMakeLists.txt:5 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/Users/justin/source/csd2401f25_team_sofasqud/Engine/Collision_Tools/*.[cC]pp")
 set(OLD_GLOB
-  "C:/Users/justin/source/csd2401f25_team_sofasqud/Engine/Collision_Tools/Collision.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
@@ -14,8 +13,6 @@ endif()
 # ENGINE_HEADER_FILES at Engine/CMakeLists.txt:13 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "C:/Users/justin/source/csd2401f25_team_sofasqud/Engine/Collision_Tools/*.[hH]")
 set(OLD_GLOB
-  "C:/Users/justin/source/csd2401f25_team_sofasqud/Engine/Collision_Tools/Collide_Elements.h"
-  "C:/Users/justin/source/csd2401f25_team_sofasqud/Engine/Collision_Tools/Collision.h"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
