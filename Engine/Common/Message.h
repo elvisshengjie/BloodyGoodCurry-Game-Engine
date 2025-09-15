@@ -12,6 +12,7 @@ namespace Framework
 
 	class Message
 	{
+	public:
 		Message(MessageId id) : MsgId(id) {};
 		virtual ~Message() = default;
 		MessageId MsgId;

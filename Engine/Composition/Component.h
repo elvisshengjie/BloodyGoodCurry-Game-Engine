@@ -1,41 +1,57 @@
 
 #pragma once
+#include <cstdint>
+#include <string>
 #include "Common/ComponentTypeID.h"
 #include "Common/Message.h"
 
 
+//GameObjectComposition = collection of GameComponents.
+//
+//Each GameComponent = independent piece of behavior(Transform, Renderer, etc.).
+//
+//Components communicate via SendMessage and can query siblings via GetOwner()
 namespace Framework
 {
-	//Forwaed declaration of GOC class
-	class GameObject;
-	using GOC = GameObject;
+	class GamObjectComposition;
 
-	class GameComponent
-	{
+	class GameComponent {
 	public: 
-		friend class GameObject;
-		
-		//Signal that component is now active in the game world
-		virtual void initialize() {}
+		virtual ~GameComponent() = default;
 
-		//GameComonent receives all messages send their owning composition
-		virtual void SendMesage(Message*) {};
+		//Lifecycle
+		//called once when component is attached, Derived component override this to set themselves up
+		virtual void Initialize() {}
+		//Used for communication between components and system
+		virtual void SendMessage(Message& m) { (void)m; } // optional to override
 
+		//Ownership access
+		//Lets component get their owning GameObject( aka composition)
+		// Example: PhysicsComponent might call GetOwner()->GetComponent<Transform>() to move it object
+		GamObjectComposition* GetOwner() { return owner; }
+		//read only
+		GamObjectComposition const* GetOwner()const { return owner; }
 
-		
-		/*virtual void Seerialize(ISerializer& str) {}*/
-
-		GOC* GetOwner() { return Base; }
-		
-		ComponentTypeId TypeId{ ComponentTypeId::CT_None };
+		//return typeid
+		// example :if (comp->GetTypeId() == ComponentTypeId::CT_Transform) { ... }
+		ComponentTypeId GetTypeId() const { return type_id; }
 
 	protected:
-		//Destroy the component
-		virtual ~GameComponent() {}
+		//this are call when you add componenent to the game object
+		//you dont want random code changing owner/type so it is protected
+		// example to how add T*comp = new T();
+		//						comp->set_owner(this);
+		//                      comp_>set_type(ComponentTypeId::CT_Transform);
+		void set_owner(GamObjectComposition* goc) { owner = goc; }
+		void set_type(ComponentTypeId id) { type_id = id; }
+
+
+
 	private:
-		GOC* Base{nullptr};
-
-
+		//back-pointer to the game object 
+		GamObjectComposition* owner = nullptr; 
+		//store component type
+		ComponentTypeId       type_id = ComponentTypeId::CT_None;
 
 	};
 }
