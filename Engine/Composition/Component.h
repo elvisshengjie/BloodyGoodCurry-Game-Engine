@@ -13,7 +13,7 @@
 //Components communicate via SendMessage and can query siblings via GetOwner()
 namespace Framework
 {
-	class GamObjectComposition;
+	class GameObjectComposition;
 
 	class GameComponent {
 	public: 
@@ -28,9 +28,9 @@ namespace Framework
 		//Ownership access
 		//Lets component get their owning GameObject( aka composition)
 		// Example: PhysicsComponent might call GetOwner()->GetComponent<Transform>() to move it object
-		GamObjectComposition* GetOwner() { return owner; }
+		GameObjectComposition* GetOwner() { return owner; }
 		//read only
-		GamObjectComposition const* GetOwner()const { return owner; }
+		GameObjectComposition const* GetOwner()const { return owner; }
 
 		//return typeid
 		// example :if (comp->GetTypeId() == ComponentTypeId::CT_Transform) { ... }
@@ -42,14 +42,15 @@ namespace Framework
 		// example to how add T*comp = new T();
 		//						comp->set_owner(this);
 		//                      comp_>set_type(ComponentTypeId::CT_Transform);
-		void set_owner(GamObjectComposition* goc) { owner = goc; }
+		void set_owner(GameObjectComposition* goc) { owner = goc; }
 		void set_type(ComponentTypeId id) { type_id = id; }
 
+		friend class GameObjectComposition;
 
 
 	private:
 		//back-pointer to the game object 
-		GamObjectComposition* owner = nullptr; 
+		GameObjectComposition* owner = nullptr;
 		//store component type
 		ComponentTypeId       type_id = ComponentTypeId::CT_None;
 

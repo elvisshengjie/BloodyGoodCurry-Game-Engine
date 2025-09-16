@@ -8,18 +8,18 @@
 
 
 namespace Framework {
-	using GOCId = unsigned int;
+	using GOCId = unsigned int; //Alias for a game ID
 
-	class GameObjectComposition {
+	class GameObjectComposition {   //Entity/"composition" that own component
 	public: 
-		friend class GameObjectFactory;
+		friend class GameObjectFactory; //Grant factory access
 
 		// Broadcast a message to all component
 		void SendMessage(Message& message);
 
 		// Get first component matching type id (nullptr if none)
 		GameComponent* GetComponent(ComponentTypeId typeId);
-		//read only
+		//read only overload preserve when GOC itself is const
 		GameComponent const* GetComponent(ComponentTypeId typeId)const;
 
 
@@ -35,7 +35,7 @@ namespace Framework {
 		}
 
 		//Lifecycle
-		void initialize();
+		void initialize(); //call initialize() on all component
 		void Destroy(); // mark for removal but actual deleted in factory
 
 		//Add existing component
@@ -45,6 +45,12 @@ namespace Framework {
 
 		//construct add component of type T
 		//A function parameter pack is a function parameter that accepts zero or more function arguments ...
+		//build the component
+		//Wires its owner back-pointer and type id
+		//transfer ownership to the composition
+		//returns a handy non-owning raw pointer to the new component
+		// example : auto* t = goc.EmplaceComponent<TransformComponent>(ComponentTypeId::CT_Transform, 0.0f, 0.0f);
+		//         later   t->SetPosition(15.0f,25.0f);
 		template <typename T, typename... Args>
 		T* EmplaceComponent(ComponentTypeId typeId, Args&&... args) {
 			auto up = std::make_unique<T>(std::forward<Args>(args)...);
@@ -58,8 +64,11 @@ namespace Framework {
 		GOCId GetId() const { return ObjectId;  }
 
 	private:
+		// use unique pointer as The composition exclusively owns its components when the GameObjectComposition
+		//is destroy every unique_ptr is delete its component
+		//unique pointer are move-only so a component instance cant be owned by 2 game object
 		using UptrComp = std::unique_ptr<GameComponent>;
-		std::vector<UptrComp> Components; //owned
+		std::vector<UptrComp> Components; //owned 
 		GOCId ObjectId = 0;
 
 		GameObjectComposition() = default;
