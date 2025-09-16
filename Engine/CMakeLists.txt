@@ -53,6 +53,11 @@ target_include_directories(${ENGINE_NAME} PUBLIC ${FMOD_INCLUDE_DIR})
 target_link_directories(${ENGINE_NAME} PRIVATE ${FMOD_LIBRARY_DIR})
 target_link_libraries(${ENGINE_NAME} PRIVATE fmod_vc)
 
+# json_dep file added
+target_include_directories(${ENGINE_NAME} PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/json_dep
+)
+
 set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
 if(COMMAND GROUP_FILES_BY_FOLDER)
     GROUP_FILES_BY_FOLDER(${ALL_ENGINE_FILES})
