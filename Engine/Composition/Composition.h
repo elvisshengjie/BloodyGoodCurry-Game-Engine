@@ -22,7 +22,7 @@ namespace Framework {
 		//read only overload preserve when GOC itself is const
 		GameComponent const* GetComponent(ComponentTypeId typeId)const;
 
-
+		//Find the first component with the give type ID and return it
 		template <typename T>
 		T* GetComponentAs(ComponentTypeId typeId) {
 			return static_cast<T*>(GetComponent(typeId));
@@ -33,6 +33,13 @@ namespace Framework {
 			return static_cast<T const*>(GetComponent(typeId));
 
 		}
+
+		///Type safe way of accessing components.
+		template<typename type>
+		type* GetComponentType(ComponentTypeId typeId);
+		// const overload
+		template <typename T>
+		T const* GetComponentType(ComponentTypeId typeId) const;
 
 		//Lifecycle
 		void initialize(); //call initialize() on all component
@@ -77,4 +84,19 @@ namespace Framework {
 
 
 	};
+	using GOC  = GameObjectComposition;
+	template<typename T>
+	inline T* GameObjectComposition::GetComponentType(ComponentTypeId typeId) {
+		return static_cast<T*>(GetComponent(typeId));
+	}
+
+	template<typename T>
+	inline T const* GameObjectComposition::GetComponentType(ComponentTypeId typeId) const {
+		return static_cast<T const*>(GetComponent(typeId));
+	}
+
+	#define HAS(obj, Type) ((obj)->GetComponentType<Type>(Framework::CT_##Type))
+	// how to use it
+	// auto * transform = object->GetComponentAs<Transform>(CT_Transform);
+	// new way--   auto * transform = object->has(Transform);
 }

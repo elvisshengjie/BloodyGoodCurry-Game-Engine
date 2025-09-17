@@ -1,5 +1,5 @@
 #include "Composition.h"
-#include "Factory.h"
+#include "Factory/Factory.h"
 
 namespace Framework {
 	//Default destructor: vector<unique_ptr<...>> automatically release own component
