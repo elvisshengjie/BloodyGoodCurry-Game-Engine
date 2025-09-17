@@ -30,7 +30,7 @@ namespace Framework {
 
 		template<typename T>
 		T const* GetComponentAs(ComponentTypeId typeId)const {
-			return static_cast<T*>(GetComponent(typeId))
+			return static_cast<T const*>(GetComponent(typeId));
 
 		}
 

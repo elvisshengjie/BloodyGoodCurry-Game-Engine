@@ -21,7 +21,7 @@ namespace Framework
 
 		//Lifecycle
 		//called once when component is attached, Derived component override this to set themselves up
-		virtual void Initialize() {}
+		virtual void initialize() {}
 		//Used for communication between components and system
 		virtual void SendMessage(Message& m) { (void)m; } // optional to override
 

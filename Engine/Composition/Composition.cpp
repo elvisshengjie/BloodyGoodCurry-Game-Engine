@@ -1,4 +1,5 @@
 #include "Composition.h"
+#include "Factory.h"
 
 namespace Framework {
 	//Default destructor: vector<unique_ptr<...>> automatically release own component
@@ -35,14 +36,14 @@ namespace Framework {
 
 	void GameObjectComposition::initialize() {
 		for (auto& up : Components) {   // call Initialize all component
-			if (up) up->Initialize();
+			if (up) up->initialize();
 
 		}
 	}
 
 	void GameObjectComposition::Destroy()
 	{
-		Components.clear();
+		FACTORY->Destroy(this);
 	}
 
 
