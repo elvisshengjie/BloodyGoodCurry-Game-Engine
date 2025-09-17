@@ -100,6 +100,49 @@ namespace gfx {
     void Window::swapBuffers() {
         glfwSwapBuffers(s_window);
     }
+        void Window::run() {
+        while (!glfwWindowShouldClose(Window::s_window)) {
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwSwapBuffers(Window::s_window);
+            glfwPollEvents();
+            if (glfwGetKey(Window::s_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+                glfwSetWindowShouldClose(Window::s_window, 1);
+            }
+        }
+    }
+
+
+    void Window::runWithCallback(std::function<void()> updateCallback) {
+    while (!glfwWindowShouldClose(Window::s_window)) {
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        // Call the custom update callback (for audio updates, input handling, etc.)
+        if (updateCallback) {
+            updateCallback();
+        }
+        
+        glfwSwapBuffers(Window::s_window);
+        glfwPollEvents();
+        
+        if (glfwGetKey(Window::s_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            glfwSetWindowShouldClose(Window::s_window, 1);
+        }
+    }
+}
+
+    bool Window::isKeyPressed(int key) const {
+        return glfwGetKey(Window::s_window, key) == GLFW_PRESS;
+    }
+
+    bool Window::isOpen() const {
+        return !glfwWindowShouldClose(Window::s_window);
+    }
+
+    void Window::close() {
+    glfwSetWindowShouldClose(Window::s_window, 1);
+    }
 
     void Window::error_cb(int /*error*/, const char* description) {
         std::cerr << "GLFW error: " << description << std::endl;

@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <functional>
 
 // Forward-declare GLFWwindow to avoid leaking GLFW headers in the header file
 struct GLFWwindow;
@@ -15,6 +16,13 @@ namespace gfx {
 
         // Destroy the window and terminate GLFW (if needed).
         ~Window();
+
+        //From Parminder
+        void run();               // open window and loop until closed
+        void runWithCallback(std::function<void()> updateCallback); // run with custom update callback
+        bool isKeyPressed(int key) const; // check if key is pressed
+        bool isOpen() const;      // check if window is still open
+        void close();             // close the window
 
         // ---- Per-frame controls (call these from your Engine/Game loop) ----
 
@@ -35,6 +43,8 @@ namespace gfx {
 
         // Static GLFW error callback.
         static void error_cb(int error, const char* description);
+
+
 
     private:
         // Global raw pointer to the GLFW window. (kept static to match your original design)
