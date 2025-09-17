@@ -39,7 +39,9 @@ namespace mygame {
         // Initialize audio
         initializeAudio();
 
-        gfx::Window win(800, 600, "MyGame - Audio Demo");
+        //gfx::Window win(800, 600, "MyGame - Audio Demo");
+        WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
+        gfx::Window win(cfg.width, cfg.height, cfg.title.c_str());
 
         std::cout << "\n=== Audio Demo Controls ===" << std::endl;
         std::cout << "Press 1: Play coin sound" << std::endl;
