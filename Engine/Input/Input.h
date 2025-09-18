@@ -5,6 +5,7 @@
 
 namespace Framework
 {
+
 	struct MouseState
 	{
 		double x = 0;
@@ -45,4 +46,9 @@ namespace Framework
 
 		MouseState m_mouseState;
 	};
+
+	// Returns true while the given virtual-key is held down.
+// vk accepts Windows virtual key codes (e.g., 'Q', 'E', 'Z', 'X', 'R', VK_SHIFT, etc.).
+	bool IsDown(int vk);
+
 }
