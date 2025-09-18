@@ -17,7 +17,7 @@ void Core::Run() {
         float dt = std::chrono::duration_cast<SecondsF>(t_now - t_prev).count();
         t_prev = t_now;
 
-        // ·ÀÖ¹ÇÐ´°/´ò¶Ïµãµ¼ÖÂ dt ±¬´ó
+        
         if (dt > 0.1f) dt = 0.1f;
 
         if (update) update(dt);

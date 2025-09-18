@@ -3,7 +3,7 @@
 #include "Config/WindowConfig.h"
 
 int main() {
-    // ∂¡»°¥∞ø⁄≈‰÷√
+   
     WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
 
     Core core(cfg.width, cfg.height, cfg.title.c_str());
