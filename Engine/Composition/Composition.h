@@ -97,6 +97,6 @@ namespace Framework {
 
 	#define HAS(obj, Type) ((obj)->GetComponentType<Type>(Framework::CT_##Type))
 	// how to use it
-	// auto * transform = object->GetComponentAs<Transform>(CT_Transform);
-	// new way--   auto * transform = object->has(Transform);
+	// usage:
+	// auto* t = HAS(obj, Transform);
 }
