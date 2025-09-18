@@ -2,6 +2,8 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp> // for glm::ortho
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -24,7 +26,7 @@ namespace gfx {
     struct Circle {
         float x, y, r;
     };
-    static std::vector<Circle> circles; // store circle info
+    static std::vector<Circle> circles;
     static int segments = 50;
 
     // -------- Shader helpers --------
@@ -78,7 +80,7 @@ namespace gfx {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int width, height, nrChannels;
-        //stbi_set_flip_vertically_on_load(true);
+        //stbi_set_flip_vertically_on_load(true); // flip images upright
         unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
@@ -116,11 +118,9 @@ namespace gfx {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // -------- Multiple Circles --------
+        // -------- Circle(s) --------
         circles = {
-            { -0.7f,  0.6f, 0.1f },
-            {  0.0f,  0.6f, 0.1f },
-            {  0.7f,  0.6f, 0.1f }
+            { 0.0f, 0.6f, 0.1f }
         };
 
         std::vector<float> circleVertices;
@@ -205,13 +205,15 @@ namespace gfx {
 
         bgShader = createShaderProgram(bgVertexSrc, bgFragmentSrc);
 
+        // Object shaders (with projection)
         const char* objVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec3 aPos;\n"
             "layout (location = 1) in vec3 aColor;\n"
             "out vec3 ourColor;\n"
+            "uniform mat4 projection;\n"
             "void main() {\n"
-            "    gl_Position = vec4(aPos, 1.0);\n"
+            "    gl_Position = projection * vec4(aPos, 1.0);\n"
             "    ourColor = aColor;\n"
             "}\n";
 
@@ -224,6 +226,15 @@ namespace gfx {
             "}\n";
 
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
+
+        // setup projection matrix (fix circle distortion)
+        float aspect = 800.0f / 600.0f; // replace with actual window width/height if available
+        glm::mat4 projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
+
+        glUseProgram(objectShader);
+        int projLoc = glGetUniformLocation(objectShader, "projection");
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
+        glUseProgram(0);
     }
 
     void Graphics::renderBackground() {
@@ -232,6 +243,7 @@ namespace gfx {
         glBindVertexArray(VAO_bg);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
     }
 
@@ -242,11 +254,12 @@ namespace gfx {
         glBindVertexArray(0);
         glUseProgram(0);
     }
+
     void Graphics::renderCircle() {
         glUseProgram(objectShader);
         glBindVertexArray(VAO_circle);
 
-        int verticesPerCircle = segments + 2; // 1 center + segments + 1 to close
+        int verticesPerCircle = segments + 2;
         for (size_t i = 0; i < circles.size(); i++) {
             glDrawArrays(GL_TRIANGLE_FAN, static_cast<GLint>(i * verticesPerCircle), verticesPerCircle);
         }
@@ -254,7 +267,6 @@ namespace gfx {
         glBindVertexArray(0);
         glUseProgram(0);
     }
-
 
     void Graphics::cleanup() {
         glDeleteVertexArrays(1, &VAO_rect);

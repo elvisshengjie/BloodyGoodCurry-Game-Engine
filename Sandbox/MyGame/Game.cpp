@@ -6,26 +6,24 @@
 #include <chrono>
 #include <Graphics/Graphics.hpp>
 
+
 using Clock = std::chrono::steady_clock;
 using SecondsF = std::chrono::duration<float>;
 
 
 namespace mygame {
     
-    void run() 
+    void run()
     {
         initializeAudio();
-<<<<<<< Updated upstream
+
         cleanupAudio();
         startAudio();
         //gfx::Window win(800, 600, "MyGame - Audio Demo");
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gfx::Window win(cfg.width, cfg.height, cfg.title.c_str());
-=======
 
-        
 
-        gfx::Window win(800, 600, "MyGame - Audio Demo");
 
         std::cout << "\n=== Audio Demo Controls ===" << std::endl;
         std::cout << "Press 1: Play coin sound" << std::endl;
@@ -41,10 +39,10 @@ namespace mygame {
 
         // Initialize Graphics
         gfx::Graphics::initialize();
->>>>>>> Stashed changes
+
         // Track key states to prevent multiple triggers
-        static std::array<bool, 10>keysPressed = { false }, lastkeysPressed = {false};
-        
+        static std::array<bool, 10>keysPressed = { false }, lastkeysPressed = { false };
+
         auto t_prev = Clock::now();
         while (!win.shouldClose()) {
             win.pollEvents();
@@ -53,7 +51,7 @@ namespace mygame {
             const float dt = std::chrono::duration_cast<SecondsF>(t_now - t_prev).count();
             t_prev = t_now;
             handleAudioInput(win, keysPressed);
-            
+
             // ---- update(dt) ----
             (void)dt;
             win.beginFrame();
@@ -63,20 +61,16 @@ namespace mygame {
 
             win.endFrame();
             win.swapBuffers();
-<<<<<<< Updated upstream
+
             lastkeysPressed = keysPressed;
         }
-        
-=======
-
-        }
+    
 
         gfx::Graphics::cleanup();
->>>>>>> Stashed changes
+
          cleanupAudio();
         std::cout << "Game ended." << std::endl;
     }
-
 
 
 } // namespace mygame
