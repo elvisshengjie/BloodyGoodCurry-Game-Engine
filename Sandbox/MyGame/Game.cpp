@@ -4,6 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include "Input/Input.h"
 
 using Clock = std::chrono::steady_clock;
 using SecondsF = std::chrono::duration<float>;
@@ -18,6 +19,7 @@ namespace mygame {
         //gfx::Window win(800, 600, "MyGame - Audio Demo");
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gfx::Window win(cfg.width, cfg.height, cfg.title.c_str());
+
         // Track key states to prevent multiple triggers
         static std::array<bool, 10>keysPressed = { false }, lastkeysPressed = {false};
         
