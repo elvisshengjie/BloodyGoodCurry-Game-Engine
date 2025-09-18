@@ -26,7 +26,7 @@ namespace gfx {
     struct Circle {
         float x, y, r;
     };
-    static std::vector<Circle> circles;
+    static std::vector<Circle> circles; // store circle info
     static int segments = 50;
 
     // -------- Shader helpers --------
@@ -267,6 +267,7 @@ namespace gfx {
         glBindVertexArray(0);
         glUseProgram(0);
     }
+
 
     void Graphics::cleanup() {
         glDeleteVertexArrays(1, &VAO_rect);
