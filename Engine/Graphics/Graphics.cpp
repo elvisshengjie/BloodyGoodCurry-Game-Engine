@@ -2,8 +2,11 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+<<<<<<< Updated upstream
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp> // for glm::ortho
+=======
+>>>>>>> Stashed changes
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -80,7 +83,11 @@ namespace gfx {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int width, height, nrChannels;
+<<<<<<< Updated upstream
         //stbi_set_flip_vertically_on_load(true); // flip images upright
+=======
+        //stbi_set_flip_vertically_on_load(true);
+>>>>>>> Stashed changes
         unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
@@ -118,9 +125,17 @@ namespace gfx {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
+<<<<<<< Updated upstream
         // -------- Circle(s) --------
         circles = {
             { 0.0f, 0.6f, 0.1f }
+=======
+        // -------- Multiple Circles --------
+        circles = {
+            { -0.7f,  0.6f, 0.1f },
+            {  0.0f,  0.6f, 0.1f },
+            {  0.7f,  0.6f, 0.1f }
+>>>>>>> Stashed changes
         };
 
         std::vector<float> circleVertices;
@@ -205,15 +220,23 @@ namespace gfx {
 
         bgShader = createShaderProgram(bgVertexSrc, bgFragmentSrc);
 
+<<<<<<< Updated upstream
         // Object shaders (with projection)
+=======
+>>>>>>> Stashed changes
         const char* objVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec3 aPos;\n"
             "layout (location = 1) in vec3 aColor;\n"
             "out vec3 ourColor;\n"
+<<<<<<< Updated upstream
             "uniform mat4 projection;\n"
             "void main() {\n"
             "    gl_Position = projection * vec4(aPos, 1.0);\n"
+=======
+            "void main() {\n"
+            "    gl_Position = vec4(aPos, 1.0);\n"
+>>>>>>> Stashed changes
             "    ourColor = aColor;\n"
             "}\n";
 
@@ -226,6 +249,7 @@ namespace gfx {
             "}\n";
 
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
+<<<<<<< Updated upstream
 
         // setup projection matrix (fix circle distortion)
         float aspect = 800.0f / 600.0f; // replace with actual window width/height if available
@@ -235,6 +259,8 @@ namespace gfx {
         int projLoc = glGetUniformLocation(objectShader, "projection");
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
         glUseProgram(0);
+=======
+>>>>>>> Stashed changes
     }
 
     void Graphics::renderBackground() {
@@ -243,7 +269,10 @@ namespace gfx {
         glBindVertexArray(VAO_bg);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
+<<<<<<< Updated upstream
         glBindTexture(GL_TEXTURE_2D, 0);
+=======
+>>>>>>> Stashed changes
         glUseProgram(0);
     }
 
@@ -254,12 +283,19 @@ namespace gfx {
         glBindVertexArray(0);
         glUseProgram(0);
     }
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
     void Graphics::renderCircle() {
         glUseProgram(objectShader);
         glBindVertexArray(VAO_circle);
 
+<<<<<<< Updated upstream
         int verticesPerCircle = segments + 2;
+=======
+        int verticesPerCircle = segments + 2; // 1 center + segments + 1 to close
+>>>>>>> Stashed changes
         for (size_t i = 0; i < circles.size(); i++) {
             glDrawArrays(GL_TRIANGLE_FAN, static_cast<GLint>(i * verticesPerCircle), verticesPerCircle);
         }

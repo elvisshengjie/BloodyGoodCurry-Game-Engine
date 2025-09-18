@@ -17,11 +17,16 @@
 #include <array>
 #include <algorithm>
 #include <chrono>
+<<<<<<< Updated upstream
 #include <cmath>
 #include <iostream>
 #include <string>
+=======
+#include <Graphics/Graphics.hpp>
+>>>>>>> Stashed changes
 
 
+<<<<<<< Updated upstream
 namespace mygame
 {
     // ===== Persistent state =====
@@ -52,6 +57,11 @@ namespace mygame
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
     void init(gfx::Window& win)
+=======
+
+namespace mygame {
+    void initializeAudio() 
+>>>>>>> Stashed changes
     {
         gWin = &win;
 
@@ -64,6 +74,7 @@ namespace mygame
         initializeAudio();
         startAudio(busInstance);
 
+<<<<<<< Updated upstream
         // GL pipeline
         const char* kVS = R"(#version 330 core
         layout(location=0) in vec2 aPos;
@@ -80,6 +91,11 @@ namespace mygame
         gProg = Link(vs, fs);
         gUMVP = glGetUniformLocation(gProg, "uMVP");
         gUColor = glGetUniformLocation(gProg, "uColor");
+=======
+        
+
+        gfx::Window win(800, 600, "MyGame - Audio Demo");
+>>>>>>> Stashed changes
 
         gQuad.create();
         glEnable(GL_BLEND);
@@ -88,6 +104,8 @@ namespace mygame
         // Initialize Graphics
         gfx::Graphics::initialize();
 
+        // Initialize Graphics
+        gfx::Graphics::initialize();
         // Track key states to prevent multiple triggers
         static std::array<bool, 10> keysPressed = { false }, lastkeysPressed = { false };
 
@@ -103,7 +121,10 @@ namespace mygame
 
             // ---- Render ----
             win.beginFrame();
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
             gfx::Graphics::renderBackground();
             gfx::Graphics::renderRectangle();
             gfx::Graphics::renderCircle();
@@ -111,12 +132,19 @@ namespace mygame
             win.endFrame();
             win.swapBuffers();
 
+<<<<<<< Updated upstream
             lastkeysPressed = keysPressed;
         }
 
         // Cleanup
         gfx::Graphics::cleanup();
         cleanupAudio();
+=======
+        }
+
+        gfx::Graphics::cleanup();
+         cleanupAudio();
+>>>>>>> Stashed changes
         std::cout << "Game ended." << std::endl;
     }
 
