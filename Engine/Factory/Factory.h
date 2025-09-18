@@ -33,12 +33,12 @@ namespace Framework {
 		void SendMessage(Message* m) override { (void)m; }
 
 		// creator registry (data-driven)
-		void AddComponentCreator(const std::string& name, std::unique_ptr<ComponentCreator> creator);
+		void AddComponentCreator(const std::string& name, ComponentCreator* creator);
 
 	private:
 		unsigned LastGameObjectId = 0;
 
-		using ComponentMapType = std::map<std::string, std::unique_ptr<ComponentCreator>>;
+		using ComponentMapType = std::map<std::string, ComponentCreator*>;
 		using GameObjectIdMapType = std::map<unsigned, GOC*>;
 
 		ComponentMapType ComponentMap; // "Transform" -> creator no unique "-name-" creator is allowed and no duplicate object ID and value pairs for lookup

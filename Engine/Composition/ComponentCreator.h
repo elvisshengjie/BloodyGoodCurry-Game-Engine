@@ -16,7 +16,7 @@ namespace Framework {
 		ComponentTypeId TypeId;
 		// = 0 mean that it is a pure virtual function meaning the subclass have to implement it
 		// and return the pointer to GameComponent
-		virtual std::unique_ptr<GameComponent> Create() = 0;
+		virtual GameComponent* Create() = 0;
 
 	
 	};
@@ -28,7 +28,7 @@ namespace Framework {
 		explicit ComponentCreatorType(ComponentTypeId typeId)
 			: ComponentCreator(typeId) {
 		}
-		std::unique_ptr<GameComponent> Create()override { return std::make_unique<T>(); } // Use override to make usre if a derived class function is
+		GameComponent* Create()override { return new T(); } // Use override to make usre if a derived class function is
 		// not correctly overriding base class will result in compile time error
 	};
 }
@@ -38,5 +38,5 @@ namespace Framework {
 //void AddComponentCreator(std::string name, std::unique_ptr<Framework::ComponentCreator> c);
 #define RegisterComponent(type) \
   FACTORY->AddComponentCreator( \
-      #type, std::make_unique<Framework::ComponentCreatorType<type>>( \
+      #type, new Framework::ComponentCreatorType<type>( \
                  Framework::ComponentTypeId::CT_##type))

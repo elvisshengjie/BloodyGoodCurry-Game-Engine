@@ -95,7 +95,7 @@ namespace Framework {
 		return static_cast<T const*>(GetComponent(typeId));
 	}
 
-	#define HAS(obj, Type) ((obj)->GetComponentType<Type>(Framework::CT_##Type))
+	#define HAS(obj, Type) ((obj)->GetComponentType<Type>(Framework::ComponentTypeId::CT_##Type))
 	// how to use it
 	// usage:
 	// auto* t = HAS(obj, Transform);

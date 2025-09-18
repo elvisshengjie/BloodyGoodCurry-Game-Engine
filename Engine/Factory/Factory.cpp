@@ -77,18 +77,10 @@ namespace Framework {
 
 	void GameObjectFactory::AddComponentCreator(const std::string& name, ComponentCreator* creator)
 	{
-		//name: the string key you use to look up this component (eg Transform)
-		//creator a unique_ptr<ComponentCreator> that owns the concrete creator object (eg ComponentCreatorType<Transform>)
-		//ComponentMap is a std::map<std::string, std::unique_ptr<ComponentCreator>>
-		//Using operator [] if name doesnt exits it creaates a new entry that key and a default constructed unique_ptr (ie nullptr) then return a reference to the value
-		// if name exist it return a reference to the existing value
-		//std::move (creator) transfer ownership of the unique_ptr from caller into map
-		// After this the map owns the creator, the incoming creator parameter becomes null
+
 		ComponentMap[name] = creator;
 
-		//why this way 
-		//Ownership transfer: The factory should own all registered creators so it can manage their lifetime
-		//unique_ptr enforces single ownership and auto-deletes in the factory’s destructor
+
 	}
 
 	

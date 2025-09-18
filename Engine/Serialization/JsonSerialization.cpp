@@ -2,7 +2,7 @@
 
 bool Framework::JsonSerializer::Open(const std::string& file)
 {
-	
+	return false;
 }
 
 bool Framework::JsonSerializer::IsGood()
