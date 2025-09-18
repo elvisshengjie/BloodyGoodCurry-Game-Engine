@@ -2,6 +2,7 @@
 #include "Input.h"
 #include <GLFW/glfw3.h>
 #include "Windows.h"
+#include <iostream>
 
 namespace Framework
 {
@@ -79,18 +80,21 @@ namespace Framework
 	bool InputManager::IsKeyPressed(int key) const
 	{
 		auto it = m_keyPressed.find(key);
+		std::cout << "The key " << key << " has been pressed.";
 		return it != m_keyPressed.end() && it->second;
 	}
 
 	bool InputManager::IsKeyHeld(int key) const
 	{
 		auto it = m_keyHeld.find(key);
+		std::cout << "The key " << key << " has is being held.";
 		return it != m_keyHeld.end() && it->second;
 	}
 
 	bool InputManager::IsKeyReleased(int key) const
 	{
 		auto it = m_keyReleased.find(key);
+		std::cout << "The key " << key << " has been released.";
 		return it != m_keyReleased.end() && it->second;
 	}
 
