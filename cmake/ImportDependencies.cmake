@@ -91,10 +91,27 @@ macro(import_imgui)
   endif()
 endmacro()
 
+# ---- FreeType (font rendering) ----
+macro(import_freetype)
+  if (NOT TARGET freetype)
+    FetchContent_Declare(
+      freetype
+      GIT_REPOSITORY https://github.com/freetype/freetype.git
+      GIT_TAG VER-2-13-2  # latest stable tag as of now
+    )
+    FetchContent_MakeAvailable(freetype)
+
+    # FreeType exports a CMake target called 'freetype'
+    # You just need to link it later: target_link_libraries(your_app PRIVATE freetype)
+  endif()
+endmacro()
+
+
 # ---- Bundle entrypoint ----
 macro(importDependencies)
-   import_glfw()
+  import_glfw()
   import_glm()
   import_stb_image()
   import_imgui()
+  import_freetype()
 endmacro()
