@@ -22,6 +22,9 @@
 #include <string>
 
 #include <Graphics/Graphics.hpp>
+#include <Serialization/JsonSerialization.h>
+#include "Factory/Factory.h"
+#include "Common/TestComponent.h"
 
 namespace mygame
 {
@@ -52,13 +55,44 @@ namespace mygame
     static std::array<bool, 10> gKeyEdge{};
     static MessageBus busInstance;
 
+    //component
+    static std::unique_ptr<Framework::GameObjectFactory> sFactory;
+    static Framework::GOC* sTestObj = nullptr;  // owned by the factory
+
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
     void init(gfx::Window& win)
     {
         gWin = &win;
+        using namespace Framework;
 
+        // 1) Create the factory (sets FACTORY)
+        sFactory = std::make_unique<GameObjectFactory>();
+
+        // 2) Register your test component (FACTORY must exist first!)
+        RegisterComponent(TestComponent);
+
+        // 3) Create the test object from JSON (adjust path as needed)
+        sTestObj = FACTORY->Create("../../Data_Files/Test.json");
+
+        if (!sTestObj) {
+            std::cerr << "[Test] Failed to create GOC from Test.json\n";
+        }
+        else {
+            auto* tc = sTestObj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
+            if (!tc) {
+                std::cerr << "TestComponent not found (registry/JSON mismatch?)\n";
+            }
+            else {
+                std::cout << "[JSON] name=" << tc->name << ", hp=" << tc->hp << "\n";
+            }
+        }
+        //testing component
+        auto* tc = sTestObj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
+        if (tc) {
+            std::cout << "[JSON] name=" << tc->name << ", hp=" << tc->hp << "\n";
+        }
         // Load fixed size from JSON
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gScreenW = cfg.width;
@@ -110,7 +144,44 @@ namespace mygame
     // ------------------------------------------------------------
     void update(float dt)
     {
+        using namespace Framework;
+
         handleAudioInput(*gWin, gKeyEdge, busInstance);
+        //sweep factory once per frame
+        if (sFactory) sFactory->Update(dt);
+        // Example: press Y to send a Ping to the TestComponent
+        static bool yDownPrev = false;
+        bool yDown = gWin->isKeyPressed(GLFW_KEY_Y);
+        if (yDown && !yDownPrev && sTestObj) {
+            PingMessage ping{ 7 };
+            sTestObj->SendMessage(ping);
+        }
+        yDownPrev = yDown;
+       
+        // Optional hotkeys for testing lifecycle:
+        // U = destroy, T = reload, I = force sweep now
+        static bool uPrev = false, tPrev = false, iPrev = false;
+        bool u = gWin->isKeyPressed(GLFW_KEY_U);
+        bool t = gWin->isKeyPressed(GLFW_KEY_T);
+        bool i = gWin->isKeyPressed(GLFW_KEY_I);
+
+        if (u && !uPrev && sTestObj) {
+            FACTORY->Destroy(sTestObj);
+            sTestObj = nullptr; // our handle becomes invalid after sweep
+            std::cout << "[Test] Marked GOC for deletion\n";
+        }
+        if (t && !tPrev) {
+            if (sTestObj) { FACTORY->Destroy(sTestObj); sTestObj = nullptr; }
+            if (sFactory) sFactory->Update(0.0f); // sweep old
+            sTestObj = FACTORY->Create("../../Data_Files/Test.json");
+            std::cout << "[Test] Reloaded JSON GOC\n";
+        }
+        if (i && !iPrev && sFactory) {
+            sFactory->Update(0.0f);
+            std::cout << "[Test] Forced sweep\n";
+        }
+
+        uPrev = u; tPrev = t; iPrev = i;
 
         const float rotSpeed = DegToRad(90.f);
         const float scaleRate = 1.5f;
@@ -136,6 +207,7 @@ namespace mygame
 
         // the old QuadGL demo can keep using gRot/gScale if you want,
         // but they no longer control the Graphics rectangle.
+  
     }
 
 
@@ -177,8 +249,13 @@ namespace mygame
     // ------------------------------------------------------------
     void shutdown()
     {
+
         gfx::Graphics::cleanup();
         cleanupAudio();
+        using namespace Framework;
+        // Destroy test object (if still around) and the factory cleanly
+        if (sTestObj) { FACTORY->Destroy(sTestObj); sTestObj = nullptr; }
+        if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
 
         if (gProg) glDeleteProgram(gProg);
         gQuad.destroy();

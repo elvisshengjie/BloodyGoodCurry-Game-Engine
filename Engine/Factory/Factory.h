@@ -7,6 +7,7 @@
 #include "Composition/Component.h"
 #include "Composition/ComponentCreator.h"
 #include "Composition/Composition.h"
+#include "Serialization/JsonSerialization.h"
 // Purpose of the factory Create the gameObject aka GOC
 // Assign unique ID to them
 // Registering component creator (so we can add component dynamically by name)
@@ -20,7 +21,12 @@ namespace Framework {
 		GameObjectFactory();
 		~GameObjectFactory() override;
 
+		///Create initialize and Id a GOC from the data file.
+		GOC* Create(const std::string& filename);
+
 		GOC* CreateEmptyComposition();
+
+		GOC* BuidAndSerialize(const std::string&);
 
 		// id & lookup
 		void IdGameObject(GOC* gameObject);
@@ -47,7 +53,8 @@ namespace Framework {
 
 
 	};
-
 	extern GameObjectFactory* FACTORY;
+	
 }
+
 

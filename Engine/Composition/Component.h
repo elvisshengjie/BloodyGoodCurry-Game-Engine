@@ -4,8 +4,10 @@
 #include <string>
 #include "Common/ComponentTypeID.h"
 #include "Common/Message.h"
-
-
+#include "Serialization/Serialization.h"
+#ifndef UNREFERENCED_PARAMETER
+#define UNREFERENCED_PARAMETER(P) (void)(P)
+#endif
 //GameObjectComposition = collection of GameComponents.
 //
 //Each GameComponent = independent piece of behavior(Transform, Renderer, etc.).
@@ -36,6 +38,8 @@ namespace Framework
 		// example :if (comp->GetTypeId() == ComponentTypeId::CT_Transform) { ... }
 		ComponentTypeId GetTypeId() const { return type_id; }
 
+		///Component Serialization Interface see Serialization.h for details.
+		virtual void Serialize(ISerializer& str) { UNREFERENCED_PARAMETER(str); };
 	protected:
 		//this are call when you add componenent to the game object
 		//you dont want random code changing owner/type so it is protected

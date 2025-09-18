@@ -11,6 +11,7 @@ namespace Framework
 		CT_None = 0,
 		CT_Transform,
 		CT_Render,
+		CT_TestComponent,
 		//more
 		CT_MaxComponents
 	};

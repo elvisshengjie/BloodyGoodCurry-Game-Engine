@@ -8,10 +8,18 @@ namespace Framework
 	public:
 		virtual bool Open(const std::string& file)=0;
 		virtual bool IsGood() = 0;
-		virtual void ReadFloat(float& i) = 0;
-		virtual void ReadInt(int& i) = 0;
-		virtual void ReadString(std::string& str) = 0;
+	
+		// Hierarchy navigation
+		virtual bool EnterObject(const std::string& key) = 0;  // Move into object by key
+		virtual void ExitObject() = 0;                         // Move back out
 
+		// Check if key exists
+		virtual bool HasKey(const std::string& key) const = 0;
+
+		// Read primitives by key
+		virtual void ReadInt(const std::string& key, int& out) = 0;
+		virtual void ReadFloat(const std::string& key, float& out) = 0;
+		virtual void ReadString(const std::string& key, std::string& out) = 0;
 	};
 
 
@@ -20,17 +28,16 @@ namespace Framework
 	{
 		typeInstance.Serialize(stream);
 	}
-	inline void StreamRead(ISerializer& stream, float& f)
-	{
-		stream.ReadFloat(f);
+	inline void StreamRead(ISerializer& stream, const std::string& key, int& out) {
+		stream.ReadInt(key, out);
 	}
 
-	inline void StreamRead(ISerializer& stream, int& i) {
+	inline void StreamRead(ISerializer& stream, const std::string& key, float& out) {
+		stream.ReadFloat(key, out);
+	}
 
-		stream.ReadInt(i);
+	inline void StreamRead(ISerializer& stream, const std::string& key, std::string& out) {
+		stream.ReadString(key, out);
 	}
-	inline void StreamRead(ISerializer& stream, std::string& str)
-	{
-		stream.ReadString(str);
-	}
+
 }
