@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <fstream>
 #include "../ThirdParty/json_dep/json.hpp"
