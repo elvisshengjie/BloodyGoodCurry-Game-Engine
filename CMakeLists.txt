@@ -1,5 +1,6 @@
 # Project Settings
 cmake_minimum_required(VERSION 3.20...3.30 FATAL_ERROR)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MyGame)
 
 project(giraphics VERSION 0.1 LANGUAGES C CXX)
