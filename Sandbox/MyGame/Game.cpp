@@ -12,31 +12,28 @@ namespace mygame {
     
     void run() 
     {
+        MessageBus bus;
         initializeAudio();
         cleanupAudio();
-        startAudio();
+        startAudio(bus);
         //gfx::Window win(800, 600, "MyGame - Audio Demo");
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gfx::Window win(cfg.width, cfg.height, cfg.title.c_str());
         // Track key states to prevent multiple triggers
-        static std::array<bool, 10>keysPressed = { false }, lastkeysPressed = {false};
-        
+        static std::array<bool, 10>keysPressed = { false };
         auto t_prev = Clock::now();
         while (!win.shouldClose()) {
             win.pollEvents();
-
             const auto t_now = Clock::now();
             const float dt = std::chrono::duration_cast<SecondsF>(t_now - t_prev).count();
             t_prev = t_now;
-            handleAudioInput(win, keysPressed);
-            
+            handleAudioInput(win, keysPressed, bus);
             // ---- update(dt) ----
             (void)dt;
             win.beginFrame();
             // ---- render() ----
             win.endFrame();
             win.swapBuffers();
-            lastkeysPressed = keysPressed;
         }
         
          cleanupAudio();
