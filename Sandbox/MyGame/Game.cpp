@@ -103,12 +103,7 @@ namespace mygame
     // ------------------------------------------------------------
     void update(float dt)
     {
-        MessageBus* gBus = &busInstance;
-        // 1) Audio: delegate to your teammate's edge-handling
-        if (gBus) {
-            handleAudioInput(*gWin, gKeyEdge, busInstance);
-        }
-
+        handleAudioInput(*gWin, gKeyEdge, busInstance);
         // 2) 2D transform (hold-to-repeat, frame-rate independent)
         const float rotSpeed = DegToRad(90.f);
         const float scaleRate = 1.5f;
