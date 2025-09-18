@@ -1,5 +1,8 @@
 // Sandbox/MyGame/Game.cpp
 #include "../../Engine/Graphics/Window.hpp"
+#include "Managers/SoundManager.h"
+#include "Messaging_System/Messager_Bus.hpp"
+#include "Audio_Tester.h"
 #include "Game.hpp"
 
 // use fixed screen size from JSON (same as your previous approach)
@@ -18,10 +21,6 @@
 #include <iostream>
 #include <string>
 
-// ------- Forward decls for your teammate's audio layer -------
-struct MessageBus; // if you have a header for this, include it instead
-void startAudio(MessageBus& bus);
-void handleAudioInput(gfx::Window& win, std::array<bool, 10>& keysPressed, MessageBus& bus);
 
 namespace mygame
 {
@@ -43,7 +42,7 @@ namespace mygame
 
     // audio state
     static std::array<bool, 10> gKeyEdge{}; // edge-trigger keys for audio
-    static MessageBus* gBus = nullptr;     // owned below
+    static MessageBus busInstance;   // owned below
 
     // ---- Your previous audio helpers ----
     void initializeAudio();
@@ -63,9 +62,7 @@ namespace mygame
 
         // Audio bootstrap (new MessageBus flow)
         initializeAudio();
-        static MessageBus busInstance; // static storage so pointer stays valid
-        gBus = &busInstance;
-        startAudio(*gBus);
+        startAudio(busInstance);
 
         // GL pipeline
         const char* kVS = R"(#version 330 core
@@ -106,9 +103,10 @@ namespace mygame
     // ------------------------------------------------------------
     void update(float dt)
     {
+        MessageBus* gBus = &busInstance;
         // 1) Audio: delegate to your teammate's edge-handling
         if (gBus) {
-            handleAudioInput(*gWin, gKeyEdge, *gBus);
+            handleAudioInput(*gWin, gKeyEdge, busInstance);
         }
 
         // 2) 2D transform (hold-to-repeat, frame-rate independent)
@@ -172,7 +170,6 @@ namespace mygame
 
         gProg = 0;
         gUMVP = gUColor = -1;
-        gBus = nullptr;
         gWin = nullptr;
     }
 
