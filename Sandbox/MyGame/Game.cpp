@@ -74,7 +74,7 @@ namespace mygame
         RegisterComponent(TestComponent);
 
         // 3) Create the test object from JSON (adjust path as needed)
-        sTestObj = FACTORY->Create("../../Data_Files/Test.json");
+        sTestObj = FACTORY->Create("../../Data_Files/test.json");
 
         if (!sTestObj) {
             std::cerr << "[Test] Failed to create GOC from Test.json\n";
@@ -158,6 +158,7 @@ namespace mygame
         }
         yDownPrev = yDown;
        
+   
         // Optional hotkeys for testing lifecycle:
         // U = destroy, T = reload, I = force sweep now
         static bool uPrev = false, tPrev = false, iPrev = false;
@@ -173,7 +174,7 @@ namespace mygame
         if (t && !tPrev) {
             if (sTestObj) { FACTORY->Destroy(sTestObj); sTestObj = nullptr; }
             if (sFactory) sFactory->Update(0.0f); // sweep old
-            sTestObj = FACTORY->Create("../../Data_Files/Test.json");
+            sTestObj = FACTORY->Create("../../Data_Files/test.json");
             std::cout << "[Test] Reloaded JSON GOC\n";
         }
         if (i && !iPrev && sFactory) {

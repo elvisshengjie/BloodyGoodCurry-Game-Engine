@@ -16,7 +16,7 @@ namespace Framework {
     public:
         // Some state to prove serialization works
         std::string name{ "unnamed" };
-        int hp{ 100 };
+        int hp{ };
 
         void initialize() override {
             std::cout << "[TestComponent] initialize: name=" << name << ", hp=" << hp << "\n";
@@ -33,11 +33,8 @@ namespace Framework {
         }
 
         void Serialize(ISerializer& s) override {
-            if (s.EnterObject("TestComponent")) {
-                StreamRead(s, "name", name);
-                StreamRead(s, "hp", hp);
-                s.ExitObject();
-            }
+            StreamRead(s, "name", name);
+            StreamRead(s, "hp", hp);
         }
     };
 
