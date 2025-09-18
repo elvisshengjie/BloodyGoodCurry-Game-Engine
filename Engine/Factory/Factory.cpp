@@ -21,8 +21,11 @@ namespace Framework {
 		for (auto& kv : GameObjectIdMap) delete kv.second; // delete the raw pointers (kv.second) stored in map before clearing
 		GameObjectIdMap.clear();
 		ObjectsToBeDeleted.clear();
+		//delete all registered creators
+		for (auto& rc : ComponentMap) delete rc.second;
+		ComponentMap.clear();
 		FACTORY = nullptr;
-		//creators auto destroy because of unique_ptr
+		
 
 	}
 
@@ -72,7 +75,7 @@ namespace Framework {
 		ObjectsToBeDeleted.clear();  // clear the deletion set
 	}
 
-	void GameObjectFactory::AddComponentCreator(const std::string& name, std::unique_ptr<ComponentCreator> creator)
+	void GameObjectFactory::AddComponentCreator(const std::string& name, ComponentCreator* creator)
 	{
 		//name: the string key you use to look up this component (eg Transform)
 		//creator a unique_ptr<ComponentCreator> that owns the concrete creator object (eg ComponentCreatorType<Transform>)
@@ -81,7 +84,7 @@ namespace Framework {
 		// if name exist it return a reference to the existing value
 		//std::move (creator) transfer ownership of the unique_ptr from caller into map
 		// After this the map owns the creator, the incoming creator parameter becomes null
-		ComponentMap[name] = std::move(creator);
+		ComponentMap[name] = creator;
 
 		//why this way 
 		//Ownership transfer: The factory should own all registered creators so it can manage their lifetime
