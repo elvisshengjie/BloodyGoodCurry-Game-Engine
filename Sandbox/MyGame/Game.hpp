@@ -1,6 +1,15 @@
 #pragma once
 #include "Graphics/Window.hpp"
-#include "Audio_Tester.h"
+
+
 namespace mygame {
-    void run();
+    
+    void init(gfx::Window& win);
+    void update(float dt);
+    void draw();
+    void shutdown();
+
+   
+    void initializeAudio();
+    void cleanupAudio();
 }

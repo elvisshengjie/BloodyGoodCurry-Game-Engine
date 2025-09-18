@@ -38,6 +38,7 @@ void AudioManager::shutdown()
         // Close and release FMOD system
         FMOD_System_Close(m_system);
         FMOD_System_Release(m_system);
+
         m_system = nullptr;
         std::cout << "AudioManager shutdown complete" << std::endl;
     }
@@ -60,7 +61,9 @@ bool AudioManager::loadSound(const std::string& name, const std::string& filePat
     if (loop) {mode |= FMOD_LOOP_NORMAL;}
     FMOD_RESULT result = FMOD_System_CreateSound(m_system, fullPath.c_str(), mode, nullptr,&sound);
     if (result != FMOD_OK) {std::cerr << "Failed to load sound '" << name << "': " << FMOD_ErrorString(result)<< std::endl; return false;}
+    
     m_sounds[name] = sound;
+    
     std::cout << "Loaded sound: " << name << " from " << fullPath << std::endl;
     return true;
 }
@@ -106,6 +109,15 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch)
     // Set volume and pitch
     FMOD_Channel_SetVolume(channel, volume);
     FMOD_Channel_SetPitch(channel, pitch);
+
+    auto iterator = m_channels.find(name);
+    
+    // channel of the same name is playing.
+    if (iterator != m_channels.end()) {
+        FMOD_Channel_Stop(iterator->second);
+        m_channels.erase(iterator);
+    }
+
     // Store channel for later control
     m_channels[name] = channel;
     std::cout << "Playing sound: " << name << std::endl;
@@ -182,13 +194,18 @@ bool AudioManager::isSoundLoaded(const std::string& name) const
 {return m_sounds.find(name) != m_sounds.end();}
 
 bool AudioManager::isSoundPlaying(const std::string& name) const
-{   
+{
     auto it = m_channels.find(name);
-    if (it == m_channels.end() || it->second == nullptr) return false;
-    FMOD_BOOL paused = false;
-    FMOD_RESULT result = FMOD_Channel_GetPaused(it->second, &paused);
-    if (result != FMOD_OK) return false;
-    return paused!=0;
+    if (it == m_channels.end() || it->second == nullptr)
+        return false;
+    FMOD_BOOL playing = false;
+    FMOD_RESULT result = FMOD_Channel_IsPlaying(it->second, &playing);
+    if (result != FMOD_OK) {
+        std::cerr << "Failed to check if sound '" << name << "' is playing: "
+            << FMOD_ErrorString(result) << std::endl;
+        return false;
+    }
+    return playing != 0;
 }
 
 std::vector<std::string> AudioManager::getLoadedSounds() const
