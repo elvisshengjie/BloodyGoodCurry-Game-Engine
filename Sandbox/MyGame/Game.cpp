@@ -4,7 +4,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <chrono>
-#include "Input/Input.h"
 
 using Clock = std::chrono::steady_clock;
 using SecondsF = std::chrono::duration<float>;
