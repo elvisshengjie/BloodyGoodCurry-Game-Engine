@@ -9,3 +9,5 @@ REM BUILDING DEBUG
 pushd build
 cmake ..
 popd
+
+pause
