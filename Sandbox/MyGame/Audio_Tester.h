@@ -11,5 +11,5 @@ namespace mygame
     void initializeAudio();
     void cleanupAudio();
     void startAudio();
-    void handleAudioInput(gfx::Window& win, std::array<bool, 10> keysPressed);
+    void handleAudioInput(gfx::Window& win, std::array<bool, 10>& keysPressed);
 }

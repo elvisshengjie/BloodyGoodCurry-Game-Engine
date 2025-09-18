@@ -5,6 +5,7 @@ class Message
 enum MessageID
 {
  UNKNOWN = 0,
+
  KEY_UP,
  KEY_LEFT,
  KEY_RIGHT,

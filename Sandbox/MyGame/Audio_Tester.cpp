@@ -35,9 +35,6 @@ namespace mygame
         std::cout << "Starting MyGame with Sound Support..." << std::endl;
         // Initialize audio
         initializeAudio();
-
-
-
         std::cout << "\n=== Audio Demo Controls ===" << std::endl;
         std::cout << "Press 1: Play coin sound" << std::endl;
         std::cout << "Press 2: Play/toggle footsteps (looping)" << std::endl;
@@ -51,7 +48,7 @@ namespace mygame
         std::cout << "==========================" << std::endl;
     }
 
-    void handleAudioInput(gfx::Window& win, std::array<bool, 10> keysPressed)
+    void handleAudioInput(gfx::Window& win, std::array<bool, 10>& keysPressed)
     {
         if (win.isKeyPressed(GLFW_KEY_1) && !keysPressed[1]) {
             SoundManager::getInstance().playSound("coin", 0.8f);
@@ -124,8 +121,5 @@ namespace mygame
             keysPressed[8] = false;
         }
     }
-
-  
-
 }
 
