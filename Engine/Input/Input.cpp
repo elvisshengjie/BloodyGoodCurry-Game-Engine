@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "Windows.h"
 
+
 namespace Framework
 {
 	InputManager::InputManager(GLFWwindow* window) : m_window(window)
@@ -116,5 +117,11 @@ namespace Framework
 	{
 		auto it = m_mouseReleased.find(button);
 		return it != m_mouseReleased.end() && it->second;
+	}
+
+	bool IsDown(int vk)
+	{
+		// High-order bit set means the key is currently down.
+		return (GetAsyncKeyState(vk) & 0x8000) != 0;
 	}
 }
