@@ -2,11 +2,10 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
-<<<<<<< Updated upstream
+
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp> // for glm::ortho
-=======
->>>>>>> Stashed changes
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -29,7 +28,7 @@ namespace gfx {
     struct Circle {
         float x, y, r;
     };
-    static std::vector<Circle> circles; // store circle info
+    static std::vector<Circle> circles;
     static int segments = 50;
 
     // -------- Shader helpers --------
@@ -83,11 +82,7 @@ namespace gfx {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int width, height, nrChannels;
-<<<<<<< Updated upstream
-        //stbi_set_flip_vertically_on_load(true); // flip images upright
-=======
-        //stbi_set_flip_vertically_on_load(true);
->>>>>>> Stashed changes
+        stbi_set_flip_vertically_on_load(true); // fix upside-down
         unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
@@ -103,40 +98,35 @@ namespace gfx {
     }
 
     void Graphics::initialize() {
-        // -------- Smaller Rectangle --------
+        // -------- Rectangle (with EBO) --------
         float rectVertices[] = {
-            -0.3f, -0.4f, 0.0f,  0.0f, 0.0f, 1.0f,
-             0.3f, -0.4f, 0.0f,  0.0f, 0.0f, 1.0f,
+            // positions       // colors
+            -0.3f, -0.4f, 0.0f,  1.0f, 0.0f, 0.0f,
+             0.3f, -0.4f, 0.0f,  0.0f, 1.0f, 0.0f,
              0.3f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-
-            -0.3f, -0.4f, 0.0f,  0.0f, 0.0f, 1.0f,
-             0.3f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-            -0.3f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f
+            -0.3f,  0.0f, 0.0f,  1.0f, 1.0f, 0.0f
         };
+        unsigned int rectIndices[] = { 0,1,2, 2,3,0 };
 
+        unsigned int EBO_rect;
         glGenVertexArrays(1, &VAO_rect);
         glGenBuffers(1, &VBO_rect);
+        glGenBuffers(1, &EBO_rect);
+
         glBindVertexArray(VAO_rect);
         glBindBuffer(GL_ARRAY_BUFFER, VBO_rect);
         glBufferData(GL_ARRAY_BUFFER, sizeof(rectVertices), rectVertices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_rect);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(rectIndices), rectIndices, GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-<<<<<<< Updated upstream
-        // -------- Circle(s) --------
-        circles = {
-            { 0.0f, 0.6f, 0.1f }
-=======
-        // -------- Multiple Circles --------
-        circles = {
-            { -0.7f,  0.6f, 0.1f },
-            {  0.0f,  0.6f, 0.1f },
-            {  0.7f,  0.6f, 0.1f }
->>>>>>> Stashed changes
-        };
+        // -------- Circles --------
+        circles = { { 0.0f, 0.6f, 0.1f } };
 
         std::vector<float> circleVertices;
         for (auto& c : circles) {
@@ -155,7 +145,6 @@ namespace gfx {
                 circleVertices.push_back(x);
                 circleVertices.push_back(y);
                 circleVertices.push_back(0.0f);
-
                 circleVertices.push_back(0.0f);
                 circleVertices.push_back(0.0f);
                 circleVertices.push_back(1.0f);
@@ -177,13 +166,14 @@ namespace gfx {
 
         // -------- Background Quad --------
         float bgVertices[] = {
-            -1.0f,  1.0f,  0.0f, 0.0f,
-            -1.0f, -1.0f,  0.0f, 1.0f,
-             1.0f, -1.0f,  1.0f, 1.0f,
+            // pos         // tex
+            -1.0f,  1.0f,   0.0f, 1.0f,  // top-left  -> (0,1)
+            -1.0f, -1.0f,   0.0f, 0.0f,  // bottom-left -> (0,0)
+             1.0f, -1.0f,   1.0f, 0.0f,  // bottom-right -> (1,0)
 
-            -1.0f,  1.0f,  0.0f, 0.0f,
-             1.0f, -1.0f,  1.0f, 1.0f,
-             1.0f,  1.0f,  1.0f, 0.0f
+            -1.0f,  1.0f,   0.0f, 1.0f,  // top-left
+             1.0f, -1.0f,   1.0f, 0.0f,  // bottom-right
+             1.0f,  1.0f,   1.0f, 1.0f   // top-right -> (1,1)
         };
 
         glGenVertexArrays(1, &VAO_bg);
@@ -199,6 +189,7 @@ namespace gfx {
 
         bgTexture = loadTexture("../../assets/house.jpg");
 
+        // Background shaders
         const char* bgVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec2 aPos;\n"
@@ -220,23 +211,15 @@ namespace gfx {
 
         bgShader = createShaderProgram(bgVertexSrc, bgFragmentSrc);
 
-<<<<<<< Updated upstream
-        // Object shaders (with projection)
-=======
->>>>>>> Stashed changes
+        // Object shaders (with uMVP for transforms)
         const char* objVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec3 aPos;\n"
             "layout (location = 1) in vec3 aColor;\n"
             "out vec3 ourColor;\n"
-<<<<<<< Updated upstream
-            "uniform mat4 projection;\n"
+            "uniform mat4 uMVP;\n"
             "void main() {\n"
-            "    gl_Position = projection * vec4(aPos, 1.0);\n"
-=======
-            "void main() {\n"
-            "    gl_Position = vec4(aPos, 1.0);\n"
->>>>>>> Stashed changes
+            "    gl_Position = uMVP * vec4(aPos, 1.0);\n"
             "    ourColor = aColor;\n"
             "}\n";
 
@@ -249,18 +232,6 @@ namespace gfx {
             "}\n";
 
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
-<<<<<<< Updated upstream
-
-        // setup projection matrix (fix circle distortion)
-        float aspect = 800.0f / 600.0f; // replace with actual window width/height if available
-        glm::mat4 projection = glm::ortho(-aspect, aspect, -1.0f, 1.0f, -1.0f, 1.0f);
-
-        glUseProgram(objectShader);
-        int projLoc = glGetUniformLocation(objectShader, "projection");
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
-        glUseProgram(0);
-=======
->>>>>>> Stashed changes
     }
 
     void Graphics::renderBackground() {
@@ -269,34 +240,40 @@ namespace gfx {
         glBindVertexArray(VAO_bg);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
-<<<<<<< Updated upstream
         glBindTexture(GL_TEXTURE_2D, 0);
-=======
->>>>>>> Stashed changes
         glUseProgram(0);
     }
 
-    void Graphics::renderRectangle() {
+    void Graphics::renderRectangle(float posX, float posY, float rot, float scale) {
         glUseProgram(objectShader);
+
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
+        model = glm::rotate(model, rot, glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::scale(model, glm::vec3(scale, scale, 1.0f));
+
+        int loc = glGetUniformLocation(objectShader, "uMVP");
+        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(model));
+
         glBindVertexArray(VAO_rect);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+
         glUseProgram(0);
     }
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
+    
     void Graphics::renderCircle() {
         glUseProgram(objectShader);
+
+        // Make sure circles are NOT transformed
+        glm::mat4 I(1.0f);
+        int loc = glGetUniformLocation(objectShader, "uMVP");
+        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(I));
+
         glBindVertexArray(VAO_circle);
 
-<<<<<<< Updated upstream
-        int verticesPerCircle = segments + 2;
-=======
-        int verticesPerCircle = segments + 2; // 1 center + segments + 1 to close
->>>>>>> Stashed changes
-        for (size_t i = 0; i < circles.size(); i++) {
+        const int verticesPerCircle = segments + 2;
+        for (size_t i = 0; i < circles.size(); ++i) {
             glDrawArrays(GL_TRIANGLE_FAN, static_cast<GLint>(i * verticesPerCircle), verticesPerCircle);
         }
 

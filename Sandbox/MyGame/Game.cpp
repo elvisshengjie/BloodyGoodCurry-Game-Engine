@@ -5,10 +5,10 @@
 #include "Audio_Tester.h"
 #include "Game.hpp"
 
-// use fixed screen size from JSON (same as your previous approach)
+// use fixed screen size from JSON
 #include "Config/WindowConfig.h"
 
-// math & GL helpers you split out
+// math & GL helpers
 #include "MathUtils.hpp"
 
 #include <glad/glad.h>
@@ -17,22 +17,20 @@
 #include <array>
 #include <algorithm>
 #include <chrono>
-<<<<<<< Updated upstream
 #include <cmath>
 #include <iostream>
 #include <string>
-=======
+
 #include <Graphics/Graphics.hpp>
->>>>>>> Stashed changes
 
-
-<<<<<<< Updated upstream
 namespace mygame
 {
+
+
     // ===== Persistent state =====
     static gfx::Window* gWin = nullptr;
 
-    static int   gScreenW = 800;  // from window.json
+    static int   gScreenW = 800;
     static int   gScreenH = 600;
 
     static GLuint gProg = 0;
@@ -45,110 +43,56 @@ namespace mygame
     static float gScale = 1.f;
     static constexpr float kBaseSize = 120.f;
 
-    // audio state
-    static std::array<bool, 10> gKeyEdge{}; // edge-trigger keys for audio
-    static MessageBus busInstance;   // owned below
+    static float rectPosX = 0.f;
+    static float rectPosY = 0.f;
+    static float rectRot = 0.f;
+    static float rectScale = 1.f;
 
-    // ---- Your previous audio helpers ----
-    void initializeAudio();
-    void cleanupAudio();
+    // audio state
+    static std::array<bool, 10> gKeyEdge{};
+    static MessageBus busInstance;
 
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
     void init(gfx::Window& win)
-=======
-
-namespace mygame {
-    void initializeAudio() 
->>>>>>> Stashed changes
     {
         gWin = &win;
 
-        // Load fixed size from JSON (same as before)
+        // Load fixed size from JSON
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gScreenW = cfg.width;
         gScreenH = cfg.height;
 
-        // Audio bootstrap (new MessageBus flow)
+        // Audio bootstrap
         initializeAudio();
         startAudio(busInstance);
 
-<<<<<<< Updated upstream
-        // GL pipeline
+        // --- OpenGL setup ---
         const char* kVS = R"(#version 330 core
-        layout(location=0) in vec2 aPos;
-        uniform mat4 uMVP;
-        void main(){ gl_Position = uMVP * vec4(aPos,0.0,1.0); }
-    )";
+            layout(location=0) in vec2 aPos;
+            uniform mat4 uMVP;
+            void main(){ gl_Position = uMVP * vec4(aPos,0.0,1.0); }
+        )";
         const char* kFS = R"(#version 330 core
-        out vec4 FragColor;
-        uniform vec3 uColor;
-        void main(){ FragColor = vec4(uColor,1.0); }
-    )";
+            out vec4 FragColor;
+            uniform vec3 uColor;
+            void main(){ FragColor = vec4(uColor,1.0); }
+        )";
         GLuint vs = Compile(GL_VERTEX_SHADER, kVS);
         GLuint fs = Compile(GL_FRAGMENT_SHADER, kFS);
         gProg = Link(vs, fs);
         gUMVP = glGetUniformLocation(gProg, "uMVP");
         gUColor = glGetUniformLocation(gProg, "uColor");
-=======
-        
-
-        gfx::Window win(800, 600, "MyGame - Audio Demo");
->>>>>>> Stashed changes
 
         gQuad.create();
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Initialize Graphics
+        // Initialize Graphics system
         gfx::Graphics::initialize();
 
-        // Initialize Graphics
-        gfx::Graphics::initialize();
-        // Track key states to prevent multiple triggers
-        static std::array<bool, 10> keysPressed = { false }, lastkeysPressed = { false };
-
-        auto t_prev = Clock::now();
-        while (!win.shouldClose()) {
-            win.pollEvents();
-
-            const auto t_now = Clock::now();
-            const float dt = std::chrono::duration_cast<SecondsF>(t_now - t_prev).count();
-            t_prev = t_now;
-
-            handleAudioInput(win, keysPressed);
-
-            // ---- Render ----
-            win.beginFrame();
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
-            gfx::Graphics::renderBackground();
-            gfx::Graphics::renderRectangle();
-            gfx::Graphics::renderCircle();
-
-            win.endFrame();
-            win.swapBuffers();
-
-<<<<<<< Updated upstream
-            lastkeysPressed = keysPressed;
-        }
-
-        // Cleanup
-        gfx::Graphics::cleanup();
-        cleanupAudio();
-=======
-        }
-
-        gfx::Graphics::cleanup();
-         cleanupAudio();
->>>>>>> Stashed changes
-        std::cout << "Game ended." << std::endl;
-    }
-
-        // start centered (fixed, from JSON)
+        // start centered
         gPosX = gScreenW * 0.5f;
         gPosY = gScreenH * 0.5f;
         gRot = 0.f;
@@ -162,37 +106,41 @@ namespace mygame {
     }
 
     // ------------------------------------------------------------
-    // Update: called every frame by Core (no rendering here)
+    // Update: called every frame
     // ------------------------------------------------------------
     void update(float dt)
     {
         handleAudioInput(*gWin, gKeyEdge, busInstance);
-        // 2) 2D transform (hold-to-repeat, frame-rate independent)
+
         const float rotSpeed = DegToRad(90.f);
         const float scaleRate = 1.5f;
         const bool  shift = gWin->isKeyPressed(GLFW_KEY_LEFT_SHIFT) ||
             gWin->isKeyPressed(GLFW_KEY_RIGHT_SHIFT);
         const float accel = shift ? 3.f : 1.f;
 
-        if (gWin->isKeyPressed(GLFW_KEY_Q)) gRot += rotSpeed * dt * accel;
-        if (gWin->isKeyPressed(GLFW_KEY_E)) gRot -= rotSpeed * dt * accel;
+        // rotate the RECTANGLE (Q/E)
+        if (gWin->isKeyPressed(GLFW_KEY_Q)) rectRot += rotSpeed * dt * accel;
+        if (gWin->isKeyPressed(GLFW_KEY_E)) rectRot -= rotSpeed * dt * accel;
 
-        if (gRot > 3.14159265f) gRot -= 6.28318530f;
-        if (gRot < -3.14159265f) gRot += 6.28318530f;
+        // keep angle reasonable
+        if (rectRot > 3.14159265f)  rectRot -= 6.28318530f;
+        if (rectRot < -3.14159265f) rectRot += 6.28318530f;
 
-        if (gWin->isKeyPressed(GLFW_KEY_X)) gScale *= (1.f + scaleRate * dt * accel);
-        if (gWin->isKeyPressed(GLFW_KEY_Z)) gScale *= (1.f - scaleRate * dt * accel);
-        gScale = std::clamp(gScale, 0.25f, 4.0f);
+        // scale the RECTANGLE (Z/X)
+        if (gWin->isKeyPressed(GLFW_KEY_X)) rectScale *= (1.f + scaleRate * dt * accel);
+        if (gWin->isKeyPressed(GLFW_KEY_Z)) rectScale *= (1.f - scaleRate * dt * accel);
+        rectScale = std::clamp(rectScale, 0.25f, 4.0f);
 
-        if (gWin->isKeyPressed(GLFW_KEY_R)) { gRot = 0.f; gScale = 1.f; }
+        // reset (R)
+        if (gWin->isKeyPressed(GLFW_KEY_R)) { rectRot = 0.f; rectScale = 1.f; }
 
-        // keep centered using the fixed JSON size (same as before)
-        gPosX = gScreenW * 0.5f;
-        gPosY = gScreenH * 0.5f;
+        // the old QuadGL demo can keep using gRot/gScale if you want,
+        // but they no longer control the Graphics rectangle.
     }
 
+
     // ------------------------------------------------------------
-    // draw: called every frame by Core between beginFrame/endFrame
+    // Draw: called every frame
     // ------------------------------------------------------------
     void draw()
     {
@@ -214,13 +162,22 @@ namespace mygame {
 
         glBindVertexArray(0);
         glUseProgram(0);
+
+        // Draw extra graphics (your background + shapes)
+        gfx::Graphics::renderBackground();
+        // draw rotating/scaling rectangle
+        gfx::Graphics::renderRectangle(rectPosX, rectPosY, rectRot, rectScale);
+
+        // draw circle (no rotation/scale)
+        gfx::Graphics::renderCircle();
     }
 
     // ------------------------------------------------------------
-    // shutdown: called once by Core after the loop
+    // Shutdown: called once after loop
     // ------------------------------------------------------------
     void shutdown()
     {
+        gfx::Graphics::cleanup();
         cleanupAudio();
 
         if (gProg) glDeleteProgram(gProg);
@@ -229,6 +186,8 @@ namespace mygame {
         gProg = 0;
         gUMVP = gUColor = -1;
         gWin = nullptr;
+
+        std::cout << "Game ended." << std::endl;
     }
 
 } // namespace mygame

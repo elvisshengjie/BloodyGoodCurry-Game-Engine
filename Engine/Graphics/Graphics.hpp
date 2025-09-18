@@ -9,7 +9,7 @@ namespace gfx {
     public:
         static void initialize();
         static void renderBackground();
-        static void renderRectangle();
+        static void renderRectangle(float posX, float posY, float rot, float scale);
         static void renderCircle();
         static void cleanup();
 
