@@ -41,6 +41,8 @@ namespace Framework {
 		// creator registry (data-driven)
 		void AddComponentCreator(const std::string& name, ComponentCreator* creator);
 
+		
+
 	private:
 		unsigned LastGameObjectId = 0;
 
@@ -50,6 +52,20 @@ namespace Framework {
 		ComponentMapType ComponentMap; // "Transform" -> creator no unique "-name-" creator is allowed and no duplicate object ID and value pairs for lookup
 		GameObjectIdMapType GameObjectIdMap; // 42 => GOC*
 		std::set<GOC*> ObjectsToBeDeleted;  //store only unique element and fast removal, no risk of deleting the same object
+	public:
+		// read only accessor
+		const GameObjectIdMapType& Objects() const { return GameObjectIdMap; }
+		
+		// Can do something like to to loop through the objects
+		//void Update(float dt) override {
+		//	for (auto& [id, obj] : factory_.Objects()) {
+		//		if (auto* r = obj->GetComponentType<Render>(CT_Render)) {
+		//			if (auto* t = obj->GetComponentType<Transform>(CT_Transform)) {
+		//				Draw(*r, *t);
+		//			}
+		//		}
+		//	}
+		//}
 
 
 	};

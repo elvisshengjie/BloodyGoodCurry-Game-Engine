@@ -58,7 +58,7 @@ namespace mygame
     //component
     static std::unique_ptr<Framework::GameObjectFactory> sFactory;
     static Framework::GOC* sTestObj = nullptr;  // owned by the factory
-
+    static Framework::GOC* sTestObj2 = nullptr;  // owned by the factory
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
@@ -66,7 +66,7 @@ namespace mygame
     {
         gWin = &win;
         using namespace Framework;
-
+        //testing component
         // 1) Create the factory (sets FACTORY)
         sFactory = std::make_unique<GameObjectFactory>();
 
@@ -75,7 +75,8 @@ namespace mygame
 
         // 3) Create the test object from JSON (adjust path as needed)
         sTestObj = FACTORY->Create("../../Data_Files/test.json");
-
+        
+        sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
         if (!sTestObj) {
             std::cerr << "[Test] Failed to create GOC from Test.json\n";
         }
@@ -88,11 +89,29 @@ namespace mygame
                 std::cout << "[JSON] name=" << tc->name << ", hp=" << tc->hp << "\n";
             }
         }
-        //testing component
-        auto* tc = sTestObj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
-        if (tc) {
-            std::cout << "[JSON] name=" << tc->name << ", hp=" << tc->hp << "\n";
+        if (!sTestObj2) {
+            std::cerr << "[Test2] Failed to create GOC from Test2.json\n";
         }
+        else {
+            auto* tc2 = sTestObj2->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
+            if (!tc2) {
+                std::cerr << "TestComponent not found (registry/JSON mismatch?)\n";
+            }
+            else {
+                std::cout << "[JSON] name=" << tc2->name << ", hp=" << tc2->hp << "\n";
+            }
+        }
+        
+        
+       
+
+            for (auto& [id, obj] : FACTORY->Objects()) {
+                if (auto* c = obj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent)) {
+                    std::cout << "[GOC " << id << "] name=" << c->name << " hp=" << c->hp << "\n";
+                }
+            }
+    
+
         // Load fixed size from JSON
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gScreenW = cfg.width;
@@ -255,7 +274,14 @@ namespace mygame
         cleanupAudio();
         using namespace Framework;
         // Destroy test object (if still around) and the factory cleanly
-        if (sTestObj) { FACTORY->Destroy(sTestObj); sTestObj = nullptr; }
+        if (sTestObj) {
+                             FACTORY->Destroy(sTestObj);
+                             sTestObj = nullptr; 
+                        }
+        if (sTestObj2) {
+                            FACTORY->Destroy(sTestObj); 
+                            sTestObj2 = nullptr;
+        }
         if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
 
         if (gProg) glDeleteProgram(gProg);
