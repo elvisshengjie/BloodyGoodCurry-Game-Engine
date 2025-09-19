@@ -1,8 +1,13 @@
 {
   "GameObject": {
     "TestComponent": {
-      "name": "json_one",
-      "hp": 135
+      "name": "json_multi",
+      "hp": 250
+    },
+    "TransformComponent": {
+      "x": 320,
+      "y": 180,
+      "rot": 0.7853982
     }
   }
 }

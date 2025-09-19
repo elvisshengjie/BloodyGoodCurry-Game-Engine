@@ -24,7 +24,8 @@
 #include <Graphics/Graphics.hpp>
 #include <Serialization/JsonSerialization.h>
 #include "Factory/Factory.h"
-#include "Common/TestComponent.h"
+#include "Component/TestComponent.h"
+#include "Component/TransformComponent.h"
 
 namespace mygame
 {
@@ -72,22 +73,21 @@ namespace mygame
 
         // 2) Register your test component (FACTORY must exist first!)
         RegisterComponent(TestComponent);
+        RegisterComponent(TransformComponent);
 
         // 3) Create the test object from JSON (adjust path as needed)
         sTestObj = FACTORY->Create("../../Data_Files/test.json");
         
         sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
-        if (!sTestObj) {
-            std::cerr << "[Test] Failed to create GOC from Test.json\n";
+        auto* tc = sTestObj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
+        if (tc) std::cout << "[Check] TestComponent: " << tc->name << " hp=" << tc->hp << "\n";
+        else    std::cout << "[Check] TestComponent missing!\n";
+
+        if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
+            std::cout << "[Check] TransformComponent: x=" << tr->x << " y=" << tr->y << " rot=" << tr->rot << "\n";
         }
         else {
-            auto* tc = sTestObj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
-            if (!tc) {
-                std::cerr << "TestComponent not found (registry/JSON mismatch?)\n";
-            }
-            else {
-                std::cout << "[JSON] name=" << tc->name << ", hp=" << tc->hp << "\n";
-            }
+            std::cout << "[Check] TransformComponent missing!\n";
         }
         if (!sTestObj2) {
             std::cerr << "[Test2] Failed to create GOC from Test2.json\n";
@@ -279,7 +279,7 @@ namespace mygame
                              sTestObj = nullptr; 
                         }
         if (sTestObj2) {
-                            FACTORY->Destroy(sTestObj); 
+                            FACTORY->Destroy(sTestObj2); 
                             sTestObj2 = nullptr;
         }
         if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
