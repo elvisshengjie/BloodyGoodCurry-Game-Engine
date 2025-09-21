@@ -8,124 +8,92 @@ namespace mygame
     void initializeAudio() 
     {
         std::cout << "Initializing audio system..." << std::endl;
-        // Initialize the sound manager
         if (!SoundManager::getInstance().initialize()) {std::cerr << "Failed to initialize sound system!" << std::endl; return;}
-        // Set master volume
         SoundManager::getInstance().setMasterVolume(0.7f);
-        // Load all the audio files
         std::cout << "Loading audio files..." << std::endl;
-        // Load coin/win sound
         if (SoundManager::getInstance().loadSound("coin", "badge-coin-win-14675.mp3", false)) {std::cout << "Loaded: badge-coin-win-14675.mp3 as 'coin'" << std::endl;}
-        // Load footsteps (looping)
         if (SoundManager::getInstance().loadSound("footsteps", "footsteps-male.mp3", true)) {std::cout << "Loaded: footsteps-male.mp3 as 'footsteps' (looping)" << std::endl;}
-        // Load level win sound
         if (SoundManager::getInstance().loadSound("level_win", "level-win.mp3", false)) {std::cout << "Loaded: level-win.mp3 as 'level_win'" << std::endl;}
-        // Load losing horn
         if (SoundManager::getInstance().loadSound("lose", "losing-horn.mp3", false)) {std::cout << "Loaded: losing-horn.mp3 as 'lose'" << std::endl;}
-        // Load mouse click
         if (SoundManager::getInstance().loadSound("click", "mouse-click.mp3", false)) { std::cout << "Loaded: mouse-click.mp3 as 'click'" << std::endl;}
-        // Load win sound
         if (SoundManager::getInstance().loadSound("win", "win.mp3", false)) {std::cout << "Loaded: win.mp3 as 'win'" << std::endl;}
         std::cout << "Audio system initialized successfully!" << std::endl;
     }
     void cleanupAudio() {std::cout << "Cleaning up audio system..." << std::endl;SoundManager::getInstance().shutdown();}
     
-    void startAudio()
+    void startAudio(MessageBus& bus)
     {
-        std::cout << "Starting MyGame with Sound Support..." << std::endl;
-        // Initialize audio
-        initializeAudio();
+    std::cout << "Starting MyGame with Sound Support..." << std::endl;
+    initializeAudio();
 
+    bus.subscribe(KEY_1, [](){SoundManager::getInstance().playSound("coin", 0.8f);
+    std::cout << "Playing coin sound!" << std::endl;});
 
+    bus.subscribe(KEY_2, []()
+    {
+        auto& sm = SoundManager::getInstance();
+        if (sm.isSoundPlaying("footsteps")) {
+            sm.stopSound("footsteps");
+            std::cout << "Stopped footsteps" << std::endl;
+        } else {
+            sm.playSound("footsteps", 0.6f);
+            std::cout << "Started footsteps (looping)" << std::endl;
+        }
+    });
 
-        std::cout << "\n=== Audio Demo Controls ===" << std::endl;
-        std::cout << "Press 1: Play coin sound" << std::endl;
-        std::cout << "Press 2: Play/toggle footsteps (looping)" << std::endl;
-        std::cout << "Press 3: Play level win sound" << std::endl;
-        std::cout << "Press 4: Play losing horn" << std::endl;
-        std::cout << "Press 5: Play mouse click" << std::endl;
-        std::cout << "Press 6: Play win sound" << std::endl;
-        std::cout << "Press M: Toggle master volume (0.2f / 0.7f)" << std::endl;
-        std::cout << "Press S: Stop all sounds" << std::endl;
-        std::cout << "Press ESC: Exit game" << std::endl;
-        std::cout << "==========================" << std::endl;
+    bus.subscribe(KEY_3, []()
+    { SoundManager::getInstance().playSound("level_win", 0.9f);
+      std::cout << "Playing level win sound!" << std::endl;});
+
+    bus.subscribe(KEY_4, []()
+    {  SoundManager::getInstance().playSound("lose", 0.8f); 
+        std::cout << "Playing losing horn!" << std::endl;});
+
+    bus.subscribe(KEY_5, []()
+    { SoundManager::getInstance().playSound("click", 0.7f);
+      std::cout << "Playing mouse click!" << std::endl;});
+
+    bus.subscribe(KEY_6, []()
+    { SoundManager::getInstance().playSound("win", 0.9f);
+      std::cout << "Playing win sound!" << std::endl;});
+
+    bus.subscribe(KEY_M, [](){static float currentVolume = 0.7f;
+        currentVolume = (currentVolume > 0.5f) ? 0.2f : 0.7f;
+        SoundManager::getInstance().setMasterVolume(currentVolume);
+        std::cout << "Master volume set to: " << currentVolume << std::endl;});
+
+    bus.subscribe(KEY_S, [](){SoundManager::getInstance().stopAllSounds();
+        std::cout << "Stopped all sounds!" << std::endl;});
+    
+    std::cout << "\n=== Audio Demo Controls ===" << std::endl;
+    std::cout << "Press 1: Play coin sound" << std::endl;
+    std::cout << "Press 2: Play/toggle footsteps (looping)" << std::endl;
+    std::cout << "Press 3: Play level win sound" << std::endl;
+    std::cout << "Press 4: Play losing horn" << std::endl;
+    std::cout << "Press 5: Play mouse click" << std::endl;
+    std::cout << "Press 6: Play win sound" << std::endl;
+    std::cout << "Press M: Toggle master volume (0.2f / 0.7f)" << std::endl;
+    std::cout << "Press S: Stop all sounds" << std::endl;
+    std::cout << "Press ESC: Exit game" << std::endl;
+    std::cout << "==========================" << std::endl;
     }
 
-    void handleAudioInput(gfx::Window& win, std::array<bool, 10> keysPressed)
+    void handleAudioInput(gfx::Window& win, std::array<bool, 10>& keysPressed,MessageBus& bus)
     {
-        if (win.isKeyPressed(GLFW_KEY_1) && !keysPressed[1]) {
-            SoundManager::getInstance().playSound("coin", 0.8f);
-            std::cout << "Playing coin sound!" << std::endl;
-            keysPressed[1] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_1)) {
-            keysPressed[1] = false;
-        }
-
-        if (win.isKeyPressed(GLFW_KEY_2) && !keysPressed[2]) {
-            if (SoundManager::getInstance().isSoundPlaying("footsteps")) {
-                SoundManager::getInstance().stopSound("footsteps");
-                std::cout << "Stopped footsteps" << std::endl;
-            } else {
-                SoundManager::getInstance().playSound("footsteps", 0.6f);
-                std::cout << "Started footsteps (looping)" << std::endl;
-            }
-            keysPressed[2] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_2)) {
-            keysPressed[2] = false;
-        }
-
-        if (win.isKeyPressed(GLFW_KEY_3) && !keysPressed[3]) {
-            SoundManager::getInstance().playSound("level_win", 0.9f);
-            std::cout << "Playing level win sound!" << std::endl;
-            keysPressed[3] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_3)) {
-            keysPressed[3] = false;
-        }
-
-        if (win.isKeyPressed(GLFW_KEY_4) && !keysPressed[4]) {
-            SoundManager::getInstance().playSound("lose", 0.8f);
-            std::cout << "Playing losing horn!" << std::endl;
-            keysPressed[4] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_4)) {
-            keysPressed[4] = false;
-        }
-
-        if (win.isKeyPressed(GLFW_KEY_5) && !keysPressed[5]) {
-            SoundManager::getInstance().playSound("click", 0.7f);
-            std::cout << "Playing mouse click!" << std::endl;
-            keysPressed[5] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_5)) {
-            keysPressed[5] = false;
-        }
-
-        if (win.isKeyPressed(GLFW_KEY_6) && !keysPressed[6]) {
-            SoundManager::getInstance().playSound("win", 0.9f);
-            std::cout << "Playing win sound!" << std::endl;
-            keysPressed[6] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_6)) {
-            keysPressed[6] = false;
-        }
-
-        if (win.isKeyPressed(GLFW_KEY_M) && !keysPressed[7]) {
-            static float currentVolume = 0.7f;
-            currentVolume = (currentVolume > 0.5f) ? 0.2f : 0.7f;
-            SoundManager::getInstance().setMasterVolume(currentVolume);
-            std::cout << "Master volume set to: " << currentVolume << std::endl;
-            keysPressed[7] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_M)) {
-            keysPressed[7] = false;
-        }
-
-        if (win.isKeyPressed(GLFW_KEY_S) && !keysPressed[8]) {
-            SoundManager::getInstance().stopAllSounds();
-            std::cout << "Stopped all sounds!" << std::endl;
-            keysPressed[8] = true;
-        } else if (!win.isKeyPressed(GLFW_KEY_S)) {
-            keysPressed[8] = false;
-        }
+        auto processKey=[&](int glfwKey, int index, MessageID msgID)
+        {
+            if (win.isKeyPressed(glfwKey) && !keysPressed[index]) 
+            {bus.publish(Message(msgID));keysPressed[index] = true;} else if (!win.isKeyPressed(glfwKey)) 
+            {keysPressed[index] = false;}
+        };
+        processKey(GLFW_KEY_1, 1, KEY_1);
+        processKey(GLFW_KEY_2, 2, KEY_2);
+        processKey(GLFW_KEY_3, 3, KEY_3);
+        processKey(GLFW_KEY_4, 4, KEY_4);
+        processKey(GLFW_KEY_5, 5, KEY_5);
+        processKey(GLFW_KEY_6, 6, KEY_6);
+        processKey(GLFW_KEY_M, 7, KEY_M);
+        processKey(GLFW_KEY_S, 8, KEY_S);
     }
-
-  
-
 }
 

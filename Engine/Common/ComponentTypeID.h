@@ -9,7 +9,9 @@ namespace Framework
 	{
 		//Invalid component id
 		CT_None = 0,
-		CT_Transform,
+		CT_TransformComponent,
+		CT_Render,
+		CT_TestComponent,
 		//more
 		CT_MaxComponents
 	};

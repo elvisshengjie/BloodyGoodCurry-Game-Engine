@@ -58,6 +58,8 @@ target_include_directories(${ENGINE_NAME} PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/json_dep
 )
 
+
+
 set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
 if(COMMAND GROUP_FILES_BY_FOLDER)
     GROUP_FILES_BY_FOLDER(${ALL_ENGINE_FILES})
@@ -71,7 +73,7 @@ set_property(TARGET ${ENGINE_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 target_include_directories(${ENGINE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 
 # Make sure glfw is added with add_subdirectory() or find_package()
-target_link_libraries(${ENGINE_NAME} PUBLIC glfw glad stb_image glm::glm imgui)
+target_link_libraries(${ENGINE_NAME} PUBLIC glfw glad stb_image glm::glm imgui freetype)
 
 #Complier Warnings
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
