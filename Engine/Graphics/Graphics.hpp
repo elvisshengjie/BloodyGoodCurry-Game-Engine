@@ -2,6 +2,7 @@
 #define GRAPHICS_HPP
 
 #include <glad/glad.h>
+#include "../Resource_Manager/Resource_Manager.h"
 
 namespace gfx {
 

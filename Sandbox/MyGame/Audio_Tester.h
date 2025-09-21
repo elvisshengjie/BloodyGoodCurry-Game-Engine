@@ -5,6 +5,7 @@
 #include "Config/WindowConfig.h"
 #include "Messaging_System/Message.hpp"
 #include "Messaging_System/Messager_Bus.hpp"
+#include "Resource_Manager/Resource_Manager.h"
 #include <chrono>
 #include <array>
 

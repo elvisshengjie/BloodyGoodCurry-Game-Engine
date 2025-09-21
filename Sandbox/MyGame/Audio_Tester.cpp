@@ -5,21 +5,42 @@
 
 namespace mygame
 {
-    void initializeAudio() 
+    void initializeAudio()
     {
         std::cout << "Initializing audio system..." << std::endl;
-        if (!SoundManager::getInstance().initialize()) {std::cerr << "Failed to initialize sound system!" << std::endl; return;}
+
+        // Ensure FMOD system is initialized
+        if (!SoundManager::getInstance().initialize()) 
+        {
+            std::cerr << "Failed to initialize sound system!" << std::endl;
+            return;
+        }
         SoundManager::getInstance().setMasterVolume(0.7f);
-        std::cout << "Loading audio files..." << std::endl;
-        if (SoundManager::getInstance().loadSound("coin", "badge-coin-win-14675.mp3", false)) {std::cout << "Loaded: badge-coin-win-14675.mp3 as 'coin'" << std::endl;}
-        if (SoundManager::getInstance().loadSound("footsteps", "footsteps-male.mp3", true)) {std::cout << "Loaded: footsteps-male.mp3 as 'footsteps' (looping)" << std::endl;}
-        if (SoundManager::getInstance().loadSound("level_win", "level-win.mp3", false)) {std::cout << "Loaded: level-win.mp3 as 'level_win'" << std::endl;}
-        if (SoundManager::getInstance().loadSound("lose", "losing-horn.mp3", false)) {std::cout << "Loaded: losing-horn.mp3 as 'lose'" << std::endl;}
-        if (SoundManager::getInstance().loadSound("click", "mouse-click.mp3", false)) { std::cout << "Loaded: mouse-click.mp3 as 'click'" << std::endl;}
-        if (SoundManager::getInstance().loadSound("win", "win.mp3", false)) {std::cout << "Loaded: win.mp3 as 'win'" << std::endl;}
+
+        std::cout << "Loading audio files via Resource_Manager..." << std::endl;
+
+        // List of audio files and resource names
+        struct AudioEntry { std::string name; std::string path; bool loop; };
+        std::vector<AudioEntry> audioFiles = {
+            {"coin", "badge-coin-win-14675.mp3", false},
+            {"footsteps", "footsteps-male.mp3", true},
+            {"level_win", "level-win.mp3", false},
+            {"lose", "losing-horn.mp3", false},
+            {"click", "mouse-click.mp3", false},
+            {"win", "win.mp3", false}
+        };
+
+        for (auto& entry : audioFiles)
+        {
+            if (Resource_Manager::load(entry.name, entry.path, entry.loop))
+                std::cout << "Loaded: " << entry.path << " as '" << entry.name << "'" << (entry.loop ? " (looping)" : "") << std::endl;
+            else
+                std::cerr << "Failed to load: " << entry.path << std::endl;
+        }
+
         std::cout << "Audio system initialized successfully!" << std::endl;
     }
-    void cleanupAudio() {std::cout << "Cleaning up audio system..." << std::endl;SoundManager::getInstance().shutdown();}
+    void cleanupAudio() {std::cout << "Cleaning up audio system..." << std::endl; SoundManager::getInstance().shutdown();}
     
     void startAudio(MessageBus& bus)
     {
