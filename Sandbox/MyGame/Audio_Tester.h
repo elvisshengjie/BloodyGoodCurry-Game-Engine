@@ -1,6 +1,6 @@
 #pragma once
 #include "Graphics/Window.hpp"
-#include "Managers/SoundManager.h"
+#include "Audio/SoundManager.h"
 #include <iostream>
 #include "Config/WindowConfig.h"
 #include "Messaging_System/Message.hpp"
