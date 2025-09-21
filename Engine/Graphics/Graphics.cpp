@@ -71,7 +71,7 @@ namespace gfx {
     }
 
     // -------- Texture loader --------
-    static unsigned int loadTexture(const char* path) {
+    unsigned int Graphics::loadTexture(const char* path) {
         unsigned int textureID;
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_2D, textureID);

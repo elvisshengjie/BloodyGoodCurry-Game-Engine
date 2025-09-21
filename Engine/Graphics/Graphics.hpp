@@ -7,6 +7,7 @@ namespace gfx {
 
     class Graphics {
     public:
+        static unsigned int loadTexture(const char* path);
         static void initialize();
         static void renderBackground();
         static void renderRectangle(float posX, float posY, float rot, float scale);
