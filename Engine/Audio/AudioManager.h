@@ -39,7 +39,7 @@ class AudioManager
     private:
     FMOD_SYSTEM* m_system;
     std::unordered_map<std::string, FMOD_SOUND*> m_sounds;//Map of sound music
-    std::unordered_map<std::string, FMOD_CHANNEL*> m_channels;//Map of the music player
+    std::unordered_map<std::string, std::vector<FMOD_CHANNEL*>> m_channels;
     // Helper functions
     std::string getFullPath(const std::string& fileName) const;
     void checkFMODError(FMOD_RESULT result, const std::string& operation) const;

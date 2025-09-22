@@ -90,87 +90,82 @@ void AudioManager::unloadAllSounds()
 
 bool AudioManager::playSound(const std::string& name, float volume, float pitch)
 {
-    if (!m_system)
-    {std::cerr<< "AudioManager not initalized"<<std::endl;return false;}
+    if (!m_system) return false;
+
     auto it = m_sounds.find(name);
-    if (it == m_sounds.end()) 
-    {
-        std::cerr << "Sound '" << name << "' not loaded" << std::endl;return false;}
-        FMOD_CHANNEL* channel = nullptr;
-        FMOD_RESULT result = FMOD_System_PlaySound(m_system, it->second, nullptr, false,
-        &channel);
-        if (result != FMOD_OK) {
-        std::cerr << "Failed to play sound '" << name << "': " << FMOD_ErrorString(result)
-        << std::endl;
+    if (it == m_sounds.end()) {
+        std::cerr << "Sound '" << name << "' not loaded" << std::endl;
         return false;
     }
-    // Set volume and pitch
+
+    FMOD_CHANNEL* channel = nullptr;
+    FMOD_RESULT result = FMOD_System_PlaySound(m_system, it->second, nullptr, false, &channel);
+    if (result != FMOD_OK) {
+        std::cerr << "Failed to play sound '" << name << "': " << FMOD_ErrorString(result) << std::endl;
+        return false;
+    }
+
     FMOD_Channel_SetVolume(channel, volume);
     FMOD_Channel_SetPitch(channel, pitch);
 
-    auto iterator = m_channels.find(name);
-    
-    // channel of the same name is playing.
-    if (iterator != m_channels.end()) {
-        FMOD_Channel_Stop(iterator->second);
-        m_channels.erase(iterator);
-    }
+    // store this channel
+    m_channels[name].push_back(channel);
 
-    // Store channel for later control
-    m_channels[name] = channel;
     std::cout << "Playing sound: " << name << std::endl;
     return true;
 }
+
 void AudioManager::stopSound(const std::string& name)
 {
     auto it = m_channels.find(name);
-    if (it == m_channels.end()){std::cerr << "No active channel for sound '" << name << "'" << std::endl; return;}
-    FMOD_RESULT result =FMOD_Channel_Stop(it->second);
-    if (result == FMOD_OK)
-    { std::cout << "Stopped sound: " << name << std::endl; m_channels.erase(it);}
-    else 
-    {std::cerr << "Failed to stop sound '" << name << "': " << FMOD_ErrorString(result) << std::endl;} 
+    if (it == m_channels.end()) return;
+
+    for (auto* ch : it->second) {
+        if (ch) FMOD_Channel_Stop(ch);
+    }
+    m_channels.erase(it);
+    std::cout << "Stopped all instances of: " << name << std::endl;
 }
 void AudioManager::stopAllSounds()
 {
-    for (auto& [name, channel] : m_channels)
-    {
-        if (channel) {
-            FMOD_BOOL isPlaying = 0;
-            FMOD_RESULT result = FMOD_Channel_IsPlaying(channel, &isPlaying);
-
-            if (result == FMOD_OK && isPlaying) {
-                result = FMOD_Channel_Stop(channel);
-                if (result == FMOD_OK) {
-                    std::cout << "Stopped sound: " << name << std::endl;
-                } else {
-                    std::cerr << "Failed to stop sound '" << name
-                              << "': " << FMOD_ErrorString(result) << std::endl;
-                }
-            }
+    for (auto& [name, channels] : m_channels) {
+        for (auto* ch : channels) {
+            if (ch) FMOD_Channel_Stop(ch);
         }
     }
     m_channels.clear();
+    std::cout << "Stopped all sounds" << std::endl;
 }
+
 
 
 void AudioManager::pauseSound(const std::string& name, bool pause)
 {
     auto it = m_channels.find(name);
-    if (it == m_channels.end()){std::cerr << "No active channel for sound '" << name << "'" << std::endl; return;}
-    FMOD_RESULT result =FMOD_Channel_SetPaused(it->second,pause);
-    if (result == FMOD_OK)
-    { std::cout << (pause ? "Paused" : "Resumed")<<"sound: "<< name <<std::endl;}
-    else 
-    {std::cerr << "Failed to " << (pause ? "pause" : "resume")<< " sound '" << name << "': " << FMOD_ErrorString(result) << std::endl;} 
+    if (it == m_channels.end()) {
+        std::cerr << "No active channels for sound '" << name << "'" << std::endl;
+        return;
+    }
+
+    for (FMOD_CHANNEL* channel : it->second) {
+        FMOD_Channel_SetPaused(channel, pause);
+    }
+
+    std::cout << (pause ? "Paused" : "Resumed") << " all instances of sound: " << name << std::endl;
 }
+
 
 
 void AudioManager::pauseAllSounds(bool pause)
 {
-  for (auto& [name, channel] : m_channels)
-  {FMOD_Channel_SetPaused(channel, pause);std::cout << (pause ? "Paused" : "Resumed") << " sound: " << name << std::endl;}
+    for (auto& [name, channels] : m_channels) {
+        for (FMOD_CHANNEL* channel : channels) {
+            FMOD_Channel_SetPaused(channel, pause);
+        }
+        std::cout << (pause ? "Paused" : "Resumed") << " all instances of sound: " << name << std::endl;
+    }
 }
+
 
 void AudioManager::setMasterVolume(float volume) 
 {
@@ -186,37 +181,49 @@ void AudioManager::setMasterVolume(float volume)
 void AudioManager::setSoundVolume(const std::string& name, float volume)
 {
     auto it = m_channels.find(name);
-    if (it == m_channels.end()){ std::cerr << "No active channel for sound '" << name << "'" << std::endl; return;}
+    if (it == m_channels.end()) {
+        std::cerr << "No active channels for sound '" << name << "'" << std::endl;
+        return;
+    }
 
-    FMOD_RESULT result = FMOD_Channel_SetVolume(it->second, volume);
-    if (result == FMOD_OK){std::cout << "Set volume of '" << name << "' to " << volume << std::endl;}
-    else{std::cerr << "Failed to set volume for '" << name << "': " << FMOD_ErrorString(result) << std::endl;}
+    for (FMOD_CHANNEL* channel : it->second) {
+        FMOD_Channel_SetVolume(channel, volume);
+    }
+
+    std::cout << "Set volume of all instances of '" << name << "' to " << volume << std::endl;
 }
 
 void AudioManager::setSoundPitch(const std::string& name, float pitch)
 {
     auto it = m_channels.find(name);
-    if (it == m_channels.end()){ std::cerr << "No active channel for sound '" << name << "'" << std::endl; return;}
-    FMOD_RESULT result = FMOD_Channel_SetPitch(it->second, pitch);
-    if (result == FMOD_OK) {std::cout << "Set pitch of '" << name << "' to " << pitch << std::endl;}
-    else{ std::cerr << "Failed to set pitch for '" << name << "': " << FMOD_ErrorString(result) << std::endl;}
+    if (it == m_channels.end()) {
+        std::cerr << "No active channels for sound '" << name << "'" << std::endl;
+        return;
+    }
+
+    for (FMOD_CHANNEL* channel : it->second) {
+        FMOD_Channel_SetPitch(channel, pitch);
+    }
+
+    std::cout << "Set pitch of all instances of '" << name << "' to " << pitch << std::endl;
 }
+
 bool AudioManager::isSoundLoaded(const std::string& name) const
 {return m_sounds.find(name) != m_sounds.end();}
 
 bool AudioManager::isSoundPlaying(const std::string& name) const
 {
     auto it = m_channels.find(name);
-    if (it == m_channels.end() || it->second == nullptr)
-        return false;
-    FMOD_BOOL playing = false;
-    FMOD_RESULT result = FMOD_Channel_IsPlaying(it->second, &playing);
-    if (result != FMOD_OK) {
-        std::cerr << "Failed to check if sound '" << name << "' is playing: "
-            << FMOD_ErrorString(result) << std::endl;
-        return false;
+    if (it == m_channels.end()) return false;
+
+    for (FMOD_CHANNEL* channel : it->second) {
+        if (!channel) continue;
+        FMOD_BOOL playing = false;
+        FMOD_Channel_IsPlaying(channel, &playing);
+        if (playing) return true;
     }
-    return playing != 0;
+
+    return false;
 }
 
 std::vector<std::string> AudioManager::getLoadedSounds() const
