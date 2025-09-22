@@ -7,17 +7,15 @@
 #include <iostream>
 class Resource_Manager
 {
-    public:
+public:
+    enum Resource_Type { Graphics, Sound, All };
+    struct Resources { unsigned int id; Resource_Type type; };
     static bool load(const std::string& name, const std::string& path, bool loop = false);
-    static void unloadAll(); 
-    enum Resource_Type{Graphics, Sound};
-    struct Resources{unsigned int id;Resource_Type type; };
+    static void unloadAll(Resource_Type type); 
     static inline std::unordered_map<std::string, Resources> resources_map;
-    
-    //Helper Functions
+
+    // Helper Functions
     static inline std::string GetExtentsion(const std::string& path);
     static bool isGraphics(const std::string& ext);
     static bool isSound(const std::string& ext);
-
-
 };

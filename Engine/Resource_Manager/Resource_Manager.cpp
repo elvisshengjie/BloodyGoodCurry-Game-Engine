@@ -34,21 +34,50 @@
         else {std::cerr << "Unsupported file type: " << path << std::endl; return false;}
     }
     
-    void Resource_Manager::unloadAll()
+    void Resource_Manager::unloadAll(Resource_Type type)
     {
+        std::cout << "[Resource_Manager] Unloading resources of type: "
+            << (type == Resource_Type::All ? "All"
+                : (type == Resource_Type::Sound ? "Sound" : "Graphics"))
+            << std::endl;
+
+        // If type is Sound or All, ensure SoundManager unloads all sounds first
+        if (type == Resource_Type::Sound) {
+            std::cout << "[Resource_Manager] Stopping and unloading all sounds..." << std::endl;
+            auto& audio = SoundManager::getInstance();
+            SoundManager::getInstance().shutdown();
+            std::cout << "[Resource_Manager] All sounds unloaded." << std::endl;
+        }
+
+        // If type is Graphics or All, call Graphics cleanup
+        if (type == Resource_Type::Graphics) {
+            std::cout << "[Resource_Manager] Cleaning up graphics..." << std::endl;
+            gfx::Graphics::cleanup();
+            std::cout << "[Resource_Manager] Graphics cleanup complete." << std::endl;
+        }
+
+        // Iterate resources map and remove entries of the requested type
         for (auto it = resources_map.begin(); it != resources_map.end(); ) {
             Resources res = it->second;
 
-            if (res.type == Resource_Type::Graphics) {
-                glDeleteTextures(1, &res.id);
-            }
-            else if (res.type == Resource_Type::Sound) {
-                SoundManager::getInstance().unloadSound(it->first);
-            }
+            bool matchType = (type == Resource_Type::All || res.type == type);
 
-            it = resources_map.erase(it); // erase and move to next
+            if (matchType) {
+                std::cout << "[Resource_Manager] Removing resource: " << it->first << std::endl;
+                it = resources_map.erase(it); // erase and move forward
+            }
+            else {
+                ++it; // skip, not the type we want
+            }
         }
+
+        std::cout << "[Resource_Manager] UnloadAll finished." << std::endl;
     }
+
+
+
+
+
         
     
  

@@ -1,4 +1,4 @@
-#include "Audio_Tester.h"
+﻿#include "Audio_Tester.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -40,7 +40,12 @@ namespace mygame
 
         std::cout << "Audio system initialized successfully!" << std::endl;
     }
-    void cleanupAudio() {std::cout << "Cleaning up audio system..." << std::endl; SoundManager::getInstance().shutdown();}
+    
+    void cleanupAudio() 
+    {
+        std::cout << "Cleaning up audio system..." << std::endl;
+        Resource_Manager::unloadAll(Resource_Manager::Sound); // unload only sounds
+    }
     
     void startAudio(MessageBus& bus)
     {

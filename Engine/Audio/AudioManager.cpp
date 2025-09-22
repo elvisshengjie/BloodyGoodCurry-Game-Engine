@@ -31,10 +31,8 @@ void AudioManager::shutdown()
 {
     if (m_system) 
     {
-        // Stop all sounds
-        stopAllSounds();
-        // Unload all sounds
-        unloadAllSounds();
+        stopAllSounds();       // stop active channels
+        unloadAllSounds();     // release FMOD sounds
         // Close and release FMOD system
         FMOD_System_Close(m_system);
         FMOD_System_Release(m_system);
@@ -135,14 +133,27 @@ void AudioManager::stopSound(const std::string& name)
 }
 void AudioManager::stopAllSounds()
 {
-    for (auto& [name,channel]: m_channels)
+    for (auto& [name, channel] : m_channels)
     {
-        FMOD_RESULT result = FMOD_Channel_Stop(channel);
-        if (result == FMOD_OK){std::cout << "Stopped sound: " << name << std::endl;}
-        else{std::cerr << "Failed to stop sound '" << name<< "': " << FMOD_ErrorString(result) << std::endl;}
+        if (channel) {
+            FMOD_BOOL isPlaying = 0;
+            FMOD_RESULT result = FMOD_Channel_IsPlaying(channel, &isPlaying);
+
+            if (result == FMOD_OK && isPlaying) {
+                result = FMOD_Channel_Stop(channel);
+                if (result == FMOD_OK) {
+                    std::cout << "Stopped sound: " << name << std::endl;
+                } else {
+                    std::cerr << "Failed to stop sound '" << name
+                              << "': " << FMOD_ErrorString(result) << std::endl;
+                }
+            }
+        }
     }
     m_channels.clear();
 }
+
+
 void AudioManager::pauseSound(const std::string& name, bool pause)
 {
     auto it = m_channels.find(name);

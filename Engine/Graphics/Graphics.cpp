@@ -288,6 +288,7 @@ namespace gfx {
 
 
     void Graphics::cleanup() {
+
         glDeleteVertexArrays(1, &VAO_rect);
         glDeleteBuffers(1, &VBO_rect);
         glDeleteVertexArrays(1, &VAO_circle);

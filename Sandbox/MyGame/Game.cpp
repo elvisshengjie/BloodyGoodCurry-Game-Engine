@@ -269,9 +269,11 @@ namespace mygame
     // ------------------------------------------------------------
     void shutdown()
     {
-
-        gfx::Graphics::cleanup();
+        std::cout << "Cleaning up sound..." << std::endl;
         cleanupAudio();
+        // Unload all graphics
+        std::cout << "Cleaning up graphics..." << std::endl;
+        Resource_Manager::unloadAll(Resource_Manager::Graphics);
         using namespace Framework;
         // Destroy test object (if still around) and the factory cleanly
         if (sTestObj) {
