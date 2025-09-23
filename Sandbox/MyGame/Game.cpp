@@ -37,16 +37,7 @@ namespace mygame
     static int   gScreenW = 800;
     static int   gScreenH = 600;
 
-    // Demo quad (legacy small sample)
-    //static GLuint gProg = 0;
-    //static GLint  gUMVP = -1;
-    //static GLint  gUColor = -1;
-    //static QuadGL gQuad;
 
-    //static float gPosX = 0.f, gPosY = 0.f; // for demo quad only
-    //static float gRot = 0.f;
-    //static float gScale = 1.f;
-    //static constexpr float kBaseSize = 120.f;
 
     // audio state
     static std::array<bool, 10> gKeyEdge{};
