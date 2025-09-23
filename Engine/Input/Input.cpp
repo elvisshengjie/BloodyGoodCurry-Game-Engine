@@ -2,6 +2,7 @@
 #include "Input.h"
 #include <GLFW/glfw3.h>
 #include "Windows.h"
+#include <iostream>
 
 
 namespace Framework
