@@ -38,15 +38,15 @@ namespace mygame
     static int   gScreenH = 600;
 
     // Demo quad (legacy small sample)
-    static GLuint gProg = 0;
-    static GLint  gUMVP = -1;
-    static GLint  gUColor = -1;
-    static QuadGL gQuad;
+    //static GLuint gProg = 0;
+    //static GLint  gUMVP = -1;
+    //static GLint  gUColor = -1;
+    //static QuadGL gQuad;
 
-    static float gPosX = 0.f, gPosY = 0.f; // for demo quad only
-    static float gRot = 0.f;
-    static float gScale = 1.f;
-    static constexpr float kBaseSize = 120.f;
+    //static float gPosX = 0.f, gPosY = 0.f; // for demo quad only
+    //static float gRot = 0.f;
+    //static float gScale = 1.f;
+    //static constexpr float kBaseSize = 120.f;
 
     // audio state
     static std::array<bool, 10> gKeyEdge{};
@@ -131,35 +131,13 @@ namespace mygame
         initializeAudio();
         startAudio(busInstance);
 
-        // --- OpenGL setup for the demo quad ---
-        const char* kVS = R"(#version 330 core
-            layout(location=0) in vec2 aPos;
-            uniform mat4 uMVP;
-            void main(){ gl_Position = uMVP * vec4(aPos,0.0,1.0); }
-        )";
-        const char* kFS = R"(#version 330 core
-            out vec4 FragColor;
-            uniform vec3 uColor;
-            void main(){ FragColor = vec4(uColor,1.0); }
-        )";
-        GLuint vs = Compile(GL_VERTEX_SHADER, kVS);
-        GLuint fs = Compile(GL_FRAGMENT_SHADER, kFS);
-        gProg = Link(vs, fs);
-        gUMVP = glGetUniformLocation(gProg, "uMVP");
-        gUColor = glGetUniformLocation(gProg, "uColor");
-
-        gQuad.create();
+        // --- No more demo-quad shader/VAO setup ---
+        // Keep blending enabled for ECS shapes with alpha
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Initialize Graphics system (VAOs, shaders for objects/background)
+        // Initialize Graphics system (VAOs, shaders for ECS objects/background)
         gfx::Graphics::initialize();
-
-        // start centered for the demo quad
-        gPosX = gScreenW * 0.5f;
-        gPosY = gScreenH * 0.5f;
-        gRot = 0.f;
-        gScale = 1.f;
 
         std::cout << "\n=== Controls ===\n"
             << "1: coin | 2: toggle footsteps | 3: level win | 4: lose | 5: click | 6: win\n"
@@ -167,6 +145,7 @@ namespace mygame
             << "Q/E: rotate selected object | Z/X: scale down/up | SHIFT accelerate | R reset\n"
             << "=======================================\n";
     }
+
 
     // ------------------------------------------------------------
     // Update: called every frame
@@ -252,24 +231,7 @@ namespace mygame
     // ------------------------------------------------------------
     void draw()
     {
-        // --- Old demo quad (kept; independent of ECS, uses pixel-space ortho) ---
-        glUseProgram(gProg);
-        glBindVertexArray(gQuad.vao);
-
-        const float W = static_cast<float>(gScreenW);
-        const float H = static_cast<float>(gScreenH);
-
-        const Mat4 P = Ortho(0.f, W, 0.f, H);
-        const Mat4 M = Mul(Translate(gPosX, gPosY),
-            Mul(RotateZ(gRot), Scale(kBaseSize * gScale, kBaseSize * gScale)));
-        const Mat4 MVP = Mul(P, M);
-
-        glUniformMatrix4fv(gUMVP, 1, GL_FALSE, MVP.m);
-        glUniform3f(gUColor, 0.95f, 0.75f, 0.25f);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-
-        glBindVertexArray(0);
-        glUseProgram(0);
+        // --- Removed legacy demo quad block ---
 
         // --- Background ---
         gfx::Graphics::renderBackground();
@@ -282,7 +244,6 @@ namespace mygame
                 Framework::ComponentTypeId::CT_RenderComponent);
             if (!tr || !rc) continue;
 
-            // Positions/sizes treated as NDC-based here
             gfx::Graphics::renderRectangle(
                 tr->x, tr->y, tr->rot,
                 rc->w, rc->h,
@@ -305,6 +266,7 @@ namespace mygame
         }
     }
 
+
     // ------------------------------------------------------------
     // Shutdown: called once after loop
     // ------------------------------------------------------------
@@ -324,14 +286,12 @@ namespace mygame
         if (sCircleObj) { FACTORY->Destroy(sCircleObj); sCircleObj = nullptr; }
         if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
 
-        if (gProg) glDeleteProgram(gProg);
-        gQuad.destroy();
+        // --- Removed: if (gProg) glDeleteProgram(gProg); and gQuad.destroy(); ---
 
-        gProg = 0;
-        gUMVP = gUColor = -1;
         gWin = nullptr;
 
         std::cout << "Game ended." << std::endl;
     }
+
 
 } // namespace mygame
