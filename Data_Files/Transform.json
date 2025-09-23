@@ -1,0 +1,6 @@
+{
+  "GameObject": {
+    "TransformComponent": { "x": 100, "y": 120, "rot": 0 },
+    "RenderComponent":    { "w": 48,  "h": 48,  "r": 1, "g": 1, "b": 1, "a": 1 }
+  }
+}

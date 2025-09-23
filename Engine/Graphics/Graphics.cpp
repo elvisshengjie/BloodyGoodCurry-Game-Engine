@@ -25,20 +25,14 @@ namespace gfx {
     unsigned int Graphics::bgShader = 0;
     unsigned int Graphics::objectShader = 0;
 
-    struct Circle {
-        float x, y, r;
-    };
-    static std::vector<Circle> circles;
     static int segments = 50;
 
-    // -------- Shader helpers --------
+    // --- shader helpers (same as before) ---
     static unsigned int compileShader(const char* source, GLenum type) {
         unsigned int shader = glCreateShader(type);
         glShaderSource(shader, 1, &source, nullptr);
         glCompileShader(shader);
-
-        int success;
-        char infoLog[512];
+        int success; char infoLog[512];
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
@@ -50,39 +44,33 @@ namespace gfx {
     static unsigned int createShaderProgram(const char* vSource, const char* fSource) {
         unsigned int vertex = compileShader(vSource, GL_VERTEX_SHADER);
         unsigned int fragment = compileShader(fSource, GL_FRAGMENT_SHADER);
-
         unsigned int program = glCreateProgram();
         glAttachShader(program, vertex);
         glAttachShader(program, fragment);
         glLinkProgram(program);
-
-        int success;
-        char infoLog[512];
+        int success; char infoLog[512];
         glGetProgramiv(program, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(program, 512, nullptr, infoLog);
             std::cerr << "Shader linking failed:\n" << infoLog << std::endl;
         }
-
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-
         return program;
     }
 
-    // -------- Texture loader --------
+    // --- texture loader (same as before) ---
     unsigned int Graphics::loadTexture(const char* path) {
         unsigned int textureID;
         glGenTextures(1, &textureID);
         glBindTexture(GL_TEXTURE_2D, textureID);
-
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int width, height, nrChannels;
-        stbi_set_flip_vertically_on_load(true); // fix upside-down
+        stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
         if (data) {
             GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
@@ -93,18 +81,17 @@ namespace gfx {
             std::cerr << "Failed to load texture: " << path << std::endl;
         }
         stbi_image_free(data);
-
         return textureID;
     }
 
     void Graphics::initialize() {
-        // -------- Rectangle (with EBO) --------
+        // ===== Rect (with EBO) =====
         float rectVertices[] = {
-            // positions       // colors
-            -0.3f, -0.4f, 0.0f,  1.0f, 0.0f, 0.0f,
-             0.3f, -0.4f, 0.0f,  0.0f, 1.0f, 0.0f,
-             0.3f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-            -0.3f,  0.0f, 0.0f,  1.0f, 1.0f, 0.0f
+            // positions           // colors
+            -0.3f, -0.4f, 0.0f,    1.0f, 0.0f, 0.0f,
+             0.3f, -0.4f, 0.0f,    0.0f, 1.0f, 0.0f,
+             0.3f,  0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
+            -0.3f,  0.0f, 0.0f,    1.0f, 1.0f, 0.0f
         };
         unsigned int rectIndices[] = { 0,1,2, 2,3,0 };
 
@@ -125,55 +112,38 @@ namespace gfx {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // -------- Circles --------
-        circles = { { 0.0f, 0.6f, 0.1f } };
-
-        std::vector<float> circleVertices;
-        for (auto& c : circles) {
-            circleVertices.push_back(c.x);
-            circleVertices.push_back(c.y);
-            circleVertices.push_back(0.0f);
-            circleVertices.push_back(0.0f);
-            circleVertices.push_back(0.0f);
-            circleVertices.push_back(1.0f);
-
-            for (int i = 0; i <= segments; i++) {
-                float angle = (2.0f * PI * i) / segments;
-                float x = c.x + c.r * cos(angle);
-                float y = c.y + c.r * sin(angle);
-
-                circleVertices.push_back(x);
-                circleVertices.push_back(y);
-                circleVertices.push_back(0.0f);
-                circleVertices.push_back(0.0f);
-                circleVertices.push_back(0.0f);
-                circleVertices.push_back(1.0f);
-            }
+        // ===== Unit Circle (triangle fan, radius=1, centered at origin) =====
+        std::vector<float> circleVertices; circleVertices.reserve((segments + 2) * 6);
+        // center
+        circleVertices.insert(circleVertices.end(), { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f });
+        for (int i = 0; i <= segments; ++i) {
+            float angle = (2.0f * PI * i) / segments;
+            float x = std::cos(angle);
+            float y = std::sin(angle);
+            circleVertices.insert(circleVertices.end(), { x, y, 0.f, 0.f, 0.f, 1.f });
         }
-
-        circleVertexCount = (segments + 2);
+        circleVertexCount = segments + 2;
 
         glGenVertexArrays(1, &VAO_circle);
         glGenBuffers(1, &VBO_circle);
         glBindVertexArray(VAO_circle);
         glBindBuffer(GL_ARRAY_BUFFER, VBO_circle);
         glBufferData(GL_ARRAY_BUFFER, circleVertices.size() * sizeof(float), circleVertices.data(), GL_STATIC_DRAW);
-
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // -------- Background Quad --------
+        // ===== Background Quad =====
         float bgVertices[] = {
             // pos         // tex
-            -1.0f,  1.0f,   0.0f, 1.0f,  // top-left  -> (0,1)
-            -1.0f, -1.0f,   0.0f, 0.0f,  // bottom-left -> (0,0)
-             1.0f, -1.0f,   1.0f, 0.0f,  // bottom-right -> (1,0)
+            -1.0f,  1.0f,   0.0f, 1.0f,
+            -1.0f, -1.0f,   0.0f, 0.0f,
+             1.0f, -1.0f,   1.0f, 0.0f,
 
-            -1.0f,  1.0f,   0.0f, 1.0f,  // top-left
-             1.0f, -1.0f,   1.0f, 0.0f,  // bottom-right
-             1.0f,  1.0f,   1.0f, 1.0f   // top-right -> (1,1)
+            -1.0f,  1.0f,   0.0f, 1.0f,
+             1.0f, -1.0f,   1.0f, 0.0f,
+             1.0f,  1.0f,   1.0f, 1.0f
         };
 
         glGenVertexArrays(1, &VAO_bg);
@@ -181,17 +151,14 @@ namespace gfx {
         glBindVertexArray(VAO_bg);
         glBindBuffer(GL_ARRAY_BUFFER, VBO_bg);
         glBufferData(GL_ARRAY_BUFFER, sizeof(bgVertices), bgVertices, GL_STATIC_DRAW);
-
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-           // --- Load background texture through Resource_Manager ---
+        // --- Load background texture ---
         if (!Resource_Manager::load("house_bg", "../../assets/house.jpg"))
-            std::cerr << "Failed to load background texture via Resource_Manager!" << std::endl;
-
-        // Use the texture ID from Resource_Manager
+            std::cerr << "Failed to load background texture via Resource_Manager!\n";
         bgTexture = Resource_Manager::resources_map["house_bg"].id;
 
         // Background shaders
@@ -200,41 +167,32 @@ namespace gfx {
             "layout (location = 0) in vec2 aPos;\n"
             "layout (location = 1) in vec2 aTexCoord;\n"
             "out vec2 TexCoord;\n"
-            "void main() {\n"
-            "    gl_Position = vec4(aPos, 0.0, 1.0);\n"
-            "    TexCoord = aTexCoord;\n"
-            "}\n";
+            "void main() { gl_Position = vec4(aPos, 0.0, 1.0); TexCoord = aTexCoord; }\n";
 
         const char* bgFragmentSrc =
             "#version 330 core\n"
             "out vec4 FragColor;\n"
             "in vec2 TexCoord;\n"
             "uniform sampler2D backgroundTex;\n"
-            "void main() {\n"
-            "    FragColor = texture(backgroundTex, TexCoord);\n"
-            "}\n";
+            "void main() { FragColor = texture(backgroundTex, TexCoord); }\n";
 
         bgShader = createShaderProgram(bgVertexSrc, bgFragmentSrc);
 
-        // Object shaders (with uMVP for transforms)
+        // Object shaders (with uMVP + uColor)
         const char* objVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec3 aPos;\n"
             "layout (location = 1) in vec3 aColor;\n"
-            "out vec3 ourColor;\n"
+            "out vec3 vColor;\n"
             "uniform mat4 uMVP;\n"
-            "void main() {\n"
-            "    gl_Position = uMVP * vec4(aPos, 1.0);\n"
-            "    ourColor = aColor;\n"
-            "}\n";
+            "void main() { gl_Position = uMVP * vec4(aPos, 1.0); vColor = aColor; }\n";
 
         const char* objFragmentSrc =
             "#version 330 core\n"
-            "in vec3 ourColor;\n"
+            "in vec3 vColor;\n"
             "out vec4 FragColor;\n"
-            "void main() {\n"
-            "    FragColor = vec4(ourColor, 1.0);\n"
-            "}\n";
+            "uniform vec4 uColor;\n"
+            "void main() { FragColor = vec4(vColor, 1.0) * uColor; }\n";
 
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
     }
@@ -249,46 +207,50 @@ namespace gfx {
         glUseProgram(0);
     }
 
-    void Graphics::renderRectangle(float posX, float posY, float rot, float scale) {
+    void Graphics::renderRectangle(float posX, float posY, float rot,
+        float scaleX, float scaleY,
+        float r, float g, float b, float a)
+    {
         glUseProgram(objectShader);
 
-        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model(1.0f);
         model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
-        model = glm::rotate(model, rot, glm::vec3(0.0f, 0.0f, 1.0f));
-        model = glm::scale(model, glm::vec3(scale, scale, 1.0f));
+        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));
+        model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
 
-        int loc = glGetUniformLocation(objectShader, "uMVP");
-        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(objectShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform4f(glGetUniformLocation(objectShader, "uColor"), r, g, b, a);
 
         glBindVertexArray(VAO_rect);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
-
         glUseProgram(0);
     }
-    
-    void Graphics::renderCircle() {
+
+    void Graphics::renderRectangle(float posX, float posY, float rot, float scale) {
+        renderRectangle(posX, posY, rot, scale, scale, 1.f, 1.f, 1.f, 1.f);
+    }
+
+    // NEW: render circle from pos + radius + color
+    void Graphics::renderCircle(float posX, float posY, float radius,
+        float r, float g, float b, float a)
+    {
         glUseProgram(objectShader);
 
-        // Make sure circles are NOT transformed
-        glm::mat4 I(1.0f);
-        int loc = glGetUniformLocation(objectShader, "uMVP");
-        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(I));
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
+        model = glm::scale(model, glm::vec3(radius, radius, 1.0f));
+
+        glUniformMatrix4fv(glGetUniformLocation(objectShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform4f(glGetUniformLocation(objectShader, "uColor"), r, g, b, a);
 
         glBindVertexArray(VAO_circle);
-
-        const int verticesPerCircle = segments + 2;
-        for (size_t i = 0; i < circles.size(); ++i) {
-            glDrawArrays(GL_TRIANGLE_FAN, static_cast<GLint>(i * verticesPerCircle), verticesPerCircle);
-        }
-
+        glDrawArrays(GL_TRIANGLE_FAN, 0, circleVertexCount);
         glBindVertexArray(0);
         glUseProgram(0);
     }
 
-
     void Graphics::cleanup() {
-
         glDeleteVertexArrays(1, &VAO_rect);
         glDeleteBuffers(1, &VBO_rect);
         glDeleteVertexArrays(1, &VAO_circle);

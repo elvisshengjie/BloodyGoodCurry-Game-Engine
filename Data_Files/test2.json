@@ -1,8 +1,0 @@
-{
-  "GameObject": {
-    "TestComponent": {
-      "name": "json_one",
-      "hp": 20
-    }
-  }
-}

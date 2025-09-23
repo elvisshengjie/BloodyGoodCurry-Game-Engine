@@ -10,7 +10,8 @@ namespace Framework
 		//Invalid component id
 		CT_None = 0,
 		CT_TransformComponent,
-		CT_Render,
+		CT_RenderComponent,
+		CT_CircleRenderComponent,
 		CT_TestComponent,
 		//more
 		CT_MaxComponents
