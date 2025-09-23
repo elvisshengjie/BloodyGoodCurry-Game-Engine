@@ -1,4 +1,4 @@
-
+/*
 #pragma once
 #ifndef COLLIDE_ELE_H
 #define COLLIDE_ELE_H
@@ -57,3 +57,4 @@ namespace Framework {
 
 }
 #endif
+*/
