@@ -8,7 +8,7 @@
 #include <stdexcept>
 
 namespace {
-    
+
     // Prefer constexpr over macros (resolves your VCR101 suggestion)
     constexpr int kGlMajor = 4;
     constexpr int kGlMinor = 5;
