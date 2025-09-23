@@ -4,7 +4,8 @@
 namespace Framework
 {
 	// Physics object
-	PhysicsObject::PhysicsObject(float x, float y, float width, float height) : posX(x), posY(y), width(width), height(height)
+	PhysicsObject::PhysicsObject(float x, float y, float width, float height) 
+		: posX(x), posY(y), width(width), height(height)
 	{
 		// Empty by design
 	}
@@ -18,8 +19,16 @@ namespace Framework
 	// So when players press a directional key, it will set the vel of it to a number
 	void PhysicsObject::Update(float dt)
 	{
-		posX += velX * dt;
-		posY += velY * dt;
+		// Using Vector2D
+		Vector2D<float> pos(posX, posY);
+		Vector2D<float> vel(velX, velY);
+
+		// Update position with velocity
+		pos = Vector2D<float>(pos.getX() + vel.getX() * dt, pos.getY() + vel.getY() * dt);
+
+		// Pushback to floats
+		posX = pos.getX();
+		posY = pos.getY();
 	}
 
 	AABB PhysicsObject::GetAABB() const

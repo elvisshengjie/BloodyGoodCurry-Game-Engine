@@ -8,11 +8,11 @@ namespace Framework {
 
     struct AABB
     {
-        float minX, minY;
-        float maxX, maxY;
+        Vector2D<float> min;
+        Vector2D<float> max;
 
         AABB(float x, float y, float width, float height) : 
-            minX(x), minY(y), maxX(x + width), maxY(y + height) {}
+            min(x, y), max(x + width, y + height) {}
     };
 
     class Collision
