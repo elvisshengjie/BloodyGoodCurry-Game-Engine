@@ -24,7 +24,7 @@
 #include <Graphics/Graphics.hpp>
 #include <Serialization/JsonSerialization.h>
 #include "Factory/Factory.h"
-#include "Component/TestComponent.h"
+
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
@@ -65,7 +65,7 @@ namespace mygame
         sFactory = std::make_unique<GameObjectFactory>();
 
         // 2) Register components (FACTORY must exist first!)
-        RegisterComponent(TestComponent);
+   
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
@@ -75,14 +75,7 @@ namespace mygame
         sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
         sCircleObj = FACTORY->Create("../../Data_Files/circle.json");
 
-        // Debug checks
-        if (auto* tc = sTestObj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent)) {
-            std::cout << "[Check] TestComponent: " << tc->name << " hp=" << tc->hp << "\n";
-        }
-        else {
-            std::cout << "[Check] TestComponent missing!\n";
-        }
-
+   
         if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
             std::cout << "[Check] TransformComponent: x=" << tr->x << " y=" << tr->y << " rot=" << tr->rot << "\n";
         }
@@ -90,21 +83,7 @@ namespace mygame
             std::cout << "[Check] TransformComponent missing!\n";
         }
 
-        if (!sTestObj2) {
-            std::cerr << "[Test2] Failed to create GOC from test2.json\n";
-        }
-        else {
-            auto* tc2 = sTestObj2->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
-            if (!tc2) std::cerr << "TestComponent not found (registry/JSON mismatch?)\n";
-            else      std::cout << "[JSON] name=" << tc2->name << ", hp=" << tc2->hp << "\n";
-        }
-
-        // Print all with TestComponent
-        for (auto& [id, obj] : FACTORY->Objects()) {
-            if (auto* c = obj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent)) {
-                std::cout << "[GOC " << id << "] name=" << c->name << " hp=" << c->hp << "\n";
-            }
-        }
+    
 
         // cache base size for sTestObj if it has a RenderComponent
         if (sTestObj) {
@@ -150,14 +129,7 @@ namespace mygame
         // sweep factory once per frame (handles deferred destroys)
         if (sFactory) sFactory->Update(dt);
 
-        // Example: press Y to send a Ping to the TestComponent
-        static bool yDownPrev = false;
-        bool yDown = gWin->isKeyPressed(GLFW_KEY_Y);
-        if (yDown && !yDownPrev && sTestObj) {
-            PingMessage ping{ 7 };
-            sTestObj->SendMessage(ping);
-        }
-        yDownPrev = yDown;
+  
 
         // Optional lifecycle hotkeys: U/T/I
         static bool uPrev = false, tPrev = false, iPrev = false;

@@ -2,7 +2,10 @@
 #include "Serialization.h"
 #include <fstream>
 #include <stack>
+#pragma warning(push)           // Save current warning state
+#pragma warning(disable:26819)  // Disable 'Unannotated fallthrough' warning
 #include "../ThirdParty/json_dep/json.hpp"
+#pragma warning(pop)             // Restore warnings after this point
 
 namespace Framework
 {

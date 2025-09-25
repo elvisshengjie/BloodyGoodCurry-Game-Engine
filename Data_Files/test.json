@@ -12,10 +12,7 @@
       "g": 0.75,
       "b": 0.25,
       "a": 1.0
-    },
-    "TestComponent": {
-      "name": "Player",
-      "hp": 100
     }
+  
   }
 }

@@ -6,15 +6,12 @@
       "rot": 0.0
     },
     "CircleRenderComponent": {
-      "radius": 0.10,
+      "radius": 0.50,
       "r": 0.9,
       "g": 0.2,
       "b": 0.3,
       "a": 1.0
-    },
-    "TestComponent": {
-      "name": "Orb",
-      "hp": 1
     }
+  
   }
 }
