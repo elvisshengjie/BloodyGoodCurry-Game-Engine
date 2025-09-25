@@ -14,6 +14,10 @@ namespace Framework {
 	public: 
 		friend class GameObjectFactory; //Grant factory access
 
+		//Set and get name
+		void SetObjectName(const std::string& name) { ObjectName = name; }
+		const std::string& GetObjectName() const { return ObjectName; }
+
 		// Broadcast a message to all component
 		void SendMessage(Message& message);
 
@@ -77,6 +81,7 @@ namespace Framework {
 		using UptrComp = std::unique_ptr<GameComponent>;
 		std::vector<UptrComp> Components; //owned 
 		GOCId ObjectId = 0;
+		std::string ObjectName;
 
 		GameObjectComposition() = default;
 		~GameObjectComposition();

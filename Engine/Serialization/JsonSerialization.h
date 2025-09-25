@@ -25,6 +25,11 @@ namespace Framework
         void ReadFloat(const std::string& key, float& out) override;
         void ReadString(const std::string& key, std::string& out) override;
 
+        bool EnterArray(const std::string& key) override;
+        void ExitArray() override;
+        size_t ArraySize() const override;
+        bool EnterIndex(size_t i) override;
+
     private:
         json root;
         std::stack<json*> objectStack; // keeps track of current object

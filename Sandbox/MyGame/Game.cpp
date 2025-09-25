@@ -53,6 +53,9 @@ namespace mygame
     static float gRectScale = 1.0f;
     static float gRectBaseW = 1.0f, gRectBaseH = 1.0f;
 
+
+    Framework::GOC* sRectObj = nullptr;
+    static std::vector<Framework::GOC*> sLevelObjs;
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
@@ -71,26 +74,26 @@ namespace mygame
         RegisterComponent(CircleRenderComponent);
 
         // 3) Create objects from JSON
-        sTestObj = FACTORY->Create("../../Data_Files/test.json");
-        sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
-        sCircleObj = FACTORY->Create("../../Data_Files/circle.json");
-
+        //sTestObj = FACTORY->Create("../../Data_Files/test.json");
+        //sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
+        //sCircleObj = FACTORY->Create("../../Data_Files/circle.json");
+        sLevelObjs = sFactory->CreateLevel("../../Data_Files/level.json");
    
-        if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
+   /*     if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
             std::cout << "[Check] TransformComponent: x=" << tr->x << " y=" << tr->y << " rot=" << tr->rot << "\n";
         }
         else {
             std::cout << "[Check] TransformComponent missing!\n";
         }
 
-    
+    */
 
         // cache base size for sTestObj if it has a RenderComponent
-        if (sTestObj) {
-            if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
-                gRectBaseW = rc->w; gRectBaseH = rc->h; gRectScale = 1.0f;
-            }
-        }
+        //if (sTestObj) {
+        //    if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
+        //        gRectBaseW = rc->w; gRectBaseH = rc->h; gRectScale = 1.0f;
+        //    }
+        //}
 
         // Load fixed size from JSON (for window)
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
@@ -129,10 +132,10 @@ namespace mygame
         // sweep factory once per frame (handles deferred destroys)
         if (sFactory) sFactory->Update(dt);
 
-  
+
 
         // Optional lifecycle hotkeys: U/T/I
-        static bool uPrev = false, tPrev = false, iPrev = false;
+     /*   static bool uPrev = false, tPrev = false, iPrev = false;
         bool u = gWin->isKeyPressed(GLFW_KEY_U);
         bool t = gWin->isKeyPressed(GLFW_KEY_T);
         bool i = gWin->isKeyPressed(GLFW_KEY_I);
@@ -154,8 +157,8 @@ namespace mygame
         if (i && !iPrev && sFactory) {
             sFactory->Update(0.0f);
             std::cout << "[Test] Forced sweep\n";
-        }
-        uPrev = u; tPrev = t; iPrev = i;
+        }*/
+        /*  uPrev = u; tPrev = t; iPrev = i;*/
 
         const float rotSpeed = DegToRad(90.f);
         const float scaleRate = 1.5f;
@@ -163,24 +166,33 @@ namespace mygame
         const float accel = shift ? 3.f : 1.f;
 
         // === Drive sTestObj's Transform & Render via components ===
-        if (sTestObj) {
+        for (auto* obj : sLevelObjs) {
+            if (obj->GetObjectName() == "rect") {
+                sRectObj = obj;
+                break;
+            }
+        }
+        if (sRectObj) {
+            auto* tr = sRectObj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            auto* rc = sRectObj->GetComponentType<Framework::RenderComponent>(
+                Framework::ComponentTypeId::CT_RenderComponent);
+
             // rotation (Q/E)
-            if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
+            if (tr) {
                 if (gWin->isKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
                 if (gWin->isKeyPressed(GLFW_KEY_E)) tr->rot -= rotSpeed * dt * accel;
-                // wrap
                 if (tr->rot > 3.14159265f) tr->rot -= 6.28318530f;
                 if (tr->rot < -3.14159265f) tr->rot += 6.28318530f;
-                // reset rotation on R
                 if (gWin->isKeyPressed(GLFW_KEY_R)) tr->rot = 0.f;
             }
+
             // scale (Z/X) affects RenderComponent w/h
-            if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
+            if (rc) {
                 if (gWin->isKeyPressed(GLFW_KEY_X)) gRectScale *= (1.f + scaleRate * dt * accel);
                 if (gWin->isKeyPressed(GLFW_KEY_Z)) gRectScale *= (1.f - scaleRate * dt * accel);
-                // clamp
+
                 gRectScale = std::clamp(gRectScale, 0.25f, 4.0f);
-                // reset on R
                 if (gWin->isKeyPressed(GLFW_KEY_R)) gRectScale = 1.f;
 
                 rc->w = gRectBaseW * gRectScale;
@@ -188,13 +200,12 @@ namespace mygame
             }
         }
     }
-
     // ------------------------------------------------------------
     // Draw: called every frame
     // ------------------------------------------------------------
     void draw()
     {
-        // --- Removed legacy demo quad block ---
+       
 
         // --- Background ---
         gfx::Graphics::renderBackground();
@@ -244,9 +255,9 @@ namespace mygame
 
         using namespace Framework;
         // Destroy test objects and the factory cleanly
-        if (sTestObj) { FACTORY->Destroy(sTestObj);   sTestObj = nullptr; }
+   /*     if (sTestObj) { FACTORY->Destroy(sTestObj);   sTestObj = nullptr; }
         if (sTestObj2) { FACTORY->Destroy(sTestObj2);  sTestObj2 = nullptr; }
-        if (sCircleObj) { FACTORY->Destroy(sCircleObj); sCircleObj = nullptr; }
+        if (sCircleObj) { FACTORY->Destroy(sCircleObj); sCircleObj = nullptr; }*/
         if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
 
         // --- Removed: if (gProg) glDeleteProgram(gProg); and gQuad.destroy(); ---

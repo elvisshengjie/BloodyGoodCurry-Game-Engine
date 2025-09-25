@@ -20,6 +20,11 @@ namespace Framework
 		virtual void ReadInt(const std::string& key, int& out) = 0;
 		virtual void ReadFloat(const std::string& key, float& out) = 0;
 		virtual void ReadString(const std::string& key, std::string& out) = 0;
+		
+		virtual bool EnterArray(const std::string& key) = 0;
+		virtual void ExitArray() = 0;
+		virtual size_t ArraySize() const = 0;
+		virtual bool EnterIndex(size_t i) = 0;
 	};
 
 
