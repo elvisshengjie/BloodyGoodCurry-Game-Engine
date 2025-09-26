@@ -86,4 +86,36 @@ namespace Framework
         json* current = objectStack.top();
         out = (*current)[key].get<std::string>();
     }
+    bool JsonSerializer::EnterArray(const std::string& key)
+    {
+        json* cur = objectStack.top(); // get the current Json object on top of the stack
+        //Check if the current object had field named 'key'
+        //AND that field is actually an array
+        if (cur->contains(key) && (*cur)[key].is_array()) { objectStack.push(&(*cur)[key]); //Push pointer to this Array on the stack
+            //This array become the current scope
+          return true; 
+        }
+            return false;// key not found or not an array nothing pushed
+    }
+    void JsonSerializer::ExitArray() 
+    {
+        if (objectStack.size() > 1)
+            objectStack.pop();
+    }
+    size_t JsonSerializer::ArraySize() const
+    {
+        json* cur = objectStack.top(); 
+        return cur->is_array() ? cur->size() : 0;
+    }
+    bool JsonSerializer::EnterIndex(size_t i)
+    {
+        json* cur = objectStack.top();
+        if (cur->is_array() && i < cur->size()) 
+        { //push i as the new "current"
+            objectStack.push(&(*cur)[i]); 
+            //now inside Gameobject[i]
+            return true; 
+        }
+        return false;
+    }
 }
