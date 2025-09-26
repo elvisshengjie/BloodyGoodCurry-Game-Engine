@@ -19,5 +19,21 @@ namespace Framework {
             if (s.HasKey("b"))      StreamRead(s, "b", b);
             if (s.HasKey("a"))      StreamRead(s, "a", a);
         }
+        std::unique_ptr<GameComponent>Clone() const override {
+            // Create new CircleRenderComponent on heap
+            // Wrap inside unique_ptr so it is automatically clean up if something goes wrong
+            auto copy = std::make_unique<CircleRenderComponent>();
+            //copy the values 
+            copy->radius = radius;
+            copy->r = r;
+            copy->g = g;
+            copy->b = b;
+            copy->a = a;
+            //Transfer ownership to whoever call clone()
+            return copy;
+
+        }
     };
+
+    
 }

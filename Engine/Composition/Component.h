@@ -27,6 +27,9 @@ namespace Framework
 		//Used for communication between components and system
 		virtual void SendMessage(Message& m) { (void)m; } // optional to override
 
+		// polymorphic deep-copy
+		virtual std::unique_ptr<GameComponent> Clone() const = 0;
+
 		//Ownership access
 		//Lets component get their owning GameObject( aka composition)
 		// Example: PhysicsComponent might call GetOwner()->GetComponent<Transform>() to move it object
