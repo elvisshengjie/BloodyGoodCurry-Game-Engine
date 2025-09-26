@@ -4,8 +4,7 @@
 #include <memory>
 #include "Component.h"
 #include "Common/Message.h"
-
-
+#include <string>
 
 namespace Framework {
 	using GOCId = unsigned int; //Alias for a game ID
@@ -26,6 +25,9 @@ namespace Framework {
 		//read only overload preserve when GOC itself is const
 		GameComponent const* GetComponent(ComponentTypeId typeId)const;
 
+		//Clone GameObject
+		GameObjectComposition* Clone() const;
+
 		//Find the first component with the give type ID and return it
 		template <typename T>
 		T* GetComponentAs(ComponentTypeId typeId) {
@@ -39,8 +41,8 @@ namespace Framework {
 		}
 
 		///Type safe way of accessing components.
-		template<typename type>
-		type* GetComponentType(ComponentTypeId typeId);
+		template<typename T>
+		T* GetComponentType(ComponentTypeId typeId);
 		// const overload
 		template <typename T>
 		T const* GetComponentType(ComponentTypeId typeId) const;

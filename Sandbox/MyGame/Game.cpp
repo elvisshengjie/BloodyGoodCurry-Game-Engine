@@ -28,7 +28,7 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
-
+#include "Composition/PrefabManager.h"
 namespace mygame
 {
     // ===== Persistent state =====
@@ -73,7 +73,12 @@ namespace mygame
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
 
-        // 3) Create objects from JSON
+
+        //3)Create Master copy
+        LoadPrefabs();
+
+
+        // 4) Create objects from JSON
         //sTestObj = FACTORY->Create("../../Data_Files/test.json");
         //sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
         //sCircleObj = FACTORY->Create("../../Data_Files/circle.json");
@@ -117,6 +122,45 @@ namespace mygame
             << "M: toggle master volume | S: stop all | ESC handled by window\n"
             << "Q/E: rotate selected object | Z/X: scale down/up | SHIFT accelerate | R reset\n"
             << "=======================================\n";
+
+        // Clone 10 Rects in a horizontal line
+        const int    count = 10;
+        const float  startX = 0.1f;
+        const float  gapX = 0.07f;   // normalized screen units (your renderer uses 0..1)
+        const float  y = 0.2f;
+
+        for (int i = 0; i < count; ++i) {
+            auto* obj = ClonePrefab("Rect");
+            if (!obj) { std::cout << "[Prefab] Missing Rect master!\n"; break; }
+
+            // position each clone
+            if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent)) {
+                tr->x = startX + i * gapX;
+                tr->y = y;
+                tr->rot = 0.f;
+            }
+        }
+
+
+        // Clone 6 Circles in a 2x3 grid
+        const int   crows = 2, ccols = 3;
+        const float cstartX = 0.2f, cstartY = 0.5f;
+        const float cgapX = 0.15f, cgapY = 0.12f;
+
+        for (int r = 0; r < crows; ++r) {
+            for (int c = 0; c < ccols; ++c) {
+                auto* obj = ClonePrefab("Circle");
+                if (!obj) { std::cout << "[Prefab] Missing Circle master!\n"; continue; }
+
+                if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                    Framework::ComponentTypeId::CT_TransformComponent)) {
+                    tr->x = cstartX + c * cgapX;
+                    tr->y = cstartY + r * cgapY;
+                    tr->rot = 0.f;
+                }
+            }
+        }
     }
 
 
