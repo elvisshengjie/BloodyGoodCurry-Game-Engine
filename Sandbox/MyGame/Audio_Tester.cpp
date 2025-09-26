@@ -22,14 +22,13 @@ namespace mygame
         // List of audio files and resource names
         struct AudioEntry { std::string name; std::string path; bool loop; };
         std::vector<AudioEntry> audioFiles = {
-            {"coin", "badge-coin-win-14675.mp3", false},
-            {"footsteps", "footsteps-male.mp3", true},
-            {"level_win", "level-win.mp3", false},
-            {"lose", "losing-horn.mp3", false},
-            {"click", "mouse-click.mp3", false},
-            {"win", "win.mp3", false}
+            {"coin", "../../assets/Audio/badge-coin-win-14675.mp3", false},
+            {"footsteps", "../../assets/Audio/footsteps-male.mp3", true},
+            {"level_win", "../../assets/Audio/level-win.mp3", false},
+            {"lose", "../../assets/Audio/losing-horn.mp3", false},
+            {"click", "../../assets/Audiomouse-click.mp3", false},
+            {"win", "../../assets/Audio/win.mp3", false}
         };
-
         for (auto& entry : audioFiles)
         {
             if (Resource_Manager::load(entry.name, entry.path, entry.loop))
