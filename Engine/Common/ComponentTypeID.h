@@ -14,6 +14,10 @@ namespace Framework
 		CT_CircleRenderComponent,
 		CT_TestComponent,
 		//more
-		CT_MaxComponents
+		CT_MaxComponents,
+		// For Input
+		CT_InputComponents,
+		// For rigid body
+		CT_RigidBodyComponents
 	};
 }
