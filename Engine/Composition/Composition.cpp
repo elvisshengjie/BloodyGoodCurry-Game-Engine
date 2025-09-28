@@ -46,6 +46,29 @@ namespace Framework {
 		FACTORY->Destroy(this);
 	}
 
+	GameObjectComposition* GameObjectComposition::Clone() const {
+		// Fresh object with a new ID and registered in the factory map
+		GOC* clone = FACTORY->CreateEmptyComposition();
+
+		// Copy name (optional but useful)
+		clone->ObjectName = ObjectName;
+
+		// Avoid reallocations
+		clone->Components.reserve(Components.size());
+
+		// Deep-copy components
+		for (auto const& up : Components) {
+			if (!up) continue;
+
+			auto newComp = up->Clone();           // unique_ptr<GameComponent>
+			newComp->set_owner(clone);            // rewire owner
+			newComp->set_type(up->GetTypeId());   // preserve type id
+			clone->Components.emplace_back(std::move(newComp));
+		}
+
+		clone->initialize();
+		return clone;
+	}
 
 	// it take a new GameCompomnent(wrapped in std::unqiue_ptr for ownwership) set it up
 	// and adds it to the GameObjectComposition list of components

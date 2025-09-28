@@ -44,54 +44,92 @@ namespace Framework {
 					// but the factory sill owns it because it keeps it in the GameObjectIdMap for cleanup when the game shut down
 	}
 
+	GOC* GameObjectFactory::BuildFromCurrentJsonObject(ISerializer& stream)
+	{
+		auto* goc = new GOC();
+		if (stream.HasKey("name")) {
+			std::string name;
+			stream.ReadString("name", name);
+			goc->SetObjectName(name);
+		}
+		
+		//Enter the Components object if present
+		if (stream.EnterObject("Components")) {
+			for (auto& kv : ComponentMap) {
+				const std::string& compName = kv.first;
+				ComponentCreator* creator = kv.second; // raw pointer OK with your current map
+
+				if (!stream.HasKey(compName))
+					continue;
+
+				// First, try to enter the component's JSON object; only then create the component
+				if (!stream.EnterObject(compName))
+					continue;
+
+				// Create as unique_ptr so any failure auto-cleans
+				std::unique_ptr<GameComponent> comp(creator->Create());
+				if (!comp) {
+					// couldn't create; leave JSON object and continue
+					stream.ExitObject();
+					continue;
+				}
+
+				// Let the component load itself
+				StreamRead(stream, *comp);
+
+				// Leave the component scope
+				stream.ExitObject();
+
+				// Transfer ownership to the GOC
+				goc->AddComponent(creator->TypeId, std::move(comp));
+			}
+			stream.ExitObject();
+		}
+		IdGameObject(goc);
+		return goc;
+	}
+
 	GOC* GameObjectFactory::BuidAndSerialize(const std::string& filename)
 	{
 		JsonSerializer stream;
-		const bool fileOpened = stream.Open(filename);
-		if (!fileOpened || !stream.IsGood())
-			return nullptr;
+		if (!stream.Open(filename) || !stream.IsGood()) return nullptr;
 
-		auto* gameObject = new GOC();
-
-		if (!stream.EnterObject("GameObject")) {
-			IdGameObject(gameObject);
-			return gameObject; // empty but valid GOC
-		}
-
-		// For every registered component: if JSON has a matching key, serialize and attach it
-		for (auto& kv : ComponentMap) {
-			const std::string& compName = kv.first;
-			ComponentCreator* creator = kv.second; // raw pointer OK with your current map
-
-			if (!stream.HasKey(compName))
-				continue;
-
-			// First, try to enter the component's JSON object; only then create the component
-			if (!stream.EnterObject(compName))
-				continue;
-
-			// Create as unique_ptr so any failure auto-cleans
-			std::unique_ptr<GameComponent> comp(creator->Create());
-			if (!comp) {
-				// couldn't create; leave JSON object and continue
-				stream.ExitObject();
-				continue;
-			}
-
-			// Let the component load itself
-			StreamRead(stream, *comp);
-
-			// Leave the component scope
+		// Old single-object shape
+		if (stream.EnterObject("GameObject")) {
+			GOC* g = BuildFromCurrentJsonObject(stream);
 			stream.ExitObject();
-
-			// Transfer ownership to the GOC
-			gameObject->AddComponent(creator->TypeId, std::move(comp));
+			return g;
 		}
 
-		stream.ExitObject();
-		IdGameObject(gameObject);
-		return gameObject;
+		// If the file is actually a level, just return nullptr
+		// (call CreateLevel() for that file)
+		return nullptr;
 
+	}
+
+	std::vector<GOC*> GameObjectFactory::CreateLevel(const std::string& filename)
+	{
+		JsonSerializer s;
+		std::vector<GOC*> out;
+		if (!s.Open(filename) || !s.IsGood()) return out;
+
+		if (!s.EnterObject("Level")) return out;
+
+		if (s.EnterArray("GameObjects")) {
+			size_t n = s.ArraySize();
+			out.reserve(n);
+			for (size_t i = 0; i < n; i++) {
+				if (!s.EnterIndex(i)) continue; // now at GameObjects[i]
+				
+				GOC* g = BuildFromCurrentJsonObject(s);
+				if (g) { out.push_back(g); }
+				s.ExitObject();                     // leave GameObject[i]
+
+			}
+			s.ExitArray();
+		}
+		s.ExitObject();
+		return out;
 	}
 
 	void GameObjectFactory::IdGameObject(GOC* gameObject) {

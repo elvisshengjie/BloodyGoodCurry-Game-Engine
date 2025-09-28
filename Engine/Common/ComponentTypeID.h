@@ -12,7 +12,7 @@ namespace Framework
 		CT_TransformComponent,
 		CT_RenderComponent,
 		CT_CircleRenderComponent,
-		CT_TestComponent,
+	
 		//more
 		CT_MaxComponents,
 		// For Input

@@ -17,27 +17,8 @@ namespace mygame
         }
         SoundManager::getInstance().setMasterVolume(0.7f);
 
-        std::cout << "Loading audio files via Resource_Manager..." << std::endl;
 
-        // List of audio files and resource names
-        struct AudioEntry { std::string name; std::string path; bool loop; };
-        std::vector<AudioEntry> audioFiles = {
-            {"coin", "badge-coin-win-14675.mp3", false},
-            {"footsteps", "footsteps-male.mp3", true},
-            {"level_win", "level-win.mp3", false},
-            {"lose", "losing-horn.mp3", false},
-            {"click", "mouse-click.mp3", false},
-            {"win", "win.mp3", false}
-        };
-
-        for (auto& entry : audioFiles)
-        {
-            if (Resource_Manager::load(entry.name, entry.path, entry.loop))
-                std::cout << "Loaded: " << entry.path << " as '" << entry.name << "'" << (entry.loop ? " (looping)" : "") << std::endl;
-            else
-                std::cerr << "Failed to load: " << entry.path << std::endl;
-        }
-
+        Resource_Manager::loadAll("../../assets/Audio");
         std::cout << "Audio system initialized successfully!" << std::endl;
     }
     
@@ -50,9 +31,7 @@ namespace mygame
     void startAudio(MessageBus& bus)
     {
     std::cout << "Starting MyGame with Sound Support..." << std::endl;
-    initializeAudio();
-
-    bus.subscribe(KEY_1, [](){SoundManager::getInstance().playSound("coin", 0.8f);
+    bus.subscribe(KEY_1, [](){SoundManager::getInstance().playSound("badge", 0.8f);
     std::cout << "Playing coin sound!" << std::endl;});
 
     bus.subscribe(KEY_2, []()
@@ -68,15 +47,15 @@ namespace mygame
     });
 
     bus.subscribe(KEY_3, []()
-    { SoundManager::getInstance().playSound("level_win", 0.9f);
+    { SoundManager::getInstance().playSound("level", 0.9f);
       std::cout << "Playing level win sound!" << std::endl;});
 
     bus.subscribe(KEY_4, []()
-    {  SoundManager::getInstance().playSound("lose", 0.8f); 
+    {  SoundManager::getInstance().playSound("losing", 0.8f); 
         std::cout << "Playing losing horn!" << std::endl;});
 
     bus.subscribe(KEY_5, []()
-    { SoundManager::getInstance().playSound("click", 0.7f);
+    { SoundManager::getInstance().playSound("mouse", 0.7f);
       std::cout << "Playing mouse click!" << std::endl;});
 
     bus.subscribe(KEY_6, []()
@@ -93,7 +72,7 @@ namespace mygame
     
     std::cout << "\n=== Audio Demo Controls ===" << std::endl;
     std::cout << "Press 1: Play coin sound" << std::endl;
-    std::cout << "Press 2: Play/toggle footsteps (looping)" << std::endl;
+    std::cout << "Press 2: Play footsteps " << std::endl;
     std::cout << "Press 3: Play level win sound" << std::endl;
     std::cout << "Press 4: Play losing horn" << std::endl;
     std::cout << "Press 5: Play mouse click" << std::endl;

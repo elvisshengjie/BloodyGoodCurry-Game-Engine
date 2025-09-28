@@ -20,14 +20,15 @@ namespace Framework {
 
 		GameObjectFactory();
 		~GameObjectFactory() override;
-
+	
 		///Create initialize and Id a GOC from the data file.
 		GOC* Create(const std::string& filename);
 
 		GOC* CreateEmptyComposition();
 
+		GOC* BuildFromCurrentJsonObject(ISerializer& stream);
 		GOC* BuidAndSerialize(const std::string&);
-
+		std::vector<GOC*> CreateLevel(const std::string& filename);
 		// id & lookup
 		void IdGameObject(GOC* gameObject);
 		GOC* GetObjectWithId(GOCId id);
@@ -52,6 +53,7 @@ namespace Framework {
 		ComponentMapType ComponentMap; // "Transform" -> creator no unique "-name-" creator is allowed and no duplicate object ID and value pairs for lookup
 		GameObjectIdMapType GameObjectIdMap; // 42 => GOC*
 		std::set<GOC*> ObjectsToBeDeleted;  //store only unique element and fast removal, no risk of deleting the same object
+		
 	public:
 		// read only accessor
 		const GameObjectIdMapType& Objects() const { return GameObjectIdMap; }
