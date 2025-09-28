@@ -157,11 +157,10 @@ namespace gfx {
         glEnableVertexAttribArray(1);
 
         // --- Load background texture ---
-        if (!Resource_Manager::load("house_bg", "../../assets/Textures/house.jpg"))
-            std::cerr << "Failed to load background texture via Resource_Manager!\n";
+        Resource_Manager::loadAll("../../assets/Textures");
 
         // Use the string ID directly
-        bgTexture = Resource_Manager::resources_map["house_bg"].handle;
+        bgTexture = Resource_Manager::resources_map["house"].handle;
 
         // Background shaders
         const char* bgVertexSrc =
