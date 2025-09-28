@@ -25,11 +25,13 @@ void Core::Run() {
         if (dt > 0.1f) dt = 0.1f;
 
         // Game/logic update
-        if (update) update(dt);
+        if (update) update(dt); 
 
         // Rendering stage
         m_Window->beginFrame();   // clear buffers, prepare GL state
+        ImGuiLayer::BeginFrame();// start ImGui frame AFTER pollEvents and Before user render
         if (render) render();     // user drawing code
+        ImGuiLayer::EndFrame();   // Draw ImGui last into the same framebuffer
         m_Window->endFrame();     // flush GL commands
         m_Window->swapBuffers();  // present frame to screen
     }

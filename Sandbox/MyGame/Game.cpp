@@ -29,8 +29,16 @@
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
 #include "Composition/PrefabManager.h"
+
+#include "Debug/ImGuiLayer.h"
+#include "imgui.h"
+#include "Debug/Spawn.h"
+
+
 namespace mygame
 {
+    
+
     // ===== Persistent state =====
     static gfx::Window* gWin = nullptr;
 
@@ -161,6 +169,13 @@ namespace mygame
                 }
             }
         }
+
+        //Initialize ImGui
+        ImGuiLayerConfig cFg;
+       cFg.glsl_version = "#version 330";
+       cFg.dockspace = true;
+       cFg.gamepad = false;
+       ImGuiLayer::Initialize(win, cFg);
     }
 
 
@@ -282,6 +297,8 @@ namespace mygame
                 cc->r, cc->g, cc->b, cc->a
             );
         }
+        mygame::DrawSpawnPanel();
+        ImGui::ShowDemoWindow();
     }
 
 
@@ -309,6 +326,7 @@ namespace mygame
         gWin = nullptr;
 
         std::cout << "Game ended." << std::endl;
+        ImGuiLayer::Shutdown();
     }
 
 

@@ -2,7 +2,7 @@
 #include <memory>
 #include <chrono>
 #include "Graphics/Window.hpp"
-
+#include "Debug/ImGuiLayer.h"
 class Core {
 public:
     // Callback types (simple C-style function pointers).

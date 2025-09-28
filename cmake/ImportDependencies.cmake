@@ -67,7 +67,7 @@ macro(import_imgui)
     FetchContent_Declare(
       imgui
       GIT_REPOSITORY https://github.com/ocornut/imgui.git
-      GIT_TAG v1.90.4
+      GIT_TAG docking
     )
     FetchContent_MakeAvailable(imgui)
 
@@ -86,7 +86,8 @@ macro(import_imgui)
       ${imgui_SOURCE_DIR}
       ${imgui_SOURCE_DIR}/backends
     )
-    target_link_libraries(imgui PUBLIC glfw)   # uses your existing GLAD loader
+    target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_GLAD)
+    target_link_libraries(imgui PUBLIC glfw)
     set_property(TARGET imgui PROPERTY CXX_STANDARD 11)
   endif()
 endmacro()
