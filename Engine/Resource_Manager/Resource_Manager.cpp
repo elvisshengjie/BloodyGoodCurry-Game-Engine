@@ -1,5 +1,18 @@
+/*********************************************************************************************
+ \file      Resource_Manager.cpp
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+
+ \brief     Implementation of the Resource_Manager class, providing functions to load, track,
+            and unload game resources such as textures, sounds, fonts, and graphics. Includes
+            helper methods for file extension handling and resource type validation.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "Resource_Manager.h"
-//Helper Functions
+
 inline std::string Resource_Manager::GetExtension(const std::string& path)
 {
     std::string ext = std::filesystem::path(path).extension().string();

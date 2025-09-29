@@ -3,7 +3,7 @@
  \par       SofaSpuds
  \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
- \brief     Declaration of a templated 2D vector class supporting arithmetic operations, 
+ \brief     Declaration and inline implementation of a templated 2D vector class supporting arithmetic operations, 
             vector math functions, and utility methods for game development or physics 
             calculations. Supports generic numeric types via template parameter T (default float).
 

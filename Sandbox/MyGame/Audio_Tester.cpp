@@ -1,8 +1,19 @@
-﻿#include "Audio_Tester.h"
+﻿/*********************************************************************************************
+ \file      AudioTester.cpp
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
+ \brief     Implementation of audio testing utilities. Provides functions to initialize, clean
+            up, start playback, and handle input for audio in the game. Integrates with
+            MessageBus and Window systems for interactive audio control.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+#include "Audio_Tester.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 namespace mygame
 {
     void initializeAudio()
