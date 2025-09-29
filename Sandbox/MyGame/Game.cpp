@@ -4,6 +4,7 @@
 #include "Messaging_System/Messager_Bus.hpp"
 #include "Audio_Tester.h"
 #include "Game.hpp"
+#include "Graphics/Graphics.hpp"
 
 // use fixed screen size from JSON
 #include "Config/WindowConfig.h"
@@ -45,21 +46,22 @@ namespace mygame
     static int   gScreenW = 800;
     static int   gScreenH = 600;
 
-
-
     // audio state
     static std::array<bool, 10> gKeyEdge{};
     static MessageBus busInstance;
 
     // component system
     static std::unique_ptr<Framework::GameObjectFactory> sFactory;
-    static Framework::GOC* sTestObj = nullptr;  // owned by the factory
+    static Framework::GOC* sTestObj = nullptr;   // owned by the factory
     static Framework::GOC* sTestObj2 = nullptr;  // owned by the factory
-    static Framework::GOC* sCircleObj = nullptr;  // owned by the factory
+    static Framework::GOC* sCircleObj = nullptr; // owned by the factory
 
     // scale control for sTestObj's RenderComponent (Z/X & R keys)
     static float gRectScale = 1.0f;
     static float gRectBaseW = 1.0f, gRectBaseH = 1.0f;
+
+    // --- NEW: texture for sprite rendering of the rectangle ---
+    static unsigned int gPlayerTex = 0;
 
 
     Framework::GOC* sRectObj = nullptr;
@@ -125,6 +127,11 @@ namespace mygame
         // Initialize Graphics system (VAOs, shaders for ECS objects/background)
         gfx::Graphics::initialize();
 
+        // --- NEW: load PNG to render instead of flat-colored rectangle ---
+        Resource_Manager::load("player_png", "../../assets/player.png");
+        gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
+
+
         std::cout << "\n=== Controls ===\n"
             << "1: coin | 2: toggle footsteps | 3: level win | 4: lose | 5: click | 6: win\n"
             << "M: toggle master volume | S: stop all | ESC handled by window\n"
@@ -177,7 +184,6 @@ namespace mygame
        cFg.gamepad = false;
        ImGuiLayer::Initialize(win, cFg);
     }
-
 
     // ------------------------------------------------------------
     // Update: called every frame
@@ -277,11 +283,14 @@ namespace mygame
                 Framework::ComponentTypeId::CT_RenderComponent);
             if (!tr || !rc) continue;
 
-            gfx::Graphics::renderRectangle(
+            // --- UPDATED: render the rectangle as a PNG sprite ---
+            gfx::Graphics::renderSprite(
+                gPlayerTex,
                 tr->x, tr->y, tr->rot,
                 rc->w, rc->h,
-                rc->r, rc->g, rc->b, rc->a
+                1.f, 1.f, 1.f, 1.f
             );
+
         }
 
         // === ECS-driven drawing: circles ===
@@ -300,7 +309,6 @@ namespace mygame
         mygame::DrawSpawnPanel();
         ImGui::ShowDemoWindow();
     }
-
 
     // ------------------------------------------------------------
     // Shutdown: called once after loop
@@ -328,6 +336,5 @@ namespace mygame
         std::cout << "Game ended." << std::endl;
         ImGuiLayer::Shutdown();
     }
-
 
 } // namespace mygame
