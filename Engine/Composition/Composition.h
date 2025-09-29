@@ -75,7 +75,7 @@ namespace Framework {
 		}
 
 		GOCId GetId() const { return ObjectId;  }
-
+		~GameObjectComposition()noexcept;
 	private:
 		// use unique pointer as The composition exclusively owns its components when the GameObjectComposition
 		//is destroy every unique_ptr is delete its component
@@ -86,7 +86,7 @@ namespace Framework {
 		std::string ObjectName;
 
 		GameObjectComposition() = default;
-		~GameObjectComposition();
+		
 
 
 

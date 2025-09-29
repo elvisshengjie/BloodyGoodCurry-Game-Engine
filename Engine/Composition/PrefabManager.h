@@ -6,6 +6,8 @@ namespace Framework {
 	extern std::unordered_map<std::string, GOC*> master_copies;
 
 	void LoadPrefabs();
+	// Delete all masters and clear the map
+	void UnloadPrefabs();
 
 	inline GOC* ClonePrefab(const std::string& name) {
 		auto it = master_copies.find(name);

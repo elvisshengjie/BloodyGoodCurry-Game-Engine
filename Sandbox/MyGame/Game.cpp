@@ -144,27 +144,27 @@ namespace mygame
             << "=======================================\n";
 
         // Clone 10 Rects in a horizontal line
-        const int    count = 10;
-        const float  startX = 0.1f;
-        const float  gapX = 0.07f;   // normalized screen units (your renderer uses 0..1)
-        const float  y = 0.2f;
+        //const int    count = 10;
+        //const float  startX = 0.1f;
+        //const float  gapX = 0.07f;   // normalized screen units (your renderer uses 0..1)
+        //const float  y = 0.2f;
 
-        for (int i = 0; i < count; ++i) {
-            auto* obj = ClonePrefab("Rect");
-            if (!obj) { std::cout << "[Prefab] Missing Rect master!\n"; break; }
+        //for (int i = 0; i < count; ++i) {
+        //    auto* obj = ClonePrefab("Rect");
+        //    if (!obj) { std::cout << "[Prefab] Missing Rect master!\n"; break; }
 
-            // position each clone
-            if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                Framework::ComponentTypeId::CT_TransformComponent)) {
-                tr->x = startX + i * gapX;
-                tr->y = y;
-                tr->rot = 0.f;
-            }
-        }
+        //    // position each clone
+        //    if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+        //        Framework::ComponentTypeId::CT_TransformComponent)) {
+        //        tr->x = startX + i * gapX;
+        //        tr->y = y;
+        //        tr->rot = 0.f;
+        //    }
+        //}
 
 
         // Clone 6 Circles in a 2x3 grid
-        const int   crows = 2, ccols = 3;
+        /*const int   crows = 2, ccols = 3;
         const float cstartX = 0.2f, cstartY = 0.5f;
         const float cgapX = 0.15f, cgapY = 0.12f;
 
@@ -180,7 +180,7 @@ namespace mygame
                     tr->rot = 0.f;
                 }
             }
-        }
+        }*/
 
         //Initialize ImGui
         ImGuiLayerConfig cFg;
@@ -202,33 +202,6 @@ namespace mygame
         // sweep factory once per frame (handles deferred destroys)
         if (sFactory) sFactory->Update(dt);
 
-
-
-        // Optional lifecycle hotkeys: U/T/I
-     /*   static bool uPrev = false, tPrev = false, iPrev = false;
-        bool u = gWin->isKeyPressed(GLFW_KEY_U);
-        bool t = gWin->isKeyPressed(GLFW_KEY_T);
-        bool i = gWin->isKeyPressed(GLFW_KEY_I);
-
-        if (u && !uPrev && sTestObj) {
-            FACTORY->Destroy(sTestObj);
-            sTestObj = nullptr;
-            std::cout << "[Test] Marked GOC for deletion\n";
-        }
-        if (t && !tPrev) {
-            if (sTestObj) { FACTORY->Destroy(sTestObj); sTestObj = nullptr; }
-            if (sFactory) sFactory->Update(0.0f);
-            sTestObj = FACTORY->Create("../../Data_Files/test.json");
-            if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
-                gRectBaseW = rc->w; gRectBaseH = rc->h; gRectScale = 1.0f;
-            }
-            std::cout << "[Test] Reloaded JSON GOC\n";
-        }
-        if (i && !iPrev && sFactory) {
-            sFactory->Update(0.0f);
-            std::cout << "[Test] Forced sweep\n";
-        }*/
-        /*  uPrev = u; tPrev = t; iPrev = i;*/
 
         const float rotSpeed = DegToRad(90.f);
         const float scaleRate = 1.5f;
@@ -370,7 +343,7 @@ namespace mygame
         if (sTestObj2) { FACTORY->Destroy(sTestObj2);  sTestObj2 = nullptr; }
         if (sCircleObj) { FACTORY->Destroy(sCircleObj); sCircleObj = nullptr; }*/
         if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
-
+        Framework::UnloadPrefabs();
         // --- Removed: if (gProg) glDeleteProgram(gProg); and gQuad.destroy(); ---
 
         gWin = nullptr;

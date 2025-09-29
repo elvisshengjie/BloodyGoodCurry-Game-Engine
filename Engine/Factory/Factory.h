@@ -25,7 +25,7 @@ namespace Framework {
 		GOC* Create(const std::string& filename);
 
 		GOC* CreateEmptyComposition();
-
+		GOC* CreateTemplate(const std::string& filename);
 		GOC* BuildFromCurrentJsonObject(ISerializer& stream);
 		GOC* BuidAndSerialize(const std::string&);
 		std::vector<GOC*> CreateLevel(const std::string& filename);

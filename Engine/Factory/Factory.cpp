@@ -44,6 +44,43 @@ namespace Framework {
 					// but the factory sill owns it because it keeps it in the GameObjectIdMap for cleanup when the game shut down
 	}
 
+	GOC* GameObjectFactory::CreateTemplate(const std::string& filename)
+	{
+		JsonSerializer s;
+		if (!s.Open(filename) || !s.IsGood()) return nullptr;
+		if (!s.EnterObject("GameObject")) return nullptr;
+
+		auto* goc = new GOC();
+
+		if (s.HasKey("name")) {
+			std::string name; s.ReadString("name", name);
+			goc->SetObjectName(name);
+		}
+
+		if (s.EnterObject("Components")) {
+			for (auto& kv : ComponentMap) {
+				const std::string& compName = kv.first;
+				ComponentCreator* creator = kv.second;
+				if (!s.HasKey(compName)) continue;
+				if (!s.EnterObject(compName)) continue;
+
+				std::unique_ptr<GameComponent> comp(creator->Create());
+				if (comp) {
+					StreamRead(s, *comp);
+					goc->AddComponent(creator->TypeId, std::move(comp));
+				}
+				s.ExitObject();
+			}
+			s.ExitObject();
+		}
+
+		s.ExitObject();
+
+		// IMPORTANT: no IdGameObject(goc); no GameObjectIdMap[...] = goc;
+		
+		return goc;
+	}
+
 	GOC* GameObjectFactory::BuildFromCurrentJsonObject(ISerializer& stream)
 	{
 		auto* goc = new GOC();
