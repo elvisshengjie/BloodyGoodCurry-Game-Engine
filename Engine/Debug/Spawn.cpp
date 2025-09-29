@@ -10,12 +10,13 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/SpriteComponent.h"
 
 #include <vector>
 #include <string>
 
 namespace mygame {
-
+    static std::string sSpriteTexKey;
     using namespace Framework;
 
 
@@ -40,6 +41,13 @@ namespace mygame {
             cc->r = s.rgba[0]; cc->g = s.rgba[1]; cc->b = s.rgba[2]; cc->a = s.rgba[3];
         }
 
+        if (auto* sp = obj->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent)) {
+            if (!sSpriteTexKey.empty()) {
+                sp->texture_key = sSpriteTexKey;
+                sp->texture_id = Resource_Manager::getTexture(sSpriteTexKey);
+            }
+        }
+
         // TODO: when you add new component types, set their fields here as well:
         // if (auto* ai = obj->GetComponentType<AIComponent>(ComponentTypeId::CT_AI)) { /* apply */ }
     }
@@ -51,6 +59,7 @@ namespace mygame {
     static SpawnSettings gS;                     // live tunables
 
     
+
     // UI: Draw the spawn panel
  
     void DrawSpawnPanel() {
@@ -83,8 +92,35 @@ namespace mygame {
         const bool hasTransform = (master->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent) != nullptr);
         const bool hasRender = (master->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) != nullptr);
         const bool hasCircle = (master->GetComponentType<CircleRenderComponent>(ComponentTypeId::CT_CircleRenderComponent) != nullptr);
+        const bool hasSprite = (master->GetComponentType<SpriteComponent>((ComponentTypeId::CT_SpriteComponent)) != nullptr);
+
 
         // Common transform if supported
+
+        if (hasSprite) {
+            ImGui::SeparatorText("Sprite");
+
+            // Ensure a default selection
+            if (sSpriteTexKey.empty()) {
+                for (auto& kv : Resource_Manager::resources_map) {
+                    if (kv.second.type == Resource_Manager::Resource_Type::Graphics) {
+                        sSpriteTexKey = kv.first;
+                        break;
+                    }
+                }
+            }
+
+            const char* preview = sSpriteTexKey.empty() ? "<none>" : sSpriteTexKey.c_str();
+            if (ImGui::BeginCombo("Texture", preview)) {
+                for (auto const& kv : Resource_Manager::resources_map) {
+                    if (kv.second.type != Resource_Manager::Resource_Type::Graphics) continue;
+                    bool sel = (kv.first == sSpriteTexKey);
+                    if (ImGui::Selectable(kv.first.c_str(), sel)) sSpriteTexKey = kv.first;
+                    if (sel) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+        }
         if (hasTransform) {
             ImGui::SeparatorText("Transform");
             ImGui::DragFloat("x", &gS.x, 0.005f, 0.0f, 1.0f);

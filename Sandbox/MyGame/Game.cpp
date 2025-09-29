@@ -29,15 +29,18 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/SpriteComponent.h"
 #include "Composition/PrefabManager.h"
 
 #include "Debug/ImGuiLayer.h"
 #include "imgui.h"
 #include "Debug/Spawn.h"
 
+#include <filesystem>
 
 namespace mygame
 {
+    using std::filesystem::absolute; using std::filesystem::exists;
     
 
     // ===== Persistent state =====
@@ -82,11 +85,13 @@ namespace mygame
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
+        RegisterComponent(SpriteComponent);
 
 
         //3)Create Master copy
         LoadPrefabs();
-
+        auto p = std::string("../../Data_Files/player.json");
+        std::cout << "[Prefab] Player path = " << absolute(p) << "  exists=" << exists(p) << "\n";
 
         // 4) Create objects from JSON
         //sTestObj = FACTORY->Create("../../Data_Files/test.json");
@@ -128,7 +133,7 @@ namespace mygame
         gfx::Graphics::initialize();
 
         // --- NEW: load PNG to render instead of flat-colored rectangle ---
-        Resource_Manager::load("player_png", "../../assets/player.png");
+        Resource_Manager::load("player_png", "../../assets/Textures/player.png");
         gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
 
 
@@ -275,6 +280,40 @@ namespace mygame
         // --- Background ---
         gfx::Graphics::renderBackground();
 
+        //player
+        for (auto& [id, obj] : Framework::FACTORY->Objects()) {
+            auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            if (!tr) continue;
+
+            // Sprites
+            if (auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
+                Framework::ComponentTypeId::CT_SpriteComponent)) {
+
+                // Size/tint can come from RenderComponent (reuse it if present)
+                float sx = 1.f, sy = 1.f;
+                float r = 1.f, g = 1.f, b = 1.f, a = 1.f;
+
+                if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                    Framework::ComponentTypeId::CT_RenderComponent)) {
+                    sx = rc->w; sy = rc->h;
+                    r = rc->r; g = rc->g; b = rc->b; a = rc->a;
+                }
+
+                // ensure we have a GL texture id
+                unsigned tex = sp->texture_id;
+                if (!tex && !sp->texture_key.empty()) {
+                    tex = Resource_Manager::getTexture(sp->texture_key);
+                    sp->texture_id = tex; // cache it
+                }
+                if (tex) {
+                    gfx::Graphics::renderSprite(tex, tr->x, tr->y, tr->rot, sx, sy, r, g, b, a);
+                }
+            }
+
+            
+        }
+
         // === ECS-driven drawing: rectangles ===
         for (auto& [id, obj] : Framework::FACTORY->Objects()) {
             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
@@ -282,10 +321,13 @@ namespace mygame
             auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                 Framework::ComponentTypeId::CT_RenderComponent);
             if (!tr || !rc) continue;
-
+            // if object have sprite skip
+            if (obj->GetComponentType<Framework::SpriteComponent>(
+                Framework::ComponentTypeId::CT_SpriteComponent)) {
+                continue;
+            }
             // --- UPDATED: render the rectangle as a PNG sprite ---
-            gfx::Graphics::renderSprite(
-                gPlayerTex,
+            gfx::Graphics::renderRectangle(
                 tr->x, tr->y, tr->rot,
                 rc->w, rc->h,
                 1.f, 1.f, 1.f, 1.f

@@ -56,7 +56,7 @@ namespace Framework {
                 auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                     Framework::ComponentTypeId::CT_TransformComponent);
                 auto* rc = obj->GetComponentType<Framework::RenderComponent>(
-                    Framework::ComponentTypeId::CT_Render);
+                    Framework::ComponentTypeId::CT_RenderComponent);
 
                 if (!tr || !rc) continue;
 

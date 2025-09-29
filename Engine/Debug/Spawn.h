@@ -14,7 +14,7 @@ namespace mygame {
 		float rot{ 0.0f };         // radians
 
 		// rect (RenderComponent)
-		float w{ 0.12f }, h{ 0.08f };
+		float w{ 0.5f }, h{ 0.5f };
 
 		// circle (CircleRenderComponent)
 		float radius{ 0.08f };
