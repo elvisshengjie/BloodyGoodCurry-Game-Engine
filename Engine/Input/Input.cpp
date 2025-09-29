@@ -60,13 +60,13 @@ namespace Framework
 			if (state == GLFW_PRESS)
 			{
 				if (!held)
-					m_keyPressed[btn] = true;
+					m_mousePressed[btn] = true;
 				held = true;
 			}
 			else
 			{
 				if (held)
-					m_keyReleased[btn] = true;
+					m_mouseReleased[btn] = true;
 				held = false;
 			}
 		}

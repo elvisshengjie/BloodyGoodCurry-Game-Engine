@@ -24,11 +24,11 @@
 #include <Graphics/Graphics.hpp>
 #include <Serialization/JsonSerialization.h>
 #include "Factory/Factory.h"
-#include "Component/TestComponent.h"
+
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
-
+#include "Composition/PrefabManager.h"
 namespace mygame
 {
     // ===== Persistent state =====
@@ -54,6 +54,9 @@ namespace mygame
     // --- NEW: texture for sprite rendering of the rectangle ---
     static unsigned int gPlayerTex = 0;
 
+
+    Framework::GOC* sRectObj = nullptr;
+    static std::vector<Framework::GOC*> sLevelObjs;
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
@@ -66,53 +69,37 @@ namespace mygame
         sFactory = std::make_unique<GameObjectFactory>();
 
         // 2) Register components (FACTORY must exist first!)
-        RegisterComponent(TestComponent);
+   
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
 
-        // 3) Create objects from JSON
-        sTestObj = FACTORY->Create("../../Data_Files/test.json");
-        sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
-        sCircleObj = FACTORY->Create("../../Data_Files/circle.json");
 
-        // Debug checks
-        if (auto* tc = sTestObj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent)) {
-            std::cout << "[Check] TestComponent: " << tc->name << " hp=" << tc->hp << "\n";
-        }
-        else {
-            std::cout << "[Check] TestComponent missing!\n";
-        }
+        //3)Create Master copy
+        LoadPrefabs();
 
-        if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
+
+        // 4) Create objects from JSON
+        //sTestObj = FACTORY->Create("../../Data_Files/test.json");
+        //sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
+        //sCircleObj = FACTORY->Create("../../Data_Files/circle.json");
+        sLevelObjs = sFactory->CreateLevel("../../Data_Files/level.json");
+   
+   /*     if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
             std::cout << "[Check] TransformComponent: x=" << tr->x << " y=" << tr->y << " rot=" << tr->rot << "\n";
         }
         else {
             std::cout << "[Check] TransformComponent missing!\n";
         }
 
-        if (!sTestObj2) {
-            std::cerr << "[Test2] Failed to create GOC from test2.json\n";
-        }
-        else {
-            auto* tc2 = sTestObj2->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent);
-            if (!tc2) std::cerr << "TestComponent not found (registry/JSON mismatch?)\n";
-            else      std::cout << "[JSON] name=" << tc2->name << ", hp=" << tc2->hp << "\n";
-        }
-
-        // Print all with TestComponent
-        for (auto& [id, obj] : FACTORY->Objects()) {
-            if (auto* c = obj->GetComponentType<TestComponent>(ComponentTypeId::CT_TestComponent)) {
-                std::cout << "[GOC " << id << "] name=" << c->name << " hp=" << c->hp << "\n";
-            }
-        }
+    */
 
         // cache base size for sTestObj if it has a RenderComponent
-        if (sTestObj) {
-            if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
-                gRectBaseW = rc->w; gRectBaseH = rc->h; gRectScale = 1.0f;
-            }
-        }
+        //if (sTestObj) {
+        //    if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
+        //        gRectBaseW = rc->w; gRectBaseH = rc->h; gRectScale = 1.0f;
+        //    }
+        //}
 
         // Load fixed size from JSON (for window)
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
@@ -140,6 +127,45 @@ namespace mygame
             << "M: toggle master volume | S: stop all | ESC handled by window\n"
             << "Q/E: rotate selected object | Z/X: scale down/up | SHIFT accelerate | R reset\n"
             << "=======================================\n";
+
+        // Clone 10 Rects in a horizontal line
+        const int    count = 10;
+        const float  startX = 0.1f;
+        const float  gapX = 0.07f;   // normalized screen units (your renderer uses 0..1)
+        const float  y = 0.2f;
+
+        for (int i = 0; i < count; ++i) {
+            auto* obj = ClonePrefab("Rect");
+            if (!obj) { std::cout << "[Prefab] Missing Rect master!\n"; break; }
+
+            // position each clone
+            if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent)) {
+                tr->x = startX + i * gapX;
+                tr->y = y;
+                tr->rot = 0.f;
+            }
+        }
+
+
+        // Clone 6 Circles in a 2x3 grid
+        const int   crows = 2, ccols = 3;
+        const float cstartX = 0.2f, cstartY = 0.5f;
+        const float cgapX = 0.15f, cgapY = 0.12f;
+
+        for (int r = 0; r < crows; ++r) {
+            for (int c = 0; c < ccols; ++c) {
+                auto* obj = ClonePrefab("Circle");
+                if (!obj) { std::cout << "[Prefab] Missing Circle master!\n"; continue; }
+
+                if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                    Framework::ComponentTypeId::CT_TransformComponent)) {
+                    tr->x = cstartX + c * cgapX;
+                    tr->y = cstartY + r * cgapY;
+                    tr->rot = 0.f;
+                }
+            }
+        }
     }
 
     // ------------------------------------------------------------
@@ -154,17 +180,10 @@ namespace mygame
         // sweep factory once per frame (handles deferred destroys)
         if (sFactory) sFactory->Update(dt);
 
-        // Example: press Y to send a Ping to the TestComponent
-        static bool yDownPrev = false;
-        bool yDown = gWin->isKeyPressed(GLFW_KEY_Y);
-        if (yDown && !yDownPrev && sTestObj) {
-            PingMessage ping{ 7 };
-            sTestObj->SendMessage(ping);
-        }
-        yDownPrev = yDown;
+
 
         // Optional lifecycle hotkeys: U/T/I
-        static bool uPrev = false, tPrev = false, iPrev = false;
+     /*   static bool uPrev = false, tPrev = false, iPrev = false;
         bool u = gWin->isKeyPressed(GLFW_KEY_U);
         bool t = gWin->isKeyPressed(GLFW_KEY_T);
         bool i = gWin->isKeyPressed(GLFW_KEY_I);
@@ -186,8 +205,8 @@ namespace mygame
         if (i && !iPrev && sFactory) {
             sFactory->Update(0.0f);
             std::cout << "[Test] Forced sweep\n";
-        }
-        uPrev = u; tPrev = t; iPrev = i;
+        }*/
+        /*  uPrev = u; tPrev = t; iPrev = i;*/
 
         const float rotSpeed = DegToRad(90.f);
         const float scaleRate = 1.5f;
@@ -195,24 +214,33 @@ namespace mygame
         const float accel = shift ? 3.f : 1.f;
 
         // === Drive sTestObj's Transform & Render via components ===
-        if (sTestObj) {
+        for (auto* obj : sLevelObjs) {
+            if (obj->GetObjectName() == "rect") {
+                sRectObj = obj;
+                break;
+            }
+        }
+        if (sRectObj) {
+            auto* tr = sRectObj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            auto* rc = sRectObj->GetComponentType<Framework::RenderComponent>(
+                Framework::ComponentTypeId::CT_RenderComponent);
+
             // rotation (Q/E)
-            if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
+            if (tr) {
                 if (gWin->isKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
                 if (gWin->isKeyPressed(GLFW_KEY_E)) tr->rot -= rotSpeed * dt * accel;
-                // wrap
-                if (tr->rot > 3.14159265f)  tr->rot -= 6.28318530f;
+                if (tr->rot > 3.14159265f) tr->rot -= 6.28318530f;
                 if (tr->rot < -3.14159265f) tr->rot += 6.28318530f;
-                // reset rotation on R
                 if (gWin->isKeyPressed(GLFW_KEY_R)) tr->rot = 0.f;
             }
+
             // scale (Z/X) affects RenderComponent w/h
-            if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
+            if (rc) {
                 if (gWin->isKeyPressed(GLFW_KEY_X)) gRectScale *= (1.f + scaleRate * dt * accel);
                 if (gWin->isKeyPressed(GLFW_KEY_Z)) gRectScale *= (1.f - scaleRate * dt * accel);
-                // clamp
+
                 gRectScale = std::clamp(gRectScale, 0.25f, 4.0f);
-                // reset on R
                 if (gWin->isKeyPressed(GLFW_KEY_R)) gRectScale = 1.f;
 
                 rc->w = gRectBaseW * gRectScale;
@@ -220,13 +248,12 @@ namespace mygame
             }
         }
     }
-
     // ------------------------------------------------------------
     // Draw: called every frame
     // ------------------------------------------------------------
     void draw()
     {
-        // --- Removed legacy demo quad block ---
+       
 
         // --- Background ---
         gfx::Graphics::renderBackground();
@@ -278,9 +305,9 @@ namespace mygame
 
         using namespace Framework;
         // Destroy test objects and the factory cleanly
-        if (sTestObj) { FACTORY->Destroy(sTestObj);   sTestObj = nullptr; }
+   /*     if (sTestObj) { FACTORY->Destroy(sTestObj);   sTestObj = nullptr; }
         if (sTestObj2) { FACTORY->Destroy(sTestObj2);  sTestObj2 = nullptr; }
-        if (sCircleObj) { FACTORY->Destroy(sCircleObj); sCircleObj = nullptr; }
+        if (sCircleObj) { FACTORY->Destroy(sCircleObj); sCircleObj = nullptr; }*/
         if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
 
         // --- Removed: if (gProg) glDeleteProgram(gProg); and gQuad.destroy(); ---

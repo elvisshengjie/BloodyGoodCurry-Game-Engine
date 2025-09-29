@@ -4,8 +4,7 @@
 #include <memory>
 #include "Component.h"
 #include "Common/Message.h"
-
-
+#include <string>
 
 namespace Framework {
 	using GOCId = unsigned int; //Alias for a game ID
@@ -14,6 +13,10 @@ namespace Framework {
 	public: 
 		friend class GameObjectFactory; //Grant factory access
 
+		//Set and get name
+		void SetObjectName(const std::string& name) { ObjectName = name; }
+		const std::string& GetObjectName() const { return ObjectName; }
+
 		// Broadcast a message to all component
 		void SendMessage(Message& message);
 
@@ -21,6 +24,9 @@ namespace Framework {
 		GameComponent* GetComponent(ComponentTypeId typeId);
 		//read only overload preserve when GOC itself is const
 		GameComponent const* GetComponent(ComponentTypeId typeId)const;
+
+		//Clone GameObject
+		GameObjectComposition* Clone() const;
 
 		//Find the first component with the give type ID and return it
 		template <typename T>
@@ -35,8 +41,8 @@ namespace Framework {
 		}
 
 		///Type safe way of accessing components.
-		template<typename type>
-		type* GetComponentType(ComponentTypeId typeId);
+		template<typename T>
+		T* GetComponentType(ComponentTypeId typeId);
 		// const overload
 		template <typename T>
 		T const* GetComponentType(ComponentTypeId typeId) const;
@@ -77,6 +83,7 @@ namespace Framework {
 		using UptrComp = std::unique_ptr<GameComponent>;
 		std::vector<UptrComp> Components; //owned 
 		GOCId ObjectId = 0;
+		std::string ObjectName;
 
 		GameObjectComposition() = default;
 		~GameObjectComposition();

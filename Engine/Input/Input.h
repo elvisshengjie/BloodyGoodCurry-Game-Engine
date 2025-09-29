@@ -1,11 +1,11 @@
 #pragma once
 
 #include <unordered_map>
+#include "Composition/Component.h"
 struct GLFWwindow;
 
 namespace Framework
 {
-
 	struct MouseState
 	{
 		double x = 0;

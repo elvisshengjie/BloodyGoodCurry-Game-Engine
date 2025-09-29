@@ -62,10 +62,10 @@ add_custom_command(TARGET MyGame POST_BUILD
 # Copy game assets (audio files) to build directory
 add_custom_command(TARGET MyGame POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory
-    "$<TARGET_FILE_DIR:MyGame>/game-assests/audio/sfx"
+    "$<TARGET_FILE_DIR:MyGame>/assets/Audio"
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    "${CMAKE_SOURCE_DIR}/game-assests/audio/sfx"
-    "$<TARGET_FILE_DIR:MyGame>/game-assests/audio/sfx"
+    "${CMAKE_SOURCE_DIR}/assets/Audio"
+    "$<TARGET_FILE_DIR:MyGame>/assets/Audio"
     COMMENT "Copying game assets (audio files) to build directory"
     VERBATIM
 )
