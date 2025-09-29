@@ -44,7 +44,7 @@ namespace gfx {
         // Static GLFW error callback.
         static void error_cb(int error, const char* description);
 
-
+        GLFWwindow* raw() const { return s_window; }
 
     private:
         // Global raw pointer to the GLFW window. (kept static to match your original design)

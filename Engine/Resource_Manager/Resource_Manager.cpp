@@ -10,6 +10,15 @@ inline std::string Resource_Manager::GetExtension(const std::string& path)
 bool Resource_Manager::isTexture(const std::string& ext){return (ext == "png"||ext == "jpg");}
 bool Resource_Manager::isSound(const std::string& ext){return ext == "mp3";}
 
+unsigned int Resource_Manager::getTexture(const std::string& key)
+{
+    auto it = resources_map.find(key);
+    if (it != resources_map.end() && it->second.type == Resource_Type::Graphics) {
+        return it->second.handle;
+    }
+    return 0; // Not found
+}
+
 
 namespace fs = std::filesystem;
 

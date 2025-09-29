@@ -10,7 +10,7 @@ class Resource_Manager
 {
 public:
     enum Resource_Type { Texture, Font, Graphics, Sound, All };
-    struct Resources { std::string id; Resource_Type type; unsigned int handle;};
+    struct Resources { std::string id{}; Resource_Type type{ Resource_Type::All }; unsigned int handle{}; };
     static bool load(const std::string& name, const std::string& path, bool loop = false);
     static void loadAll(const std::string& directory);
     static void unloadAll(Resource_Type type); 
@@ -20,4 +20,5 @@ public:
     static inline std::string GetExtension(const std::string& path);
     static bool isTexture(const std::string& ext);
     static bool isSound(const std::string& ext);
+    static unsigned int getTexture(const std::string& key);
 };

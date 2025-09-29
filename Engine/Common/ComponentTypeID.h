@@ -12,12 +12,14 @@ namespace Framework
 		CT_TransformComponent,
 		CT_RenderComponent,
 		CT_CircleRenderComponent,
+		
 	
-		//more
-		CT_MaxComponents,
 		// For Input
 		CT_InputComponents,
 		// For rigid body
-		CT_RigidBodyComponents
+		CT_RigidBodyComponents,
+		//sprite
+		CT_SpriteComponent,
+		CT_MaxComponent
 	};
 }

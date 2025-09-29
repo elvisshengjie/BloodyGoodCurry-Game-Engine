@@ -4,6 +4,7 @@
 #include "Messaging_System/Messager_Bus.hpp"
 #include "Audio_Tester.h"
 #include "Game.hpp"
+#include "Graphics/Graphics.hpp"
 
 // use fixed screen size from JSON
 #include "Config/WindowConfig.h"
@@ -28,16 +29,25 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/SpriteComponent.h"
 #include "Composition/PrefabManager.h"
+
+#include "Debug/ImGuiLayer.h"
+#include "imgui.h"
+#include "Debug/Spawn.h"
+
+#include <filesystem>
+
 namespace mygame
 {
+    using std::filesystem::absolute; using std::filesystem::exists;
+    
+
     // ===== Persistent state =====
     static gfx::Window* gWin = nullptr;
 
     static int   gScreenW = 800;
     static int   gScreenH = 600;
-
-
 
     // audio state
     static std::array<bool, 10> gKeyEdge{};
@@ -45,13 +55,16 @@ namespace mygame
 
     // component system
     static std::unique_ptr<Framework::GameObjectFactory> sFactory;
-    static Framework::GOC* sTestObj = nullptr;  // owned by the factory
+    static Framework::GOC* sTestObj = nullptr;   // owned by the factory
     static Framework::GOC* sTestObj2 = nullptr;  // owned by the factory
-    static Framework::GOC* sCircleObj = nullptr;  // owned by the factory
+    static Framework::GOC* sCircleObj = nullptr; // owned by the factory
 
     // scale control for sTestObj's RenderComponent (Z/X & R keys)
     static float gRectScale = 1.0f;
     static float gRectBaseW = 1.0f, gRectBaseH = 1.0f;
+
+    // --- NEW: texture for sprite rendering of the rectangle ---
+    static unsigned int gPlayerTex = 0;
 
 
     Framework::GOC* sRectObj = nullptr;
@@ -72,11 +85,13 @@ namespace mygame
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
+        RegisterComponent(SpriteComponent);
 
 
         //3)Create Master copy
         LoadPrefabs();
-
+        auto p = std::string("../../Data_Files/player.json");
+        std::cout << "[Prefab] Player path = " << absolute(p) << "  exists=" << exists(p) << "\n";
 
         // 4) Create objects from JSON
         //sTestObj = FACTORY->Create("../../Data_Files/test.json");
@@ -116,6 +131,11 @@ namespace mygame
 
         // Initialize Graphics system (VAOs, shaders for ECS objects/background)
         gfx::Graphics::initialize();
+
+        // --- NEW: load PNG to render instead of flat-colored rectangle ---
+        Resource_Manager::load("player_png", "../../assets/Textures/player.png");
+        gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
+
 
         std::cout << "\n=== Controls ===\n"
             << "1: coin | 2: toggle footsteps | 3: level win | 4: lose | 5: click | 6: win\n"
@@ -161,8 +181,14 @@ namespace mygame
                 }
             }
         }
-    }
 
+        //Initialize ImGui
+        ImGuiLayerConfig cFg;
+       cFg.glsl_version = "#version 330";
+       cFg.dockspace = true;
+       cFg.gamepad = false;
+       ImGuiLayer::Initialize(win, cFg);
+    }
 
     // ------------------------------------------------------------
     // Update: called every frame
@@ -254,6 +280,40 @@ namespace mygame
         // --- Background ---
         gfx::Graphics::renderBackground();
 
+        //player
+        for (auto& [id, obj] : Framework::FACTORY->Objects()) {
+            auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            if (!tr) continue;
+
+            // Sprites
+            if (auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
+                Framework::ComponentTypeId::CT_SpriteComponent)) {
+
+                // Size/tint can come from RenderComponent (reuse it if present)
+                float sx = 1.f, sy = 1.f;
+                float r = 1.f, g = 1.f, b = 1.f, a = 1.f;
+
+                if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                    Framework::ComponentTypeId::CT_RenderComponent)) {
+                    sx = rc->w; sy = rc->h;
+                    r = rc->r; g = rc->g; b = rc->b; a = rc->a;
+                }
+
+                // ensure we have a GL texture id
+                unsigned tex = sp->texture_id;
+                if (!tex && !sp->texture_key.empty()) {
+                    tex = Resource_Manager::getTexture(sp->texture_key);
+                    sp->texture_id = tex; // cache it
+                }
+                if (tex) {
+                    gfx::Graphics::renderSprite(tex, tr->x, tr->y, tr->rot, sx, sy, r, g, b, a);
+                }
+            }
+
+            
+        }
+
         // === ECS-driven drawing: rectangles ===
         for (auto& [id, obj] : Framework::FACTORY->Objects()) {
             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
@@ -261,12 +321,18 @@ namespace mygame
             auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                 Framework::ComponentTypeId::CT_RenderComponent);
             if (!tr || !rc) continue;
-
+            // if object have sprite skip
+            if (obj->GetComponentType<Framework::SpriteComponent>(
+                Framework::ComponentTypeId::CT_SpriteComponent)) {
+                continue;
+            }
+            // --- UPDATED: render the rectangle as a PNG sprite ---
             gfx::Graphics::renderRectangle(
                 tr->x, tr->y, tr->rot,
                 rc->w, rc->h,
-                rc->r, rc->g, rc->b, rc->a
+                1.f, 1.f, 1.f, 1.f
             );
+
         }
 
         // === ECS-driven drawing: circles ===
@@ -282,8 +348,9 @@ namespace mygame
                 cc->r, cc->g, cc->b, cc->a
             );
         }
+        mygame::DrawSpawnPanel();
+        ImGui::ShowDemoWindow();
     }
-
 
     // ------------------------------------------------------------
     // Shutdown: called once after loop
@@ -309,7 +376,7 @@ namespace mygame
         gWin = nullptr;
 
         std::cout << "Game ended." << std::endl;
+        ImGuiLayer::Shutdown();
     }
-
 
 } // namespace mygame

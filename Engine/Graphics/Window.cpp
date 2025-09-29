@@ -60,7 +60,11 @@ namespace gfx {
             glfwTerminate();
             throw std::runtime_error("Failed to initialize GLAD");
         }
+        const GLubyte* renderer = glGetString(GL_RENDERER);
+        const GLubyte* version = glGetString(GL_VERSION);
 
+        std::cout << "Renderer: " << renderer << "\n";
+        std::cout << "OpenGL version supported: " << version << "\n";
         // Set viewport and vsync
         glViewport(0, 0, m_width, m_height);
         glfwSwapInterval(1); // vsync on
