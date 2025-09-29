@@ -1,3 +1,16 @@
+/*********************************************************************************************
+ \file      AudioManager.cpp
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+
+ \brief     Implementation of the AudioManager class, providing sound loading, playback, 
+            pausing, stopping, and cleanup using the FMOD audio library. This file contains 
+            all function definitions declared in AudioManager.h.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+**********************************************************************************************/
 #include "AudioManager.h"
 #include <iostream>
 #include <filesystem>

@@ -1,3 +1,17 @@
+/*********************************************************************************************
+ \file      SoundManager.cpp
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+
+ \brief     Implementation of the SoundManager singleton class. This class provides a global 
+            access point for managing audio in the game by delegating operations to the 
+            AudioManager. It handles initialization, updates, cleanup, as well as loading, 
+            playing, pausing, stopping, and unloading sounds.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "SoundManager.h"
 #include <iostream>
 

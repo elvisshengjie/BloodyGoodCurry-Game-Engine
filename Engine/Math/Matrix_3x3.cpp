@@ -1,5 +1,16 @@
+/*********************************************************************************************
+ \file      Matrix_3x3.cpp
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
+ \brief     Implementation of the Matrix_3x3 class, which provides 3x3 matrix operations for 
+            2D transformations. Includes constructors, operator overloads, and static 
+            utility functions for identity, translation, scaling, rotation, and transposition.
 
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+**********************************************************************************************/
 #include "Matrix_3x3.h"
 
 // Constructors
@@ -50,11 +61,6 @@ Matrix_3x3& Matrix_3x3::operator*=(const Matrix_3x3& rhs) {
     return *this;
 }
 
-
-
-
-
-
 void Matrix_3x3::Mtx33Identity(Matrix_3x3& pResult) {
     pResult = Matrix_3x3(
         1.0f, 0.0f, 0.0f,
@@ -63,7 +69,6 @@ void Matrix_3x3::Mtx33Identity(Matrix_3x3& pResult) {
     );
 }
 
-
 void Matrix_3x3::Mtx33Translate(Matrix_3x3& pResult, float x, float y) {
     pResult = Matrix_3x3(
         1.0f, 0.0f, 0.0f,
@@ -71,7 +76,6 @@ void Matrix_3x3::Mtx33Translate(Matrix_3x3& pResult, float x, float y) {
         x, y, 1.0f
     );
 }
-
 
 void Matrix_3x3::Mtx33Scale(Matrix_3x3& pResult, float x, float y) {
     pResult = Matrix_3x3(
