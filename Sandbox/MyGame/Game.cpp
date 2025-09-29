@@ -4,6 +4,7 @@
 #include "Messaging_System/Messager_Bus.hpp"
 #include "Audio_Tester.h"
 #include "Game.hpp"
+#include "Graphics/Graphics.hpp"
 
 // use fixed screen size from JSON
 #include "Config/WindowConfig.h"
@@ -120,7 +121,8 @@ namespace mygame
 
         // --- NEW: load PNG to render instead of flat-colored rectangle ---
         Resource_Manager::load("player_png", "../../assets/player.png");
-        gPlayerTex = Resource_Manager::resources_map["player_png"].id;
+        gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
+
 
         std::cout << "\n=== Controls ===\n"
             << "1: coin | 2: toggle footsteps | 3: level win | 4: lose | 5: click | 6: win\n"
