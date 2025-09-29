@@ -6,7 +6,7 @@
 #include "Factory/Factory.h"                    // FACTORY, GOC, ComponentTypeId
 #include "Composition/PrefabManager.h"          // master_copies, ClonePrefab
 
-// Component types you currently support; add more here as you create them
+// Component types you currently support
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
@@ -18,9 +18,9 @@ namespace mygame {
 
     using namespace Framework;
 
-    // ------------------------------------------------------------
+
     // Helper: spawn one prefab and apply settings to present components
-    // ------------------------------------------------------------
+    
     static void SpawnOnePrefab(const char* prefab, SpawnSettings const& s, int index) {
         GOC* obj = ClonePrefab(prefab);
         if (!obj) return;
@@ -44,15 +44,15 @@ namespace mygame {
         // if (auto* ai = obj->GetComponentType<AIComponent>(ComponentTypeId::CT_AI)) { /* apply */ }
     }
 
-    // ------------------------------------------------------------
+  
     // Panel state (persists across frames)
-    // ------------------------------------------------------------
+    
     static std::string gSelectedPrefab = "Rect"; // default choice
     static SpawnSettings gS;                     // live tunables
 
-    // ------------------------------------------------------------
+    
     // UI: Draw the spawn panel
-    // ------------------------------------------------------------
+ 
     void DrawSpawnPanel() {
         ImGui::Begin("Spawn");
 
