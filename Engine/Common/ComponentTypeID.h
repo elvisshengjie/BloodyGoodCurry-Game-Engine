@@ -17,7 +17,7 @@ namespace Framework
 		// For Input
 		CT_InputComponents,
 		// For rigid body
-		CT_RigidBodyComponents,
+		CT_RigidBodyComponent,
 		//sprite
 		CT_SpriteComponent,
 		CT_MaxComponent

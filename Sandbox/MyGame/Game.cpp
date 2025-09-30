@@ -31,6 +31,7 @@
 #include "Component/CircleRenderComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Composition/PrefabManager.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 
 #include "Debug/ImGuiLayer.h"
 #include "imgui.h"
@@ -86,6 +87,7 @@ namespace mygame
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
         RegisterComponent(SpriteComponent);
+        RegisterComponent(RigidBodyComponent);
 
 
         //3)Create Master copy
@@ -188,6 +190,8 @@ namespace mygame
        cFg.dockspace = true;
        cFg.gamepad = false;
        ImGuiLayer::Initialize(win, cFg);
+
+
     }
 
     // ------------------------------------------------------------
@@ -220,6 +224,8 @@ namespace mygame
                 Framework::ComponentTypeId::CT_TransformComponent);
             auto* rc = sRectObj->GetComponentType<Framework::RenderComponent>(
                 Framework::ComponentTypeId::CT_RenderComponent);
+            auto* rbc = sRectObj->GetComponentType<Framework::RigidBodyComponent>(
+                Framework::ComponentTypeId::CT_RigidBodyComponent);
 
             // rotation (Q/E)
             if (tr) {
@@ -241,6 +247,16 @@ namespace mygame
                 rc->w = gRectBaseW * gRectScale;
                 rc->h = gRectBaseH * gRectScale;
             }
+
+            // Testing movement
+            if (rbc && tr) {
+                if (gWin->isKeyPressed(GLFW_KEY_D)) tr->x += rbc->velX * dt;
+                if (gWin->isKeyPressed(GLFW_KEY_A)) tr->x -= rbc->velX * dt;
+                if (gWin->isKeyPressed(GLFW_KEY_W)) tr->y += rbc->velY * dt;
+                if (gWin->isKeyPressed(GLFW_KEY_S)) tr->y -= rbc->velY * dt;
+            }
+
+
         }
     }
     // ------------------------------------------------------------
