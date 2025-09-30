@@ -25,24 +25,8 @@
 
 namespace mygame
 {
-    /*****************************************************************************************
-      \brief Initializes the audio system and loads necessary resources for playback.
-    *****************************************************************************************/
     void initializeAudio();
-    /*****************************************************************************************
-      \brief Cleans up the audio system, releasing all loaded sounds and resources.
-    *****************************************************************************************/
     void cleanupAudio();
-    /*****************************************************************************************
-      \brief Starts audio playback and sets up any required channels or looping sounds.
-      \param bus  Reference to the MessageBus for dispatching audio-related messages.
-    *****************************************************************************************/
     void startAudio(MessageBus& bus);
-    /*****************************************************************************************
-     \brief Handles user input related to audio, such as key presses that trigger sounds.
-     \param win          Reference to the game window for input polling.
-     \param keysPressed  Array tracking the state of keys being pressed.
-     \param bus          Reference to the MessageBus for dispatching audio-related messages.
-    *****************************************************************************************/
     void handleAudioInput(gfx::Window& win, std::array<bool, 10>& keysPressed,MessageBus& bus);
 }
