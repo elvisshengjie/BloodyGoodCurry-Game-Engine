@@ -1,7 +1,9 @@
 /*********************************************************************************************
  \file      SoundManager.h
  \par       SofaSpuds
- \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun(h.jun@digipen.edu) - Primary Author, 50%
+            jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 50%
+            
 
  \brief     Declaration of the SoundManager class, which acts as a wrapper around
             the AudioManager to provide global sound control for the application. The 

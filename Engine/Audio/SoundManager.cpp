@@ -1,7 +1,8 @@
 /*********************************************************************************************
  \file      SoundManager.cpp
  \par       SofaSpuds
- \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun(h.jun@digipen.edu) - Primary Author, 50%
+            jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 50%
 
  \brief     Implementation of the SoundManager singleton class. This class provides a global 
             access point for managing audio in the game by delegating operations to the 
