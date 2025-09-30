@@ -3,9 +3,11 @@
  \par       SofaSpuds
  \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
- \brief     Declaration of the Matrix_3x3 class, which provides 3x3 matrix operations for 
-            2D transformations. Includes constructors, operator overloads, and static 
-            utility functions for identity, translation, scaling, rotation, and transposition.
+ \brief     Declaration and some inline immeplementations of the Matrix_3x3 class, 
+            which provides 3x3 matrix operations for 2D transformations. 
+            Includes constructors, operator overloads, and static 
+            utility functions for identity, translation, scaling, rotation, 
+            and transposition.
 
  \copyright
             All content © 2025 DigiPen Institute of Technology Singapore.

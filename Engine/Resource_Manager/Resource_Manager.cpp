@@ -13,6 +13,11 @@
 *********************************************************************************************/
 #include "Resource_Manager.h"
 
+/*****************************************************************************************
+     \brief Get the file extension from a path string.
+    \param path  Path to the file.
+    \return File extension string (e.g., "png", "wav").
+*****************************************************************************************/
 inline std::string Resource_Manager::GetExtension(const std::string& path)
 {
     std::string ext = std::filesystem::path(path).extension().string();
@@ -20,9 +25,23 @@ inline std::string Resource_Manager::GetExtension(const std::string& path)
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
     return ext;
 }
+/*****************************************************************************************
+     \brief Check if a given file extension corresponds to a texture type.
+    \param ext  File extension string.
+    \return true if it is a texture, false otherwise.
+*****************************************************************************************/
 bool Resource_Manager::isTexture(const std::string& ext){return (ext == "png"||ext == "jpg");}
+/*****************************************************************************************
+     \brief Check if a given file extension corresponds to a sound type.
+    \param ext  File extension string.
+    \return true if it is a sound, false otherwise.
+*****************************************************************************************/
 bool Resource_Manager::isSound(const std::string& ext){return ext == "mp3";}
-
+/*****************************************************************************************
+     \brief Retrieve the handle of a texture resource by its unique key.
+    \param key  Resource identifier.
+    \return Handle of the texture, or 0 if not found.
+*****************************************************************************************/
 unsigned int Resource_Manager::getTexture(const std::string& key)
 {
     auto it = resources_map.find(key);
@@ -34,7 +53,13 @@ unsigned int Resource_Manager::getTexture(const std::string& key)
 
 
 namespace fs = std::filesystem;
-
+/*****************************************************************************************
+     \brief Load a single resource by name and path.
+    \param name  Unique identifier for the resource.
+    \param path  Path to the resource file.
+    \param loop  Optional flag for sound looping (default false).
+    \return true if the resource was successfully loaded, false otherwise.
+*****************************************************************************************/
 bool Resource_Manager::load(const std::string& id, const std::string& path, bool loop)
 {
     fs::path filePath(path);
@@ -55,7 +80,10 @@ bool Resource_Manager::load(const std::string& id, const std::string& path, bool
     }
     else {std::cerr << "[Resource_Manager] Unsupported file type: "  << path << std::endl; return false;}
 }
-
+/*****************************************************************************************
+     \brief Load all resources from a specified directory.
+    \param directory  Path to the directory containing resource files.
+*****************************************************************************************/
 void Resource_Manager::loadAll(const std::string& directory)
 {
     for (auto& entry : fs::directory_iterator(directory)) 
@@ -80,7 +108,10 @@ void Resource_Manager::loadAll(const std::string& directory)
         }
     }
 }
-
+/*****************************************************************************************
+     \brief Unload all resources of a specified type.
+    \param type  Resource type to unload (Texture, Font, Graphics, Sound, or All).
+*****************************************************************************************/
 void Resource_Manager::unloadAll(Resource_Type type)
 {
     std::cout << "[Resource_Manager] Unloading resources of type: "

@@ -3,9 +3,11 @@
  \par       SofaSpuds
  \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
- \brief     Implementation of the Matrix_3x3 class, which provides 3x3 matrix operations for 
-            2D transformations. Includes constructors, operator overloads, and static 
-            utility functions for identity, translation, scaling, rotation, and transposition.
+ \brief     Implementation of the Matrix_3x3 class and its major functions, 
+            which provides 3x3 matrix operations for 2D transformations. 
+            Includes constructors, operator overloads, and static utility 
+            functions for identity, translation, scaling, rotation, 
+            and transposition.
 
  \copyright
             All content © 2025 DigiPen Institute of Technology Singapore.
@@ -13,11 +15,16 @@
 **********************************************************************************************/
 #include "Matrix_3x3.h"
 
-// Constructors
+/*****************************************************************************************
+     \brief Default constructor. Initializes the matrix to the identity matrix.
+*****************************************************************************************/
 Matrix_3x3::Matrix_3x3() {
     Mtx33Identity(*this);
 }
-
+/*****************************************************************************************
+     \brief Constructor from a flat array of 9 floats.
+    \param pArr Pointer to an array of 9 floats representing the matrix elements.
+*****************************************************************************************/
 Matrix_3x3::Matrix_3x3(const float* pArr) {
     for (int col = 0; col < 3; ++col) {
         for (int row = 0; row < 3; ++row) {
@@ -25,13 +32,20 @@ Matrix_3x3::Matrix_3x3(const float* pArr) {
         }
     }
 }
-
+/*****************************************************************************************
+     \brief Parameterized constructor.
+    \param a,b,c,d,e,f,g,h,i Elements of the matrix in row-major order.
+*****************************************************************************************/
 Matrix_3x3::Matrix_3x3(float a, float b, float c, float d, float e, float f, float g, float h, float i) {
     m2[0][0] = a; m2[1][0] = b; m2[2][0] = c;
     m2[0][1] = d; m2[1][1] = e; m2[2][1] = f;
     m2[0][2] = g; m2[1][2] = h; m2[2][2] = i;
 }
-
+/*****************************************************************************************
+     \brief Assignment operator.
+    \param rhs Matrix to assign from.
+    \return Reference to this matrix.
+*****************************************************************************************/
 Matrix_3x3& Matrix_3x3::operator=(const Matrix_3x3& rhs) {
     if (this != &rhs) {
         for (int col = 0; col < 3; ++col) {
@@ -42,7 +56,11 @@ Matrix_3x3& Matrix_3x3::operator=(const Matrix_3x3& rhs) {
     }
     return *this;
 }
-
+/*****************************************************************************************
+     \brief Multiplies this matrix with another matrix.
+    \param rhs Matrix to multiply with.
+    \return Resulting matrix after multiplication.
+*****************************************************************************************/
 Matrix_3x3 Matrix_3x3::operator*(const Matrix_3x3& rhs) const {
     Matrix_3x3 result;
     for (int col = 0; col < 3; ++col) {
@@ -55,12 +73,19 @@ Matrix_3x3 Matrix_3x3::operator*(const Matrix_3x3& rhs) const {
     }
     return result;
 }
-
+/*****************************************************************************************
+     \brief Multiplies this matrix with another matrix in-place.
+    \param rhs Matrix to multiply with.
+    \return Reference to this matrix after multiplication.
+*****************************************************************************************/
 Matrix_3x3& Matrix_3x3::operator*=(const Matrix_3x3& rhs) {
     *this = *this * rhs;
     return *this;
 }
-
+/*****************************************************************************************
+     \brief Sets a matrix to the identity matrix.
+    \param pResult Matrix to store the result.
+*****************************************************************************************/
 void Matrix_3x3::Mtx33Identity(Matrix_3x3& pResult) {
     pResult = Matrix_3x3(
         1.0f, 0.0f, 0.0f,
@@ -68,7 +93,12 @@ void Matrix_3x3::Mtx33Identity(Matrix_3x3& pResult) {
         0.0f, 0.0f, 1.0f
     );
 }
-
+/*****************************************************************************************
+     \brief Sets a matrix to a translation matrix.
+    \param pResult Matrix to store the result.
+    \param x Translation along the X-axis.
+    \param y Translation along the Y-axis.
+*****************************************************************************************/
 void Matrix_3x3::Mtx33Translate(Matrix_3x3& pResult, float x, float y) {
     pResult = Matrix_3x3(
         1.0f, 0.0f, 0.0f,
@@ -76,7 +106,12 @@ void Matrix_3x3::Mtx33Translate(Matrix_3x3& pResult, float x, float y) {
         x, y, 1.0f
     );
 }
-
+/*****************************************************************************************
+     \brief Sets a matrix to a scale matrix.
+    \param pResult Matrix to store the result.
+    \param x Scale factor along the X-axis.
+    \param y Scale factor along the Y-axis.
+*****************************************************************************************/
 void Matrix_3x3::Mtx33Scale(Matrix_3x3& pResult, float x, float y) {
     pResult = Matrix_3x3(
         x, 0.0f, 0.0f,
@@ -84,7 +119,11 @@ void Matrix_3x3::Mtx33Scale(Matrix_3x3& pResult, float x, float y) {
         0.0f, 0.0f, 1.0f
     );
 }
-
+/*****************************************************************************************
+     \brief Sets a matrix to a rotation matrix using radians.
+    \param pResult Matrix to store the result.
+    \param angle Rotation angle in radians.
+*****************************************************************************************/
 void Matrix_3x3::Mtx33RotRad(Matrix_3x3& pResult, float angle) {
     float cosA = std::cos(angle);
     float sinA = std::sin(angle);
@@ -94,7 +133,11 @@ void Matrix_3x3::Mtx33RotRad(Matrix_3x3& pResult, float angle) {
         0.0f, 0.0f, 1.0f
     );
 }
-
+/*****************************************************************************************
+     \brief Computes the transpose of a matrix.
+    \param pResult Matrix to store the result.
+    \param pMtx Matrix to transpose.
+*****************************************************************************************/
 void Matrix_3x3::Mtx33Transpose(Matrix_3x3& pResult, const Matrix_3x3& pMtx) {
     for (int col = 0; col < 3; ++col) {
         for (int row = 0; row < 3; ++row) {

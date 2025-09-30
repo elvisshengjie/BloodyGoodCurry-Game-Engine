@@ -16,6 +16,9 @@
 #include <GLFW/glfw3.h>
 namespace mygame
 {
+    /*****************************************************************************************
+      \brief Initializes the audio system and loads necessary resources for playback.
+    *****************************************************************************************/
     void initializeAudio()
     {
         std::cout << "Initializing audio system..." << std::endl;
@@ -32,13 +35,18 @@ namespace mygame
         Resource_Manager::loadAll("../../assets/Audio");
         std::cout << "Audio system initialized successfully!" << std::endl;
     }
-    
+    /*****************************************************************************************
+      \brief Cleans up the audio system, releasing all loaded sounds and resources.
+    *****************************************************************************************/
     void cleanupAudio() 
     {
         std::cout << "Cleaning up audio system..." << std::endl;
         Resource_Manager::unloadAll(Resource_Manager::Sound); // unload only sounds
     }
-    
+    /*****************************************************************************************
+      \brief Starts audio playback and sets up any required channels or looping sounds.
+      \param bus  Reference to the MessageBus for dispatching audio-related messages.
+    *****************************************************************************************/
     void startAudio(MessageBus& bus)
     {
     std::cout << "Starting MyGame with Sound Support..." << std::endl;
@@ -93,7 +101,12 @@ namespace mygame
     std::cout << "Press ESC: Exit game" << std::endl;
     std::cout << "==========================" << std::endl;
     }
-
+    /*****************************************************************************************
+     \brief Handles user input related to audio, such as key presses that trigger sounds.
+     \param win          Reference to the game window for input polling.
+     \param keysPressed  Array tracking the state of keys being pressed.
+     \param bus          Reference to the MessageBus for dispatching audio-related messages.
+    *****************************************************************************************/
     void handleAudioInput(gfx::Window& win, std::array<bool, 10>& keysPressed,MessageBus& bus)
     {
         auto processKey=[&](int glfwKey, int index, MessageID msgID)

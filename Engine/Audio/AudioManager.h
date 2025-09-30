@@ -117,7 +117,7 @@ class AudioManager
     *****************************************************************************************/
     void setSoundPitch(const std::string& name, float pitch);
     /*****************************************************************************************
-      \brief Checks if a sound is currently playing.
+      \brief Checks if a sound is loaded.
       \param name  Identifier of the sound.
       \return True if the sound is playing, false otherwise.
     *****************************************************************************************/

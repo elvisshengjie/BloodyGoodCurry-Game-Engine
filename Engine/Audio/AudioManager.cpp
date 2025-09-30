@@ -17,10 +17,18 @@
 #include "fmod.h"
 #include "fmod_errors.h"
 
-
+/*****************************************************************************************
+ \brief Constructor for AudioManager.
+*****************************************************************************************/
 AudioManager::AudioManager() : m_system(nullptr) {}
+/*****************************************************************************************
+ \brief Destructor for AudioManager. Ensures cleanup of FMOD resources.
+*****************************************************************************************/
 AudioManager::~AudioManager() {shutdown();}
-
+/*****************************************************************************************
+ \brief Initializes the FMOD system for audio playback.
+ \return True if initialization succeeds, false otherwise.
+*****************************************************************************************/
 bool AudioManager::initialize()
 {
     // Create FMOD system with correct version
@@ -39,7 +47,9 @@ bool AudioManager::initialize()
     std::cout << "AudioManager initialized successfully" << std::endl;
     return true;
 }
-
+/*****************************************************************************************
+ \brief Shuts down the FMOD system and releases all associated resources.
+*****************************************************************************************/
 void AudioManager::shutdown() 
 {
     if (m_system) 
@@ -54,10 +64,19 @@ void AudioManager::shutdown()
         std::cout << "AudioManager shutdown complete" << std::endl;
     }
 }
-
+/*****************************************************************************************
+ \brief Updates the FMOD system. 
+        Should be called once per frame in the main game loop.
+*****************************************************************************************/
 void AudioManager::update() 
 {if (m_system) {FMOD_System_Update(m_system);}}
-
+/*****************************************************************************************
+ \brief Loads a sound from a given file path.
+ \param name      Name to identify the sound.
+ \param filePath  Path to the audio file.
+ \param loop      Whether the sound should loop during playback.
+ \return True if the sound was successfully loaded, false otherwise.
+*****************************************************************************************/
 bool AudioManager::loadSound(const std::string& name, const std::string& filePath, bool loop) 
 {
     if (!m_system) {std::cerr << "AudioManager not initialized" << std::endl; return false;}
@@ -78,7 +97,10 @@ bool AudioManager::loadSound(const std::string& name, const std::string& filePat
     std::cout << "Loaded sound: " << name << " from " << fullPath << std::endl;
     return true;
 }
-
+/*****************************************************************************************
+ \brief Unloads a specific sound by name.
+ \param name  Identifier of the sound to unload.
+*****************************************************************************************/
 void AudioManager::unloadSound(const std::string& name)
 {
     auto it = m_sounds.find(name);
@@ -90,7 +112,9 @@ void AudioManager::unloadSound(const std::string& name)
     }
     else {std::cerr << "Sound:"<<name << "is not found in Audio Manager\n";}
 }
-
+/*****************************************************************************************
+ \brief Unloads all currently loaded sounds.
+*****************************************************************************************/
 void AudioManager::unloadAllSounds()
 {
     for (auto& [name,sound]: m_sounds)
@@ -100,7 +124,13 @@ void AudioManager::unloadAllSounds()
     }
     m_sounds.clear();
 }
-
+/*****************************************************************************************
+ \brief Plays a sound by name.
+ \param name      Identifier of the sound to play.
+ \param volume    Playback volume (default = 1.0f).
+ \param pitch     Playback pitch (default = 1.0f).
+ \return True if the sound started playing successfully, false otherwise.
+*****************************************************************************************/
 bool AudioManager::playSound(const std::string& name, float volume, float pitch)
 {
     if (!m_system) return false;
@@ -127,7 +157,10 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch)
     std::cout << "Playing sound: " << name << std::endl;
     return true;
 }
-
+/*****************************************************************************************
+ \brief Stops playback of a specific sound.
+ \param name  Identifier of the sound to stop.
+*****************************************************************************************/
 void AudioManager::stopSound(const std::string& name)
 {
     auto it = m_channels.find(name);
@@ -139,6 +172,9 @@ void AudioManager::stopSound(const std::string& name)
     m_channels.erase(it);
     std::cout << "Stopped all instances of: " << name << std::endl;
 }
+/*****************************************************************************************
+ \brief Stops playback of all sounds currently playing.
+*****************************************************************************************/
 void AudioManager::stopAllSounds()
 {
     for (auto& [name, channels] : m_channels) {
@@ -149,9 +185,11 @@ void AudioManager::stopAllSounds()
     m_channels.clear();
     std::cout << "Stopped all sounds" << std::endl;
 }
-
-
-
+/*****************************************************************************************
+    \brief Pauses or unpauses a specific sound.
+    \param name   Identifier of the sound to pause.
+    \param pause  True to pause, false to resume.
+*****************************************************************************************/
 void AudioManager::pauseSound(const std::string& name, bool pause)
 {
     auto it = m_channels.find(name);
@@ -166,9 +204,10 @@ void AudioManager::pauseSound(const std::string& name, bool pause)
 
     std::cout << (pause ? "Paused" : "Resumed") << " all instances of sound: " << name << std::endl;
 }
-
-
-
+/*****************************************************************************************
+ \brief Pauses or unpauses all sounds.
+ \param pause  True to pause, false to resume.
+*****************************************************************************************/
 void AudioManager::pauseAllSounds(bool pause)
 {
     for (auto& [name, channels] : m_channels) {
@@ -178,8 +217,10 @@ void AudioManager::pauseAllSounds(bool pause)
         std::cout << (pause ? "Paused" : "Resumed") << " all instances of sound: " << name << std::endl;
     }
 }
-
-
+/*****************************************************************************************
+    \brief Sets the master volume for all sounds.
+    \param volume  New master volume level.
+*****************************************************************************************/
 void AudioManager::setMasterVolume(float volume) 
 {
     if (m_system) 
@@ -190,7 +231,11 @@ void AudioManager::setMasterVolume(float volume)
         else {std::cerr << "Failed to get master channel group: " << FMOD_ErrorString(result) << std::endl;}
     }
 }
-
+/*****************************************************************************************
+ \brief Sets the volume of a specific sound.
+ \param name    Identifier of the sound.
+ \param volume  New volume level.
+*****************************************************************************************/
 void AudioManager::setSoundVolume(const std::string& name, float volume)
 {
     auto it = m_channels.find(name);
@@ -205,7 +250,11 @@ void AudioManager::setSoundVolume(const std::string& name, float volume)
 
     std::cout << "Set volume of all instances of '" << name << "' to " << volume << std::endl;
 }
-
+/*****************************************************************************************
+    \brief Sets the pitch of a specific sound.
+    \param name   Identifier of the sound.
+    \param pitch  New pitch value.
+*****************************************************************************************/
 void AudioManager::setSoundPitch(const std::string& name, float pitch)
 {
     auto it = m_channels.find(name);
@@ -220,10 +269,18 @@ void AudioManager::setSoundPitch(const std::string& name, float pitch)
 
     std::cout << "Set pitch of all instances of '" << name << "' to " << pitch << std::endl;
 }
-
+/*****************************************************************************************
+     \brief Checks if a sound is loaded.
+    \param name  Identifier of the sound.
+    \return True if the sound is playing, false otherwise.
+*****************************************************************************************/
 bool AudioManager::isSoundLoaded(const std::string& name) const
 {return m_sounds.find(name) != m_sounds.end();}
-
+/*****************************************************************************************
+     \brief Checks if a sound is currently playing.
+    \param name  Identifier of the sound.
+    \return True if the sound is playing, false otherwise.
+*****************************************************************************************/
 bool AudioManager::isSoundPlaying(const std::string& name) const
 {
     auto it = m_channels.find(name);
@@ -238,7 +295,10 @@ bool AudioManager::isSoundPlaying(const std::string& name) const
 
     return false;
 }
-
+/*****************************************************************************************
+ \brief Retrieves a list of all loaded sounds.
+ \return Vector containing identifiers of loaded sounds.
+*****************************************************************************************/
 std::vector<std::string> AudioManager::getLoadedSounds() const
 {
     std::vector<std::string> sounds;
@@ -247,6 +307,11 @@ std::vector<std::string> AudioManager::getLoadedSounds() const
     }
     return sounds;
 }
+/*****************************************************************************************
+ \brief Constructs the full file path for a given file.
+ \param fileName  Name of the file.
+ \return Full path string.
+*****************************************************************************************/
 std::string AudioManager::getFullPath(const std::string& fileName) const 
 {
     // Try to find the audio file in the game-assets directory
@@ -264,7 +329,11 @@ std::string AudioManager::getFullPath(const std::string& fileName) const
     // If no path found, return the original filename
     return fileName;
 }
-
+/*****************************************************************************************
+ \brief Checks the result of an FMOD operation and logs errors if any.
+ \param result     FMOD operation result.
+ \param operation  Description of the operation attempted.
+*****************************************************************************************/
 void AudioManager::checkFMODError(FMOD_RESULT result, const std::string& operation) const
 {
     if (result != FMOD_OK) {

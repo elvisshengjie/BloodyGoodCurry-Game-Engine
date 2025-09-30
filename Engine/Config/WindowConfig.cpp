@@ -12,6 +12,11 @@
             All rights reserved.
 *********************************************************************************************/
 #include "WindowConfig.h"
+/*********************************************************************************************
+  \brief Loads window configuration from a JSON file.
+  \param filename Path to the JSON configuration file.
+  \return WindowConfig structure populated with data from the file.
+*********************************************************************************************/
 WindowConfig LoadWindowConfig(const std::string& filename)
 {
     std::ifstream file(filename);
