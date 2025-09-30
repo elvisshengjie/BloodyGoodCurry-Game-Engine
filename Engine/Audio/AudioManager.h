@@ -1,7 +1,8 @@
 /*********************************************************************************************
  \file      AudioManager.h
  \par       SofaSpuds
- \author    Ho Jun(h.jun@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun(h.jun@digipen.edu) - Primary Author, 50%
+            jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 50%
 
  \brief     Declaration of the AudioManager class, which manages audio playback using the FMOD 
             audio library. This includes loading, playing, pausing, stopping, and unloading 
