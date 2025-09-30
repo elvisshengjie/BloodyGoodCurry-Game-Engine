@@ -249,12 +249,11 @@ namespace mygame
             }
 
             // Testing movement
-            if (rbc)
-            {
-                if (gWin->isKeyPressed(GLFW_KEY_D)) tr->x += rbc->velX;
-                if (gWin->isKeyPressed(GLFW_KEY_A)) tr->x -= rbc->velX;
-                if (gWin->isKeyPressed(GLFW_KEY_W)) tr->y -= rbc->velY;
-                if (gWin->isKeyPressed(GLFW_KEY_S)) tr->y += rbc->velY;
+            if (rbc && tr) {
+                if (gWin->isKeyPressed(GLFW_KEY_D)) tr->x += rbc->velX * dt;
+                if (gWin->isKeyPressed(GLFW_KEY_A)) tr->x -= rbc->velX * dt;
+                if (gWin->isKeyPressed(GLFW_KEY_W)) tr->y += rbc->velY * dt;
+                if (gWin->isKeyPressed(GLFW_KEY_S)) tr->y -= rbc->velY * dt;
             }
 
 
