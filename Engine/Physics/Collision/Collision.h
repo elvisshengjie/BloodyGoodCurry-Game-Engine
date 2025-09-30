@@ -1,10 +1,28 @@
+/*********************************************************************************************
+ \file      Collision.h
+ \par       SofaSpuds
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
+
+ \brief     Implementation of Collision. Provides AABB style collision checks for 
+            Rectangle to Circle and Rectangle to Rectangle, along with having structs
+            for both Rectangle and Circle
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
 #pragma once
 #ifndef COLLISION_H
 #define COLLISION_H
 #include "Math/Vector_2D.h"
 
-namespace Framework {
+namespace Framework 
+{
 
+    /*****************************************************************************************
+      \brief The AABB struct for any game object that will use it.
+    *****************************************************************************************/
     struct AABB
     {
         Vector2D<float> min;
@@ -14,6 +32,9 @@ namespace Framework {
             min(x, y), max(x + width, y + height) {}
     };
 
+    /*****************************************************************************************
+      \brief The Circle struct. Used exclusively for projectiles for now.
+    *****************************************************************************************/
     struct Circle
     {
         Vector2D<float> center;
@@ -22,6 +43,9 @@ namespace Framework {
         Circle(float x, float y, float rad) : center(x, y), radius(rad) {}
     };
 
+    /*****************************************************************************************
+      \brief The Collision class that will be used to check collision.
+    *****************************************************************************************/
     class Collision
     {
     public:
@@ -43,13 +67,6 @@ namespace Framework {
 
             return (dx * dx + dy * dy) < (c.radius * c.radius);
         }
-
-        // Static collision check
-        //bool CollisionIntersection_RectToRect_Static(const AABB& aabb1, const AABB& aabb2); 
-        
-        // Dynamic Collision check
-        //bool CollisionIntersection_RectToRect_Dynamic(const AABB& aabb1, const AEVec2& vel1, const AABB& aabb2, const AEVec2& vel2, float& firstTimeOfCollision);
-        //Change AEVec2 to our own math or velocity thing
     };
 
 } // namespace Framework
