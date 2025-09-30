@@ -1,9 +1,9 @@
 /*********************************************************************************************
  \file      SoundManager.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
 
- \brief     Declaration of the SoundManager singleton class, which acts as a wrapper around
+ \brief     Declaration of the SoundManager class, which acts as a wrapper around
             the AudioManager to provide global sound control for the application. The 
             SoundManager ensures only one instance of the AudioManager is used and simplifies
             access to sound loading, playback, pausing, stopping, and cleanup.
@@ -12,12 +12,14 @@
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 **********************************************************************************************/
+
 #pragma once
 #include "AudioManager.h"
 #include <memory>
+
 /*********************************************************************************************
  \class SoundManager
- \brief Singleton wrapper around AudioManager for centralized sound management.
+ \brief A wrapper around AudioManager for centralized sound management.
 
  The SoundManager ensures only one instance of AudioManager exists. It provides an easy-to-
  access global interface for loading, playing, pausing, stopping, and unloading sounds, as
@@ -47,17 +49,16 @@ public:
     std::vector<std::string> getLoadedSounds() const;
 
 private:
-    /*****************************************************************************************
-     \brief Private constructor for singleton pattern.
-    *****************************************************************************************/
+    // Private constructor
     SoundManager() = default;
-    /*****************************************************************************************
-     \brief Private destructor for singleton pattern.
-    *****************************************************************************************/
+
+    // Private destructor
     ~SoundManager() = default;
-    // Deleted copy operations to enforce singleton
+
+    // Deletion of copy operations
     SoundManager(const SoundManager&) = delete;
     SoundManager& operator=(const SoundManager&) = delete;
+
     /// Underlying AudioManager instance.
     std::unique_ptr<AudioManager> m_audioManager;
 };
