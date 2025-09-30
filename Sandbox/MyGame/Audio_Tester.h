@@ -1,7 +1,8 @@
 /*********************************************************************************************
  \file      AudioTester.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun(h.jun@digipen.edu) - Primary Author, 50%
+            jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 50%
 
  \brief     Declaration of utility functions for testing and handling audio in the game.
             Includes functions to initialize and clean up audio systems, start audio playback,

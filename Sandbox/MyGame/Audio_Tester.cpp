@@ -1,7 +1,8 @@
 ﻿/*********************************************************************************************
  \file      AudioTester.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun(h.jun@digipen.edu) - Primary Author, 50%
+            jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 50%
 
  \brief     Implementation of audio testing utilities. Provides functions to initialize, clean
             up, start playback, and handle input for audio in the game. Integrates with
