@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      AudioManager.h
  \par       SofaSpuds
- \author    jianwei.c(jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun(h.jun@digipen.edu) - Primary Author, 100%
 
  \brief     Declaration of the AudioManager class, which manages audio playback using the FMOD 
             audio library. This includes loading, playing, pausing, stopping, and unloading 
@@ -17,10 +17,12 @@
 #include <memory>
 #include <vector>
 #include "fmod.h"
+
 // Forward declarations for FMOD
 struct FMOD_SYSTEM;
 struct FMOD_SOUND;
 struct FMOD_CHANNEL;
+
 /*********************************************************************************************
   \class AudioManager
   \brief Manages the initialization, loading, playback, and cleanup of audio using FMOD.

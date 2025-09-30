@@ -1,3 +1,15 @@
+/*********************************************************************************************
+ \file      Input.h
+ \par       SofaSpuds
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
+
+ \brief     Implementation of the inputs. Captures and stores the position of the mouse,
+			along with multiple states of a key, be it mouse or keyboard.
+
+ \copyright
+			All content © 2025 DigiPen Institute of Technology Singapore.
+			All rights reserved.
+*********************************************************************************************/
 #pragma once
 
 #include <unordered_map>
@@ -6,6 +18,9 @@ struct GLFWwindow;
 
 namespace Framework
 {
+	/*****************************************************************************************
+	  \brief The state of the mouse that can be used if needed.
+	*****************************************************************************************/
 	struct MouseState
 	{
 		double x = 0;
@@ -14,6 +29,10 @@ namespace Framework
 		bool rightClick = false;
 	};
 
+	/*****************************************************************************************
+	  \brief The Input Manager handles the input and also provides means to see 
+	         if the key is pressed, held or released.
+	*****************************************************************************************/
 	class InputManager
 	{
 	public:
@@ -46,9 +65,4 @@ namespace Framework
 
 		MouseState m_mouseState;
 	};
-
-	// Returns true while the given virtual-key is held down.
-// vk accepts Windows virtual key codes (e.g., 'Q', 'E', 'Z', 'X', 'R', VK_SHIFT, etc.).
-	bool IsDown(int vk);
-
 }

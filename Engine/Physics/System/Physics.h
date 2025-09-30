@@ -1,6 +1,17 @@
+/*********************************************************************************************
+ \file      Physics.h
+ \par       SofaSpuds
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
+
+ \brief     Implementation of physics in the game. 
+
+ \copyright
+			All content © 2025 DigiPen Institute of Technology Singapore.
+			All rights reserved.
+*********************************************************************************************/
 #pragma once
-// Physics.h
-#include <vector> // Might not need since we made our own
+
+#include <vector>
 #include "Math/Vector_2D.h"
 #include "Physics/Collision/Collision.h"
 #include "Composition/Component.h"
@@ -10,6 +21,9 @@
 
 namespace Framework
 {
+	/*****************************************************************************************
+	\brief The necessary components from Rigid body for it to work
+	*****************************************************************************************/
 	class RigidBodyComponent : public GameComponent
 	{
 	public:
@@ -17,6 +31,9 @@ namespace Framework
 		float velX = 0.0f, velY = 0.0f;
 	};
 
+	/*****************************************************************************************
+	\brief Loops through all game objects managed by FACTORY and updates their position if needed
+	*****************************************************************************************/
 	class PhysicsSystem : public ISystem
 	{
 	public:
@@ -26,8 +43,9 @@ namespace Framework
 			{
 				if (!obj)
 					continue;
-
-				auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponents);
+				// This hold velocity and size
+				auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+				// This holds position of the object
 				auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
 
 				if (!rb || !tr)
@@ -40,7 +58,7 @@ namespace Framework
 				// Check collision (later)
 			}
 		}
-
+		// This is just to return the name so the engine knows what system this is
 		std::string GetName() override { return "PhysicsSystem"; }
 	};
 }

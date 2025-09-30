@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      SoundManager.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
 
  \brief     Implementation of the SoundManager singleton class. This class provides a global 
             access point for managing audio in the game by delegating operations to the 
@@ -12,10 +12,12 @@
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
+
 #include "SoundManager.h"
 #include <iostream>
+
 /*****************************************************************************************
- \brief Get the singleton instance of the SoundManager.
+ \brief Get the instance of the SoundManager.
  \return Reference to the single SoundManager instance.
 *****************************************************************************************/
 SoundManager& SoundManager::getInstance()
@@ -23,8 +25,9 @@ SoundManager& SoundManager::getInstance()
     static SoundManager instance;
     return instance;
 }
+
 /*****************************************************************************************
- \brief Initialize the underlying AudioManager system.
+ \brief Initializes the underlying AudioManager system.
  \return True if initialization succeeded, false otherwise.
 *****************************************************************************************/
 bool SoundManager::initialize()
@@ -46,8 +49,9 @@ bool SoundManager::initialize()
     
     return success;
 }
+
 /*****************************************************************************************
- \brief Shutdown the AudioManager and release all resources.
+ \brief Shuts down the AudioManager and releases all resources.
 *****************************************************************************************/
 void SoundManager::shutdown()
 {
@@ -58,8 +62,9 @@ void SoundManager::shutdown()
         std::cout << "SoundManager shutdown complete" << std::endl;
     }
 }
+
 /*****************************************************************************************
- \brief Update the AudioManager. Should be called once per frame.
+ \brief Update the AudioManager. This is called once per frame.
 *****************************************************************************************/
 void SoundManager::update()
 {
@@ -68,9 +73,10 @@ void SoundManager::update()
         m_audioManager->update();
     }
 }
+
 /*****************************************************************************************
  \brief Load a sound into memory.
- \param name The identifier for the sound.
+ \param name The identifies the sound.
  \param filePath Path to the audio file.
  \param loop Whether the sound should loop when played.
  \return True if the sound was successfully loaded.
@@ -85,9 +91,10 @@ bool SoundManager::loadSound(const std::string& name, const std::string& filePat
     
     return m_audioManager->loadSound(name, filePath, loop);
 }
+
 /*****************************************************************************************
- \brief Unload a specific sound by its identifier.
- \param name The identifier of the sound to unload.
+ \brief Unload a specific sound by it's identifier.
+ \param name To identifier the sound to unload.
 *****************************************************************************************/
 void SoundManager::unloadSound(const std::string& name)
 {
@@ -96,12 +103,9 @@ void SoundManager::unloadSound(const std::string& name)
         m_audioManager->unloadSound(name);
     }
 }
+
 /*****************************************************************************************
- \brief Play a loaded sound.
- \param name The identifier of the sound.
- \param volume Playback volume (default 1.0f).
- \param pitch Playback pitch (default 1.0f).
- \return True if the sound was successfully played.
+ \brief Unloads all the sound that has been loaded.
 *****************************************************************************************/
 void SoundManager::unloadAllSounds()
 {
@@ -110,11 +114,12 @@ void SoundManager::unloadAllSounds()
         m_audioManager->unloadAllSounds();
     }
 }
+
 /*****************************************************************************************
- \brief Play a loaded sound.
- \param name The identifier of the sound.
- \param volume Playback volume (default 1.0f).
- \param pitch Playback pitch (default 1.0f).
+ \brief Plays a loaded sound.
+ \param name The identifies the sound.
+ \param volume Playback volume (default is 1.0f).
+ \param pitch Playback pitch (default is 1.0f).
  \return True if the sound was successfully played.
 *****************************************************************************************/
 bool SoundManager::playSound(const std::string& name, float volume, float pitch)
@@ -127,9 +132,10 @@ bool SoundManager::playSound(const std::string& name, float volume, float pitch)
     
     return m_audioManager->playSound(name, volume, pitch);
 }
+
 /*****************************************************************************************
- \brief Stop playback of all instances of a specific sound.
- \param name The identifier of the sound to stop.
+ \brief Stops the playback of a specific sound.
+ \param name The identifies the sound to stop.
 *****************************************************************************************/
 void SoundManager::stopSound(const std::string& name)
 {
@@ -138,8 +144,9 @@ void SoundManager::stopSound(const std::string& name)
         m_audioManager->stopSound(name);
     }
 }
+
 /*****************************************************************************************
- \brief Stop all currently playing sounds.
+ \brief Stops all currently playing sounds.
 *****************************************************************************************/
 void SoundManager::stopAllSounds()
 {
@@ -148,9 +155,10 @@ void SoundManager::stopAllSounds()
         m_audioManager->stopAllSounds();
     }
 }
+
 /*****************************************************************************************
- \brief Pause or resume a specific sound.
- \param name The identifier of the sound.
+ \brief Pauses or resumes a specific sound.
+ \param name The identifies the sound.
  \param pause True to pause, false to resume.
 *****************************************************************************************/
 void SoundManager::pauseSound(const std::string& name, bool pause)
@@ -160,8 +168,9 @@ void SoundManager::pauseSound(const std::string& name, bool pause)
         m_audioManager->pauseSound(name, pause);
     }
 }
+
 /*****************************************************************************************
- \brief Pause or resume all currently playing sounds.
+ \brief Pauses or resumes all currently playing sounds.
  \param pause True to pause, false to resume.
 *****************************************************************************************/
 void SoundManager::pauseAllSounds(bool pause)
@@ -171,8 +180,9 @@ void SoundManager::pauseAllSounds(bool pause)
         m_audioManager->pauseAllSounds(pause);
     }
 }
+
 /*****************************************************************************************
- \brief Set the global master volume.
+ \brief Sets the global master volume.
  \param volume The new master volume level.
 *****************************************************************************************/
 void SoundManager::setMasterVolume(float volume)
@@ -182,9 +192,10 @@ void SoundManager::setMasterVolume(float volume)
         m_audioManager->setMasterVolume(volume);
     }
 }
+
 /*****************************************************************************************
- \brief Set the volume for all active instances of a specific sound.
- \param name The identifier of the sound.
+ \brief Sets the volume for all active instances of a specific sound.
+ \param name The identifier for the sound.
  \param volume The new volume level.
 *****************************************************************************************/
 void SoundManager::setSoundVolume(const std::string& name, float volume)
@@ -194,9 +205,10 @@ void SoundManager::setSoundVolume(const std::string& name, float volume)
         m_audioManager->setSoundVolume(name, volume);
     }
 }
+
 /*****************************************************************************************
- \brief Set the pitch for all active instances of a specific sound.
- \param name The identifier of the sound.
+ \brief Sets the pitch for all active instances of a specific sound.
+ \param name The identifies the sound.
  \param pitch The new pitch level.
 *****************************************************************************************/
 void SoundManager::setSoundPitch(const std::string& name, float pitch)
@@ -206,9 +218,10 @@ void SoundManager::setSoundPitch(const std::string& name, float pitch)
         m_audioManager->setSoundPitch(name, pitch);
     }
 }
+
 /*****************************************************************************************
- \brief Check whether a sound is currently loaded.
- \param name The identifier of the sound.
+ \brief Checks whether a sound is currently loaded.
+ \param name The identifier for the sound.
  \return True if the sound is loaded, false otherwise.
 *****************************************************************************************/
 bool SoundManager::isSoundLoaded(const std::string& name) const
@@ -220,9 +233,10 @@ bool SoundManager::isSoundLoaded(const std::string& name) const
     
     return m_audioManager->isSoundLoaded(name);
 }
+
 /*****************************************************************************************
- \brief Check whether a sound is currently playing.
- \param name The identifier of the sound.
+ \brief Checks whether a sound is currently playing.
+ \param name The identifier for the sound.
  \return True if the sound is playing, false otherwise.
 *****************************************************************************************/
 bool SoundManager::isSoundPlaying(const std::string& name) const
@@ -234,8 +248,9 @@ bool SoundManager::isSoundPlaying(const std::string& name) const
     
     return m_audioManager->isSoundPlaying(name);
 }
+
 /*****************************************************************************************
- \brief Retrieve a list of all loaded sounds.
+ \brief Retrieves a list of all loaded sounds.
  \return A vector containing the identifiers of loaded sounds.
 *****************************************************************************************/
 std::vector<std::string> SoundManager::getLoadedSounds() const
