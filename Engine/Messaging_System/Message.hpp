@@ -1,5 +1,5 @@
 /*********************************************************************************************
- \file      Message.h
+ \file      Message.hpp
  \par       SofaSpuds
  \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
