@@ -13,12 +13,11 @@ namespace gfx {
 
     constexpr float PI = 3.14159265359f;
 
-    // --- Static GL handles ---
     unsigned int Graphics::VAO_rect = 0;
     unsigned int Graphics::VBO_rect = 0;
     unsigned int Graphics::VAO_circle = 0;
     unsigned int Graphics::VBO_circle = 0;
-    int          Graphics::circleVertexCount = 0;
+    int Graphics::circleVertexCount = 0;
     unsigned int Graphics::VAO_bg = 0;
     unsigned int Graphics::VBO_bg = 0;
     unsigned int Graphics::bgTexture = 0;
@@ -29,23 +28,19 @@ namespace gfx {
     unsigned int Graphics::EBO_sprite = 0;
     unsigned int Graphics::spriteShader = 0;
 
-    // Circle tessellation segments
     static int segments = 50;
 
-<<<<<<< HEAD
-    // --- NEW (minimal change): cache the rectangle's local-space geometric center (pivot) ---
-    // These are computed once in initialize() from your current rect vertex data (no behavior change except rotation pivot).
+    // --- NEW: cache rectangle local-space geometric center (pivot).
+    // This is computed in initialize() from the current rect vertex data,
+    // so you keep your original vertices/colors unchanged.
     static float sRectPivotX = 0.0f;
     static float sRectPivotY = 0.0f;
 
-    // ---------------- Shader helpers ----------------
-=======
     static inline void GL_THROW_IF_ERROR(const char* where) {
         GLenum e = glGetError();
         if (e != GL_NO_ERROR) throw std::runtime_error(std::string(where) + "|gl_error=" + std::to_string((int)e));
     }
 
->>>>>>> master
     static unsigned int compileShader(const char* source, GLenum type) {
         unsigned int shader = glCreateShader(type);
         glShaderSource(shader, 1, &source, nullptr);
@@ -93,7 +88,6 @@ namespace gfx {
         return program;
     }
 
-    // ---------------- Texture ----------------
     unsigned int Graphics::loadTexture(const char* path) {
         unsigned int textureID;
         glGenTextures(1, &textureID);
@@ -102,7 +96,6 @@ namespace gfx {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
@@ -123,46 +116,36 @@ namespace gfx {
         return textureID;
     }
 
-    // ---------------- Init ----------------
     void Graphics::initialize() {
-        // NOTE: Keep your original rectangle positions and per-vertex colors EXACTLY AS THEY WERE.
-        // We will compute the local pivot from these values so only the rotation center changes.
         float rectVertices[] = {
-            //  x      y      z      r     g     b
-            -0.3f, -0.4f, 0.0f,   1.0f, 0.0f, 0.0f,  // 0: bottom-left  (red)
-             0.3f, -0.4f, 0.0f,   0.0f, 1.0f, 0.0f,  // 1: bottom-right (green)
-             0.3f,  0.0f, 0.0f,   0.0f, 0.0f, 1.0f,  // 2: top-right    (blue)
-            -0.3f,  0.0f, 0.0f,   1.0f, 1.0f, 0.0f   // 3: top-left     (yellow)
+          -0.3f, -0.4f, 0.0f,  1.0f, 0.0f, 0.0f,
+           0.3f, -0.4f, 0.0f,  0.0f, 1.0f, 0.0f,
+           0.3f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
+          -0.3f,  0.0f, 0.0f,  1.0f, 1.0f, 0.0f
         };
         unsigned int rectIndices[] = { 0,1,2, 2,3,0 };
-
-        // --- Compute local-space geometric center (pivot) from current vertices (minimal change) ---
-        // Stride = 6 floats per vertex: [x,y,z,r,g,b]
-        sRectPivotX = (rectVertices[0] + rectVertices[6] + rectVertices[12] + rectVertices[18]) * 0.25f;
-        sRectPivotY = (rectVertices[1] + rectVertices[7] + rectVertices[13] + rectVertices[19]) * 0.25f;
-        // With your data above this results in (0.0f, -0.2f)
-
         unsigned int EBO_rect;
         glGenVertexArrays(1, &VAO_rect);
         glGenBuffers(1, &VBO_rect);
         glGenBuffers(1, &EBO_rect);
-
         glBindVertexArray(VAO_rect);
         glBindBuffer(GL_ARRAY_BUFFER, VBO_rect);
         glBufferData(GL_ARRAY_BUFFER, sizeof(rectVertices), rectVertices, GL_STATIC_DRAW);
-
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_rect);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(rectIndices), rectIndices, GL_STATIC_DRAW);
-
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // ----- Circle: unit circle fan centered at origin -----
+        // --- Compute the rectangle's local-space geometric center (pivot).
+        // Vertex layout: [x,y,z,r,g,b] with a stride of 6 floats.
+        sRectPivotX = (rectVertices[0] + rectVertices[6] + rectVertices[12] + rectVertices[18]) * 0.25f;
+        sRectPivotY = (rectVertices[1] + rectVertices[7] + rectVertices[13] + rectVertices[19]) * 0.25f;
+        // For the current data this yields (0.0f, -0.2f).
+
         std::vector<float> circleVertices;
         circleVertices.reserve((segments + 2) * 6);
-        // center vertex
         circleVertices.insert(circleVertices.end(), { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f });
         for (int i = 0; i <= segments; ++i) {
             float angle = (2.0f * PI * i) / segments;
@@ -171,7 +154,6 @@ namespace gfx {
             circleVertices.insert(circleVertices.end(), { x, y, 0.f, 0.f, 0.f, 1.f });
         }
         circleVertexCount = segments + 2;
-
         glGenVertexArrays(1, &VAO_circle);
         glGenBuffers(1, &VBO_circle);
         glBindVertexArray(VAO_circle);
@@ -182,7 +164,6 @@ namespace gfx {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // ----- Fullscreen background quad in NDC -----
         float bgVertices[] = {
           -1.0f,  1.0f,  0.0f, 1.0f,
           -1.0f, -1.0f,  0.0f, 0.0f,
@@ -201,12 +182,13 @@ namespace gfx {
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // --- Load background texture via your Resource_Manager (unchanged) ---
+        // --- Load background texture ---
         Resource_Manager::loadAll("../../assets/Textures");
+
+        // Use the string ID directly
         bgTexture = Resource_Manager::resources_map["house"].handle;
         if (!bgTexture) throw std::runtime_error("bg_texture|missing|house");
 
-        // ----- Shaders -----
         const char* bgVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec2 aPos;\n"
@@ -244,7 +226,6 @@ namespace gfx {
         GL_THROW_IF_ERROR("initialize_end");
     }
 
-    // ---------------- Background ----------------
     void Graphics::renderBackground() {
         glUseProgram(bgShader);
         glActiveTexture(GL_TEXTURE0);
@@ -260,36 +241,24 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderBackground");
     }
 
-    // ---------------- Rectangle ----------------
-    void Graphics::renderRectangle(float posX, float posY, float rot,
-        float scaleX, float scaleY,
-        float r, float g, float b, float a) {
+    void Graphics::renderRectangle(float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(objectShader);
 
-        // Minimal-change pivot fix:
-        // - Keep SCALE behavior the same as before (about the local origin).
-        // - Rotate around the rectangle's GEOMETRIC CENTER.
-        //
-        // Because your vertices are not centered at (0,0),
-        // we translate by the "scaled pivot" before rotation, and translate back after,
-        // so only the rotation center changes.
-        //
-        // Final order (glm appends on the right):  M = T(pos) * T(pivot_s) * R * T(-pivot_s) * S
-        // Rightmost S acts first (same as your original T*R*S wrt S and R order),
-        // but rotation is now about the scaled center pivot_s.
-        const float pivot_sx = sRectPivotX * scaleX;  // scaled pivot X
-        const float pivot_sy = sRectPivotY * scaleY;  // scaled pivot Y
+        // Pivot-only change:
+        // Keep scale as before, but rotate around the rectangle's geometric center.
+        // Because scale happens first (rightmost), we must rotate around the "scaled pivot".
+        const float pivot_sx = sRectPivotX * scaleX; // scaled center X
+        const float pivot_sy = sRectPivotY * scaleY; // scaled center Y
 
         glm::mat4 model(1.0f);
         model = glm::translate(model, glm::vec3(posX, posY, 0.0f));                  // world translation
-        model = glm::translate(model, glm::vec3(pivot_sx, pivot_sy, 0.0f));          // move scaled center to origin (pre-rotation)
-        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));                         // rotate around center
+        model = glm::translate(model, glm::vec3(pivot_sx, pivot_sy, 0.0f));          // move scaled center to origin
+        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));                         // rotate about center
         model = glm::translate(model, glm::vec3(-pivot_sx, -pivot_sy, 0.0f));        // move back
         model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));                  // same scaling behavior as before
 
         glUniformMatrix4fv(glGetUniformLocation(objectShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform4f(glGetUniformLocation(objectShader, "uColor"), r, g, b, a);
-
         glBindVertexArray(VAO_rect);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -301,9 +270,7 @@ namespace gfx {
         renderRectangle(posX, posY, rot, scale, scale, 1.f, 1.f, 1.f, 1.f);
     }
 
-    // ---------------- Circle ----------------
-    void Graphics::renderCircle(float posX, float posY, float radius,
-        float r, float g, float b, float a) {
+    void Graphics::renderCircle(float posX, float posY, float radius, float r, float g, float b, float a) {
         glUseProgram(objectShader);
         glm::mat4 model(1.0f);
         model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
@@ -317,10 +284,7 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderCircle");
     }
 
-    // ---------------- Sprite ----------------
-    void Graphics::renderSprite(unsigned int tex, float posX, float posY, float rot,
-        float scaleX, float scaleY,
-        float r, float g, float b, float a) {
+    void Graphics::renderSprite(unsigned int tex, float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(spriteShader);
         glm::mat4 model(1.0f);
         model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
@@ -339,7 +303,6 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderSprite");
     }
 
-    // ---------------- Cleanup ----------------
     void Graphics::cleanup() {
         glDeleteVertexArrays(1, &VAO_rect);
         glDeleteBuffers(1, &VBO_rect);
@@ -356,7 +319,6 @@ namespace gfx {
         glDeleteProgram(spriteShader);
     }
 
-    // ---------------- Sprite pipeline ----------------
     void Graphics::initSpritePipeline() {
         float spriteVerts[] = {
           -0.5f, -0.5f, 0.0f, 0.f, 0.f,

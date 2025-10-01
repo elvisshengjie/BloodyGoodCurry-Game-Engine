@@ -97,13 +97,15 @@
 2025-10-01T05:09:59Z|std::exception|mygame::draw|renderBackground|uniform_missing|backgroundTex
 2025-10-01T05:09:59Z|std_terminate|
 2025-10-01T05:10:42Z|startup|ok
-<<<<<<< Updated upstream
-=======
+2025-10-01T05:53:00Z|startup|ok
+2025-10-01T05:53:12Z|std::exception|mygame::draw|renderBackground|uniform_missing|backgroundTex
+2025-10-01T05:53:32Z|startup|ok
+2025-10-01T05:54:12Z|startup|ok
+2025-10-01T05:54:34Z|startup|ok
+2025-10-01T05:55:01Z|startup|ok
+2025-10-01T05:55:12Z|startup|ok
+2025-10-01T05:55:49Z|startup|ok
+2025-10-01T05:56:16Z|startup|ok
+2025-10-01T05:57:02Z|startup|ok
 2025-10-01T05:44:35Z|startup|ok
 2025-10-01T05:49:38Z|startup|ok
-<<<<<<< Updated upstream
-2025-10-01T05:54:03Z|startup|ok
->>>>>>> Stashed changes
-=======
-2025-10-01T06:00:57Z|startup|ok
->>>>>>> Stashed changes
