@@ -36,6 +36,7 @@
 #include "Debug/ImGuiLayer.h"
 #include "imgui.h"
 #include "Debug/Spawn.h"
+#include "Physics/Collision/Collision.h"
 
 #include <filesystem>
 
@@ -66,7 +67,6 @@ namespace mygame
 
     // --- NEW: texture for sprite rendering of the rectangle ---
     static unsigned int gPlayerTex = 0;
-
 
     Framework::GOC* sRectObj = nullptr;
     static std::vector<Framework::GOC*> sLevelObjs;
@@ -200,7 +200,8 @@ namespace mygame
     void update(float dt)
     {
         using namespace Framework;
-
+        AABB ahitbox(0, 0, 0, 0);
+        AABB bhitbox(0, 0, 0, 0);
         handleAudioInput(*gWin, gKeyEdge, busInstance);
 
         // sweep factory once per frame (handles deferred destroys)
@@ -226,7 +227,7 @@ namespace mygame
                 Framework::ComponentTypeId::CT_RenderComponent);
             auto* rbc = sRectObj->GetComponentType<Framework::RigidBodyComponent>(
                 Framework::ComponentTypeId::CT_RigidBodyComponent);
-
+            ahitbox = AABB(tr->x, tr->y, rbc->width, rbc->height);
             // rotation (Q/E)
             if (tr) {
                 if (gWin->isKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
@@ -255,9 +256,24 @@ namespace mygame
                 if (gWin->isKeyPressed(GLFW_KEY_W)) tr->y += rbc->velY * dt;
                 if (gWin->isKeyPressed(GLFW_KEY_S)) tr->y -= rbc->velY * dt;
             }
-
-
         }
+        for (auto* obj2 : sLevelObjs) {
+            if (obj2->GetObjectName() == "Player") {
+                sTestObj = obj2;
+                break;
+            }
+        }
+        if (sTestObj) {
+            auto* tr2 = sRectObj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            auto* rc2 = sRectObj->GetComponentType<Framework::RenderComponent>(
+                Framework::ComponentTypeId::CT_RenderComponent);
+            auto* rbc2 = sRectObj->GetComponentType<Framework::RigidBodyComponent>(
+                Framework::ComponentTypeId::CT_RigidBodyComponent);
+            bhitbox = AABB(tr2->x, tr2->y, rbc2->width, rbc2->height);
+        }
+        if (Collision::CheckCollisionRectToRect(ahitbox, bhitbox))
+            std::cout << "Collision detected!" << std::endl;
     }
     // ------------------------------------------------------------
     // Draw: called every frame
