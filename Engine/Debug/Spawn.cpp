@@ -21,7 +21,7 @@
 #include "Debug/Spawn.h"
 
 #include "imgui.h"
-
+#include "Debug/Perf.h"
 // Engine & game headers
 #include "Factory/Factory.h"                    // FACTORY, GOC, ComponentTypeId
 #include "Composition/PrefabManager.h"          // master_copies, ClonePrefab
@@ -202,6 +202,15 @@ namespace mygame {
             for (auto* o : toKill) o->Destroy();
             FACTORY->Update(0.0f); // Immediately sweep destroyed objects
         }
+        ImGui::SeparatorText("Counts");
+        size_t totalObjs = Framework::FACTORY ? Framework::FACTORY->Objects().size() : 0;
+   
+
+  
+        ImGui::Text("Total objects:   %zu", totalObjs);
+        //In-game performance window
+        Framework::DrawInCurrentWindow();
+
 
         ImGui::End(); // End the "Spawn" window
     }

@@ -36,6 +36,7 @@
 #include "Debug/ImGuiLayer.h"
 #include "imgui.h"
 #include "Debug/Spawn.h"
+#include "Debug/Perf.h"
 
 #include <filesystem>
 
@@ -70,6 +71,7 @@ namespace mygame
 
     Framework::GOC* sRectObj = nullptr;
     static std::vector<Framework::GOC*> sLevelObjs;
+    using clock = std::chrono::high_resolution_clock;
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
@@ -199,9 +201,12 @@ namespace mygame
     // ------------------------------------------------------------
     void update(float dt)
     {
+
         using namespace Framework;
 
-        handleAudioInput(*gWin, gKeyEdge, busInstance);
+        FlipFrame();
+
+        auto t0 = clock::now(); //start timing Update
 
         // sweep factory once per frame (handles deferred destroys)
         if (sFactory) sFactory->Update(dt);
@@ -258,6 +263,10 @@ namespace mygame
 
 
         }
+
+        handleAudioInput(*gWin, gKeyEdge, busInstance);
+        const double updateMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
+        setUpdate(updateMs);
     }
     // ------------------------------------------------------------
     // Draw: called every frame
@@ -265,7 +274,7 @@ namespace mygame
     void draw()
     {
        
-
+        auto t0 = clock::now();
         // --- Background ---
         gfx::Graphics::renderBackground();
 
@@ -337,8 +346,16 @@ namespace mygame
                 cc->r, cc->g, cc->b, cc->a
             );
         }
+
+        Framework::setRender(std::chrono::duration<double, std::milli>(clock::now() - t0).count());
+
+        t0 = clock::now();
+        
         mygame::DrawSpawnPanel();
         ImGui::ShowDemoWindow();
+        Framework::setImGui(std::chrono::duration<double, std::milli>(clock::now() - t0).count());
+
+
     }
 
     // ------------------------------------------------------------
