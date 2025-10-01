@@ -3,24 +3,6 @@
  \par       SofaSpuds
  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Implements a lightweight per-frame CPU profiler for Update / Render / ImGui.
- \details
-    This module provides a tiny “tracked CPU time?HUD that you can embed in any ImGui
-    window. It uses a double-buffer scheme:
-      - Call \c FlipFrame() once at the start of each frame (e.g., top of update()) to
-        copy the previous frame’s “current?values into a “last?buffer for display, and
-        clear “current?for fresh measurements.
-      - After timing each section within the frame, call \c setUpdate(), \c setRender(),
-        and \c setImGui() with elapsed milliseconds for that section.
-      - Call \c DrawInCurrentWindow() inside an already-open ImGui window to display the
-        **last frame’s** totals and percentages (avoids measuring the panel as 0 ms).
-
-    \note This profiler shows the **sum of tracked CPU sections only** (Option B). It does
-          **not** include input polling, buffer swap, or VSync wait unless you explicitly
-          measure and feed them.
-
- \copyright
-    All content ?2025 DigiPen Institute of Technology Singapore.
-    All rights reserved.
 *********************************************************************************************/
 
 #include "Perf.h"
@@ -28,70 +10,45 @@
 
 /// \internal Anonymous namespace for private state
 namespace {
-    /// \brief Aggregated timings for one frame.
+    /// Aggregated timings for one frame.
     struct Values {
-        double gUpdateMs = 0.0;  ///< CPU ms spent in Update
-        double gRenderMs = 0.0;  ///< CPU ms spent in Render (aggregate)
-        double gImGuIMs = 0.0;   ///< CPU ms spent in ImGui (build + draw)
+        double gUpdateMs = 0.0;   // CPU ms in Update
+        double gRenderMs = 0.0;   // CPU ms in Render (aggregate)
+        double gImGuIMs = 0.0;    // CPU ms in ImGui (build + draw)
 
-        /// \brief Sum of tracked sections (no core/swap/vsync).
-        double TrackedTotal() const {
-            return gUpdateMs + gRenderMs + gImGuIMs;
-        }
+        double TrackedTotal() const { return gUpdateMs + gRenderMs + gImGuIMs; }
     };
 
-    static Values gCurr; ///< Values being written this frame
-    static Values gLast; ///< Values shown by the UI (previous frame)
+    // double-buffer for last/current frame timings
+    static Values gCurr;   // being written this frame
+    static Values gLast;   // shown by UI (previous frame)
+
+    // overlay state (moved out of Game.cpp)
+    static bool  sPerfVisible = true;     // toggled by F1 edge
+    static bool  sPrevToggle = false;
+
+    // FPS history ring buffer
+    static float sFpsPlot[120] = { 0.f };
+    static int   sFpsPlotIdx = 0;
+
+    inline void pushFpsSample(float dt) {
+        const float fpsNow = (dt > 1e-6f) ? (1.0f / dt) : 0.f;
+        sFpsPlot[sFpsPlotIdx] = fpsNow;
+        sFpsPlotIdx = (sFpsPlotIdx + 1) % (int)(sizeof(sFpsPlot) / sizeof(sFpsPlot[0]));
+    }
 } // anonymous namespace
 
-/*************************************************************************************
-  \brief Rolls frame buffers: make last = current, then clear current.
-  \details
-    Call once at the start of every frame (e.g., top of update()) so the UI
-    always shows a complete **previous** frame, including ImGui time.
-*************************************************************************************/
+// ---------- public API (unchanged) ----------
 void Framework::FlipFrame() {
-    gLast = gCurr;     // Promote current to last (to be displayed)
-    gCurr = Values{};  // Clear current for fresh measurements
+    gLast = gCurr;     // promote current to last
+    gCurr = Values{};  // clear current for fresh measurements
 }
 
-/*************************************************************************************
-  \brief Records the current frame’s CPU time spent in Update.
-  \param ms Elapsed milliseconds for the Update section (this frame).
-*************************************************************************************/
-void Framework::setUpdate(double ms) {
-    gCurr.gUpdateMs = ms;
-}
+void Framework::setUpdate(double ms) { gCurr.gUpdateMs = ms; }
+void Framework::setRender(double ms) { gCurr.gRenderMs = ms; }
+void Framework::setImGui(double ms) { gCurr.gImGuIMs = ms; }
 
-/*************************************************************************************
-  \brief Records the current frame’s CPU time spent in Render (aggregate).
-  \param ms Elapsed milliseconds for the Render section (this frame).
-  \note  If you want a finer breakdown (BG/Sprites/Rects/Circles), either
-         replace this with additional setters or accumulate into this one.
-*************************************************************************************/
-void Framework::setRender(double ms) {
-    gCurr.gRenderMs = ms;
-}
-
-/*************************************************************************************
-  \brief Records the current frame’s CPU time spent in ImGui.
-  \param ms Elapsed milliseconds for the ImGui section (this frame).
-  \details Time the block where you build/draw your ImGui (e.g., Spawn panel,
-           demo window, other debug UIs) and pass the elapsed value here.
-*************************************************************************************/
-void Framework::setImGui(double ms) {
-    gCurr.gImGuIMs = ms;
-}
-
-/*************************************************************************************
-  \brief Renders the last frame’s tracked CPU totals and percentages.
-  \details
-    Draws a compact readout into the **currently open** ImGui window.
-    This function does not call Begin/End; call it inside an existing panel.
-  \note
-    - Totals reflect the sum of tracked sections only (no core/swap/vsync).
-    - Percentages are section_ms / tracked_total * 100.
-*************************************************************************************/
+// ---------- mini summary (embed-only, no Begin/End) ----------
 void Framework::DrawInCurrentWindow() {
     const double total = gLast.TrackedTotal();
     const double denom = total > 0.0 ? total : 0.0001; // avoid divide-by-zero
@@ -104,4 +61,50 @@ void Framework::DrawInCurrentWindow() {
     ImGui::Text("Update:   %.3f ms (%.1f%%)", gLast.gUpdateMs, (gLast.gUpdateMs / denom) * 100.0);
     ImGui::Text("Render:   %.3f ms (%.1f%%)", gLast.gRenderMs, (gLast.gRenderMs / denom) * 100.0);
     ImGui::Text("ImGui:    %.3f ms (%.1f%%)", gLast.gImGuIMs, (gLast.gImGuIMs / denom) * 100.0);
+}
+
+// ---------- NEW: per-frame hook + full overlay window ----------
+void Framework::PerfFrameStart(float dt, bool toggleKeyDown) {
+    // edge toggle for visibility (e.g., F1)
+    if (toggleKeyDown && !sPrevToggle) sPerfVisible = !sPerfVisible;
+    sPrevToggle = toggleKeyDown;
+
+    // roll last/current buffers at the start of the frame
+    FlipFrame();
+
+    // store FPS sample for plot
+    pushFpsSample(dt);
+}
+
+void Framework::DrawPerformanceWindow() {
+    if (!sPerfVisible) return;
+
+    ImGui::SetNextWindowBgAlpha(0.7f);
+    ImGui::Begin("Performance", nullptr,
+        ImGuiWindowFlags_NoDocking |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoFocusOnAppearing);
+
+    // ImGui averaged framerate (current)
+    const ImGuiIO& io = ImGui::GetIO();
+    const float fps = io.Framerate;
+    const float frameMs = (fps > 1e-6f) ? (1000.0f / fps) : 0.f;
+
+    ImGui::Text("FPS: %.1f (%.2f ms)", fps, frameMs);
+    ImGui::Separator();
+
+    // show THIS frame's raw section times (gCurr)
+    ImGui::Text("Update: %.2f ms", (float)gCurr.gUpdateMs);
+    ImGui::Text("Render: %.2f ms", (float)gCurr.gRenderMs);
+    ImGui::Text("ImGui : %.2f ms", (float)gCurr.gImGuIMs);
+
+    // last ~120 FPS samples
+    ImGui::PlotLines("FPS history", sFpsPlot, IM_ARRAYSIZE(sFpsPlot),
+        sFpsPlotIdx, nullptr, 0.0f, 240.0f, ImVec2(260, 80));
+
+    ImGui::Spacing();
+    // also embed the "last frame" breakdown table
+    Framework::DrawInCurrentWindow();
+
+    ImGui::End();
 }

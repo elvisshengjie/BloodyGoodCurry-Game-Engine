@@ -91,23 +91,12 @@ namespace mygame
     static int   gFrame = 0;
     static float gFrameClock = 0.f;
 
-    static inline float CurrentFPS() { return (sAnimState == AnimState::Run) ? gRunFPS : gIdleFPS; }
-    static inline int   CurrentFrames() { return (sAnimState == AnimState::Run) ? gRunFrames : gIdleFrames; }
-    static inline int   CurrentCols() { return (sAnimState == AnimState::Run) ? gRunCols : gIdleCols; }
-    static inline int   CurrentRows() { return (sAnimState == AnimState::Run) ? gRunRows : gIdleRows; }
-    static inline unsigned CurrentTex() { return (sAnimState == AnimState::Run) ? gTexRun : gTexIdle; }
-    static inline void  ResetAnim() { gFrame = 0; gFrameClock = 0.f; }
-
-    // ================== Performance overlay (FPS + stage timings) ==================
-    static bool  sPerfVisible = true;   // F1 toggles
-    static bool  sPrevF1 = false;
-    static float gUpdateMsShow = 0.f;
-    static float gRenderMsShow = 0.f;
-    static float gImGuiMsShow = 0.f;
-
-    // FPS ring buffer for plotting (last 120 frames)
-    static float gFpsPlot[120] = { 0.f };
-    static int   gFpsPlotIdx = 0;
+    static inline float     CurrentFPS() { return (sAnimState == AnimState::Run) ? gRunFPS : gIdleFPS; }
+    static inline int       CurrentFrames() { return (sAnimState == AnimState::Run) ? gRunFrames : gIdleFrames; }
+    static inline int       CurrentCols() { return (sAnimState == AnimState::Run) ? gRunCols : gIdleCols; }
+    static inline int       CurrentRows() { return (sAnimState == AnimState::Run) ? gRunRows : gIdleRows; }
+    static inline unsigned  CurrentTex() { return (sAnimState == AnimState::Run) ? gTexRun : gTexIdle; }
+    static inline void      ResetAnim() { gFrame = 0; gFrameClock = 0.f; }
 
     // ------------------------------------------------------------
     // Init
@@ -187,18 +176,8 @@ namespace mygame
         TryGuard::Run([&] {
             using namespace Framework;
 
-            // perf ring-buffer advance (store FPS for plot)
-            const float fpsNow = (dt > 1e-6f) ? (1.0f / dt) : 0.f;
-            gFpsPlot[gFpsPlotIdx] = fpsNow;
-            gFpsPlotIdx = (gFpsPlotIdx + 1) % (int)(sizeof(gFpsPlot) / sizeof(gFpsPlot[0]));
-
-            // Toggle perf overlay (F1 edge)
-            bool f1 = gWin->isKeyPressed(GLFW_KEY_F1);
-            if (f1 && !sPrevF1) sPerfVisible = !sPerfVisible;
-            sPrevF1 = f1;
-
-            // roll perf buffers to show last frame in UI (keep existing system)
-            FlipFrame();
+            // NEW: perf module handles ring buffer + F1 toggle + FlipFrame
+            Framework::PerfFrameStart(dt, gWin->isKeyPressed(GLFW_KEY_F1));
 
             auto t0 = clock::now(); // start timing Update
 
@@ -263,7 +242,6 @@ namespace mygame
 
             const double updateMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setUpdate(updateMs);
-            gUpdateMsShow = static_cast<float>(updateMs);
 
             }, "mygame::update");
     }
@@ -348,7 +326,6 @@ namespace mygame
             // record Render cost
             const double renderMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setRender(renderMs);
-            gRenderMsShow = static_cast<float>(renderMs);
 
             // -------- ImGui timing --------
             t0 = clock::now();
@@ -367,36 +344,12 @@ namespace mygame
             }
             ImGui::End();
 
-            // ======= Performance overlay (FPS + timings) =======
-            if (sPerfVisible) {
-                ImGui::SetNextWindowBgAlpha(0.7f);
-                ImGui::Begin("Performance", nullptr,
-                    ImGuiWindowFlags_NoDocking |
-                    ImGuiWindowFlags_AlwaysAutoResize |
-                    ImGuiWindowFlags_NoFocusOnAppearing);
+            // NEW: independent Performance window
+            Framework::DrawPerformanceWindow();
 
-                // Use ImGui's averaged framerate for display
-                const ImGuiIO& io = ImGui::GetIO();
-                const float fps = io.Framerate;
-                const float frameMs = (fps > 1e-6f) ? (1000.0f / fps) : 0.f;
-
-                ImGui::Text("FPS: %.1f (%.2f ms)", fps, frameMs);
-                ImGui::Separator();
-                ImGui::Text("Update: %.2f ms", gUpdateMsShow);
-                ImGui::Text("Render: %.2f ms", gRenderMsShow);
-                ImGui::Text("ImGui : %.2f ms", gImGuiMsShow);
-
-                // Plot last ~120 fps samples
-                ImGui::PlotLines("FPS history", gFpsPlot, IM_ARRAYSIZE(gFpsPlot),
-                    gFpsPlotIdx, nullptr, 0.0f, 240.0f, ImVec2(260, 80));
-
-                ImGui::End();
-            }
-            // ================================================
-
+            // finish ImGui timing (note: this value will be shown next frame)
             const double imguiMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setImGui(imguiMs);
-            gImGuiMsShow = static_cast<float>(imguiMs);
 
             }, "mygame::draw");
     }
@@ -409,22 +362,18 @@ namespace mygame
         std::cout << "Cleaning up sound..." << std::endl;
         cleanupAudio();
 
-       
         std::cout << "Cleaning up graphics..." << std::endl;
         gfx::Graphics::cleanup();
 
-        
         Resource_Manager::unloadAll(Resource_Manager::Graphics);
 
         using namespace Framework;
         if (sFactory) {
-            
             sFactory->Update(0.0f);
             sFactory.reset();
         }
         Framework::UnloadPrefabs();
 
-        
         ImGuiLayer::Shutdown();
         if (ImGui::GetCurrentContext()) ImGui::DestroyContext();
 
