@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <stdexcept>
 
 namespace gfx {
 
@@ -29,6 +30,11 @@ namespace gfx {
 
     static int segments = 50;
 
+    static inline void GL_THROW_IF_ERROR(const char* where) {
+        GLenum e = glGetError();
+        if (e != GL_NO_ERROR) throw std::runtime_error(std::string(where) + "|gl_error=" + std::to_string((int)e));
+    }
+
     static unsigned int compileShader(const char* source, GLenum type) {
         unsigned int shader = glCreateShader(type);
         glShaderSource(shader, 1, &source, nullptr);
@@ -38,7 +44,9 @@ namespace gfx {
         if (!success) {
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
             std::cerr << "Shader compilation failed:\n" << infoLog << std::endl;
+            throw std::runtime_error(std::string(type == GL_VERTEX_SHADER ? "compile_vs" : "compile_fs") + "|" + infoLog);
         }
+        GL_THROW_IF_ERROR("compileShader");
         return shader;
     }
 
@@ -54,9 +62,23 @@ namespace gfx {
         if (!success) {
             glGetProgramInfoLog(program, 512, nullptr, infoLog);
             std::cerr << "Shader linking failed:\n" << infoLog << std::endl;
+            glDeleteShader(vertex);
+            glDeleteShader(fragment);
+            glDeleteProgram(program);
+            throw std::runtime_error(std::string("link_program|") + infoLog);
         }
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+
+        glValidateProgram(program);
+        int validated = 0;
+        glGetProgramiv(program, GL_VALIDATE_STATUS, &validated);
+        if (!validated) {
+            glGetProgramInfoLog(program, 512, nullptr, infoLog);
+            glDeleteProgram(program);
+            throw std::runtime_error(std::string("validate_program|") + infoLog);
+        }
+        GL_THROW_IF_ERROR("createShaderProgram");
         return program;
     }
 
@@ -78,9 +100,13 @@ namespace gfx {
         }
         else {
             std::cerr << "Failed to load texture: " << path << std::endl;
+            glBindTexture(GL_TEXTURE_2D, 0);
+            if (textureID) glDeleteTextures(1, &textureID);
+            throw std::runtime_error(std::string("texture_load|failed|") + path);
         }
         stbi_image_free(data);
         glBindTexture(GL_TEXTURE_2D, 0);
+        GL_THROW_IF_ERROR("loadTexture");
         return textureID;
     }
 
@@ -149,6 +175,7 @@ namespace gfx {
 
         // Use the string ID directly
         bgTexture = Resource_Manager::resources_map["house"].handle;
+        if (!bgTexture) throw std::runtime_error("bg_texture|missing|house");
 
         const char* bgVertexSrc =
             "#version 330 core\n"
@@ -183,16 +210,23 @@ namespace gfx {
 
         glBindVertexArray(0);
         glUseProgram(0);
+
+        GL_THROW_IF_ERROR("initialize_end");
     }
 
     void Graphics::renderBackground() {
         glUseProgram(bgShader);
+        glActiveTexture(GL_TEXTURE0);
+        int loc = glGetUniformLocation(bgShader, "backgroundTex");
+        if (loc < 0) throw std::runtime_error("renderBackground|uniform_missing|backgroundTex");
+        glUniform1i(loc, 0);
         glBindTexture(GL_TEXTURE_2D, bgTexture);
         glBindVertexArray(VAO_bg);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderBackground");
     }
 
     void Graphics::renderRectangle(float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
@@ -207,6 +241,7 @@ namespace gfx {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderRectangle");
     }
 
     void Graphics::renderRectangle(float posX, float posY, float rot, float scale) {
@@ -224,6 +259,7 @@ namespace gfx {
         glDrawArrays(GL_TRIANGLE_FAN, 0, circleVertexCount);
         glBindVertexArray(0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderCircle");
     }
 
     void Graphics::renderSprite(unsigned int tex, float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
@@ -242,6 +278,7 @@ namespace gfx {
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderSprite");
     }
 
     void Graphics::cleanup() {
@@ -296,6 +333,16 @@ namespace gfx {
             "void main(){FragColor=texture(uTex,vUV)*uTint;}\n";
         spriteShader = createShaderProgram(vs, fs);
         glBindVertexArray(0);
+        GL_THROW_IF_ERROR("initSpritePipeline");
+    }
+
+    // Test hooks to intentionally break graphics for crash verification
+    void Graphics::testCrash(int which) {
+        if (which == 1) { bgShader = 0; }
+        else if (which == 2) { VAO_bg = 0; }
+        else if (which == 3) { spriteShader = 0; }
+        else if (which == 4) { objectShader = 0; }
+        else if (which == 5) { if (bgTexture) { glDeleteTextures(1, &bgTexture); bgTexture = 0; } }
     }
 
 } // namespace gfx
