@@ -97,3 +97,12 @@
 2025-10-01T05:09:59Z|std::exception|mygame::draw|renderBackground|uniform_missing|backgroundTex
 2025-10-01T05:09:59Z|std_terminate|
 2025-10-01T05:10:42Z|startup|ok
+2025-10-01T05:53:06Z|std::exception|mygame::init|freetype_load_face_failed|../../assets/Fonts/Roboto-Regular.ttf
+2025-10-01T05:53:06Z|std_terminate|
+2025-10-01T05:53:18Z|std::exception|mygame::init|freetype_load_face_failed|../../assets/Fonts/Roboto-Regular.ttf
+2025-10-01T05:53:53Z|std::exception|mygame::init|freetype_load_face_failed|../../assets/Fonts/Roboto-Regular.ttf
+2025-10-01T05:56:09Z|std::exception|mygame::init|freetype_load_face_failed|../../assets/Fonts/Roboto-Regular.ttf
+2025-10-01T05:56:09Z|std_terminate|
+2025-10-01T05:56:51Z|std::exception|mygame::init|freetype_load_face_failed|../../assets/Fonts/Roboto-Regular.ttf
+2025-10-01T05:57:29Z|std::exception|mygame::init|freetype_load_face_failed|../../assets/Fonts/Roboto-Regular.ttf
+2025-10-01T05:57:29Z|std_terminate|

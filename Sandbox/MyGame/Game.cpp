@@ -5,6 +5,7 @@
 #include "Audio_Tester.h"
 #include "Game.hpp"
 #include "Graphics/Graphics.hpp"
+#include "Graphics/GraphicsText.hpp"
 
 // use fixed screen size from JSON
 #include "Config/WindowConfig.h"
@@ -42,10 +43,18 @@
 // Crash logging
 #include "Debug/CrashLogger.hpp"
 
+// --- NEW: platform helpers to locate executable directory ---
+#if defined(_WIN32)
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif
+
 namespace mygame
 {
     using std::filesystem::absolute; using std::filesystem::exists;
-
 
     // ===== Persistent state =====
     static gfx::Window* gWin = nullptr;
@@ -70,9 +79,75 @@ namespace mygame
     // --- NEW: texture for sprite rendering of the rectangle ---
     static unsigned int gPlayerTex = 0;
 
+    // --- NEW: text renderer for title ---
+    static gfx::TextRenderer gText;
 
     Framework::GOC* sRectObj = nullptr;
     static std::vector<Framework::GOC*> sLevelObjs;
+
+    // --- NEW: helpers to find fonts robustly ---
+    static std::filesystem::path GetExeDir() {
+        namespace fs = std::filesystem;
+#if defined(_WIN32)
+        char buf[MAX_PATH] = {};
+        GetModuleFileNameA(nullptr, buf, MAX_PATH);
+        return fs::path(buf).parent_path();
+#elif defined(__APPLE__)
+        char buf[2048];
+        uint32_t sz = sizeof(buf);
+        if (_NSGetExecutablePath(buf, &sz) == 0) return fs::path(buf).parent_path();
+        std::string s; s.resize(sz);
+        if (_NSGetExecutablePath(s.data(), &sz) == 0) return fs::path(s).parent_path();
+        return fs::current_path();
+#else
+        char buf[4096] = {};
+        ssize_t n = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+        if (n > 0) { buf[n] = 0; return fs::path(buf).parent_path(); }
+        return fs::current_path();
+#endif
+    }
+
+    static std::string FindFontPath() {
+        namespace fs = std::filesystem;
+
+        // Try several common font filenames if you change fonts later
+        std::vector<std::string> names = {
+            "Roboto-Regular.ttf",
+            "NotoSans-Regular.ttf",
+            "Arial.ttf"
+        };
+
+        // Candidate root anchors to search from
+        std::vector<fs::path> roots;
+        roots.push_back(fs::current_path());
+        roots.push_back(GetExeDir());
+
+        // Search up to 7 parents from each root for assets/Fonts/<name>
+        for (const auto& root : roots) {
+            fs::path p = root;
+            for (int up = 0; up < 7 && !p.empty(); ++up) {
+                fs::path base = p / "assets" / "Fonts";
+                for (auto const& n : names) {
+                    fs::path candidate = base / n;
+                    if (fs::exists(candidate)) return candidate.string();
+                }
+                p = p.parent_path();
+            }
+        }
+
+        // Simple relative fallbacks from common build folders
+        const char* rels[] = {
+            "assets/Fonts/Roboto-Regular.ttf",
+            "../assets/Fonts/Roboto-Regular.ttf",
+            "../../assets/Fonts/Roboto-Regular.ttf",
+            "../../../assets/Fonts/Roboto-Regular.ttf",
+            "../../../../assets/Fonts/Roboto-Regular.ttf"
+        };
+        for (auto r : rels) if (fs::exists(r)) return std::string(r);
+
+        return {};
+    }
+
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
@@ -85,7 +160,7 @@ namespace mygame
         // Desktop: set a writable directory; Android: call InitAndroid in JNI init to set internal storage dir
         g_crashLogger = new CrashLogger(std::string("../../logs"), std::string("crash.log"), std::string("ENGINE/CRASH"));
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
-        g_crashLogger->Write("startup", "ok");
+        // g_crashLogger->Write("startup", "ok");
 
         InstallTerminateHandler();
         InstallSignalHandlers();
@@ -100,7 +175,6 @@ namespace mygame
         RegisterComponent(CircleRenderComponent);
         RegisterComponent(SpriteComponent);
         RegisterComponent(RigidBodyComponent);
-
 
         //3)Create Master copy
         LoadPrefabs();
@@ -145,13 +219,26 @@ namespace mygame
 
         // Initialize Graphics system (VAOs, shaders for ECS objects/background)
         gfx::Graphics::initialize();
-      
 
+        // --- NEW: robust Text init with font discovery ---
+        {
+            std::cout << "[CWD] " << std::filesystem::current_path() << "\n";
+            std::cout << "[EXE] " << GetExeDir() << "\n";
+
+            std::string fontToUse = FindFontPath();
+            if (!fontToUse.empty()) {
+                std::cout << "[Text] Using font: " << fontToUse << "\n";
+                gText.initialize(fontToUse.c_str(), gScreenW, gScreenH);
+            }
+            else {
+                std::cout << "[Text] Font not found in fallbacks. Title text will be skipped.\n";
+                std::cout << "[Text] Ensure repo has assets/Fonts/Roboto-Regular.ttf and your run dir is under build/...\n";
+            }
+        }
 
         // --- NEW: load PNG to render instead of flat-colored rectangle ---
         Resource_Manager::load("player_png", "../../assets/Textures/player.png");
         gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
-
 
         std::cout << "\n=== Controls ===\n"
             << "1: coin | 2: toggle footsteps | 3: level win | 4: lose | 5: click | 6: win\n"
@@ -168,7 +255,7 @@ namespace mygame
         //for (int i = 0; i < count; ++i) {
         //    auto* obj = ClonePrefab("Rect");
         //    if (!obj) { std::cout << "[Prefab] Missing Rect master!\n"; break; }
-
+        //
         //    // position each clone
         //    if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
         //        Framework::ComponentTypeId::CT_TransformComponent)) {
@@ -177,7 +264,6 @@ namespace mygame
         //        tr->rot = 0.f;
         //    }
         //}
-
 
         // Clone 6 Circles in a 2x3 grid
         /*const int   crows = 2, ccols = 3;
@@ -204,8 +290,6 @@ namespace mygame
         cFg.dockspace = true;
         cFg.gamepad = false;
         ImGuiLayer::Initialize(win, cFg);
-
-
     }
 
     // ------------------------------------------------------------
@@ -220,7 +304,6 @@ namespace mygame
 
             // sweep factory once per frame (handles deferred destroys)
             if (sFactory) sFactory->Update(dt);
-
 
             const float rotSpeed = DegToRad(90.f);
             const float scaleRate = 1.5f;
@@ -270,11 +353,10 @@ namespace mygame
                     if (gWin->isKeyPressed(GLFW_KEY_W)) tr->y += rbc->velY * dt;
                     if (gWin->isKeyPressed(GLFW_KEY_S)) tr->y -= rbc->velY * dt;
                 }
-
-
             }
             }, "mygame::update");
     }
+
     // ------------------------------------------------------------
     // Draw: called every frame
     // ------------------------------------------------------------
@@ -315,8 +397,6 @@ namespace mygame
                         gfx::Graphics::renderSprite(tex, tr->x, tr->y, tr->rot, sx, sy, r, g, b, a);
                     }
                 }
-
-
             }
 
             // === ECS-driven drawing: rectangles ===
@@ -337,7 +417,6 @@ namespace mygame
                     rc->w, rc->h,
                     1.f, 1.f, 1.f, 1.f
                 );
-
             }
 
             // === ECS-driven drawing: circles ===
@@ -353,6 +432,10 @@ namespace mygame
                     cc->r, cc->g, cc->b, cc->a
                 );
             }
+
+            // --- Draw game title (only if text was initialized successfully) ---
+            gText.RenderText("Curry Nightmare", 24.0f, static_cast<float>(gScreenH) - 48.0f, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
+
             mygame::DrawSpawnPanel();
             ImGui::ShowDemoWindow();
 
@@ -369,7 +452,6 @@ namespace mygame
             }, "mygame::draw");
     }
 
-
     // ------------------------------------------------------------
     // Shutdown: called once after loop
     // ------------------------------------------------------------
@@ -381,6 +463,9 @@ namespace mygame
         // Unload all graphics
         std::cout << "Cleaning up graphics..." << std::endl;
         Resource_Manager::unloadAll(Resource_Manager::Graphics);
+
+        // Cleanup text renderer
+        gText.cleanup();
 
         using namespace Framework;
         // Destroy test objects and the factory cleanly
@@ -399,7 +484,5 @@ namespace mygame
         // Crash logger cleanup
         if (g_crashLogger) { delete g_crashLogger; g_crashLogger = nullptr; }
     }
-
-
 
 } // namespace mygame
