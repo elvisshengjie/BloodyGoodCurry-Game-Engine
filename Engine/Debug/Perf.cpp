@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      Perf.cpp
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author    
  \brief     Implements a lightweight per-frame CPU profiler for Update / Render / ImGui.
  \details
     This module provides a tiny “tracked CPU time” HUD that you can embed in any ImGui

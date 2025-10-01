@@ -4,7 +4,7 @@
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
  \brief     Declares the GameObjectComposition class, which acts as the container (entity)
-            for a collection of components in the ECS system. Provides methods to add,
+            for a collection of components in the Component based system. Provides methods to add,
             query, clone, and manage components, as well as lifecycle management
             and integration with the factory system.
 
