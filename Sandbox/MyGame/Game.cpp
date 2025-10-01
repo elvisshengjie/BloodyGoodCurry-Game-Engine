@@ -234,7 +234,7 @@ namespace mygame
             // find the "rect" object once per frame
             sRectObj = nullptr;
             for (auto* obj : sLevelObjs) {
-                if (obj && obj->GetObjectName() == "rect") { sRectObj = obj; break; }
+                if (obj && obj->GetObjectName() == "Player") { sRectObj = obj; break; }
             }
 
             if (sRectObj) {
