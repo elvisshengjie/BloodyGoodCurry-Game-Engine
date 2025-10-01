@@ -409,19 +409,30 @@ namespace mygame
         std::cout << "Cleaning up sound..." << std::endl;
         cleanupAudio();
 
-        // Unload all graphics
+        // 先清理我们创建的 OpenGL 资源（VAO/VBO/Program 等）
         std::cout << "Cleaning up graphics..." << std::endl;
+        gfx::Graphics::cleanup();
+
+        // 统一交给资源管理器释放图形资源（包括纹理）
         Resource_Manager::unloadAll(Resource_Manager::Graphics);
 
         using namespace Framework;
-        if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
+        if (sFactory) {
+            // 确保延迟销毁执行一遍
+            sFactory->Update(0.0f);
+            sFactory.reset();
+        }
         Framework::UnloadPrefabs();
+
+        // ImGui 关掉（如果 ImGuiLayer::Shutdown 没有 DestroyContext，这里补一手）
+        ImGuiLayer::Shutdown();
+        if (ImGui::GetCurrentContext()) ImGui::DestroyContext();
 
         gWin = nullptr;
 
         std::cout << "Game ended." << std::endl;
-        ImGuiLayer::Shutdown();
 
+        // Crash logger cleanup
         if (g_crashLogger) { delete g_crashLogger; g_crashLogger = nullptr; }
     }
 
