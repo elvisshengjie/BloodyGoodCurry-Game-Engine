@@ -4,11 +4,11 @@
  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Implements a lightweight per-frame CPU profiler for Update / Render / ImGui.
  \details
-    This module provides a tiny “tracked CPU time” HUD that you can embed in any ImGui
+    This module provides a tiny “tracked CPU time?HUD that you can embed in any ImGui
     window. It uses a double-buffer scheme:
       - Call \c FlipFrame() once at the start of each frame (e.g., top of update()) to
-        copy the previous frame’s “current” values into a “last” buffer for display, and
-        clear “current” for fresh measurements.
+        copy the previous frame’s “current?values into a “last?buffer for display, and
+        clear “current?for fresh measurements.
       - After timing each section within the frame, call \c setUpdate(), \c setRender(),
         and \c setImGui() with elapsed milliseconds for that section.
       - Call \c DrawInCurrentWindow() inside an already-open ImGui window to display the
@@ -19,7 +19,7 @@
           measure and feed them.
 
  \copyright
-    All content © 2025 DigiPen Institute of Technology Singapore.
+    All content ?2025 DigiPen Institute of Technology Singapore.
     All rights reserved.
 *********************************************************************************************/
 

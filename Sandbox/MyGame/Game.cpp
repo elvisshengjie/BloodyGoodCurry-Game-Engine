@@ -409,19 +409,30 @@ namespace mygame
         std::cout << "Cleaning up sound..." << std::endl;
         cleanupAudio();
 
-        // Unload all graphics
+       
         std::cout << "Cleaning up graphics..." << std::endl;
+        gfx::Graphics::cleanup();
+
+        
         Resource_Manager::unloadAll(Resource_Manager::Graphics);
 
         using namespace Framework;
-        if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
+        if (sFactory) {
+            
+            sFactory->Update(0.0f);
+            sFactory.reset();
+        }
         Framework::UnloadPrefabs();
+
+        
+        ImGuiLayer::Shutdown();
+        if (ImGui::GetCurrentContext()) ImGui::DestroyContext();
 
         gWin = nullptr;
 
         std::cout << "Game ended." << std::endl;
-        ImGuiLayer::Shutdown();
 
+        // Crash logger cleanup
         if (g_crashLogger) { delete g_crashLogger; g_crashLogger = nullptr; }
     }
 
