@@ -30,6 +30,12 @@ namespace gfx {
 
     static int segments = 50;
 
+    // --- NEW: cache rectangle local-space geometric center (pivot).
+    // This is computed in initialize() from the current rect vertex data,
+    // so you keep your original vertices/colors unchanged.
+    static float sRectPivotX = 0.0f;
+    static float sRectPivotY = 0.0f;
+
     static inline void GL_THROW_IF_ERROR(const char* where) {
         GLenum e = glGetError();
         if (e != GL_NO_ERROR) throw std::runtime_error(std::string(where) + "|gl_error=" + std::to_string((int)e));
@@ -132,6 +138,12 @@ namespace gfx {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
+        // --- Compute the rectangle's local-space geometric center (pivot).
+        // Vertex layout: [x,y,z,r,g,b] with a stride of 6 floats.
+        sRectPivotX = (rectVertices[0] + rectVertices[6] + rectVertices[12] + rectVertices[18]) * 0.25f;
+        sRectPivotY = (rectVertices[1] + rectVertices[7] + rectVertices[13] + rectVertices[19]) * 0.25f;
+        // For the current data this yields (0.0f, -0.2f).
+
         std::vector<float> circleVertices;
         circleVertices.reserve((segments + 2) * 6);
         circleVertices.insert(circleVertices.end(), { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f });
@@ -231,10 +243,20 @@ namespace gfx {
 
     void Graphics::renderRectangle(float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(objectShader);
+
+        // Pivot-only change:
+        // Keep scale as before, but rotate around the rectangle's geometric center.
+        // Because scale happens first (rightmost), we must rotate around the "scaled pivot".
+        const float pivot_sx = sRectPivotX * scaleX; // scaled center X
+        const float pivot_sy = sRectPivotY * scaleY; // scaled center Y
+
         glm::mat4 model(1.0f);
-        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
-        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));
-        model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));                  // world translation
+        model = glm::translate(model, glm::vec3(pivot_sx, pivot_sy, 0.0f));          // move scaled center to origin
+        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));                         // rotate about center
+        model = glm::translate(model, glm::vec3(-pivot_sx, -pivot_sy, 0.0f));        // move back
+        model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));                  // same scaling behavior as before
+
         glUniformMatrix4fv(glGetUniformLocation(objectShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform4f(glGetUniformLocation(objectShader, "uColor"), r, g, b, a);
         glBindVertexArray(VAO_rect);
