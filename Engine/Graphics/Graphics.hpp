@@ -16,6 +16,7 @@ namespace gfx {
 		static void renderCircle(float posX, float posY, float radius, float r, float g, float b, float a);
 		static void renderSprite(unsigned int tex, float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a);
 		static void cleanup();
+		static void testCrash(int which);
 
 	private:
 		static void initSpritePipeline();
@@ -26,7 +27,6 @@ namespace gfx {
 		static unsigned int VAO_bg, VBO_bg, bgTexture;
 		static unsigned int bgShader;
 		static unsigned int objectShader;
-
 		static unsigned int VAO_sprite, VBO_sprite, EBO_sprite;
 		static unsigned int spriteShader;
 	};
