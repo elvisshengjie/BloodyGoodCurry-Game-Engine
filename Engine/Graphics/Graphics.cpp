@@ -30,9 +30,8 @@ namespace gfx {
 
     static int segments = 50;
 
-    // --- NEW: cache rectangle local-space geometric center (pivot).
-    // This is computed in initialize() from the current rect vertex data,
-    // so you keep your original vertices/colors unchanged.
+    // Cache rectangle local-space geometric center (pivot).
+    // Computed in initialize() from current rect vertex data.
     static float sRectPivotX = 0.0f;
     static float sRectPivotY = 0.0f;
 
@@ -138,11 +137,9 @@ namespace gfx {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        // --- Compute the rectangle's local-space geometric center (pivot).
-        // Vertex layout: [x,y,z,r,g,b] with a stride of 6 floats.
+        // Compute local-space geometric center (pivot)
         sRectPivotX = (rectVertices[0] + rectVertices[6] + rectVertices[12] + rectVertices[18]) * 0.25f;
         sRectPivotY = (rectVertices[1] + rectVertices[7] + rectVertices[13] + rectVertices[19]) * 0.25f;
-        // For the current data this yields (0.0f, -0.2f).
 
         std::vector<float> circleVertices;
         circleVertices.reserve((segments + 2) * 6);
@@ -244,18 +241,17 @@ namespace gfx {
     void Graphics::renderRectangle(float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(objectShader);
 
-        // Pivot-only change:
-        // Keep scale as before, but rotate around the rectangle's geometric center.
-        // Because scale happens first (rightmost), we must rotate around the "scaled pivot".
-        const float pivot_sx = sRectPivotX * scaleX; // scaled center X
-        const float pivot_sy = sRectPivotY * scaleY; // scaled center Y
+        // Rotate around the rectangle's geometric center (pivot).
+        // Because scale happens first (rightmost), rotate around the "scaled pivot".
+        const float pivot_sx = sRectPivotX * scaleX;
+        const float pivot_sy = sRectPivotY * scaleY;
 
         glm::mat4 model(1.0f);
-        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));                  // world translation
-        model = glm::translate(model, glm::vec3(pivot_sx, pivot_sy, 0.0f));          // move scaled center to origin
-        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));                         // rotate about center
-        model = glm::translate(model, glm::vec3(-pivot_sx, -pivot_sy, 0.0f));        // move back
-        model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));                  // same scaling behavior as before
+        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
+        model = glm::translate(model, glm::vec3(pivot_sx, pivot_sy, 0.0f));
+        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));
+        model = glm::translate(model, glm::vec3(-pivot_sx, -pivot_sy, 0.0f));
+        model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
 
         glUniformMatrix4fv(glGetUniformLocation(objectShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform4f(glGetUniformLocation(objectShader, "uColor"), r, g, b, a);
@@ -284,6 +280,7 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderCircle");
     }
 
+    // Draw whole texture (backward-compatible)
     void Graphics::renderSprite(unsigned int tex, float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(spriteShader);
         glm::mat4 model(1.0f);
@@ -292,6 +289,11 @@ namespace gfx {
         model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
         glUniformMatrix4fv(glGetUniformLocation(spriteShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform4f(glGetUniformLocation(spriteShader, "uTint"), r, g, b, a);
+
+        // Whole-texture UVs
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVOffset"), 0.0f, 0.0f);
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVScale"), 1.0f, 1.0f);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex);
         glUniform1i(glGetUniformLocation(spriteShader, "uTex"), 0);
@@ -301,6 +303,49 @@ namespace gfx {
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
         GL_THROW_IF_ERROR("renderSprite");
+    }
+
+    // Draw a single sub-rect frame from a sprite sheet laid out in cols x rows.
+    void Graphics::renderSpriteFrame(unsigned int tex,
+        float posX, float posY, float rot, float scaleX, float scaleY,
+        int frameIndex, int cols, int rows,
+        float r, float g, float b, float a)
+    {
+        glUseProgram(spriteShader);
+
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
+        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));
+        model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(spriteShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform4f(glGetUniformLocation(spriteShader, "uTint"), r, g, b, a);
+
+        if (cols <= 0) cols = 1;
+        if (rows <= 0) rows = 1;
+
+        const float sx = 1.0f / static_cast<float>(cols);
+        const float sy = 1.0f / static_cast<float>(rows);
+        const int c = frameIndex % cols;
+        const int rIdx = frameIndex / cols;
+
+        // stbi flips Y => (0,0) is bottom-left; single-row sheets work with offY = rIdx*sy
+        const float offX = c * sx;
+        const float offY = rIdx * sy;
+
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVOffset"), offX, offY);
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVScale"), sx, sy);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glUniform1i(glGetUniformLocation(spriteShader, "uTex"), 0);
+
+        glBindVertexArray(VAO_sprite);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
+        GL_THROW_IF_ERROR("renderSpriteFrame");
     }
 
     void Graphics::cleanup() {
@@ -339,20 +384,27 @@ namespace gfx {
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        // NOTE: added uUVOffset/uUVScale to support sub-UV drawing
         const char* vs =
             "#version 330 core\n"
             "layout(location=0) in vec3 aPos;\n"
             "layout(location=1) in vec2 aUV;\n"
             "uniform mat4 uMVP;\n"
+            "uniform vec2 uUVOffset;\n"
+            "uniform vec2 uUVScale;\n"
             "out vec2 vUV;\n"
-            "void main(){gl_Position=uMVP*vec4(aPos,1.0);vUV=aUV;}\n";
+            "void main(){\n"
+            "  gl_Position = uMVP * vec4(aPos,1.0);\n"
+            "  vUV = aUV * uUVScale + uUVOffset;\n"
+            "}\n";
         const char* fs =
             "#version 330 core\n"
             "in vec2 vUV;\n"
             "out vec4 FragColor;\n"
             "uniform sampler2D uTex;\n"
             "uniform vec4 uTint;\n"
-            "void main(){FragColor=texture(uTex,vUV)*uTint;}\n";
+            "void main(){ FragColor = texture(uTex, vUV) * uTint; }\n";
         spriteShader = createShaderProgram(vs, fs);
         glBindVertexArray(0);
         GL_THROW_IF_ERROR("initSpritePipeline");
