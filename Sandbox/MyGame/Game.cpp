@@ -344,7 +344,7 @@ namespace mygame
                 if (obj->GetComponentType<Framework::SpriteComponent>(
                     Framework::ComponentTypeId::CT_SpriteComponent)) continue;
 
-                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, 1.f, 1.f, 1.f, 1.f);
+                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, rc->r,rc->g, rc->b, rc->a);
             }
 
             // Circles

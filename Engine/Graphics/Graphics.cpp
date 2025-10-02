@@ -203,22 +203,23 @@ namespace gfx {
         const char* objVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec3 aPos;\n"
-            "layout (location = 1) in vec3 aColor;\n"
-            "out vec3 vColor;\n"
             "uniform mat4 uMVP;\n"
-            "void main(){gl_Position=uMVP*vec4(aPos,1.0);vColor=aColor;}\n";
+            "void main(){ gl_Position = uMVP * vec4(aPos, 1.0); }\n";
+
         const char* objFragmentSrc =
             "#version 330 core\n"
-            "in vec3 vColor;\n"
             "out vec4 FragColor;\n"
             "uniform vec4 uColor;\n"
-            "void main(){FragColor=vec4(vColor,1.0)*uColor;}\n";
+            "void main(){ FragColor = uColor; }\n";
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
 
         initSpritePipeline();
 
         glBindVertexArray(0);
         glUseProgram(0);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         GL_THROW_IF_ERROR("initialize_end");
     }
