@@ -1,4 +1,16 @@
-﻿// Sandbox/MyGame/Game.cpp
+﻿/*********************************************************************************************
+ \file      RigidBodyComponent.h
+ \par       SofaSpuds
+ \author   
+
+ \brief     
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
+// Sandbox/MyGame/Game.cpp
 #include "../../Engine/Graphics/Window.hpp"
 #include "Audio/SoundManager.h"
 #include "Messaging_System/Messager_Bus.hpp"
@@ -535,7 +547,7 @@ namespace mygame
 
             // Spawn panel etc.
             mygame::DrawSpawnPanel();
-            ImGui::ShowDemoWindow();
+          
 
             // Crash test panel
             if (ImGui::Begin("Crash Tests")) {
