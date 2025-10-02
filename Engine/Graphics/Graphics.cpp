@@ -117,10 +117,10 @@ namespace gfx {
 
     void Graphics::initialize() {
         float rectVertices[] = {
-          -0.3f, -0.4f, 0.0f,  1.0f, 0.0f, 0.0f,
-           0.3f, -0.4f, 0.0f,  0.0f, 1.0f, 0.0f,
-           0.3f,  0.0f, 0.0f,  0.0f, 0.0f, 1.0f,
-          -0.3f,  0.0f, 0.0f,  1.0f, 1.0f, 0.0f
+          -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
+           0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+           0.5f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,
+          -0.5f,  0.5f, 0.0f,  1.0f, 1.0f, 0.0f
         };
         unsigned int rectIndices[] = { 0,1,2, 2,3,0 };
         unsigned int EBO_rect;

@@ -29,7 +29,7 @@ namespace Framework
         Vector2D<float> max;
 
         AABB(float x, float y, float width, float height) : 
-            min(x, y), max(x + width, y + height) {}
+            min(x - width / 2, y - height / 2), max(x + width / 2, y + height / 2) {}
     };
 
     /*****************************************************************************************

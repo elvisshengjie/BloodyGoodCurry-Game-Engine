@@ -244,8 +244,8 @@ namespace mygame
                     if (gWin->isKeyPressed(GLFW_KEY_R)) gRectScale = 1.f;
                     rc->w = gRectBaseW * gRectScale;
                     rc->h = gRectBaseH * gRectScale;
+                    
                 }
-
                 // movement (WASD)
                 if (rbc && tr) {
                     if (gWin->isKeyPressed(GLFW_KEY_D)) tr->x += rbc->velX * dt;
