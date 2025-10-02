@@ -67,7 +67,8 @@ namespace mygame
 
     // scale control for sTestObj's RenderComponent (Z/X & R keys)
     static float gRectScale = 1.0f;
-    static float gRectBaseW = 1.0f, gRectBaseH = 1.0f;
+    static float gRectBaseW = 0.5f, gRectBaseH = 0.5f;
+    static bool gCaptured = false;
 
     // Optional demo texture
     static unsigned int gPlayerTex = 0;
@@ -130,7 +131,20 @@ namespace mygame
         auto p = std::string("../../Data_Files/player.json");
         std::cout << "[Prefab] Player path = " << absolute(p) << "  exists=" << exists(p) << "\n";
         sLevelObjs = sFactory->CreateLevel("../../Data_Files/level.json");
-
+        // Capture player’s JSON-defined base size once
+        for (auto* obj : sLevelObjs) {
+            if (obj && obj->GetObjectName() == "Player") {
+                sRectObj = obj;
+                if (auto* rc = sRectObj->GetComponentType<Framework::RenderComponent>(
+                    Framework::ComponentTypeId::CT_RenderComponent)) {
+                    gRectBaseW = rc->w;  // should be 0.5 from JSON
+                    gRectBaseH = rc->h;
+                    gRectScale = 1.f;
+                    gCaptured = true;
+                }
+                break;
+            }
+        }
         // Window size
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gScreenW = cfg.width; gScreenH = cfg.height;
