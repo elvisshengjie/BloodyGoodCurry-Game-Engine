@@ -17,8 +17,8 @@
       "RigidBodyComponent": {
         "velocity_x": 10.0,
         "velocity_y": 10.0,
-        "width": 64,
-        "height": 64
+        "width": 0.1,
+        "height": 0.1
       }
     }
   }

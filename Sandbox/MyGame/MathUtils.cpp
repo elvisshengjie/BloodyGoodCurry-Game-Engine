@@ -1,9 +1,22 @@
+﻿/*********************************************************************************************
+ \file      MathUtils.cpp
+ \par       SofaSpuds
+ \author    yimo kong (yimo.kong@digipen.edu) - Primary Author, 100%
+ \brief     Implementation for tiny 4x4 matrices, GLSL compile/link, and QuadGL.
+ \details   Implements identity/ortho/translate/scale/rotateZ, matrix multiply (column-major),
+            shader compile/link utilities with error logging, and a unit-quad helper that
+            uploads positions-only geometry for basic 2D rendering paths.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "MathUtils.hpp"
+
 #include <cmath>
 #include <iostream>
 #include <string>
 
-// ===== Matrix functions =====
+// =============================== Mat4 constructors ========================================
 
 Mat4 Identity() {
     Mat4 r{};
@@ -13,6 +26,7 @@ Mat4 Identity() {
 
 Mat4 Ortho(float l, float r, float b, float t, float zn, float zf) {
     Mat4 M{};
+    // OpenGL-style ortho projecting to NDC [-1,1]
     M.m[0] = 2.0f / (r - l);
     M.m[5] = 2.0f / (t - b);
     M.m[10] = -2.0f / (zf - zn);
@@ -25,13 +39,14 @@ Mat4 Ortho(float l, float r, float b, float t, float zn, float zf) {
 
 Mat4 Mul(const Mat4& A, const Mat4& B) {
     Mat4 R{};
+    // Column-major multiply: R = A * B
     for (int c = 0; c < 4; ++c) {
         for (int r = 0; r < 4; ++r) {
             R.m[c * 4 + r] =
-                A.m[0 * 4 + r] * B.m[c * 4 + 0] +
-                A.m[1 * 4 + r] * B.m[c * 4 + 1] +
-                A.m[2 * 4 + r] * B.m[c * 4 + 2] +
-                A.m[3 * 4 + r] * B.m[c * 4 + 3];
+                A.m[0 * 4 + r] * B.m[c * 4 + 0]
+                + A.m[1 * 4 + r] * B.m[c * 4 + 1]
+                + A.m[2 * 4 + r] * B.m[c * 4 + 2]
+                + A.m[3 * 4 + r] * B.m[c * 4 + 3];
         }
     }
     return R;
@@ -57,6 +72,7 @@ Mat4 RotateZ(float rad) {
     Mat4 R = Identity();
     const float c = std::cos(rad);
     const float s = std::sin(rad);
+    // Standard 2D rotation in the XY plane (right-handed)
     R.m[0] = c;  R.m[4] = -s;
     R.m[1] = s;  R.m[5] = c;
     return R;
@@ -66,7 +82,7 @@ float DegToRad(float degrees) {
     return degrees * 3.14159265358979323846f / 180.0f;
 }
 
-// ===== OpenGL helpers =====
+// =============================== OpenGL helpers ===========================================
 
 GLuint Compile(GLenum type, const char* src) {
     GLuint sh = glCreateShader(type);
@@ -110,10 +126,10 @@ GLuint Link(GLuint vs, GLuint fs) {
     return prog;
 }
 
-// ===== QuadGL =====
+// =============================== QuadGL ===================================================
 
 void QuadGL::create() {
-    // A unit quad centered at origin (pivot at center)
+    // Unit quad centered at origin (pivot at center)
     const float verts[8] = {
         -0.5f, -0.5f,
          0.5f, -0.5f,

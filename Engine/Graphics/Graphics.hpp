@@ -15,7 +15,9 @@ namespace gfx {
 		static void renderRectangle(float posX, float posY, float rot, float scale);
 		static void renderCircle(float posX, float posY, float radius, float r, float g, float b, float a);
 		static void renderSprite(unsigned int tex, float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a);
-		static void cleanup();
+		// Draw a single frame from a sprite sheet (cols x rows)
+		static void renderSpriteFrame(unsigned int tex,float posX, float posY, float rot, float scaleX, float scaleY,int frameIndex, int cols, int rows,float r = 1.f, float g = 1.f, float b = 1.f, float a = 1.f);
+        static void cleanup();
 		static void testCrash(int which);
 
 	private:
