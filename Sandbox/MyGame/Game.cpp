@@ -49,6 +49,7 @@ namespace mygame
 {
     using std::filesystem::absolute; using std::filesystem::exists;
 
+
     // ===== Persistent state =====
     static gfx::Window* gWin = nullptr;
 
@@ -70,13 +71,13 @@ namespace mygame
     static float gRectBaseW = 0.5f, gRectBaseH = 0.5f;
     static bool gCaptured = false;
 
-    // Optional demo texture
+    // --- NEW: texture for sprite rendering of the rectangle ---
     static unsigned int gPlayerTex = 0;
 
     Framework::InputManager gInput(nullptr);
+
     Framework::GOC* sRectObj = nullptr;
     static std::vector<Framework::GOC*> sLevelObjs;
-
     using clock = std::chrono::high_resolution_clock;
 
     // ================== Sprite sheet lightweight animator (Player only) ==================
@@ -103,7 +104,7 @@ namespace mygame
     static inline void      ResetAnim() { gFrame = 0; gFrameClock = 0.f; }
 
     // ------------------------------------------------------------
-    // Init
+    // Init: called once by Core, receives the created Window
     // ------------------------------------------------------------
     void init(gfx::Window& win)
     {
@@ -111,27 +112,38 @@ namespace mygame
         using namespace Framework;
         gInput = Framework::InputManager(gWin->raw());
 
-        // Crash logger
+        // Crash logger setup
+        // Desktop: set a writable directory; Android: call InitAndroid in JNI init to set internal storage dir
         g_crashLogger = new CrashLogger(std::string("../../logs"), std::string("crash.log"), std::string("ENGINE/CRASH"));
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
         g_crashLogger->Write("startup", "ok");
+
         InstallTerminateHandler();
         InstallSignalHandlers();
 
-        // Factory & components
+        // 1) Create the factory (sets FACTORY)
         sFactory = std::make_unique<GameObjectFactory>();
+
+        // 2) Register components (FACTORY must exist first!)
+
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
         RegisterComponent(SpriteComponent);
         RegisterComponent(RigidBodyComponent);
 
-        // Prefabs & level
+
+        //3)Create Master copy
         LoadPrefabs();
         auto p = std::string("../../Data_Files/player.json");
         std::cout << "[Prefab] Player path = " << absolute(p) << "  exists=" << exists(p) << "\n";
+
+        // 4) Create objects from JSON
+        //sTestObj = FACTORY->Create("../../Data_Files/test.json");
+        //sTestObj2 = FACTORY->Create("../../Data_Files/test2.json");
+        //sCircleObj = FACTORY->Create("../../Data_Files/circle.json");
         sLevelObjs = sFactory->CreateLevel("../../Data_Files/level.json");
-        // Capture player’s JSON-defined base size once
+        // Capture playerï¿½s JSON-defined base size once
         for (auto* obj : sLevelObjs) {
             if (obj && obj->GetObjectName() == "Player") {
                 sRectObj = obj;
@@ -149,46 +161,104 @@ namespace mygame
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gScreenW = cfg.width; gScreenH = cfg.height;
 
-        // Audio
+        /*     if (auto* tr = sTestObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
+                 std::cout << "[Check] TransformComponent: x=" << tr->x << " y=" << tr->y << " rot=" << tr->rot << "\n";
+             }
+             else {
+                 std::cout << "[Check] TransformComponent missing!\n";
+             }
+
+         */
+
+         // cache base size for sTestObj if it has a RenderComponent
+         //if (sTestObj) {
+         //    if (auto* rc = sTestObj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
+         //        gRectBaseW = rc->w; gRectBaseH = rc->h; gRectScale = 1.0f;
+         //    }
+         //}
+
+         // Load fixed size from JSON (for window)
+        WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
+        gScreenW = cfg.width;
+        gScreenH = cfg.height;
+
+        // Audio bootstrap
         initializeAudio();
         startAudio(busInstance);
 
-        // GL state
+        // --- No more demo-quad shader/VAO setup ---
+        // Keep blending enabled for ECS shapes with alpha
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Graphics
+        // Initialize Graphics system (VAOs, shaders for ECS objects/background)
         gfx::Graphics::initialize();
+      
 
-        // Demo texture
+
+        // --- NEW: load PNG to render instead of flat-colored rectangle ---
         Resource_Manager::load("player_png", "../../assets/Textures/player.png");
         gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
 
-        // Sprite sheets with clean keys (filenames contain spaces)
-        Resource_Manager::load("ming_idle", "../../assets/Textures/Idle Sprite .png");
-        Resource_Manager::load("ming_run", "../../assets/Textures/Running Sprite .png");
-        gTexIdle = Resource_Manager::resources_map["ming_idle"].handle;
-        gTexRun = Resource_Manager::resources_map["ming_run"].handle;
-        sAnimState = AnimState::Idle;
-        ResetAnim();
 
         std::cout << "\n=== Controls ===\n"
-            << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
-            << "A/D held => Run animation, otherwise Idle\n"
-            << "F1: Toggle Performance Overlay (FPS & timings)\n"
+            << "1: coin | 2: toggle footsteps | 3: level win | 4: lose | 5: click | 6: win\n"
+            << "M: toggle master volume | S: stop all | ESC handled by window\n"
+            << "Q/E: rotate selected object | Z/X: scale down/up | SHIFT accelerate | R reset\n"
             << "=======================================\n";
 
-        // ImGui
+        // Clone 10 Rects in a horizontal line
+        //const int    count = 10;
+        //const float  startX = 0.1f;
+        //const float  gapX = 0.07f;   // normalized screen units (your renderer uses 0..1)
+        //const float  y = 0.2f;
+
+        //for (int i = 0; i < count; ++i) {
+        //    auto* obj = ClonePrefab("Rect");
+        //    if (!obj) { std::cout << "[Prefab] Missing Rect master!\n"; break; }
+
+        //    // position each clone
+        //    if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+        //        Framework::ComponentTypeId::CT_TransformComponent)) {
+        //        tr->x = startX + i * gapX;
+        //        tr->y = y;
+        //        tr->rot = 0.f;
+        //    }
+        //}
+
+
+        // Clone 6 Circles in a 2x3 grid
+        /*const int   crows = 2, ccols = 3;
+        const float cstartX = 0.2f, cstartY = 0.5f;
+        const float cgapX = 0.15f, cgapY = 0.12f;
+
+        for (int r = 0; r < crows; ++r) {
+            for (int c = 0; c < ccols; ++c) {
+                auto* obj = ClonePrefab("Circle");
+                if (!obj) { std::cout << "[Prefab] Missing Circle master!\n"; continue; }
+
+                if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                    Framework::ComponentTypeId::CT_TransformComponent)) {
+                    tr->x = cstartX + c * cgapX;
+                    tr->y = cstartY + r * cgapY;
+                    tr->rot = 0.f;
+                }
+            }
+        }*/
+
+        //Initialize ImGui
         ImGuiLayerConfig cFg;
         cFg.glsl_version = "#version 330";
         cFg.dockspace = true;
         cFg.gamepad = false;
         ImGuiLayer::Initialize(win, cFg);
+
+
     }
 
     // ------------------------------------------------------------
-    // Update
-    // ------------------------------------------------------------
+  // Update: called every frame
+  // ------------------------------------------------------------
     void update(float dt)
     {
         TryGuard::Run([&] {
@@ -208,9 +278,11 @@ namespace mygame
             const bool  shift = gWin->isKeyPressed(GLFW_KEY_LEFT_SHIFT) || gWin->isKeyPressed(GLFW_KEY_RIGHT_SHIFT);
             const float accel = shift ? 3.f : 1.f;
 
-            // find the "Player"
+            // find the "rect" object once per frame
             sRectObj = nullptr;
-            for (auto* obj : sLevelObjs) { if (obj && obj->GetObjectName() == "Player") { sRectObj = obj; break; } }
+            for (auto* obj : sLevelObjs) {
+                if (obj && obj->GetObjectName() == "Player") { sRectObj = obj; break; }
+            }
 
             if (sRectObj) {
                 auto* tr = sRectObj->GetComponentType<Framework::TransformComponent>(
@@ -224,7 +296,7 @@ namespace mygame
                 if (tr) {
                     if (gWin->isKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
                     if (gWin->isKeyPressed(GLFW_KEY_E)) tr->rot -= rotSpeed * dt * accel;
-                    if (tr->rot > 3.14159265f)  tr->rot -= 6.28318530f;
+                    if (tr->rot > 3.14159265f) tr->rot -= 6.28318530f;
                     if (tr->rot < -3.14159265f) tr->rot += 6.28318530f;
                     if (gWin->isKeyPressed(GLFW_KEY_R)) tr->rot = 0.f;
                 }
@@ -235,6 +307,7 @@ namespace mygame
                     if (gWin->isKeyPressed(GLFW_KEY_Z)) gRectScale *= (1.f - scaleRate * dt * accel);
                     gRectScale = std::clamp(gRectScale, 0.25f, 4.0f);
                     if (gWin->isKeyPressed(GLFW_KEY_R)) gRectScale = 1.f;
+
                     rc->w = gRectBaseW * gRectScale;
                     rc->h = gRectBaseH * gRectScale;
                 }
@@ -246,15 +319,6 @@ namespace mygame
                     if (gWin->isKeyPressed(GLFW_KEY_W)) tr->y += rbc->velY * dt;
                     if (gWin->isKeyPressed(GLFW_KEY_S)) tr->y -= rbc->velY * dt;
                 }
-
-                // animation state
-                const bool wantRun = (gWin->isKeyPressed(GLFW_KEY_A) || gWin->isKeyPressed(GLFW_KEY_D));
-                AnimState newState = wantRun ? AnimState::Run : AnimState::Idle;
-                if (newState != sAnimState) { sAnimState = newState; ResetAnim(); }
-
-                // advance frame clock
-                gFrameClock += dt * CurrentFPS();
-                while (gFrameClock >= 1.f) { gFrameClock -= 1.f; gFrame = (gFrame + 1) % CurrentFrames(); }
             }
             // Test Keyboard inputs
             if (gInput.IsKeyPressed(GLFW_KEY_SPACE))
@@ -275,14 +339,15 @@ namespace mygame
 
             handleAudioInput(*gWin, gKeyEdge, busInstance);
 
-            const double updateMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
+            const double updateMs =
+                std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setUpdate(updateMs);
 
             }, "mygame::update");
     }
 
     // ------------------------------------------------------------
-    // Draw
+    // Draw: called every frame
     // ------------------------------------------------------------
     void draw()
     {
@@ -311,18 +376,6 @@ namespace mygame
                         sx = rc->w; sy = rc->h; r = rc->r; g = rc->g; b = rc->b; a = rc->a;
                     }
 
-                    // Player uses sheet animation
-                    if (obj->GetObjectName() == "Player" && gTexIdle && gTexRun) {
-                        gfx::Graphics::renderSpriteFrame(
-                            CurrentTex(), tr->x, tr->y, tr->rot,
-                            sx, sy,
-                            gFrame, CurrentCols(), CurrentRows(),
-                            r, g, b, a
-                        );
-                        continue;
-                    }
-
-                    // Other sprites: whole texture
                     unsigned tex = sp->texture_id;
                     if (!tex && !sp->texture_key.empty()) {
                         tex = Resource_Manager::getTexture(sp->texture_key);
@@ -334,17 +387,24 @@ namespace mygame
                 }
             }
 
-            // Rectangles (no sprite)
+            // Rectangles
             for (auto& [id, obj] : Framework::FACTORY->Objects()) {
                 auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                     Framework::ComponentTypeId::CT_TransformComponent);
                 auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                     Framework::ComponentTypeId::CT_RenderComponent);
                 if (!tr || !rc) continue;
+                // skip if it has a sprite
                 if (obj->GetComponentType<Framework::SpriteComponent>(
-                    Framework::ComponentTypeId::CT_SpriteComponent)) continue;
+                    Framework::ComponentTypeId::CT_SpriteComponent)) {
+                    continue;
+                }
 
-                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, 1.f, 1.f, 1.f, 1.f);
+                gfx::Graphics::renderRectangle(
+                    tr->x, tr->y, tr->rot,
+                    rc->w, rc->h,
+                    rc->r, rc->g, rc->b, rc->a
+                );
             }
 
             // Circles
@@ -355,7 +415,10 @@ namespace mygame
                     Framework::ComponentTypeId::CT_CircleRenderComponent);
                 if (!tr || !cc) continue;
 
-                gfx::Graphics::renderCircle(tr->x, tr->y, cc->radius, cc->r, cc->g, cc->b, cc->a);
+                gfx::Graphics::renderCircle(
+                    tr->x, tr->y, cc->radius,
+                    cc->r, cc->g, cc->b, cc->a
+                );
             }
 
             // record Render cost
@@ -365,11 +428,10 @@ namespace mygame
             // -------- ImGui timing --------
             t0 = clock::now();
 
-            // Spawn panel etc.
             mygame::DrawSpawnPanel();
-            // ImGui::ShowDemoWindow();
+           // ImGui::ShowDemoWindow();
 
-            // Crash test panel
+            // Crash test buttons (intentional faults to verify crash logging)
             if (ImGui::Begin("Crash Tests")) {
                 if (ImGui::Button("Crash BG shader"))     gfx::Graphics::testCrash(1);
                 if (ImGui::Button("Crash BG VAO"))        gfx::Graphics::testCrash(2);
@@ -389,8 +451,10 @@ namespace mygame
             }, "mygame::draw");
     }
 
+
+
     // ------------------------------------------------------------
-    // Shutdown
+    // Shutdown: called once after loop
     // ------------------------------------------------------------
     void shutdown()
     {
@@ -403,11 +467,13 @@ namespace mygame
         Resource_Manager::unloadAll(Resource_Manager::Graphics);
 
         using namespace Framework;
-        if (sFactory) {
-            sFactory->Update(0.0f);
-            sFactory.reset();
-        }
+        // Destroy test objects and the factory cleanly
+   /*     if (sTestObj) { FACTORY->Destroy(sTestObj);   sTestObj = nullptr; }
+        if (sTestObj2) { FACTORY->Destroy(sTestObj2);  sTestObj2 = nullptr; }
+        if (sCircleObj) { FACTORY->Destroy(sCircleObj); sCircleObj = nullptr; }*/
+        if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
         Framework::UnloadPrefabs();
+        // --- Removed: if (gProg) glDeleteProgram(gProg); and gQuad.destroy(); ---
 
         ImGuiLayer::Shutdown();
         if (ImGui::GetCurrentContext()) ImGui::DestroyContext();
@@ -419,5 +485,7 @@ namespace mygame
         // Crash logger cleanup
         if (g_crashLogger) { delete g_crashLogger; g_crashLogger = nullptr; }
     }
+
+
 
 } // namespace mygame
