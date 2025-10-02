@@ -395,7 +395,11 @@ namespace mygame
                 }
 
                 // animation state
-                const bool wantRun = (gWin->isKeyPressed(GLFW_KEY_A) || gWin->isKeyPressed(GLFW_KEY_D));
+                const bool wantRun =
+                    gWin->isKeyPressed(GLFW_KEY_A) || gWin->isKeyPressed(GLFW_KEY_D) ||
+                    gWin->isKeyPressed(GLFW_KEY_W) || gWin->isKeyPressed(GLFW_KEY_S) ||
+                    gWin->isKeyPressed(GLFW_KEY_LEFT) || gWin->isKeyPressed(GLFW_KEY_RIGHT) ||
+                    gWin->isKeyPressed(GLFW_KEY_UP) || gWin->isKeyPressed(GLFW_KEY_DOWN);
                 AnimState newState = wantRun ? AnimState::Run : AnimState::Idle;
                 if (newState != sAnimState) { sAnimState = newState; ResetAnim(); }
 
