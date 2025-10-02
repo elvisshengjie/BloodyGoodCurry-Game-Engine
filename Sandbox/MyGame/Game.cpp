@@ -13,6 +13,22 @@
 // math & GL helpers
 #include "MathUtils.hpp"
 
+// --- NEW: platform helpers to locate executable directory ---
+// Place platform headers BEFORE glad/glfw to avoid APIENTRY macro redefs.
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -45,15 +61,6 @@
 
 // Crash logging
 #include "Debug/CrashLogger.hpp"
-
-// --- NEW: platform helpers to locate executable directory ---
-#if defined(_WIN32)
-#include <windows.h>
-#elif defined(__APPLE__)
-#include <mach-o/dyld.h>
-#else
-#include <unistd.h>
-#endif
 
 namespace mygame
 {
@@ -123,7 +130,6 @@ namespace mygame
         namespace fs = std::filesystem;
 
         // --- Absolute dev paths (your repo location) ---
-        // Variable fonts (with comma in filename) -> use raw string literal for Windows path.
         const char* abs_var = R"(C:\Users\Erika\Documents\GitHub\csd2401f25_team_sofasqud\assets\Fonts\Roboto-VariableFont_wdth,wght.ttf)";
         if (fs::exists(abs_var)) return abs_var;
 
@@ -143,7 +149,7 @@ namespace mygame
         };
 
         // Candidate root anchors to search from
-        std::vector fs_roots = { fs::current_path(), GetExeDir() };
+        std::vector<fs::path> fs_roots = { fs::current_path(), GetExeDir() };
 
         // Search up to 7 parents from each root for assets/Fonts/<name>
         for (const auto& root : fs_roots) {
@@ -174,9 +180,8 @@ namespace mygame
 
         return {};
     }
+
     Framework::InputManager gInput(nullptr);
-    Framework::GOC* sRectObj = nullptr;
-    static std::vector<Framework::GOC*> sLevelObjs;
 
     using clock = std::chrono::high_resolution_clock;
 
@@ -215,8 +220,6 @@ namespace mygame
         // Crash logger
         g_crashLogger = new CrashLogger(std::string("../../logs"), std::string("crash.log"), std::string("ENGINE/CRASH"));
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
-        // g_crashLogger->Write("startup", "ok");
-
         g_crashLogger->Write("startup", "ok");
         InstallTerminateHandler();
         InstallSignalHandlers();
@@ -235,7 +238,7 @@ namespace mygame
         auto p = std::string("../../Data_Files/player.json");
         std::cout << "[Prefab] Player path = " << absolute(p) << "  exists=" << exists(p) << "\n";
         sLevelObjs = sFactory->CreateLevel("../../Data_Files/level.json");
-        // Capture player�s JSON-defined base size once
+        // Capture player's JSON-defined base size once
         for (auto* obj : sLevelObjs) {
             if (obj && obj->GetObjectName() == "Player") {
                 sRectObj = obj;
@@ -282,8 +285,6 @@ namespace mygame
             }
         }
 
-  
-
         // Demo texture
         Resource_Manager::load("player_png", "../../assets/Textures/player.png");
         gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
@@ -301,44 +302,6 @@ namespace mygame
             << "A/D held => Run animation, otherwise Idle\n"
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
             << "=======================================\n";
-
-        // Clone 10 Rects in a horizontal line
-        //const int    count = 10;
-        //const float  startX = 0.1f;
-        //const float  gapX = 0.07f;   // normalized screen units (your renderer uses 0..1)
-        //const float  y = 0.2f;
-
-        //for (int i = 0; i < count; ++i) {
-        //    auto* obj = ClonePrefab("Rect");
-        //    if (!obj) { std::cout << "[Prefab] Missing Rect master!\n"; break; }
-        //
-        //    // position each clone
-        //    if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-        //        Framework::ComponentTypeId::CT_TransformComponent)) {
-        //        tr->x = startX + i * gapX;
-        //        tr->y = y;
-        //        tr->rot = 0.f;
-        //    }
-        //}
-
-        // Clone 6 Circles in a 2x3 grid
-        /*const int   crows = 2, ccols = 3;
-        const float cstartX = 0.2f, cstartY = 0.5f;
-        const float cgapX = 0.15f, cgapY = 0.12f;
-
-        for (int r = 0; r < crows; ++r) {
-            for (int c = 0; c < ccols; ++c) {
-                auto* obj = ClonePrefab("Circle");
-                if (!obj) { std::cout << "[Prefab] Missing Circle master!\n"; continue; }
-
-                if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                    Framework::ComponentTypeId::CT_TransformComponent)) {
-                    tr->x = cstartX + c * cgapX;
-                    tr->y = cstartY + r * cgapY;
-                    tr->rot = 0.f;
-                }
-            }
-        }*/
 
         //Initialize ImGui
         // ImGui
@@ -421,7 +384,7 @@ namespace mygame
             }
 
             for (auto* obj2 : sLevelObjs) {
-                if (obj2->GetObjectName() == "rect") {
+                if (obj2 && obj2->GetObjectName() == "rect") {
                     sTestObj = obj2;
                     break;
                 }
@@ -436,16 +399,16 @@ namespace mygame
                     bhitbox = AABB(tr2->x, tr2->y, rbc2->width, rbc2->height);
                 }
                 else {
-                    
+                    // no-op
                 }
             }
             else {
                 sTestObj = nullptr; // clear dangling pointer
             }
-            
+
             if (Collision::CheckCollisionRectToRect(ahitbox, bhitbox))
                 std::cout << "Collision detected!" << std::endl;
-            
+
             // Test Keyboard inputs
             if (gInput.IsKeyPressed(GLFW_KEY_SPACE))
                 std::cout << "Spacebar pressed!" << std::endl;
@@ -461,7 +424,6 @@ namespace mygame
                 std::cout << "LMB held!" << std::endl;
             if (gInput.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT))
                 std::cout << "LMB released!" << std::endl;
-
 
             handleAudioInput(*gWin, gKeyEdge, busInstance);
 
@@ -534,7 +496,7 @@ namespace mygame
                 if (obj->GetComponentType<Framework::SpriteComponent>(
                     Framework::ComponentTypeId::CT_SpriteComponent)) continue;
 
-                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, rc->r,rc->g, rc->b, rc->a);
+                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, rc->r, rc->g, rc->b, rc->a);
             }
 
             // Circles
@@ -550,7 +512,7 @@ namespace mygame
 
             // --- Draw game title (only if text was initialized successfully) ---
             if (gTextReady) {
-                gText.RenderText("Curry Nightmare", 24.0f, static_cast<float>(gScreenH) - 48.0f, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
+                gText.RenderText("Bloody Good Curry", 24.0f, static_cast<float>(gScreenH) - 48.0f, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
             }
 
             mygame::DrawSpawnPanel();
