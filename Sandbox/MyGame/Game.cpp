@@ -38,6 +38,7 @@
 #include "Debug/Spawn.h"
 #include "Physics/Collision/Collision.h"
 #include "Debug/Perf.h"
+#include "Input/Input.h"
 
 #include <filesystem>
 
@@ -71,6 +72,7 @@ namespace mygame
     // Optional demo texture
     static unsigned int gPlayerTex = 0;
 
+    Framework::InputManager gInput(nullptr);
     Framework::GOC* sRectObj = nullptr;
     static std::vector<Framework::GOC*> sLevelObjs;
 
@@ -106,6 +108,7 @@ namespace mygame
     {
         gWin = &win;
         using namespace Framework;
+        gInput = Framework::InputManager(gWin->raw());
 
         // Crash logger
         g_crashLogger = new CrashLogger(std::string("../../logs"), std::string("crash.log"), std::string("ENGINE/CRASH"));
@@ -176,7 +179,7 @@ namespace mygame
     {
         TryGuard::Run([&] {
             using namespace Framework;
-
+            gInput.Update();
             // NEW: perf module handles ring buffer + F1 toggle + FlipFrame
             Framework::PerfFrameStart(dt, gWin->isKeyPressed(GLFW_KEY_F1));
 
@@ -239,6 +242,22 @@ namespace mygame
                 gFrameClock += dt * CurrentFPS();
                 while (gFrameClock >= 1.f) { gFrameClock -= 1.f; gFrame = (gFrame + 1) % CurrentFrames(); }
             }
+            // Test Keyboard inputs
+            if (gInput.IsKeyPressed(GLFW_KEY_SPACE))
+                std::cout << "Spacebar pressed!" << std::endl;
+            if (gInput.IsKeyHeld(GLFW_KEY_SPACE))
+                std::cout << "Spacebar held!" << std::endl;
+            if (gInput.IsKeyReleased(GLFW_KEY_SPACE))
+                std::cout << "Spacebar released!" << std::endl;
+
+            // Test mouse inputs
+            if (gInput.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT))
+                std::cout << "LMB pressed!" << std::endl;
+            if (gInput.IsMouseHeld(GLFW_MOUSE_BUTTON_LEFT))
+                std::cout << "LMB held!" << std::endl;
+            if (gInput.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT))
+                std::cout << "LMB released!" << std::endl;
+
 
             handleAudioInput(*gWin, gKeyEdge, busInstance);
 
