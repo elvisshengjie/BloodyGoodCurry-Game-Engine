@@ -25,7 +25,6 @@
 #include <Graphics/Graphics.hpp>
 #include <Serialization/JsonSerialization.h>
 #include "Factory/Factory.h"
-#include "Input/Input.h"
 
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
@@ -70,7 +69,6 @@ namespace mygame
     static unsigned int gPlayerTex = 0;
 
     Framework::GOC* sRectObj = nullptr;
-    Framework::InputManager gInput(nullptr);
     static std::vector<Framework::GOC*> sLevelObjs;
     // ------------------------------------------------------------
     // Init: called once by Core, receives the created Window
@@ -79,7 +77,7 @@ namespace mygame
     {
         gWin = &win;
         using namespace Framework;
-        gInput = Framework::InputManager(gWin->raw());
+
         // 1) Create the factory (sets FACTORY)
         sFactory = std::make_unique<GameObjectFactory>();
 
@@ -205,7 +203,6 @@ namespace mygame
         AABB ahitbox(0, 0, 0, 0);
         AABB bhitbox(0, 0, 0, 0);
         handleAudioInput(*gWin, gKeyEdge, busInstance);
-        gInput.Update();
 
         // sweep factory once per frame (handles deferred destroys)
         if (sFactory) sFactory->Update(dt);
@@ -260,23 +257,6 @@ namespace mygame
                 if (gWin->isKeyPressed(GLFW_KEY_S)) tr->y -= rbc->velY * dt;
             }
         }
-
-        // Test Keyboard inputs
-        if (gInput.IsKeyPressed(GLFW_KEY_SPACE))
-            std::cout << "Spacebar pressed!" << std::endl;
-        if (gInput.IsKeyHeld(GLFW_KEY_SPACE))
-            std::cout << "Spacebar held!" << std::endl;
-        if (gInput.IsKeyReleased(GLFW_KEY_SPACE))
-            std::cout << "Spacebar released!" << std::endl;
-
-        // Test mouse inputs
-        if (gInput.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT))
-            std::cout << "LMB pressed!" << std::endl;
-        if (gInput.IsMouseHeld(GLFW_MOUSE_BUTTON_LEFT))
-            std::cout << "LMB held!" << std::endl;
-        if (gInput.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT))
-            std::cout << "LMB released!" << std::endl;
-
         for (auto* obj2 : sLevelObjs) {
             if (obj2->GetObjectName() == "Player") {
                 sTestObj = obj2;
