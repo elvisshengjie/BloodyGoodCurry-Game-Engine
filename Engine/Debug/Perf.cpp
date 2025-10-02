@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      Perf.cpp
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author    yimo.kong (yimo.kong@digipen.edu) - Primary Author, 100%
  \brief     Implements a lightweight per-frame CPU profiler for Update / Render / ImGui.
 *********************************************************************************************/
 
