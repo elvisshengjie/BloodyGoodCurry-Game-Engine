@@ -47,6 +47,13 @@
 
 namespace mygame
 {
+    static bool IsAlive(Framework::GOC* obj) {
+        if (!obj || !Framework::FACTORY) return false;
+        // Check the factory still owns this pointer
+        for (auto& [id, ptr] : Framework::FACTORY->Objects())
+            if (ptr == obj) return true;
+        return false;
+    }
     using std::filesystem::absolute; using std::filesystem::exists;
 
     // ===== Persistent state =====
@@ -263,14 +270,21 @@ namespace mygame
                     break;
                 }
             }
-            if (sTestObj) {
+            if (IsAlive(sTestObj)) {
                 auto* tr2 = sTestObj->GetComponentType<Framework::TransformComponent>(
                     Framework::ComponentTypeId::CT_TransformComponent);
-                auto* rc2 = sTestObj->GetComponentType<Framework::RenderComponent>(
-                    Framework::ComponentTypeId::CT_RenderComponent);
                 auto* rbc2 = sTestObj->GetComponentType<Framework::RigidBodyComponent>(
                     Framework::ComponentTypeId::CT_RigidBodyComponent);
-                bhitbox = AABB(tr2->x, tr2->y, rbc2->width, rbc2->height);
+
+                if (tr2 && rbc2) {
+                    bhitbox = AABB(tr2->x, tr2->y, rbc2->width, rbc2->height);
+                }
+                else {
+                    
+                }
+            }
+            else {
+                sTestObj = nullptr; // clear dangling pointer
             }
             
             if (Collision::CheckCollisionRectToRect(ahitbox, bhitbox))
