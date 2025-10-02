@@ -1,4 +1,16 @@
-// Graphics/GraphicsText.cpp
+/*********************************************************************************************
+ \file      GraphicsText.cpp
+ \par       SofaSpuds
+ \author    erika.ishii (erika.ishii@digipen.edu) - Main Author, 100%
+ \brief     FreeType-backed OpenGL text rendering: shader setup, glyph caching, and draw calls.
+ \details   Builds a small shader pair (vertex/fragment) with a pixel-space orthographic
+            projection, loads ASCII glyphs (0–127) via FreeType into single-channel (GL_RED)
+            textures with metrics (size, bearing, advance), and renders strings as textured
+            quads updated through a dynamic VBO. Provides viewport updates and resource cleanup.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "GraphicsText.hpp"
 
 #include <ft2build.h>
@@ -10,6 +22,13 @@
 
 namespace gfx {
 
+    /*************************************************************************************
+      \brief  Compile a GLSL shader from source and return its handle.
+      \param  source Null-terminated GLSL source string.
+      \param  type   GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
+      \return Shader handle.
+      \throws std::runtime_error on compilation failure (stage-tag + info log).
+    *************************************************************************************/
     static unsigned int compileShader(const char* source, GLenum type) {
         unsigned int shader = glCreateShader(type);
         glShaderSource(shader, 1, &source, nullptr);
@@ -25,6 +44,13 @@ namespace gfx {
         return shader;
     }
 
+    /*************************************************************************************
+      \brief  Link a program from vertex/fragment source strings.
+      \param  vSource Vertex shader source.
+      \param  fSource Fragment shader source.
+      \return Program handle. Stages are deleted after a successful link.
+      \throws std::runtime_error on link failure (includes info log).
+    *************************************************************************************/
     static unsigned int createShaderProgram(const char* vSource, const char* fSource) {
         unsigned int vertex = compileShader(vSource, GL_VERTEX_SHADER);
         unsigned int fragment = compileShader(fSource, GL_FRAGMENT_SHADER);
@@ -45,10 +71,18 @@ namespace gfx {
 
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-
         return program;
     }
 
+    /*************************************************************************************
+      \brief  Initialize text rendering: build shaders, set pixel-space projection,
+              load ASCII glyphs with FreeType, and create VAO/VBO for quads.
+      \param  fontPath Filesystem path to a TTF/OTF font.
+      \param  width    Viewport width in pixels (for ortho).
+      \param  height   Viewport height in pixels (for ortho).
+      \details On FreeType/font failure, logs and returns early so the app can continue
+               (renderer becomes a no-op).
+    *************************************************************************************/
     void TextRenderer::initialize(const char* fontPath, unsigned int width, unsigned int height) {
         // text shaders
         const char* vShader =
@@ -107,15 +141,9 @@ namespace gfx {
             glGenTextures(1, &texture);
             glBindTexture(GL_TEXTURE_2D, texture);
             glTexImage2D(
-                GL_TEXTURE_2D,
-                0,
-                GL_RED,
-                face->glyph->bitmap.width,
-                face->glyph->bitmap.rows,
-                0,
-                GL_RED,
-                GL_UNSIGNED_BYTE,
-                face->glyph->bitmap.buffer
+                GL_TEXTURE_2D, 0, GL_RED,
+                face->glyph->bitmap.width, face->glyph->bitmap.rows,
+                0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer
             );
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -145,6 +173,11 @@ namespace gfx {
         glBindVertexArray(0);
     }
 
+    /*************************************************************************************
+      \brief  Update the orthographic projection after a viewport resize.
+      \param  width   New viewport width in pixels.
+      \param  height  New viewport height in pixels.
+    *************************************************************************************/
     void TextRenderer::setViewport(unsigned int width, unsigned int height) {
         if (!shaderID) return;
         glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width),
@@ -154,6 +187,14 @@ namespace gfx {
         glUseProgram(0);
     }
 
+    /*************************************************************************************
+      \brief  Render a string at a pixel position using cached ASCII glyphs.
+      \param  text   ASCII string (0–127 cached).
+      \param  x,y    Baseline origin in pixels.
+      \param  scale  Uniform scale factor for glyph quads.
+      \param  color  RGB tint; alpha comes from glyph texture (red channel).
+      \details Advances the pen using FreeType’s 26.6 fixed-point advance (Advance >> 6).
+    *************************************************************************************/
     void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color) {
         if (!shaderID || Characters.empty()) return; // nothing to render
         glUseProgram(shaderID);
@@ -174,7 +215,6 @@ namespace gfx {
                 { xpos,     ypos + h,   0.0f, 0.0f },
                 { xpos,     ypos,       0.0f, 1.0f },
                 { xpos + w, ypos,       1.0f, 1.0f },
-
                 { xpos,     ypos + h,   0.0f, 0.0f },
                 { xpos + w, ypos,       1.0f, 1.0f },
                 { xpos + w, ypos + h,   1.0f, 0.0f }
@@ -193,6 +233,10 @@ namespace gfx {
         glUseProgram(0);
     }
 
+    /*************************************************************************************
+      \brief  Release GL resources created by initialize().
+      \details Deletes glyph textures, VAO/VBO, and shader program; resets handles to 0.
+    *************************************************************************************/
     void TextRenderer::cleanup() {
         for (auto& pair : Characters) {
             glDeleteTextures(1, &pair.second.TextureID);
