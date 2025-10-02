@@ -1,4 +1,21 @@
-// Graphics/GraphicsText.hpp
+/*********************************************************************************************
+ \file      GraphicsText.hpp
+ \par       SofaSpuds
+ \author    erika.ishii (erika.ishii@digipen.edu) - Main Author, 100%
+ \brief     Public interface for FreeType-backed OpenGL text rendering (shader/projection,
+            ASCII glyph cache, and draw API).
+ \details   Provides a small API to:
+            - initialize() : compile a text shader, set a pixel-space orthographic projection,
+              load ASCII glyphs (0–127) into GL_RED textures, and build VAO/VBO.
+            - setViewport(): refresh the projection on window resize.
+            - RenderText() : draw a string at a pixel position with color and scale.
+            - cleanup()    : release glyph textures and GL objects.
+            Call initialize() once after a valid GL context is current; call cleanup() at shutdown.
+            If FreeType/font loading fails, the renderer no-ops gracefully (no hard crash).
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include <glad/glad.h>
 #include <glm/glm.hpp>

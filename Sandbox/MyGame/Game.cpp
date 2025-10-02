@@ -1,10 +1,17 @@
 ﻿/*********************************************************************************************
  \file      RigidBodyComponent.h
  \par       SofaSpuds
- \author   
+ \author   All TEAM MEMBERS
 
- \brief     
-
+ \brief  A lightweight 2D rigid-body component for the engine’s component system.
+         It stores the kinematic state (velX, velY), collider size (width, height),
+         and basic flags such as isStatic / useGravity / damping. Each frame it
+         updates the owner’s Transform (simple Euler integration) and exposes an
+         AABB for collision tests in Physics/Collision. All fields are data-driven:
+         they can be de-serialized from JSON in prefabs/levels (e.g., width, height,
+         velX, velY, mass, damping, isStatic, useGravity). Designed for fast gameplay
+         prototyping—no rotation or advanced forces yet; integrates with
+         `Collision::CheckCollisionRectToRect` and is used by Game.cpp movement logic
  \copyright
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
@@ -239,9 +246,11 @@ namespace mygame
         gInput = Framework::InputManager(gWin->raw());
 
         // Crash logger
-        g_crashLogger = new CrashLogger(std::string("../../logs"), std::string("crash.log"), std::string("ENGINE/CRASH"));
+        g_crashLogger = new CrashLogger(std::string("../../logs"),
+            std::string("crash.log"),
+            std::string("ENGINE/CRASH"));
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
-        g_crashLogger->Write("startup", "ok");
+
         InstallTerminateHandler();
         InstallSignalHandlers();
 
@@ -395,7 +404,11 @@ namespace mygame
                 }
 
                 // animation state
-                const bool wantRun = (gWin->isKeyPressed(GLFW_KEY_A) || gWin->isKeyPressed(GLFW_KEY_D));
+                const bool wantRun =
+                    gWin->isKeyPressed(GLFW_KEY_A) || gWin->isKeyPressed(GLFW_KEY_D) ||
+                    gWin->isKeyPressed(GLFW_KEY_W) || gWin->isKeyPressed(GLFW_KEY_S) ||
+                    gWin->isKeyPressed(GLFW_KEY_LEFT) || gWin->isKeyPressed(GLFW_KEY_RIGHT) ||
+                    gWin->isKeyPressed(GLFW_KEY_UP) || gWin->isKeyPressed(GLFW_KEY_DOWN);
                 AnimState newState = wantRun ? AnimState::Run : AnimState::Idle;
                 if (newState != sAnimState) { sAnimState = newState; ResetAnim(); }
 
