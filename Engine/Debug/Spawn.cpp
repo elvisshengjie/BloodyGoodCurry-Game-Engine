@@ -54,18 +54,22 @@ namespace mygame {
         const float x = s.x + s.stepX * index;
         const float y = s.y + s.stepY * index;
 
+        // Apply Transform settings
         if (auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent)) {
             tr->x = x; tr->y = y; tr->rot = s.rot;
         }
+        // Apply Rectangle render settings
         if (auto* rc = obj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
             rc->w = s.w; rc->h = s.h;
             rc->r = s.rgba[0]; rc->g = s.rgba[1]; rc->b = s.rgba[2]; rc->a = s.rgba[3];
         }
+        // Apply Circle render settings
         if (auto* cc = obj->GetComponentType<CircleRenderComponent>(ComponentTypeId::CT_CircleRenderComponent)) {
             cc->radius = s.radius;
             cc->r = s.rgba[0]; cc->g = s.rgba[1]; cc->b = s.rgba[2]; cc->a = s.rgba[3];
         }
 
+        // Apply Sprite settings
         if (auto* sp = obj->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent)) {
             if (!sSpriteTexKey.empty()) {
                 sp->texture_key = sSpriteTexKey;
@@ -84,17 +88,17 @@ namespace mygame {
       \brief Draws the "Spawn" ImGui panel and handles prefab spawning actions.
     *************************************************************************************/
     void DrawSpawnPanel() {
-        ImGui::Begin("Spawn");
+        ImGui::Begin("Spawn");   // Opens the "Spawn" debug window
 
-        // Prefab dropdown populated from your master_copies map
+        // === Prefab Dropdown ===
         {
             const char* preview = gSelectedPrefab.c_str();
-            if (ImGui::BeginCombo("Prefab", preview)) {
+            if (ImGui::BeginCombo("Prefab", preview)) {   // Dropdown to pick which prefab to spawn
                 for (auto const& kv : master_copies) {
                     bool sel = (kv.first == gSelectedPrefab);
-                    if (ImGui::Selectable(kv.first.c_str(), sel))
+                    if (ImGui::Selectable(kv.first.c_str(), sel)) // Select prefab
                         gSelectedPrefab = kv.first;
-                    if (sel) ImGui::SetItemDefaultFocus();
+                    if (sel) ImGui::SetItemDefaultFocus();        // Keep focus on selected prefab
                 }
                 ImGui::EndCombo();
             }
@@ -106,7 +110,7 @@ namespace mygame {
             master = it->second;
 
         if (!master) {
-            ImGui::TextDisabled("Missing master for '%s'", gSelectedPrefab.c_str());
+            ImGui::TextDisabled("Missing master for '%s'", gSelectedPrefab.c_str()); // Warn if prefab missing
             ImGui::End();
             return;
         }
@@ -120,63 +124,63 @@ namespace mygame {
         const bool hasSprite =
             (master->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent) != nullptr);
 
-        // Sprite controls
-        if (hasSprite) {
-            ImGui::SeparatorText("Sprite");
-            const char* preview = sSpriteTexKey.empty() ? "<none>" : sSpriteTexKey.c_str();
-            if (ImGui::BeginCombo("Texture", preview)) {
-                for (auto const& kv : Resource_Manager::resources_map) {
-                    if (kv.second.type != Resource_Manager::Resource_Type::Graphics) continue;
-                    bool sel = (kv.first == sSpriteTexKey);
-                    if (ImGui::Selectable(kv.first.c_str(), sel))
-                        sSpriteTexKey = kv.first;
-                    if (sel) ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-        }
+        // === Sprite Controls ===
+        //if (hasSprite) {
+        //    ImGui::SeparatorText("Sprite");   // Section header
+        //    const char* preview = sSpriteTexKey.empty() ? "<none>" : sSpriteTexKey.c_str();
+        //    if (ImGui::BeginCombo("Texture", preview)) {  // Dropdown to select texture
+        //        for (auto const& kv : Resource_Manager::resources_map) {
+        //            if (kv.second.type != Resource_Manager::Resource_Type::Graphics) continue;
+        //            bool sel = (kv.first == sSpriteTexKey);
+        //            if (ImGui::Selectable(kv.first.c_str(), sel)) // Select a texture
+        //                sSpriteTexKey = kv.first;
+        //            if (sel) ImGui::SetItemDefaultFocus();        // Keep focus on selected texture
+        //        }
+        //        ImGui::EndCombo();
+        //    }
+       // }
 
-        // Transform controls
+        // === Transform Controls ===
         if (hasTransform) {
-            ImGui::SeparatorText("Transform");
-            ImGui::DragFloat("x", &gS.x, 0.005f, 0.0f, 1.0f);
-            ImGui::DragFloat("y", &gS.y, 0.005f, 0.0f, 1.0f);
-            ImGui::DragFloat("rot (rad)", &gS.rot, 0.01f, -3.14159f, 3.14159f);
+            ImGui::SeparatorText("Transform");                // Section header
+            ImGui::DragFloat("x", &gS.x, 0.005f, 0.0f, 1.0f); // Adjust X position
+            ImGui::DragFloat("y", &gS.y, 0.005f, 0.0f, 1.0f); // Adjust Y position
+            ImGui::DragFloat("rot (rad)", &gS.rot, 0.01f, -3.14159f, 3.14159f); // Adjust rotation in radians
         }
 
-        // Rect controls
+        // === Rectangle Controls ===
         if (hasRender) {
-            ImGui::SeparatorText("Rect");
-            ImGui::DragFloat("w", &gS.w, 0.005f, 0.01f, 1.0f);
-            ImGui::DragFloat("h", &gS.h, 0.005f, 0.01f, 1.0f);
+            ImGui::SeparatorText("Rect");                     // Section header
+            ImGui::DragFloat("w", &gS.w, 0.005f, 0.01f, 1.0f); // Adjust rectangle width
+            ImGui::DragFloat("h", &gS.h, 0.005f, 0.01f, 1.0f); // Adjust rectangle height
         }
 
-        // Circle controls
+        // === Circle Controls ===
         if (hasCircle) {
-            ImGui::SeparatorText("Circle");
-            ImGui::DragFloat("radius", &gS.radius, 0.005f, 0.01f, 1.0f);
+            ImGui::SeparatorText("Circle");                   // Section header
+            ImGui::DragFloat("radius", &gS.radius, 0.005f, 0.01f, 1.0f); // Adjust circle radius
         }
 
-        // Color picker
+        // === Color Controls ===
         if (hasRender || hasCircle) {
-            ImGui::SeparatorText("Color");
-            ImGui::ColorEdit4("rgba", gS.rgba);
+            ImGui::SeparatorText("Color");                    // Section header
+            ImGui::ColorEdit4("rgba", gS.rgba);               // Color picker for RGBA
         }
 
-        // Batch settings
-        ImGui::SeparatorText("Batch");
-        ImGui::DragInt("count", &gS.count, 1, 1, 500);
-        ImGui::DragFloat("stepX", &gS.stepX, 0.005f);
-        ImGui::DragFloat("stepY", &gS.stepY, 0.005f);
+        // === Batch Settings ===
+        ImGui::SeparatorText("Batch");                        // Section header
+        ImGui::DragInt("count", &gS.count, 1, 1, 500);        // Number of prefabs to spawn
+        ImGui::DragFloat("stepX", &gS.stepX, 0.005f);         // Step offset in X between prefabs
+        ImGui::DragFloat("stepY", &gS.stepY, 0.005f);         // Step offset in Y between prefabs
 
-        // Action buttons
-        if (ImGui::Button("Spawn")) {
+        // === Action Buttons ===
+        if (ImGui::Button("Spawn")) {                         // Button to spawn prefabs
             for (int i = 0; i < gS.count; ++i)
                 SpawnOnePrefab(gSelectedPrefab.c_str(), gS, i);
         }
 
         ImGui::SameLine();
-        if (ImGui::Button("Clear All (keep masters)")) {
+        if (ImGui::Button("Clear All (keep masters)")) {      // Button to clear spawned objects (but keep master prefabs)
             std::vector<GOC*> toKill;
             toKill.reserve(FACTORY->Objects().size());
             for (auto& [id, obj] : FACTORY->Objects()) {
@@ -184,16 +188,17 @@ namespace mygame {
                 for (auto const& kv : master_copies) { if (kv.second == obj) { isMaster = true; break; } }
                 if (!isMaster) toKill.push_back(obj);
             }
-            for (auto* o : toKill) o->Destroy();
-            FACTORY->Update(0.0f);
+            for (auto* o : toKill) o->Destroy();              // Destroy non-master prefabs
+            FACTORY->Update(0.0f);                            // Apply destruction
         }
 
-        ImGui::SeparatorText("Counts");
+        // === Object Count ===
+        ImGui::SeparatorText("Counts");                       // Section header
         size_t totalObjs = Framework::FACTORY ? Framework::FACTORY->Objects().size() : 0;
-        ImGui::Text("Total objects:   %zu", totalObjs);
+        ImGui::Text("Total objects:   %zu", totalObjs);       // Display total number of objects
 
         // Framework::DrawInCurrentWindow();
 
-        ImGui::End();
+        ImGui::End();                                         // Close ImGui window
     }
 } // namespace mygame
