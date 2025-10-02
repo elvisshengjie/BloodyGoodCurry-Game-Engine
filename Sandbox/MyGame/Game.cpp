@@ -219,7 +219,7 @@ namespace mygame
                     Framework::ComponentTypeId::CT_RenderComponent);
                 auto* rbc = sRectObj->GetComponentType<Framework::RigidBodyComponent>(
                     Framework::ComponentTypeId::CT_RigidBodyComponent);
-
+                ahitbox = AABB(tr->x, tr->y, rbc->width, rbc->height);
                 // rotation (Q/E)
                 if (tr) {
                     if (gWin->isKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
@@ -256,6 +256,26 @@ namespace mygame
                 gFrameClock += dt * CurrentFPS();
                 while (gFrameClock >= 1.f) { gFrameClock -= 1.f; gFrame = (gFrame + 1) % CurrentFrames(); }
             }
+
+            for (auto* obj2 : sLevelObjs) {
+                if (obj2->GetObjectName() == "rect") {
+                    sTestObj = obj2;
+                    break;
+                }
+            }
+            if (sTestObj) {
+                auto* tr2 = sTestObj->GetComponentType<Framework::TransformComponent>(
+                    Framework::ComponentTypeId::CT_TransformComponent);
+                auto* rc2 = sTestObj->GetComponentType<Framework::RenderComponent>(
+                    Framework::ComponentTypeId::CT_RenderComponent);
+                auto* rbc2 = sTestObj->GetComponentType<Framework::RigidBodyComponent>(
+                    Framework::ComponentTypeId::CT_RigidBodyComponent);
+                bhitbox = AABB(tr2->x, tr2->y, rbc2->width, rbc2->height);
+            }
+            
+            if (Collision::CheckCollisionRectToRect(ahitbox, bhitbox))
+                std::cout << "Collision detected!" << std::endl;
+            
             // Test Keyboard inputs
             if (gInput.IsKeyPressed(GLFW_KEY_SPACE))
                 std::cout << "Spacebar pressed!" << std::endl;
