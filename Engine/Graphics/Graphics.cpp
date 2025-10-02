@@ -1,7 +1,8 @@
 ﻿/*********************************************************************************************
  \file      Graphics.cpp
  \par       SofaSpuds
- \author    yimo kong (yimo.kong@digipen.edu) - Author, 30%
+ \author    erika.ishii (erika.ishii@digipen.edu) - Main Author, 70%
+            yimo kong (yimo.kong@digipen.edu) - Author, 30%
  \brief     OpenGL-based 2D rendering utilities: geometry setup, shader utils, textures,
             background, shapes, and sprite/sprite-sheet rendering with sub-UV animation.
  \details   This module encapsulates lightweight graphics helpers used by the sandbox/game:

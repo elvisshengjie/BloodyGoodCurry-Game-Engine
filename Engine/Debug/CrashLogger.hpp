@@ -1,3 +1,18 @@
+/*********************************************************************************************
+ \file      CrashLogger.hpp
+ \par       SofaSpuds
+ \author    Erika Ishii (erika.ishii@digipen.edu) - Main Author, 100%
+ \brief     Public crash-logging API: UTC-stamped file logging, optional Android log mirroring,
+            and installable terminate/signal handlers; includes TryGuard and SafePtr helpers.
+ \details   Create a CrashLogger, assign it to g_crashLogger, then call InstallTerminateHandler()
+            and InstallSignalHandlers() during startup. Use Write(reason, extra) for manual logs.
+            On Android, call InitAndroid(env, context) to auto-pick an app-writable directory.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
+
 #pragma once
 #include <string>
 #include <functional>
