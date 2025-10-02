@@ -177,10 +177,7 @@ namespace mygame
          //    }
          //}
 
-         // Load fixed size from JSON (for window)
-        WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
-        gScreenW = cfg.width;
-        gScreenH = cfg.height;
+  
 
         // Audio bootstrap
         initializeAudio();
