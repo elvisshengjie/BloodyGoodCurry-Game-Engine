@@ -2,7 +2,7 @@
 /*********************************************************************************************
  \file      Perf.h
  \par       SofaSpuds
- \author    
+ \author    yimo.kong (yimo.kong@digipen.edu) - Primary Author, 100%
  \brief     Lightweight per-frame CPU timing HUD for debugging/performance profiling.
 *********************************************************************************************/
 
