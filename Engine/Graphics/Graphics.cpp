@@ -1,3 +1,23 @@
+﻿/*********************************************************************************************
+ \file      Graphics.cpp
+ \par       SofaSpuds
+ \author    yimo kong (yimo.kong@digipen.edu) - Author, 30%
+ \brief     OpenGL-based 2D rendering utilities: geometry setup, shader utils, textures,
+            background, shapes, and sprite/sprite-sheet rendering with sub-UV animation.
+ \details   This module encapsulates lightweight graphics helpers used by the sandbox/game:
+            - Geometry: unit rect, circle (procedural), fullscreen background, sprite quad.
+            - Shaders: minimal compile/link/validate with error logging.
+            - Textures: stb_image loading with GL setup.
+            - Transforms: GLM-based model builds (translate/rotate/scale), pivot-aware rect.
+            - Sprites: whole-texture draw and sprite-sheet framed draw via uUVOffset/uUVScale.
+            - Diagnostics: GL error guard and crash-test toggles for robustness testing.
+            Data is kept in static members (per-process), initialized via initialize() and
+            released in cleanup(). Sprite-sheet animation is driven externally by callers
+            (e.g., Game.cpp) using renderSpriteFrame(...) with frame/cols/rows.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "Graphics.hpp"
 #include <vector>
 #include <cmath>
@@ -11,13 +31,15 @@
 
 namespace gfx {
 
+    /// PI constant used for circle tessellation.
     constexpr float PI = 3.14159265359f;
 
+    // ===== Static GL objects / program handles =====
     unsigned int Graphics::VAO_rect = 0;
     unsigned int Graphics::VBO_rect = 0;
     unsigned int Graphics::VAO_circle = 0;
     unsigned int Graphics::VBO_circle = 0;
-    int Graphics::circleVertexCount = 0;
+    int          Graphics::circleVertexCount = 0;
     unsigned int Graphics::VAO_bg = 0;
     unsigned int Graphics::VBO_bg = 0;
     unsigned int Graphics::bgTexture = 0;
@@ -28,6 +50,7 @@ namespace gfx {
     unsigned int Graphics::EBO_sprite = 0;
     unsigned int Graphics::spriteShader = 0;
 
+    /// Circle tessellation segments (triangle fan).
     static int segments = 50;
 
     // Cache rectangle local-space geometric center (pivot).
@@ -35,11 +58,21 @@ namespace gfx {
     static float sRectPivotX = 0.0f;
     static float sRectPivotY = 0.0f;
 
+    /*************************************************************************************
+      \brief  Throws std::runtime_error if a GL error is present (post-call guard).
+      \param  where Call site identifier for error context.
+    *************************************************************************************/
     static inline void GL_THROW_IF_ERROR(const char* where) {
         GLenum e = glGetError();
         if (e != GL_NO_ERROR) throw std::runtime_error(std::string(where) + "|gl_error=" + std::to_string((int)e));
     }
 
+    /*************************************************************************************
+      \brief  Compile a GLSL shader from source and return its handle.
+      \param  source Null-terminated GLSL source.
+      \param  type   GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
+      \throws std::runtime_error on compilation failure.
+    *************************************************************************************/
     static unsigned int compileShader(const char* source, GLenum type) {
         unsigned int shader = glCreateShader(type);
         glShaderSource(shader, 1, &source, nullptr);
@@ -55,6 +88,13 @@ namespace gfx {
         return shader;
     }
 
+    /*************************************************************************************
+      \brief  Link a program from compiled vertex/fragment shaders and validate.
+      \param  vSource Vertex shader source.
+      \param  fSource Fragment shader source.
+      \return Program handle. (Shaders are detached & deleted after link.)
+      \throws std::runtime_error on link/validate failure.
+    *************************************************************************************/
     static unsigned int createShaderProgram(const char* vSource, const char* fSource) {
         unsigned int vertex = compileShader(vSource, GL_VERTEX_SHADER);
         unsigned int fragment = compileShader(fSource, GL_FRAGMENT_SHADER);
@@ -87,6 +127,13 @@ namespace gfx {
         return program;
     }
 
+    /*************************************************************************************
+      \brief  Load a 2D texture via stb_image and configure basic filtering/wrap.
+      \param  path Filesystem path to the image.
+      \return GL texture handle.
+      \throws std::runtime_error if the file cannot be loaded.
+      \note   MIN_FILTER is GL_LINEAR; mipmaps are generated for future flexibility.
+    *************************************************************************************/
     unsigned int Graphics::loadTexture(const char* path) {
         unsigned int textureID;
         glGenTextures(1, &textureID);
@@ -115,7 +162,13 @@ namespace gfx {
         return textureID;
     }
 
+    /*************************************************************************************
+      \brief  Create geometry (rect, circle, background, sprite), load background texture,
+              build object/background/sprite shader programs, and compute rect pivot.
+      \note   Must be called after a valid GL context is current.
+    *************************************************************************************/
     void Graphics::initialize() {
+        // ----- Rect (positions+colors; indexed) -----
         float rectVertices[] = {
           -0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,
            0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
@@ -141,9 +194,10 @@ namespace gfx {
         sRectPivotX = (rectVertices[0] + rectVertices[6] + rectVertices[12] + rectVertices[18]) * 0.25f;
         sRectPivotY = (rectVertices[1] + rectVertices[7] + rectVertices[13] + rectVertices[19]) * 0.25f;
 
+        // ----- Circle (triangle fan; positions+colors) -----
         std::vector<float> circleVertices;
         circleVertices.reserve((segments + 2) * 6);
-        circleVertices.insert(circleVertices.end(), { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f });
+        circleVertices.insert(circleVertices.end(), { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f }); // center
         for (int i = 0; i <= segments; ++i) {
             float angle = (2.0f * PI * i) / segments;
             float x = std::cos(angle);
@@ -161,6 +215,7 @@ namespace gfx {
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
+        // ----- Fullscreen background (positions+uv) -----
         float bgVertices[] = {
           -1.0f,  1.0f,  0.0f, 1.0f,
           -1.0f, -1.0f,  0.0f, 0.0f,
@@ -186,6 +241,7 @@ namespace gfx {
         bgTexture = Resource_Manager::resources_map["house"].handle;
         if (!bgTexture) throw std::runtime_error("bg_texture|missing|house");
 
+        // ----- Background shader -----
         const char* bgVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec2 aPos;\n"
@@ -200,6 +256,7 @@ namespace gfx {
             "void main(){FragColor=texture(backgroundTex,TexCoord);} \n";
         bgShader = createShaderProgram(bgVertexSrc, bgFragmentSrc);
 
+        // ----- Object (rect/circle) shader -----
         const char* objVertexSrc =
             "#version 330 core\n"
             "layout (location = 0) in vec3 aPos;\n"
@@ -213,6 +270,7 @@ namespace gfx {
             "void main(){ FragColor = uColor; }\n";
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
 
+        // ----- Sprite pipeline (quad VAO + shader with sub-UV) -----
         initSpritePipeline();
 
         glBindVertexArray(0);
@@ -224,6 +282,9 @@ namespace gfx {
         GL_THROW_IF_ERROR("initialize_end");
     }
 
+    /*************************************************************************************
+      \brief  Draw the fullscreen background (textured triangle strip).
+    *************************************************************************************/
     void Graphics::renderBackground() {
         glUseProgram(bgShader);
         glActiveTexture(GL_TEXTURE0);
@@ -239,6 +300,11 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderBackground");
     }
 
+    /*************************************************************************************
+      \brief  Draw a colored rectangle at (posX,posY) with rotation & scale; pivot-aware.
+      \details Pivot is computed from the rectangle geometry. Because scale is applied last
+               (rightmost in GLM chain), rotation is around the *scaled* pivot.
+    *************************************************************************************/
     void Graphics::renderRectangle(float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(objectShader);
 
@@ -263,10 +329,17 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderRectangle");
     }
 
+    /*************************************************************************************
+      \brief  Convenience overload: uniform scaling and white color.
+    *************************************************************************************/
     void Graphics::renderRectangle(float posX, float posY, float rot, float scale) {
         renderRectangle(posX, posY, rot, scale, scale, 1.f, 1.f, 1.f, 1.f);
     }
 
+    /*************************************************************************************
+      \brief  Draw a colored filled circle at (posX,posY).
+      \param  radius Model scale for the procedurally-built unit circle.
+    *************************************************************************************/
     void Graphics::renderCircle(float posX, float posY, float radius, float r, float g, float b, float a) {
         glUseProgram(objectShader);
         glm::mat4 model(1.0f);
@@ -281,7 +354,11 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderCircle");
     }
 
-    // Draw whole texture (backward-compatible)
+    /*************************************************************************************
+      \brief  Draw a textured sprite (entire texture) with tint.
+      \details The sprite quad is centered at origin (pivot at center).
+               Use renderSpriteFrame for sprite-sheet sub-rects.
+    *************************************************************************************/
     void Graphics::renderSprite(unsigned int tex, float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(spriteShader);
         glm::mat4 model(1.0f);
@@ -306,7 +383,14 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderSprite");
     }
 
-    // Draw a single sub-rect frame from a sprite sheet laid out in cols x rows.
+    /*************************************************************************************
+      \brief  Draw a single frame from a sprite sheet laid out in (cols x rows).
+      \param  tex         GL texture handle of the sheet.
+      \param  frameIndex  Zero-based index. Frame (c, rIdx) = (frame % cols, frame / cols).
+      \param  cols, rows  Sheet layout.
+      \param  r,g,b,a     Tint color (multiplied with sampled texel).
+      \note   UV origin is bottom-left (stb_image flipped); adjust if your assets differ.
+    *************************************************************************************/
     void Graphics::renderSpriteFrame(unsigned int tex,
         float posX, float posY, float rot, float scaleX, float scaleY,
         int frameIndex, int cols, int rows,
@@ -349,6 +433,9 @@ namespace gfx {
         GL_THROW_IF_ERROR("renderSpriteFrame");
     }
 
+    /*************************************************************************************
+      \brief  Destroy GL resources created by initialize() / initSpritePipeline().
+    *************************************************************************************/
     void Graphics::cleanup() {
         glDeleteVertexArrays(1, &VAO_rect);
         glDeleteBuffers(1, &VBO_rect);
@@ -365,6 +452,11 @@ namespace gfx {
         glDeleteProgram(spriteShader);
     }
 
+    /*************************************************************************************
+      \brief  Create sprite quad VAO/VBO/EBO and build the sprite shader.
+      \details Vertex layout: location 0 = vec3 position, location 1 = vec2 UV.
+               The shader exposes uUVOffset/uUVScale to support sub-rect drawing.
+    *************************************************************************************/
     void Graphics::initSpritePipeline() {
         float spriteVerts[] = {
           -0.5f, -0.5f, 0.0f, 0.f, 0.f,
@@ -411,7 +503,11 @@ namespace gfx {
         GL_THROW_IF_ERROR("initSpritePipeline");
     }
 
-    // Test hooks to intentionally break graphics for crash verification
+    /*************************************************************************************
+      \brief  Intentionally perturb GL state for crash/robustness testing.
+      \param  which 1: bg shader=0, 2: bg VAO=0, 3: sprite shader=0,
+                    4: object shader=0, 5: delete bg texture.
+    *************************************************************************************/
     void Graphics::testCrash(int which) {
         if (which == 1) { bgShader = 0; }
         else if (which == 2) { VAO_bg = 0; }
