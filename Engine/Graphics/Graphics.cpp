@@ -7,6 +7,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <stdexcept>
 
 namespace gfx {
 
@@ -29,6 +30,16 @@ namespace gfx {
 
     static int segments = 50;
 
+    // Cache rectangle local-space geometric center (pivot).
+    // Computed in initialize() from current rect vertex data.
+    static float sRectPivotX = 0.0f;
+    static float sRectPivotY = 0.0f;
+
+    static inline void GL_THROW_IF_ERROR(const char* where) {
+        GLenum e = glGetError();
+        if (e != GL_NO_ERROR) throw std::runtime_error(std::string(where) + "|gl_error=" + std::to_string((int)e));
+    }
+
     static unsigned int compileShader(const char* source, GLenum type) {
         unsigned int shader = glCreateShader(type);
         glShaderSource(shader, 1, &source, nullptr);
@@ -38,7 +49,9 @@ namespace gfx {
         if (!success) {
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
             std::cerr << "Shader compilation failed:\n" << infoLog << std::endl;
+            throw std::runtime_error(std::string(type == GL_VERTEX_SHADER ? "compile_vs" : "compile_fs") + "|" + infoLog);
         }
+        GL_THROW_IF_ERROR("compileShader");
         return shader;
     }
 
@@ -54,9 +67,23 @@ namespace gfx {
         if (!success) {
             glGetProgramInfoLog(program, 512, nullptr, infoLog);
             std::cerr << "Shader linking failed:\n" << infoLog << std::endl;
+            glDeleteShader(vertex);
+            glDeleteShader(fragment);
+            glDeleteProgram(program);
+            throw std::runtime_error(std::string("link_program|") + infoLog);
         }
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+
+        glValidateProgram(program);
+        int validated = 0;
+        glGetProgramiv(program, GL_VALIDATE_STATUS, &validated);
+        if (!validated) {
+            glGetProgramInfoLog(program, 512, nullptr, infoLog);
+            glDeleteProgram(program);
+            throw std::runtime_error(std::string("validate_program|") + infoLog);
+        }
+        GL_THROW_IF_ERROR("createShaderProgram");
         return program;
     }
 
@@ -78,9 +105,13 @@ namespace gfx {
         }
         else {
             std::cerr << "Failed to load texture: " << path << std::endl;
+            glBindTexture(GL_TEXTURE_2D, 0);
+            if (textureID) glDeleteTextures(1, &textureID);
+            throw std::runtime_error(std::string("texture_load|failed|") + path);
         }
         stbi_image_free(data);
         glBindTexture(GL_TEXTURE_2D, 0);
+        GL_THROW_IF_ERROR("loadTexture");
         return textureID;
     }
 
@@ -105,6 +136,10 @@ namespace gfx {
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        // Compute local-space geometric center (pivot)
+        sRectPivotX = (rectVertices[0] + rectVertices[6] + rectVertices[12] + rectVertices[18]) * 0.25f;
+        sRectPivotY = (rectVertices[1] + rectVertices[7] + rectVertices[13] + rectVertices[19]) * 0.25f;
 
         std::vector<float> circleVertices;
         circleVertices.reserve((segments + 2) * 6);
@@ -149,6 +184,7 @@ namespace gfx {
 
         // Use the string ID directly
         bgTexture = Resource_Manager::resources_map["house"].handle;
+        if (!bgTexture) throw std::runtime_error("bg_texture|missing|house");
 
         const char* bgVertexSrc =
             "#version 330 core\n"
@@ -183,30 +219,47 @@ namespace gfx {
 
         glBindVertexArray(0);
         glUseProgram(0);
+
+        GL_THROW_IF_ERROR("initialize_end");
     }
 
     void Graphics::renderBackground() {
         glUseProgram(bgShader);
+        glActiveTexture(GL_TEXTURE0);
+        int loc = glGetUniformLocation(bgShader, "backgroundTex");
+        if (loc < 0) throw std::runtime_error("renderBackground|uniform_missing|backgroundTex");
+        glUniform1i(loc, 0);
         glBindTexture(GL_TEXTURE_2D, bgTexture);
         glBindVertexArray(VAO_bg);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderBackground");
     }
 
     void Graphics::renderRectangle(float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(objectShader);
+
+        // Rotate around the rectangle's geometric center (pivot).
+        // Because scale happens first (rightmost), rotate around the "scaled pivot".
+        const float pivot_sx = sRectPivotX * scaleX;
+        const float pivot_sy = sRectPivotY * scaleY;
+
         glm::mat4 model(1.0f);
         model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
+        model = glm::translate(model, glm::vec3(pivot_sx, pivot_sy, 0.0f));
         model = glm::rotate(model, rot, glm::vec3(0, 0, 1));
+        model = glm::translate(model, glm::vec3(-pivot_sx, -pivot_sy, 0.0f));
         model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+
         glUniformMatrix4fv(glGetUniformLocation(objectShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform4f(glGetUniformLocation(objectShader, "uColor"), r, g, b, a);
         glBindVertexArray(VAO_rect);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderRectangle");
     }
 
     void Graphics::renderRectangle(float posX, float posY, float rot, float scale) {
@@ -224,8 +277,10 @@ namespace gfx {
         glDrawArrays(GL_TRIANGLE_FAN, 0, circleVertexCount);
         glBindVertexArray(0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderCircle");
     }
 
+    // Draw whole texture (backward-compatible)
     void Graphics::renderSprite(unsigned int tex, float posX, float posY, float rot, float scaleX, float scaleY, float r, float g, float b, float a) {
         glUseProgram(spriteShader);
         glm::mat4 model(1.0f);
@@ -234,6 +289,11 @@ namespace gfx {
         model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
         glUniformMatrix4fv(glGetUniformLocation(spriteShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform4f(glGetUniformLocation(spriteShader, "uTint"), r, g, b, a);
+
+        // Whole-texture UVs
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVOffset"), 0.0f, 0.0f);
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVScale"), 1.0f, 1.0f);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex);
         glUniform1i(glGetUniformLocation(spriteShader, "uTex"), 0);
@@ -242,6 +302,50 @@ namespace gfx {
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
+        GL_THROW_IF_ERROR("renderSprite");
+    }
+
+    // Draw a single sub-rect frame from a sprite sheet laid out in cols x rows.
+    void Graphics::renderSpriteFrame(unsigned int tex,
+        float posX, float posY, float rot, float scaleX, float scaleY,
+        int frameIndex, int cols, int rows,
+        float r, float g, float b, float a)
+    {
+        glUseProgram(spriteShader);
+
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
+        model = glm::rotate(model, rot, glm::vec3(0, 0, 1));
+        model = glm::scale(model, glm::vec3(scaleX, scaleY, 1.0f));
+        glUniformMatrix4fv(glGetUniformLocation(spriteShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniform4f(glGetUniformLocation(spriteShader, "uTint"), r, g, b, a);
+
+        if (cols <= 0) cols = 1;
+        if (rows <= 0) rows = 1;
+
+        const float sx = 1.0f / static_cast<float>(cols);
+        const float sy = 1.0f / static_cast<float>(rows);
+        const int c = frameIndex % cols;
+        const int rIdx = frameIndex / cols;
+
+        // stbi flips Y => (0,0) is bottom-left; single-row sheets work with offY = rIdx*sy
+        const float offX = c * sx;
+        const float offY = rIdx * sy;
+
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVOffset"), offX, offY);
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVScale"), sx, sy);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glUniform1i(glGetUniformLocation(spriteShader, "uTex"), 0);
+
+        glBindVertexArray(VAO_sprite);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
+        GL_THROW_IF_ERROR("renderSpriteFrame");
     }
 
     void Graphics::cleanup() {
@@ -280,22 +384,39 @@ namespace gfx {
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        // NOTE: added uUVOffset/uUVScale to support sub-UV drawing
         const char* vs =
             "#version 330 core\n"
             "layout(location=0) in vec3 aPos;\n"
             "layout(location=1) in vec2 aUV;\n"
             "uniform mat4 uMVP;\n"
+            "uniform vec2 uUVOffset;\n"
+            "uniform vec2 uUVScale;\n"
             "out vec2 vUV;\n"
-            "void main(){gl_Position=uMVP*vec4(aPos,1.0);vUV=aUV;}\n";
+            "void main(){\n"
+            "  gl_Position = uMVP * vec4(aPos,1.0);\n"
+            "  vUV = aUV * uUVScale + uUVOffset;\n"
+            "}\n";
         const char* fs =
             "#version 330 core\n"
             "in vec2 vUV;\n"
             "out vec4 FragColor;\n"
             "uniform sampler2D uTex;\n"
             "uniform vec4 uTint;\n"
-            "void main(){FragColor=texture(uTex,vUV)*uTint;}\n";
+            "void main(){ FragColor = texture(uTex, vUV) * uTint; }\n";
         spriteShader = createShaderProgram(vs, fs);
         glBindVertexArray(0);
+        GL_THROW_IF_ERROR("initSpritePipeline");
+    }
+
+    // Test hooks to intentionally break graphics for crash verification
+    void Graphics::testCrash(int which) {
+        if (which == 1) { bgShader = 0; }
+        else if (which == 2) { VAO_bg = 0; }
+        else if (which == 3) { spriteShader = 0; }
+        else if (which == 4) { objectShader = 0; }
+        else if (which == 5) { if (bgTexture) { glDeleteTextures(1, &bgTexture); bgTexture = 0; } }
     }
 
 } // namespace gfx
