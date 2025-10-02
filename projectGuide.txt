@@ -39,4 +39,8 @@ CMake is required to generate Visual Studio solutions.
    start giraphics..sln
    ```
 
+   To move the player use wasd, 
+   E and Q to rotate,
+   Z and X to scale
+
 That's it — the project is ready to build and run in Visual Studio 2022.

@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      Window.h
+ \par       SofaSpuds
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+
+ \brief    setup window
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include <string>
 #include <functional>

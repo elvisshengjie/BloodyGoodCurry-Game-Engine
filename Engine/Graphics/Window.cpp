@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      Window.cpp
+ \par       SofaSpuds
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+
+ \brief    setup window
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "Graphics/Window.hpp"
 
 // Keep GL/GLFW only in the .cpp to avoid polluting headers.
@@ -85,7 +96,7 @@ namespace gfx {
     void Window::pollEvents() {
         glfwPollEvents();
 
-        // Example: ESC to close (optional)
+        
         if (glfwGetKey(s_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(s_window, GLFW_TRUE);
         }
@@ -98,7 +109,7 @@ namespace gfx {
     }
 
     void Window::endFrame() {
-        // If you use ImGui, you'd typically call ImGui::Render() here.
+       
     }
 
     void Window::swapBuffers() {
