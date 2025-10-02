@@ -239,9 +239,11 @@ namespace mygame
         gInput = Framework::InputManager(gWin->raw());
 
         // Crash logger
-        g_crashLogger = new CrashLogger(std::string("../../logs"), std::string("crash.log"), std::string("ENGINE/CRASH"));
+        g_crashLogger = new CrashLogger(std::string("../../logs"),
+            std::string("crash.log"),
+            std::string("ENGINE/CRASH"));
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
-        g_crashLogger->Write("startup", "ok");
+
         InstallTerminateHandler();
         InstallSignalHandlers();
 
