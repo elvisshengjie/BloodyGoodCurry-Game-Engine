@@ -364,7 +364,7 @@ namespace mygame
                 gfx::Graphics::renderRectangle(
                     tr->x, tr->y, tr->rot,
                     rc->w, rc->h,
-                    1.f, 1.f, 1.f, 1.f
+                    rc->r, rc->g, rc->b, rc->a
                 );
             }
 
