@@ -506,11 +506,13 @@ namespace mygame
             // Two separate text instances, different positions
             if (gTextReadyTitle) {
                 // Title (top-left)
-                gTextTitle.RenderText("Bloody Good Curry",
+                gTextTitle.RenderText(
+                    "Bloody Good Curry",
                     32.0f,
                     static_cast<float>(gScreenH) - 64.0f,
                     1.05f,
-                    glm::vec3(1.0f, 1.0f, 1.0f));
+                    glm::vec3(1.0f, 1.0f, 1.0f)
+                );
             }
             if (gTextReadyHint) {
                 // Keep it clearly away from the edges and from the title
