@@ -1,9 +1,12 @@
+// Graphics/GraphicsText.cpp
 #include "GraphicsText.hpp"
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <iostream>
+#include <stdexcept>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace gfx {
 
@@ -17,6 +20,7 @@ namespace gfx {
             char infoLog[512];
             glGetShaderInfoLog(shader, 512, nullptr, infoLog);
             std::cerr << "Shader compilation failed:\n" << infoLog << std::endl;
+            throw std::runtime_error(std::string(type == GL_VERTEX_SHADER ? "text_vs" : "text_fs") + "|" + infoLog);
         }
         return shader;
     }
@@ -36,6 +40,7 @@ namespace gfx {
             char infoLog[512];
             glGetProgramInfoLog(program, 512, nullptr, infoLog);
             std::cerr << "Shader linking failed:\n" << infoLog << std::endl;
+            throw std::runtime_error(std::string("text_link|") + infoLog);
         }
 
         glDeleteShader(vertex);
@@ -73,16 +78,21 @@ namespace gfx {
             0.0f, static_cast<float>(height));
         glUseProgram(shaderID);
         glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, &projection[0][0]);
+        glUniform1i(glGetUniformLocation(shaderID, "text"), 0);
+        glUseProgram(0);
 
-        // FreeType init
+        // FreeType init (graceful: do NOT crash log on failure; just skip text)
         FT_Library ft;
         if (FT_Init_FreeType(&ft)) {
             std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+            return;
         }
 
         FT_Face face;
         if (FT_New_Face(ft, fontPath, 0, &face)) {
             std::cerr << "ERROR::FREETYPE: Failed to load font" << std::endl;
+            FT_Done_FreeType(ft);
+            return;
         }
         FT_Set_Pixel_Sizes(face, 0, 48);
 
@@ -135,7 +145,17 @@ namespace gfx {
         glBindVertexArray(0);
     }
 
+    void TextRenderer::setViewport(unsigned int width, unsigned int height) {
+        if (!shaderID) return;
+        glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(width),
+            0.0f, static_cast<float>(height));
+        glUseProgram(shaderID);
+        glUniformMatrix4fv(glGetUniformLocation(shaderID, "projection"), 1, GL_FALSE, &projection[0][0]);
+        glUseProgram(0);
+    }
+
     void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color) {
+        if (!shaderID || Characters.empty()) return; // nothing to render
         glUseProgram(shaderID);
         glUniform3f(glGetUniformLocation(shaderID, "textColor"), color.x, color.y, color.z);
         glActiveTexture(GL_TEXTURE0);
@@ -164,18 +184,24 @@ namespace gfx {
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
             glDrawArrays(GL_TRIANGLES, 0, 6);
+
+            // advance cursor for the next character (FreeType uses 1/64 pixels)
+            x += (ch.Advance >> 6) * scale;
         }
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
     }
 
     void TextRenderer::cleanup() {
         for (auto& pair : Characters) {
             glDeleteTextures(1, &pair.second.TextureID);
         }
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
-        glDeleteProgram(shaderID);
+        Characters.clear();
+        if (VAO) glDeleteVertexArrays(1, &VAO);
+        if (VBO) glDeleteBuffers(1, &VBO);
+        if (shaderID) glDeleteProgram(shaderID);
+        VAO = 0; VBO = 0; shaderID = 0;
     }
 
-}
+} // namespace gfx

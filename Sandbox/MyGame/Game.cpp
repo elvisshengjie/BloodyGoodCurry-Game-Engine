@@ -5,12 +5,29 @@
 #include "Audio_Tester.h"
 #include "Game.hpp"
 #include "Graphics/Graphics.hpp"
+#include "Graphics/GraphicsText.hpp"
 
 // use fixed screen size from JSON
 #include "Config/WindowConfig.h"
 
 // math & GL helpers
 #include "MathUtils.hpp"
+
+// --- NEW: platform helpers to locate executable directory ---
+// Place platform headers BEFORE glad/glfw to avoid APIENTRY macro redefs.
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -47,6 +64,13 @@
 
 namespace mygame
 {
+    static bool IsAlive(Framework::GOC* obj) {
+        if (!obj || !Framework::FACTORY) return false;
+        // Check the factory still owns this pointer
+        for (auto& [id, ptr] : Framework::FACTORY->Objects())
+            if (ptr == obj) return true;
+        return false;
+    }
     using std::filesystem::absolute; using std::filesystem::exists;
 
     // ===== Persistent state =====
@@ -73,9 +97,91 @@ namespace mygame
     // Optional demo texture
     static unsigned int gPlayerTex = 0;
 
-    Framework::InputManager gInput(nullptr);
+    // --- NEW: text renderer for title ---
+    static gfx::TextRenderer gText;
+    static bool gTextReady = false; // only draw text if init succeeded
+
     Framework::GOC* sRectObj = nullptr;
     static std::vector<Framework::GOC*> sLevelObjs;
+
+    // --- NEW: helpers to find fonts robustly ---
+    static std::filesystem::path GetExeDir() {
+        namespace fs = std::filesystem;
+#if defined(_WIN32)
+        char buf[MAX_PATH] = {};
+        GetModuleFileNameA(nullptr, buf, MAX_PATH);
+        return fs::path(buf).parent_path();
+#elif defined(__APPLE__)
+        char buf[2048];
+        uint32_t sz = sizeof(buf);
+        if (_NSGetExecutablePath(buf, &sz) == 0) return fs::path(buf).parent_path();
+        std::string s; s.resize(sz);
+        if (_NSGetExecutablePath(s.data(), &sz) == 0) return fs::path(s).parent_path();
+        return fs::current_path();
+#else
+        char buf[4096] = {};
+        ssize_t n = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+        if (n > 0) { buf[n] = 0; return fs::path(buf).parent_path(); }
+        return fs::current_path();
+#endif
+    }
+
+    static std::string FindFontPath() {
+        namespace fs = std::filesystem;
+
+        // --- Absolute dev paths (your repo location) ---
+        const char* abs_var = R"(C:\Users\Erika\Documents\GitHub\csd2401f25_team_sofasqud\assets\Fonts\Roboto-VariableFont_wdth,wght.ttf)";
+        if (fs::exists(abs_var)) return abs_var;
+
+        const char* abs_var_italic = R"(C:\Users\Erika\Documents\GitHub\csd2401f25_team_sofasqud\assets\Fonts\Roboto-Italic-VariableFont_wdth,wght.ttf)";
+        if (fs::exists(abs_var_italic)) return abs_var_italic;
+
+        const char* abs_regular = R"(C:\Users\Erika\Documents\GitHub\csd2401f25_team_sofasqud\assets\Fonts\Roboto-Regular.ttf)";
+        if (fs::exists(abs_regular)) return abs_regular;
+
+        // Try several common font filenames if you change fonts later
+        std::vector<std::string> names = {
+            "Roboto-VariableFont_wdth,wght.ttf",
+            "Roboto-Italic-VariableFont_wdth,wght.ttf",
+            "Roboto-Regular.ttf",
+            "NotoSans-Regular.ttf",
+            "Arial.ttf"
+        };
+
+        // Candidate root anchors to search from
+        std::vector<fs::path> fs_roots = { fs::current_path(), GetExeDir() };
+
+        // Search up to 7 parents from each root for assets/Fonts/<name>
+        for (const auto& root : fs_roots) {
+            fs::path p = root;
+            for (int up = 0; up < 7 && !p.empty(); ++up) {
+                fs::path base = p / "assets" / "Fonts";
+                for (auto const& n : names) {
+                    fs::path candidate = base / n;
+                    if (fs::exists(candidate)) return candidate.string();
+                }
+                p = p.parent_path();
+            }
+        }
+
+        // Simple relative fallbacks from common build folders
+        const char* rels[] = {
+            "assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "assets/Fonts/Roboto-Regular.ttf",
+            "../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf"
+        };
+        for (auto r : rels) if (fs::exists(r)) return std::string(r);
+
+        // As a last resort, a Windows system font (so text still draws)
+        const char* sys1 = "C:/Windows/Fonts/arial.ttf";
+        if (fs::exists(sys1)) return sys1;
+
+        return {};
+    }
+
+    Framework::InputManager gInput(nullptr);
 
     using clock = std::chrono::high_resolution_clock;
 
@@ -126,12 +232,13 @@ namespace mygame
         RegisterComponent(SpriteComponent);
         RegisterComponent(RigidBodyComponent);
 
+        //3)Create Master copy
         // Prefabs & level
         LoadPrefabs();
         auto p = std::string("../../Data_Files/player.json");
         std::cout << "[Prefab] Player path = " << absolute(p) << "  exists=" << exists(p) << "\n";
         sLevelObjs = sFactory->CreateLevel("../../Data_Files/level.json");
-        // Capture player’s JSON-defined base size once
+        // Capture player's JSON-defined base size once
         for (auto* obj : sLevelObjs) {
             if (obj && obj->GetObjectName() == "Player") {
                 sRectObj = obj;
@@ -160,6 +267,24 @@ namespace mygame
         // Graphics
         gfx::Graphics::initialize();
 
+        // --- NEW: robust Text init with font discovery ---
+        {
+            std::cout << "[CWD] " << std::filesystem::current_path() << "\n";
+            std::cout << "[EXE] " << GetExeDir() << "\n";
+
+            std::string fontToUse = FindFontPath();
+            if (!fontToUse.empty()) {
+                std::cout << "[Text] Using font: " << fontToUse << "\n";
+                gText.initialize(fontToUse.c_str(), gScreenW, gScreenH);
+                gTextReady = true;
+            }
+            else {
+                std::cout << "[Text] Font not found in fallbacks. Title text will be skipped.\n";
+                std::cout << "[Text] Ensure repo has assets/Fonts/Roboto-VariableFont_wdth,wght.ttf and your run dir is under build/...\n";
+                gTextReady = false;
+            }
+        }
+
         // Demo texture
         Resource_Manager::load("player_png", "../../assets/Textures/player.png");
         gPlayerTex = Resource_Manager::resources_map["player_png"].handle;
@@ -178,6 +303,7 @@ namespace mygame
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
             << "=======================================\n";
 
+        //Initialize ImGui
         // ImGui
         ImGuiLayerConfig cFg;
         cFg.glsl_version = "#version 330";
@@ -219,7 +345,7 @@ namespace mygame
                     Framework::ComponentTypeId::CT_RenderComponent);
                 auto* rbc = sRectObj->GetComponentType<Framework::RigidBodyComponent>(
                     Framework::ComponentTypeId::CT_RigidBodyComponent);
-
+                ahitbox = AABB(tr->x, tr->y, rbc->width, rbc->height);
                 // rotation (Q/E)
                 if (tr) {
                     if (gWin->isKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
@@ -256,6 +382,33 @@ namespace mygame
                 gFrameClock += dt * CurrentFPS();
                 while (gFrameClock >= 1.f) { gFrameClock -= 1.f; gFrame = (gFrame + 1) % CurrentFrames(); }
             }
+
+            for (auto* obj2 : sLevelObjs) {
+                if (obj2 && obj2->GetObjectName() == "rect") {
+                    sTestObj = obj2;
+                    break;
+                }
+            }
+            if (IsAlive(sTestObj)) {
+                auto* tr2 = sTestObj->GetComponentType<Framework::TransformComponent>(
+                    Framework::ComponentTypeId::CT_TransformComponent);
+                auto* rbc2 = sTestObj->GetComponentType<Framework::RigidBodyComponent>(
+                    Framework::ComponentTypeId::CT_RigidBodyComponent);
+
+                if (tr2 && rbc2) {
+                    bhitbox = AABB(tr2->x, tr2->y, rbc2->width, rbc2->height);
+                }
+                else {
+                    // no-op
+                }
+            }
+            else {
+                sTestObj = nullptr; // clear dangling pointer
+            }
+
+            if (Collision::CheckCollisionRectToRect(ahitbox, bhitbox))
+                std::cout << "Collision detected!" << std::endl;
+
             // Test Keyboard inputs
             if (gInput.IsKeyPressed(GLFW_KEY_SPACE))
                 std::cout << "Spacebar pressed!" << std::endl;
@@ -271,7 +424,6 @@ namespace mygame
                 std::cout << "LMB held!" << std::endl;
             if (gInput.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT))
                 std::cout << "LMB released!" << std::endl;
-
 
             handleAudioInput(*gWin, gKeyEdge, busInstance);
 
@@ -344,7 +496,7 @@ namespace mygame
                 if (obj->GetComponentType<Framework::SpriteComponent>(
                     Framework::ComponentTypeId::CT_SpriteComponent)) continue;
 
-                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, 1.f, 1.f, 1.f, 1.f);
+                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, rc->r, rc->g, rc->b, rc->a);
             }
 
             // Circles
@@ -357,6 +509,14 @@ namespace mygame
 
                 gfx::Graphics::renderCircle(tr->x, tr->y, cc->radius, cc->r, cc->g, cc->b, cc->a);
             }
+
+            // --- Draw game title (only if text was initialized successfully) ---
+            if (gTextReady) {
+                gText.RenderText("Bloody Good Curry", 24.0f, static_cast<float>(gScreenH) - 48.0f, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
+            }
+
+            mygame::DrawSpawnPanel();
+            ImGui::ShowDemoWindow();
 
             // record Render cost
             const double renderMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
@@ -401,6 +561,10 @@ namespace mygame
         gfx::Graphics::cleanup();
 
         Resource_Manager::unloadAll(Resource_Manager::Graphics);
+
+        // Cleanup text renderer
+        gText.cleanup();
+        gTextReady = false;
 
         using namespace Framework;
         if (sFactory) {
