@@ -1,3 +1,19 @@
+/*********************************************************************************************
+ \file      Graphics.cpp
+ \par       SofaSpuds
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 80%
+
+ \brief     Declares the RenderComponent class, a basic rendering component responsible
+            for drawing rectangular shapes (quads) with configurable size and tint color.
+            Supports JSON serialization for data-driven initialization and cloning for
+            prefab instancing.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
+
 #include "Graphics.hpp"
 #include <vector>
 #include <cmath>

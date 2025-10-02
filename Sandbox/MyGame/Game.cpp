@@ -81,6 +81,7 @@ namespace mygame
 
     // --- NEW: text renderer for title ---
     static gfx::TextRenderer gText;
+    static bool gTextReady = false; // only draw text if init succeeded
 
     Framework::GOC* sRectObj = nullptr;
     static std::vector<Framework::GOC*> sLevelObjs;
@@ -110,20 +111,31 @@ namespace mygame
     static std::string FindFontPath() {
         namespace fs = std::filesystem;
 
+        // --- Absolute dev paths (your repo location) ---
+        // Variable fonts (with comma in filename) -> use raw string literal for Windows path.
+        const char* abs_var = R"(C:\Users\Erika\Documents\GitHub\csd2401f25_team_sofasqud\assets\Fonts\Roboto-VariableFont_wdth,wght.ttf)";
+        if (fs::exists(abs_var)) return abs_var;
+
+        const char* abs_var_italic = R"(C:\Users\Erika\Documents\GitHub\csd2401f25_team_sofasqud\assets\Fonts\Roboto-Italic-VariableFont_wdth,wght.ttf)";
+        if (fs::exists(abs_var_italic)) return abs_var_italic;
+
+        const char* abs_regular = R"(C:\Users\Erika\Documents\GitHub\csd2401f25_team_sofasqud\assets\Fonts\Roboto-Regular.ttf)";
+        if (fs::exists(abs_regular)) return abs_regular;
+
         // Try several common font filenames if you change fonts later
         std::vector<std::string> names = {
+            "Roboto-VariableFont_wdth,wght.ttf",
+            "Roboto-Italic-VariableFont_wdth,wght.ttf",
             "Roboto-Regular.ttf",
             "NotoSans-Regular.ttf",
             "Arial.ttf"
         };
 
         // Candidate root anchors to search from
-        std::vector<fs::path> roots;
-        roots.push_back(fs::current_path());
-        roots.push_back(GetExeDir());
+        std::vector fs_roots = { fs::current_path(), GetExeDir() };
 
         // Search up to 7 parents from each root for assets/Fonts/<name>
-        for (const auto& root : roots) {
+        for (const auto& root : fs_roots) {
             fs::path p = root;
             for (int up = 0; up < 7 && !p.empty(); ++up) {
                 fs::path base = p / "assets" / "Fonts";
@@ -137,13 +149,17 @@ namespace mygame
 
         // Simple relative fallbacks from common build folders
         const char* rels[] = {
+            "assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
             "assets/Fonts/Roboto-Regular.ttf",
-            "../assets/Fonts/Roboto-Regular.ttf",
-            "../../assets/Fonts/Roboto-Regular.ttf",
-            "../../../assets/Fonts/Roboto-Regular.ttf",
-            "../../../../assets/Fonts/Roboto-Regular.ttf"
+            "../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf"
         };
         for (auto r : rels) if (fs::exists(r)) return std::string(r);
+
+        // As a last resort, a Windows system font (so text still draws)
+        const char* sys1 = "C:/Windows/Fonts/arial.ttf";
+        if (fs::exists(sys1)) return sys1;
 
         return {};
     }
@@ -229,10 +245,12 @@ namespace mygame
             if (!fontToUse.empty()) {
                 std::cout << "[Text] Using font: " << fontToUse << "\n";
                 gText.initialize(fontToUse.c_str(), gScreenW, gScreenH);
+                gTextReady = true;
             }
             else {
                 std::cout << "[Text] Font not found in fallbacks. Title text will be skipped.\n";
-                std::cout << "[Text] Ensure repo has assets/Fonts/Roboto-Regular.ttf and your run dir is under build/...\n";
+                std::cout << "[Text] Ensure repo has assets/Fonts/Roboto-VariableFont_wdth,wght.ttf and your run dir is under build/...\n";
+                gTextReady = false;
             }
         }
 
@@ -434,7 +452,9 @@ namespace mygame
             }
 
             // --- Draw game title (only if text was initialized successfully) ---
-            gText.RenderText("Curry Nightmare", 24.0f, static_cast<float>(gScreenH) - 48.0f, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
+            if (gTextReady) {
+                gText.RenderText("Curry Nightmare", 24.0f, static_cast<float>(gScreenH) - 48.0f, 1.2f, glm::vec3(1.0f, 1.0f, 1.0f));
+            }
 
             mygame::DrawSpawnPanel();
             ImGui::ShowDemoWindow();
@@ -466,6 +486,7 @@ namespace mygame
 
         // Cleanup text renderer
         gText.cleanup();
+        gTextReady = false;
 
         using namespace Framework;
         // Destroy test objects and the factory cleanly
