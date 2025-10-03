@@ -1,3 +1,20 @@
+﻿/*********************************************************************************************
+ \file      RenderSystem.hpp
+ \par       SofaSpuds
+ \author    yimo kong (yimo.kong@digipen.edu) - Primary Author, 100%
+ \brief     Simple 2D render system that draws colored quads for objects with
+            TransformComponent + RenderComponent using a flat-color shader.
+ \details   On Initialize(), the system compiles a minimalist GL pipeline (pos-only VS, flat FS),
+            creates a unit quad (QuadGL), caches uniform locations, and builds an orthographic
+            projection (origin at bottom-left). Each Update(), it iterates live objects from the
+            Factory, finds Transform/Render components, builds M = T*R*S and MVP = Ortho*M, sets
+            uMVP/uColor, and issues an indexed draw for the quad. Call SetViewport() on window
+            resize to rebuild the projection. Intended for the sandbox/game and fits a
+            component-based engine (not full ECS).
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 // Systems/RenderSystem.hpp
 #pragma once
