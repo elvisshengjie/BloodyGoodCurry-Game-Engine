@@ -122,7 +122,6 @@ void Resource_Manager::unloadAll(Resource_Type type)
     // If type is Sound or All, ensure SoundManager unloads all sounds first
     if (type == Resource_Type::Sound) {
         std::cout << "[Resource_Manager] Stopping and unloading all sounds..." << std::endl;
-        auto& audio = SoundManager::getInstance();
         SoundManager::getInstance().shutdown();
         std::cout << "[Resource_Manager] All sounds unloaded." << std::endl;
     }

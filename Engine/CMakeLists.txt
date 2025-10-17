@@ -79,7 +79,7 @@ target_link_libraries(${ENGINE_NAME} PUBLIC glfw glad stb_image glm::glm imgui f
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(${ENGINE_NAME} PRIVATE -Wall -Wextra)
 elseif (MSVC)
-    target_compile_options(${ENGINE_NAME} PRIVATE /W3 /WX-)
+    target_compile_options(${ENGINE_NAME} PRIVATE /W4 /WX-)
 endif()
 
 # Platform OpenGL (required)
