@@ -32,7 +32,4 @@ namespace mygame {
     void draw();
     void shutdown();
 
-    // Audio helpers
-    void initializeAudio();
-    void cleanupAudio();
 }

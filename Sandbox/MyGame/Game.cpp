@@ -21,7 +21,6 @@
 #include "../../Engine/Graphics/Window.hpp"
 #include "Audio/SoundManager.h"
 #include "Messaging_System/Messager_Bus.hpp"
-#include "Audio_Tester.h"
 #include "Game.hpp"
 #include "Graphics/Graphics.hpp"
 #include "Graphics/GraphicsText.hpp"
@@ -284,10 +283,6 @@ namespace mygame
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
         gScreenW = cfg.width; gScreenH = cfg.height;
 
-        // Audio
-        initializeAudio();
-        startAudio(busInstance);
-
         // GL state
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -444,7 +439,6 @@ namespace mygame
             if (gInput.IsMouseHeld(GLFW_MOUSE_BUTTON_LEFT))     std::cout << "LMB held!" << std::endl;
             if (gInput.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT)) std::cout << "LMB released!" << std::endl;
 
-            handleAudioInput(*gWin, gKeyEdge, busInstance);
 
             const double updateMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setUpdate(updateMs);
@@ -586,8 +580,6 @@ namespace mygame
     // ------------------------------------------------------------
     void shutdown()
     {
-        std::cout << "Cleaning up sound..." << std::endl;
-        cleanupAudio();
 
         std::cout << "Cleaning up graphics..." << std::endl;
         gfx::Graphics::cleanup();
