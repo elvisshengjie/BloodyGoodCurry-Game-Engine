@@ -591,7 +591,7 @@ namespace mygame
         gTextReadyTitle = gTextReadyHint = false;
 
         using namespace Framework;
-        if (sFactory) { sFactory->Update(0.0f); sFactory.reset(); }
+        if (sFactory) { sFactory->Update(0.0); sFactory.reset(); }
         Framework::UnloadPrefabs();
 
         ImGuiLayer::Shutdown();

@@ -45,16 +45,28 @@ namespace Framework {
         *************************************************************************************/
         virtual void SendMessage(Message* m) { (void)m; } // tell complier i know parameter is unused dont warn me
 
-        /*************************************************************************************
+       /*************************************************************************************
           \brief Pure virtual update function that all derived systems must implement.
           \param dt  Delta time in seconds since the last update call.
         *************************************************************************************/
         virtual void Update(float dt) = 0; // pure virtual function all derived class must implement it
 
         /*************************************************************************************
+         \brief optional Draw
+         *************************************************************************************/
+        virtual void draw() {};
+
+        /*************************************************************************************
+         \brief optional shutdown hook for derived system
+        *************************************************************************************/
+        virtual void Shutdown() {}
+
+        /*************************************************************************************
           \brief Retrieves the name of the system.
           \return A string representing the system's name.
         *************************************************************************************/
         virtual std::string GetName() = 0;
+
+
     };
 }

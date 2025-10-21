@@ -272,6 +272,7 @@ namespace Framework {
 		// Using a set avoid duplicates if Destroy is called multiple times for the same GOC
 	}
 
+
 	/*************************************************************************************
 	  \brief Performs the end-of-frame sweep to delete marked objects safely.
 	  \param dt Delta time (unused here).
@@ -285,6 +286,18 @@ namespace Framework {
 		dt;
 		//End of frame (when update is call) actually deletes the objects and removes their entries from id map
 		// The Delayed delete will prevent iterator invalidation and mid update crashes if other system are still using the object during the frame
+		for (auto* obj : ObjectsToBeDeleted) {
+			auto it = GameObjectIdMap.find(obj->ObjectId);
+			if (it != GameObjectIdMap.end()) {
+				delete obj;                // frees the GameObjectComposition
+				GameObjectIdMap.erase(it); // removes the map entry (id -> pointer)
+			}
+		}
+		ObjectsToBeDeleted.clear();  // clear the deletion set
+	}
+
+	void GameObjectFactory::Shutdown()
+	{
 		for (auto* obj : ObjectsToBeDeleted) {
 			auto it = GameObjectIdMap.find(obj->ObjectId);
 			if (it != GameObjectIdMap.end()) {

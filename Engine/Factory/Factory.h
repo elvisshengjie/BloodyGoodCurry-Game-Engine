@@ -94,6 +94,8 @@ namespace Framework {
         /// Performs deferred deletions and maintenance.
         void Update(float dt) override;
 
+        void Shutdown() override;
+
         /// Name of this system.
         std::string GetName() override { return "Factory"; }
 
