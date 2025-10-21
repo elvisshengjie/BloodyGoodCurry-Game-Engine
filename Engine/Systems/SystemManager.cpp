@@ -16,6 +16,13 @@ void Framework::SystemManager::UpdateAll(float dt)
 	}
 }
 
+void Framework::SystemManager::DrawAll()
+{
+	for (auto& sys : systems) {
+		sys->draw();
+	}
+}
+
 void Framework::SystemManager::ShutdownAll()
 {
 	for (auto& sys : systems) {

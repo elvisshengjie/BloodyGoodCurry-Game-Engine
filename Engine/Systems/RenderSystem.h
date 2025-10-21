@@ -38,7 +38,7 @@ namespace Framework {
 
         std::string GetName() override { return "RenderSystem"; }
 
-        ~RenderSystem();
+        void Shutdown() override;
         void draw()override;
 
     private:

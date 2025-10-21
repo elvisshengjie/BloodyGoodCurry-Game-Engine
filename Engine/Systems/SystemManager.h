@@ -23,6 +23,7 @@ namespace Framework {
 		//Update all system
 		void UpdateAll(float dt);
 
+		void DrawAll();
 		void ShutdownAll();
 
 		template<typename T ,typename... Args>

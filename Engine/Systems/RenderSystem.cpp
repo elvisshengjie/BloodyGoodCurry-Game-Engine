@@ -8,10 +8,12 @@ void Framework::RenderSystem::Update(float dt)
 {
 }
 
-Framework::RenderSystem::~RenderSystem()
+
+
+void Framework::RenderSystem::draw()
 {
 }
 
-void Framework::RenderSystem::draw()
+void Framework::RenderSystem::Shutdown()
 {
 }

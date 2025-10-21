@@ -76,6 +76,9 @@
 
 #include <filesystem>
 
+//SYSTEM
+#include<Systems/SystemManager.h>
+#include "Systems/PhysicSystem.h" 
 // Crash logging
 #include "Debug/CrashLogger.hpp"
 
@@ -102,7 +105,9 @@ namespace mygame
     static MessageBus busInstance;
 
     // component system
-    static std::unique_ptr<Framework::GameObjectFactory> sFactory;
+    static Framework::SystemManager gSystemManager;
+    static Framework::GameObjectFactory* gFactory = nullptr;
+    static Framework::PhysicSystem* gPhysicsSystem = nullptr;
     static Framework::GOC* sTestObj = nullptr;   // owned by the factory
     static Framework::GOC* sTestObj2 = nullptr;  // owned by the factory
     static Framework::GOC* sCircleObj = nullptr; // owned by the factory
@@ -244,6 +249,7 @@ namespace mygame
         using namespace Framework;
         gInput = Framework::InputManager(gWin->raw());
 
+
         // Crash logger
         g_crashLogger = new CrashLogger(std::string("../../logs"),
             std::string("crash.log"),
@@ -253,8 +259,9 @@ namespace mygame
         InstallTerminateHandler();
         InstallSignalHandlers();
 
-        // Factory & components
-        sFactory = std::make_unique<GameObjectFactory>();
+        gFactory = gSystemManager.RegisterSystem<Framework::GameObjectFactory>();
+        gPhysicsSystem = gSystemManager.RegisterSystem<Framework::PhysicSystem>();
+        gSystemManager.IntializeAll();
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
@@ -265,7 +272,7 @@ namespace mygame
         LoadPrefabs();
         auto p = std::string("../../Data_Files/player.json");
         std::cout << "[Prefab] Player path = " << absolute(p) << "  exists=" << exists(p) << "\n";
-        sLevelObjs = sFactory->CreateLevel("../../Data_Files/level.json");
+        sLevelObjs = gFactory->CreateLevel("../../Data_Files/level.json");
 
         // Cache player's base size once
         for (auto* obj : sLevelObjs) {
@@ -336,6 +343,7 @@ namespace mygame
     // ------------------------------------------------------------
     void update(float dt)
     {
+        gSystemManager.UpdateAll(dt);
         TryGuard::Run([&] {
             using namespace Framework;
             gInput.Update();
@@ -345,8 +353,8 @@ namespace mygame
 
             auto t0 = clock::now(); // start timing Update
 
-            // sweep factory once per frame (handles deferred destroys)
-            if (sFactory) sFactory->Update(dt);
+            // Update registered engine systems (factory, physics, ...)
+            gSystemManager.UpdateAll(dt);
 
             const float rotSpeed = DegToRad(90.f);
             const float scaleRate = 1.5f;
@@ -450,6 +458,7 @@ namespace mygame
     // ------------------------------------------------------------
     void draw()
     {
+        gSystemManager.DrawAll();
         TryGuard::Run([&] {
             // -------- Render (non-ImGui) timing --------
             auto t0 = clock::now();
@@ -580,6 +589,7 @@ namespace mygame
     // ------------------------------------------------------------
     void shutdown()
     {
+        gSystemManager.ShutdownAll();
 
         std::cout << "Cleaning up graphics..." << std::endl;
         gfx::Graphics::cleanup();
@@ -591,7 +601,12 @@ namespace mygame
         gTextReadyTitle = gTextReadyHint = false;
 
         using namespace Framework;
-        if (sFactory) { sFactory->Update(0.0); sFactory.reset(); }
+        
+        
+            gSystemManager.ShutdownAll();
+            gFactory = nullptr;
+            gPhysicsSystem = nullptr;
+        
         Framework::UnloadPrefabs();
 
         ImGuiLayer::Shutdown();
