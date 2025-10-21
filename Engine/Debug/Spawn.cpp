@@ -35,7 +35,7 @@
 
 #include <vector>
 #include <string>
-
+#include <windows.h>
 namespace mygame {
     /// Currently selected sprite texture key (shared across panel sessions).
     static std::string sSpriteTexKey;
@@ -50,7 +50,7 @@ namespace mygame {
     static void SpawnOnePrefab(const char* prefab, SpawnSettings const& s, int index) {
         GOC* obj = ClonePrefab(prefab);
         if (!obj) return;
-
+        
         const float x = s.x + s.stepX * index;
         const float y = s.y + s.stepY * index;
 
@@ -83,12 +83,17 @@ namespace mygame {
     /// Panel state (persists across frames).
     static std::string gSelectedPrefab = "Rect"; ///< Default prefab choice.
     static SpawnSettings gS;                     ///< Live settings bound to ImGui controls.
+    bool opened = true;
+    float x = static_cast<float>(GetSystemMetrics(SM_CXSCREEN));
+    float y = static_cast<float>(GetSystemMetrics(SM_CYSCREEN));
 
     /*************************************************************************************
       \brief Draws the "Spawn" ImGui panel and handles prefab spawning actions.
     *************************************************************************************/
     void DrawSpawnPanel() {
-        ImGui::Begin("Spawn");   // Opens the "Spawn" debug window
+        ImGui::SetNextWindowSize(ImVec2(x/4, y/4));
+   
+        ImGui::Begin("Spawn", &opened);   // Opens the "Spawn" debug window
 
         // === Prefab Dropdown ===
         {
@@ -121,8 +126,8 @@ namespace mygame {
             (master->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) != nullptr);
         const bool hasCircle =
             (master->GetComponentType<CircleRenderComponent>(ComponentTypeId::CT_CircleRenderComponent) != nullptr);
-        const bool hasSprite =
-            (master->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent) != nullptr);
+        //const bool hasSprite =
+        //    (master->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent) != nullptr);
 
         // === Sprite Controls ===
         //if (hasSprite) {
