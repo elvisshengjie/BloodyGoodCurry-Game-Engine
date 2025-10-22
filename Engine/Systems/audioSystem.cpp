@@ -3,11 +3,11 @@
 
 
 namespace Framework {
-    AudioSystem::AudioSystem() = default;
+    AudioSystem::AudioSystem(gfx::Window& window) :window(&window) {}
 
     void AudioSystem::Initialize()
     {
-     
+        //AudioImGui::Initialize(window);
 
      
     }

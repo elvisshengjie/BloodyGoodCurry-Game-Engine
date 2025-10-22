@@ -169,12 +169,10 @@ void AudioManager::unloadAllSounds()
  \param pitch     Playback pitch (default by 1.0f).
  \return True if the sound is played successfully, false otherwise.
 *****************************************************************************************/
-bool AudioManager::playSound(const std::string& name, float volume, float pitch)
+bool AudioManager::playSound(const std::string& name, float volume, float pitch, bool loop)
 {
     if (!m_system)
-    {
-        return false;
-    }
+    {return false;}
         
     auto it = m_sounds.find(name);
     if (it == m_sounds.end()) 
@@ -190,6 +188,9 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch)
         std::cerr << "Failed to play sound '" << name << "': " << FMOD_ErrorString(result) << std::endl;
         return false;
     }
+    // Set looping mode dynamically per channel
+    if (loop) FMOD_Channel_SetMode(channel, FMOD_LOOP_NORMAL);
+    else FMOD_Channel_SetMode(channel, FMOD_LOOP_OFF);
 
     FMOD_Channel_SetVolume(channel, volume);
     FMOD_Channel_SetPitch(channel, pitch);
@@ -197,7 +198,7 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch)
     // store this channel
     m_channels[name].push_back(channel);
 
-    std::cout << "Playing sound: " << name << std::endl;
+    std::cout << "Playing sound: " << name << (loop ? " [looping]" : "") << std::endl;
     return true;
 }
 
@@ -338,7 +339,22 @@ void AudioManager::setSoundPitch(const std::string& name, float pitch)
 
     std::cout << "Set pitch of all instances of '" << name << "' to " << pitch << std::endl;
 }
-
+/*****************************************************************************************
+    \brief Sets the looping state of a loaded sound.
+    \param name  The unique identifier of the sound.
+    \param loop  True to enable looping, false to disable looping.
+    \note If the sound is not loaded, the function does nothing.
+*****************************************************************************************/
+void AudioManager::setSoundLoop(const std::string& name, bool loop)
+{
+    auto it = m_sounds.find(name);
+    if (it == m_sounds.end()) { return;}
+    FMOD_MODE mode;
+    FMOD_Sound_GetMode(it->second, &mode);
+    if (loop) mode |= FMOD_LOOP_NORMAL;
+    else mode &= ~FMOD_LOOP_NORMAL;
+    FMOD_Sound_SetMode(it->second, mode);
+}
 /*****************************************************************************************
     \brief Checks if a sound is loaded.
     \param name  Identifies the sound.

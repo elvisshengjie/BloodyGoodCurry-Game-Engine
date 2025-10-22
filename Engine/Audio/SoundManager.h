@@ -38,7 +38,7 @@ public:
     bool loadSound(const std::string& name, const std::string& filePath, bool loop = false);
     void unloadSound(const std::string& name);
     void unloadAllSounds();
-    bool playSound(const std::string& name, float volume = 1.0f, float pitch = 1.0f);
+    bool playSound(const std::string& name, float volume = 1.0f, float pitch = 1.0f, bool loop = false);
     void stopSound(const std::string& name);
     void stopAllSounds();
     void pauseSound(const std::string& name, bool pause = true);
@@ -46,6 +46,7 @@ public:
     void setMasterVolume(float volume);
     void setSoundVolume(const std::string& name, float volume);
     void setSoundPitch(const std::string& name, float pitch);
+    void setSoundLoop(const std::string& name, bool loop);
     bool isSoundLoaded(const std::string& name) const;
     bool isSoundPlaying(const std::string& name) const;
     std::vector<std::string> getLoadedSounds() const;

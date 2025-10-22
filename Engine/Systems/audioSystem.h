@@ -4,10 +4,14 @@
 
 #include <array>
 #include <memory>
+#include "Debug/AudioImGui.h"
+#include "../../Engine/Graphics/Window.hpp"
 namespace Framework {
+	class AudioImGui;
+
 	class AudioSystem :public Framework::ISystem {
 	public:
-		AudioSystem();
+		explicit AudioSystem(gfx::Window& window);
 
 		void Initialize() override;
 
@@ -21,6 +25,7 @@ namespace Framework {
 
 
 	private:
+		gfx::Window* window;
 
 	};
 }

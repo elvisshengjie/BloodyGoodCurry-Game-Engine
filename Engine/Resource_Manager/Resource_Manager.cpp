@@ -22,7 +22,8 @@ inline std::string Resource_Manager::GetExtension(const std::string& path)
 {
     std::string ext = std::filesystem::path(path).extension().string();
     if (!ext.empty() && ext[0]=='.'){ext.erase(0,1);}
-    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    std::transform(ext.begin(), ext.end(), ext.begin(),
+        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     return ext;
 }
 /*****************************************************************************************
@@ -36,7 +37,7 @@ bool Resource_Manager::isTexture(const std::string& ext){return (ext == "png"||e
     \param ext  File extension string.
     \return true if it is a sound, false otherwise.
 *****************************************************************************************/
-bool Resource_Manager::isSound(const std::string& ext){return ext == "mp3";}
+bool Resource_Manager::isSound(const std::string& ext){return ext == "mp3"|| ext == "wav";}
 /*****************************************************************************************
      \brief Retrieve the handle of a texture resource by its unique key.
     \param key  Resource identifier.
@@ -60,7 +61,7 @@ namespace fs = std::filesystem;
     \param loop  Optional flag for sound looping (default false).
     \return true if the resource was successfully loaded, false otherwise.
 *****************************************************************************************/
-bool Resource_Manager::load(const std::string& id, const std::string& path, bool loop)
+bool Resource_Manager::load(const std::string& id, const std::string& path)
 {
     fs::path filePath(path);
     if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
@@ -74,7 +75,7 @@ bool Resource_Manager::load(const std::string& id, const std::string& path, bool
     }
     else if (isSound(ext))
     {  
-        bool success = SoundManager::getInstance().loadSound(id,path,loop); 
+        bool success = SoundManager::getInstance().loadSound(id,path); 
         if (success){resources_map[id] = { id, Resource_Type::Sound ,0};}
         return success;
     }
@@ -95,14 +96,12 @@ void Resource_Manager::loadAll(const std::string& directory)
         std::string stem = path.stem().string();
         size_t pos = stem.find_first_of("-_.");
         std::string id = (pos == std::string::npos) ? stem : stem.substr(0, pos);
-        bool loop = (stem.find("loop") != std::string::npos);
         if (isTexture(ext) || isSound(ext)) 
         {
-            if (load(id, path.string(),loop)) 
+            if (load(id, path.string())) 
             {
                 std::cout << "[Resource_Manager] Loaded: " << id
                     << " (" << path.string() << ")"
-                    << (loop && isSound(ext) ? " [looping]" : "")
                     << std::endl;
             }
         }

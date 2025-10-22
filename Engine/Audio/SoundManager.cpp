@@ -123,15 +123,15 @@ void SoundManager::unloadAllSounds()
  \param pitch Playback pitch (default is 1.0f).
  \return True if the sound was successfully played.
 *****************************************************************************************/
-bool SoundManager::playSound(const std::string& name, float volume, float pitch)
+bool SoundManager::playSound(const std::string& name, float volume, float pitch, bool loop)
 {
     if (!m_audioManager)
     {
         std::cerr << "SoundManager not initialized" << std::endl;
         return false;
     }
-    
-    return m_audioManager->playSound(name, volume, pitch);
+
+    return m_audioManager->playSound(name, volume, pitch, loop);
 }
 
 /*****************************************************************************************
@@ -219,7 +219,17 @@ void SoundManager::setSoundPitch(const std::string& name, float pitch)
         m_audioManager->setSoundPitch(name, pitch);
     }
 }
-
+/*****************************************************************************************
+    \brief Sets the looping state of a loaded sound.
+    \param name  The unique identifier of the sound.
+    \param loop  True to enable looping, false to disable looping.
+    \note If the sound is not loaded, the function does nothing.
+*****************************************************************************************/
+void SoundManager::setSoundLoop(const std::string& name, bool loop)
+{
+    if (m_audioManager)
+        m_audioManager->setSoundLoop(name, loop);
+}
 /*****************************************************************************************
  \brief Checks whether a sound is currently loaded.
  \param name The identifier for the sound.

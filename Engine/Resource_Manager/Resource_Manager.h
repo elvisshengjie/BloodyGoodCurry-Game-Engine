@@ -59,7 +59,7 @@ public:
         Resource_Type type{ Resource_Type::All }; /// Type of the resource
         unsigned int handle{};  ///Handle or pointer to the actual resource
     };
-    static bool load(const std::string& name, const std::string& path, bool loop = false);
+    static bool load(const std::string& name, const std::string& path);
     static void loadAll(const std::string& directory);
     static void unloadAll(Resource_Type type); 
     /// Map storing all loaded resources with unique identifiers
