@@ -1,17 +1,64 @@
 #include "InputSystem.h"
+#include <GLFW/glfw3.h>
+#include <iostream>
 
-void Framework::InputSystem::Initialize()
-{
-}
+namespace Framework {
 
-void Framework::InputSystem::Update(float dt)
-{
-}
+	InputSystem::InputSystem(gfx::Window& window)
+		: window(&window), input(window.raw()) {}
+	void InputSystem::Initialize()
+	{
+		if (window) {
+			input = Framework::InputManager(window->raw());
+		}
+	}
 
-void Framework::InputSystem::draw()
-{
-}
+	void InputSystem::Update(float dt) {
+		(void)dt;
+		if (!window)
+			return;
 
-void Framework::InputSystem::Shutdown()
-{
-}
+		input.Update();
+
+		if (IsKeyPressed(GLFW_KEY_SPACE))  std::cout << "Spacebar pressed!" << std::endl;
+		if (IsKeyHeld(GLFW_KEY_SPACE))     std::cout << "Spacebar held!" << std::endl;
+		if (IsKeyReleased(GLFW_KEY_SPACE)) std::cout << "Spacebar released!" << std::endl;
+
+		if (IsMousePressed(GLFW_MOUSE_BUTTON_LEFT))  std::cout << "LMB pressed!" << std::endl;
+		if (IsMouseHeld(GLFW_MOUSE_BUTTON_LEFT))     std::cout << "LMB held!" << std::endl;
+		if (IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT)) std::cout << "LMB released!" << std::endl;
+	}
+
+	void InputSystem::Shutdown()
+	{
+		window = nullptr;
+	}
+	bool InputSystem::IsKeyPressed(int key)const {
+		return input.IsKeyPressed(key);
+	}
+
+	bool InputSystem::IsKeyHeld(int key) const {
+		return input.IsKeyHeld(key);
+	}
+
+	bool InputSystem::IsKeyReleased(int key)const {
+		return input.IsKeyReleased(key);
+	}
+
+	bool InputSystem::IsMouseHeld(int button)const {
+		return input.IsMouseHeld(button);
+	}
+
+	bool InputSystem::IsMousePressed(int button)const {
+		return input.IsMousePressed(button);
+	}
+
+	bool InputSystem::IsMouseReleased(int button)const {
+		return input.IsMouseReleased(button);
+	}
+
+	bool InputSystem::IsWindowKeyPressed(int key)const {
+		return window ? window->isKeyPressed(key) : false;
+	}
+
+} //namespace framework

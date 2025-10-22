@@ -1,17 +1,24 @@
 #include "audioSystem.h"
+#include <iostream>
 
-void Framework::AudioSystem::Initialize()
-{
-}
 
-void Framework::AudioSystem::Update(float dt)
-{
-}
+namespace Framework {
+    AudioSystem::AudioSystem() = default;
 
-void Framework::AudioSystem::draw()
-{
-}
+    void AudioSystem::Initialize()
+    {
+     
 
-void Framework::AudioSystem::Shutdown()
-{
-}
+     
+    }
+
+    void AudioSystem::Update(float dt)
+    {
+
+    }
+
+    void AudioSystem::Shutdown()
+    {
+      
+    }
+};

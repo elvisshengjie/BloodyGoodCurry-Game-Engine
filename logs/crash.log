@@ -192,3 +192,7 @@
 2025-10-02T10:52:29Z|startup|ok
 2025-10-02T11:24:40Z|startup|ok
 2025-10-02T10:55:54Z|startup|ok
+2025-10-22T10:36:05Z|std::exception|RenderSystem::draw|renderBackground|uniform_missing|backgroundTex
+2025-10-22T10:36:05Z|std::exception|mygame::draw|renderBackground|uniform_missing|backgroundTex
+2025-10-22T10:38:31Z|std::exception|RenderSystem::draw|renderSpriteFrame|gl_error=1281
+2025-10-22T10:38:31Z|std::exception|mygame::draw|renderSpriteFrame|gl_error=1281

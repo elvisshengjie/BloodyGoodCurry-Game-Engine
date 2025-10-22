@@ -18,34 +18,87 @@
 #pragma once
 // Systems/RenderSystem.hpp
 #pragma once
-#include "Common/System.h"
-#include "Factory/Factory.h"
-#include "Component/TransformComponent.h"
+#include "LogicSystem.h"
+
+#include "Component/CircleRenderComponent.h"
 #include "Component/RenderComponent.h"
-#include "../../Sandbox/MyGame/MathUtils.hpp"      
+#include "Component/SpriteComponent.h"
+#include "Component/TransformComponent.h"
+#include "Config/WindowConfig.h"
+#include "Debug/CrashLogger.hpp"
+#include "Debug/ImGuiLayer.h"
+#include "Debug/Perf.h"
+#include "Debug/Spawn.h"
+#include "Factory/Factory.h"
+#include "Graphics/Graphics.hpp"
+#include "Graphics/Window.hpp"
+#include "Resource_Manager/Resource_Manager.h"
+#include "Graphics/GraphicsText.hpp"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <imgui.h>
+
+#include <chrono>
+#include <iostream>
+#include <vector>
+
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif  
+#include <filesystem>
+#include <string>
+namespace gfx {
+    class Window;
+}
 
 namespace Framework {
+    class LogicSystem;
+
     class RenderSystem : public Framework::ISystem {
     public:
-        void Initialize() override;
-        // Call this if your window resizes
-        //void SetViewport(int w, int h) {
-        //    screenW_ = w; screenH_ = h;
-        //    proj_ = Ortho(0.f, (float)w, 0.f, (float)h, -1.f, 1.f);
-        //}
+        RenderSystem(gfx::Window& window, LogicSystem& logic);
 
-        void Update(float dt) override;
+        void Initialize() override;
+
+        void Update(float dt) override { (void)dt; }
 
         std::string GetName() override { return "RenderSystem"; }
 
         void Shutdown() override;
-        void draw()override;
+        void draw() override;
 
     private:
-        int screenW_ = 1280, screenH_ = 720; // set at init from your Window
-        Mat4 proj_{};
-        GLuint prog_{ 0 };
-        GLint  uMVP_{ -1 }, uColor_{ -1 };
-        QuadGL quad_;
+        std::filesystem::path GetExeDir() const;
+        std::string FindRoboto() const;
+
+        unsigned CurrentPlayerTexture() const;
+        int CurrentColumns() const;
+        int CurrentRows() const;
+
+        gfx::Window* window;
+        LogicSystem& logic;
+
+        int screenW = 1280;
+        int screenH = 720;
+
+        gfx::TextRenderer textTitle;
+        gfx::TextRenderer textHint;
+        bool textReadyTitle = false;
+        bool textReadyHint = false;
+
+        unsigned playerTex = 0;
+        unsigned idleTex = 0;
+        unsigned runTex = 0;
     };
-}
+
+};// namespace Framework
