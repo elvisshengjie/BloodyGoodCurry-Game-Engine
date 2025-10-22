@@ -7,18 +7,16 @@ namespace Framework {
 
     void AudioSystem::Initialize()
     {
-        //AudioImGui::Initialize(window);
+        AudioImGui::Initialize(*window);
 
      
     }
 
-    void AudioSystem::Update(float dt)
-    {
-
-    }
+    void AudioSystem::Update(float dt){}
+    void AudioSystem::draw() { AudioImGui::Render(); };
 
     void AudioSystem::Shutdown()
     {
-      
+        AudioImGui::Shutdown();
     }
 };

@@ -17,6 +17,7 @@ namespace Framework {
 
 		void Update(float dt) override;
 
+		void draw();
 
 		void Shutdown() override;
 

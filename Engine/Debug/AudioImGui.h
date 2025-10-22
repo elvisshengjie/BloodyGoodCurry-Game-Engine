@@ -7,22 +7,25 @@
 #include "Graphics/Window.hpp"
 #include <vector>
 #include <string>
-class AudioImGui
+namespace Framework 
 {
+    class AudioImGui
+    {
     public:
-     static void Initialize(gfx::Window& win);
-     static void Render();
-     static void Shutdown(); 
-     AudioImGui() = default;
-     ~AudioImGui() = default;
+        static void Initialize(gfx::Window& win);
+        static void Render();
+        static void Shutdown();
+        AudioImGui() = default;
+        ~AudioImGui() = default;
 
     private:
 
-     static bool s_audioReady;
-     static std::vector<std::string> soundNames;
-     static float masterVolume;
-
-     
+        static bool s_audioReady;
+        static std::vector<std::string> soundNames;
+        static float masterVolume;
 
 
-};
+
+
+    };
+}

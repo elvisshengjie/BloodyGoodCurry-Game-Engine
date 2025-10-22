@@ -196,3 +196,5 @@
 2025-10-22T10:36:05Z|std::exception|mygame::draw|renderBackground|uniform_missing|backgroundTex
 2025-10-22T10:38:31Z|std::exception|RenderSystem::draw|renderSpriteFrame|gl_error=1281
 2025-10-22T10:38:31Z|std::exception|mygame::draw|renderSpriteFrame|gl_error=1281
+2025-10-22T12:58:47Z|signal_22|
+2025-10-22T13:01:22Z|signal_22|
