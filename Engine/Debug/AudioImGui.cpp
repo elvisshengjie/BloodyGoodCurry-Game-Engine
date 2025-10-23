@@ -11,17 +11,9 @@ namespace Framework
     {
         (void)win;
         if (s_audioReady) return;
-        if (!SoundManager::getInstance().initialize())
-        {
-            std::cerr << "[AudioImGui] Failed to initialize SoundManager!" << std::endl; return;
-        }
-        Resource_Manager::loadAll("../../assets/Audio");
-        SoundManager::getInstance().setMasterVolume(masterVolume);
         s_audioReady = true;
         std::cout << "[AudioImGui] Audio initialized successfully.\n";
     }
-
-
     void AudioImGui::Render()
     {
         ImVec2 windowSize(400, 300);
@@ -81,7 +73,6 @@ namespace Framework
     void AudioImGui::Shutdown()
     {
         if (!s_audioReady) return;
-        SoundManager::getInstance().unloadAllSounds();
         s_audioReady = false;
         std::cout << "[AudioImGui] Audio shutdown completed.\n";
     }
