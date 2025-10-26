@@ -8,7 +8,7 @@
             retrieval of components from GameObjectComposition instances.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content ï¿½ 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -50,6 +50,9 @@ namespace Framework
 
         /// SpriteComponent: textured sprite rendering
         CT_SpriteComponent,
+        
+        /// EnemyComponent: Enemy Component
+        CT_EnemyComponent,
 
         /// Maximum enum value marker (not a real component, used for iteration/validation)
         CT_MaxComponent
