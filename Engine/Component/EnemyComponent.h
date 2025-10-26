@@ -3,6 +3,7 @@
 #include "Serialization/Serialization.h"
 namespace Framework
 {
+    //A data container by itself (Does not do anything)
     class EnemyComponent : public GameComponent {
     public:
         int health{ 100 };
