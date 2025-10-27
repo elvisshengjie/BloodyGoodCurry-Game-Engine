@@ -46,6 +46,9 @@ namespace Framework {
 
         if (auto* r = FACTORY->CreateTemplate("../../Data_Files/rect.json"))
             master_copies["Rect"] = r;
+        
+        if (auto* e = FACTORY->CreateTemplate("../../Data_Files/basic_enemy.json"))
+            master_copies["BasicEnemy"] = e;
 
         if (auto* p = FACTORY->CreateTemplate("../../Data_Files/player.json")) {
             master_copies["Player"] = p;

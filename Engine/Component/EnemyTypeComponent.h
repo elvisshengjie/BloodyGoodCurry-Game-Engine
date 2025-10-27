@@ -9,9 +9,9 @@ namespace Framework
     {
         public:
             enum class EnemyType{phyiscal, ranged};
-            EnemyType type{EnemyType::phyiscal};
+            EnemyType Etype{EnemyType::phyiscal};
             EnemyTypeComponent() = default;
-            EnemyTypeComponent(EnemyType t) : type(t){}
+            EnemyTypeComponent(EnemyType t) : Etype(t){}
             void initialize() override {}
             void SendMessage(Message& m) override { (void)m; }
             void Serialize(ISerializer& s) override 
@@ -21,14 +21,14 @@ namespace Framework
                 {
                     std::string typeStr;
                     StreamRead(s,"type",typeStr);
-                    if(typeStr=="ranged" ||typeStr=="Ranged"){type = EnemyType::ranged;}
-                    else type = EnemyType::phyiscal;
+                    if(typeStr=="ranged" ||typeStr=="Ranged"){Etype = EnemyType::ranged;}
+                    else Etype = EnemyType::phyiscal;
                 }
             }
             std::unique_ptr<GameComponent> Clone() const override 
             {
              auto copy = std::make_unique<EnemyTypeComponent>();
-             copy->type = type;
+             copy->Etype = Etype;
              return copy;
             }
     };

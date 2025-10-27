@@ -53,6 +53,14 @@ namespace Framework
         
         /// EnemyComponent: Enemy Component
         CT_EnemyComponent,
+        //Decision Tree Component
+        CT_EnemyDecisionTreeComponent,
+        //EnemyAttackComponent
+        CT_EnemyAttackComponent,
+        //Enemy Health Component
+        CT_EnemyHealthComponent,
+        //Enemy Type Component
+        CT_EnemyTypeComponent,
 
         /// Maximum enum value marker (not a real component, used for iteration/validation)
         CT_MaxComponent
