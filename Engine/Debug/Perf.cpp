@@ -10,6 +10,10 @@
 #include "imgui.h"
 #include <algorithm>   // std::max
 #include <cstddef>     // size_t
+#include <numeric>
+#include <string>
+#include <string_view>
+#include <vector>
 
 /// \internal Anonymous namespace for private state
 namespace {
@@ -24,6 +28,25 @@ namespace {
     // Double-buffer for last/current measurements (so UI shows a stable "last frame").
     static Values gCurr;   // being written this frame
     static Values gLast;   // shown by UI (previous frame)
+
+    struct SystemTiming {
+        std::string name;
+        double milliseconds = 0.0;
+    };
+    static std::vector<SystemTiming> gCurrSystemTimings;
+    static std::vector<SystemTiming> gLastSystemTimings;
+
+    void accumulateSystemTiming(std::vector<SystemTiming>& container, std::string_view name, double ms){
+
+        if (name.empty()) return;
+        auto it = std::find_if(container.begin(), container.end(), [&](SystemTiming const& entry) {return entry.name == name; });
+        if (it != container.end()) {
+            it->milliseconds += ms;
+        }
+        else {
+            container.push_back(SystemTiming{ std::string(name), ms });
+        }
+    }
 
     // Overlay state (F1 edge-toggle)
     static bool  sPerfVisible = true;
@@ -62,11 +85,19 @@ namespace {
 void Framework::FlipFrame() {
     gLast = gCurr;     // promote current to last
     gCurr = Values{};  // clear current for fresh measurements
+    gLastSystemTimings = gCurrSystemTimings;
+    gCurrSystemTimings.clear();
 }
 
 void Framework::setUpdate(double ms) { gCurr.gUpdateMs = ms; }
 void Framework::setRender(double ms) { gCurr.gRenderMs = ms; }
 void Framework::setImGui(double ms) { gCurr.gImGuIMs = ms; }
+
+void Framework::RecordSystemTiming(std::string_view systemName, double milliseconds) {
+    if (milliseconds < 0.0) return;
+    accumulateSystemTiming(gCurrSystemTimings, systemName, milliseconds);
+}
+
 
 // ---------- mini summary (embed-only, no Begin/End) ----------
 void Framework::DrawInCurrentWindow() {
@@ -115,10 +146,7 @@ void Framework::DrawPerformanceWindow() {
     ImGui::TextDisabled("Derived from Core dt (full frame), not ImGui.");
     ImGui::Separator();
 
-    // Show THIS frame's raw section times (gCurr)
-    ImGui::Text("Update: %.2f ms", (float)gCurr.gUpdateMs);
-    ImGui::Text("Render: %.2f ms", (float)gCurr.gRenderMs);
-    ImGui::Text("ImGui : %.2f ms", (float)gCurr.gImGuIMs);
+
 
     // Compare measured frame time vs tracked CPU sections
     const double measuredFrameMs = sLastDtSec * 1000.0; // dt from Core
@@ -129,6 +157,21 @@ void Framework::DrawPerformanceWindow() {
     ImGui::Text("Tracked sections total:   %.2f ms", trackedMs);
     ImGui::Text("Unaccounted remainder:    %.2f ms", untrackedMs);
     ImGui::TextDisabled("(swap buffers, vsync, driver/GPU queueing, etc.)");
+
+    const double totalSystemMs = std::accumulate(
+        gLastSystemTimings.begin(), gLastSystemTimings.end(), 0.0,
+        [](double sum, const SystemTiming& e) { return sum + e.milliseconds; });
+
+    ImGui::Text("Tracked systems total:   %.2f ms", totalSystemMs);
+    ImGui::TextDisabled("Percentages below are relative to tracked systems (sum = 100%%).");
+
+    for (const auto& entry : gLastSystemTimings) {
+        const double pctOfSystems = (totalSystemMs > 1e-9)
+            ? (entry.milliseconds / totalSystemMs) * 100.0 : 0.0;
+        ImGui::Text("%s: %.3f ms (%.1f%% of systems)",
+            entry.name.c_str(), entry.milliseconds, pctOfSystems);
+    }
+
 
     // Last ~120 FPS samples
     ImGui::Separator();

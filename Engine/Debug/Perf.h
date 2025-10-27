@@ -1,4 +1,5 @@
 #pragma once
+#include <string_view>
 /*********************************************************************************************
  \file      Perf.h
  \par       SofaSpuds
@@ -28,6 +29,10 @@ namespace Framework {
 
     /// Record CPU time (ms) for ImGui build + draw this frame.
     void setImGui(double ms);
+
+    /// Accumulate CPU time (ms) spent inside a named engine system for the current frame.
+    /// Can be called multiple times per frame for the same system name (times are summed).
+    void RecordSystemTiming(std::string_view systemName, double milliseconds);
 
     // ----- Minimal embed summary (draws into the current ImGui window; no Begin/End) --------
     void DrawInCurrentWindow();
