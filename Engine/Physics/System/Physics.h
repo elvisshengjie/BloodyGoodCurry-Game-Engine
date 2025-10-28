@@ -18,19 +18,10 @@
 #include "Common/System.h"
 #include "Factory/Factory.h"
 #include "Component/TransformComponent.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 
 namespace Framework
 {
-	/*****************************************************************************************
-	\brief The necessary components from Rigid body for it to work
-	*****************************************************************************************/
-	class RigidBodyComponent : public GameComponent
-	{
-	public:
-		float width = 1.0f, height = 1.0f;
-		float velX = 0.0f, velY = 0.0f;
-	};
-
 	/*****************************************************************************************
 	\brief Loops through all game objects managed by FACTORY and updates their position if needed
 	*****************************************************************************************/
