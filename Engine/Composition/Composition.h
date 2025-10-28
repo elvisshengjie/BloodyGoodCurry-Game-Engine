@@ -166,6 +166,7 @@ namespace Framework {
         *************************************************************************************/
         GOCId GetId() const { return ObjectId; }
 
+        GameObjectComposition() = default;
         /*************************************************************************************
           \brief Destructor. Cleans up all owned components.
         *************************************************************************************/
@@ -180,7 +181,7 @@ namespace Framework {
         GOCId ObjectId = 0;
         std::string ObjectName;
 
-        GameObjectComposition() = default;
+  
     };
 
     using GOC = GameObjectComposition;

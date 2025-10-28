@@ -19,7 +19,7 @@
 #pragma once
 #include <unordered_map>
 #include "Composition.h"
-
+#include <memory>
 namespace Framework {
 
     /*****************************************************************************************
@@ -30,7 +30,7 @@ namespace Framework {
       Prefabs act as immutable templates: users should not modify them directly but instead
       use ClonePrefab() to generate instances.
     *****************************************************************************************/
-    extern std::unordered_map<std::string, GOC*> master_copies;
+    extern std::unordered_map<std::string, std::unique_ptr<GOC>> master_copies;
 
     /*****************************************************************************************
       \brief Loads prefabs from JSON files and registers them in the prefab map.

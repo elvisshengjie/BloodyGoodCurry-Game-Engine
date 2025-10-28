@@ -21,7 +21,7 @@ namespace Framework {
         for (auto& [id, ptr] : factory->Objects())
         {
             (void)id;
-            if (ptr == obj)
+            if (ptr.get() == obj)
                 return true;
         }
         return false;

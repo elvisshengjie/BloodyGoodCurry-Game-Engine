@@ -8,9 +8,11 @@ namespace Framework
 	{
 		auto& objects = FACTORY->Objects();
 
-		for (auto& [id, obj] : objects)
+		for (auto& [id, objPtr] : objects)
 		{
+			auto* obj = objPtr.get();
 			if (!obj) continue;
+
 
 			auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
 			auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
@@ -26,7 +28,7 @@ namespace Framework
 		// SImple collision checks for now
 		for (auto itA = objects.begin(); itA != objects.end(); itA++)
 		{
-			auto* objA = itA->second;
+			auto* objA = itA->second.get();
 			if (!objA)
 				continue;
 
@@ -40,7 +42,7 @@ namespace Framework
 
 			for (auto itB = std::next(itA); itB != objects.end(); itB++)
 			{
-				auto* objB = itB->second;
+				auto* objB = itB->second.get();
 				if (!objB)
 					continue;
 

@@ -22,10 +22,11 @@
 #include <iostream>
 #include "Factory/Factory.h"
 
+
 namespace Framework {
 
     /// Stores the master prefab copies (name → GOC pointer).
-    std::unordered_map<std::string, Framework::GOC*> master_copies;
+    std::unordered_map<std::string, std::unique_ptr<Framework::GOC>> master_copies;
 
     /*************************************************************************************
       \brief Loads prefabs from disk and registers them into the master_copies map.
@@ -42,16 +43,16 @@ namespace Framework {
     void LoadPrefabs()
     {
         if (auto* c = FACTORY->CreateTemplate("../../Data_Files/circle.json"))
-            master_copies["Circle"] = c;
+            master_copies["Circle"].reset(c);
 
         if (auto* r = FACTORY->CreateTemplate("../../Data_Files/rect.json"))
-            master_copies["Rect"] = r;
+            master_copies["Rect"].reset(r);
 
         if (auto* p = FACTORY->CreateTemplate("../../Data_Files/player.json")) {
-            master_copies["Player"] = p;
+            master_copies["Player"].reset(p);
         }
         if (auto* b = FACTORY->CreateTemplate("../../Data_Files/boss.json")) {
-            master_copies["Boss"] = b;
+            master_copies["Boss"].reset(b);
         }
         else {
             std::cerr << "[Prefab] Failed to create 'boss' from boss.json\n";
@@ -61,16 +62,11 @@ namespace Framework {
     /*************************************************************************************
       \brief Unloads all prefabs and clears the master_copies map.
       \details
-        - Deletes all GOC pointers stored in master_copies.
-        - Sets entries to nullptr for safety.
-        - Clears the entire map after cleanup.
+     - master_copies now stores std::unique_ptr<GOC>, so clearing the map automatically
+          destroys the prefab masters.
       \note Prefabs must be reloaded via LoadPrefabs() if needed again.
     *************************************************************************************/
     void UnloadPrefabs() {
-        for (auto& kv : master_copies) {
-            delete kv.second;        // free raw GOC
-            kv.second = nullptr;
-        }
         master_copies.clear();
     }
 

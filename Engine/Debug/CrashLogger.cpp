@@ -115,6 +115,8 @@ void CrashLogger::Write(std::string reason, std::string extra) {
 void CrashLogger::Mirror(std::string line) {
 #if defined(__ANDROID__)
     __android_log_write(ANDROID_LOG_FATAL, tag_.empty() ? "ENGINE/CRASH" : tag_.c_str(), line.c_str());
+#else
+    (void)line; // Prevent unused-parameter warning
 #endif
 }
 

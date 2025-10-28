@@ -30,8 +30,9 @@ namespace Framework
 	public:
 		void Update(float dt) override
 		{
-			for (auto& [id, obj] : FACTORY->Objects())
+			for (auto& [id, objPtr] : FACTORY->Objects())
 			{
+				auto* obj = objPtr.get();
 				if (!obj)
 					continue;
 				// This hold velocity and size

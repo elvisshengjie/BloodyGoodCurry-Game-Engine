@@ -22,7 +22,19 @@
 #include "imgui.h"
 
 // #include "Debug/Perf.h"
+#ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
+#endif
 
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
+
+#include <Windows.h>
+
+#ifdef SendMessage
+#  undef SendMessage   // prevent collisions with your ECS messaging system
+#endif
 // Engine & game headers
 #include "Factory/Factory.h"                    // FACTORY, GOC, ComponentTypeId
 #include "Composition/PrefabManager.h"          // master_copies, ClonePrefab
@@ -35,7 +47,7 @@
 
 #include <vector>
 #include <string>
-#include <windows.h>
+
 #include <algorithm>
 #include <unordered_map>
 namespace mygame {
@@ -116,7 +128,7 @@ namespace mygame {
         // Resolve master prefab...
         GOC* master = nullptr;
         if (auto it = master_copies.find(gSelectedPrefab); it != master_copies.end())
-            master = it->second;
+            master = it->second.get();
 
         if (!master) {
             ImGui::TextDisabled("Missing master for '%s'", gSelectedPrefab.c_str()); // Warn if prefab missing
@@ -219,10 +231,11 @@ namespace mygame {
             std::vector<GOC*> toKill;
             toKill.reserve(FACTORY->Objects().size());
 
-            for (auto& [id, obj] : FACTORY->Objects()) {
+            for (auto& [id, objPtr] : FACTORY->Objects()) {
+                auto* obj = objPtr.get();
                 if (!obj) continue;
                 bool isMaster = std::any_of(master_copies.begin(), master_copies.end(),
-                    [&](auto const& kv) { return kv.second == obj; });
+                    [&](auto const& kv) { return kv.second.get() == obj; });
                 if (isMaster) continue;
            
 
@@ -240,9 +253,10 @@ namespace mygame {
         if (ImGui::Button("Clear All (keep masters)")) {      // Button to clear spawned objects (but keep master prefabs)
             std::vector<GOC*> toKill;
             toKill.reserve(FACTORY->Objects().size());
-            for (auto& [id, obj] : FACTORY->Objects()) {
+            for (auto& [id, objPtr] : FACTORY->Objects()) {
+                auto* obj = objPtr.get();
                 bool isMaster = false;
-                for (auto const& kv : master_copies) { if (kv.second == obj) { isMaster = true; break; } }
+                for (auto const& kv : master_copies) { if (kv.second.get() == obj) { isMaster = true; break; } }
                 if (!isMaster) toKill.push_back(obj);
             }
             for (auto* o : toKill) o->Destroy();              // Destroy non-master prefabs
