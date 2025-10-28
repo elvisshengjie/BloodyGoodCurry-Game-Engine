@@ -22,6 +22,7 @@
 #include "Systems/LogicSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
+#include "Systems/AiSystem.h"
 #include "Systems/audioSystem.h"
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
@@ -39,6 +40,7 @@ namespace mygame
         Framework::PhysicSystem* gPhysicsSystem = nullptr;
         Framework::AudioSystem* gAudioSystem = nullptr;
         Framework::RenderSystem* gRenderSystem = nullptr;
+        Framework::AiSystem* gAiSystem = nullptr;
     }
 
    // ------------------------------------------------------------
@@ -51,7 +53,8 @@ namespace mygame
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
-
+        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
+      
         //(void)gPhysicsSystem;
         //(void)gAudioSystem;
         //(void)gRenderSystem;
