@@ -50,8 +50,11 @@ namespace Framework {
         if (auto* p = FACTORY->CreateTemplate("../../Data_Files/player.json")) {
             master_copies["Player"] = p;
         }
+        if (auto* b = FACTORY->CreateTemplate("../../Data_Files/boss.json")) {
+            master_copies["Boss"] = b;
+        }
         else {
-            std::cerr << "[Prefab] Failed to create 'Player' from player.json\n";
+            std::cerr << "[Prefab] Failed to create 'boss' from boss.json\n";
         }
     }
 

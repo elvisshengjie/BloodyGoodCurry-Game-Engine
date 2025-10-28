@@ -120,7 +120,7 @@ namespace Framework {
         RegisterComponent(CircleRenderComponent);
         RegisterComponent(SpriteComponent);
         RegisterComponent(RigidBodyComponent);
-
+        FACTORY = factory.get();
         LoadPrefabs();
 
         auto playerPrefab = std::string("../../Data_Files/player.json");
@@ -234,9 +234,10 @@ namespace Framework {
         collisionTarget = nullptr;
         player = nullptr;
 
-        if (factory)
-        {
+        if (factory) {
             factory->Update(0.0f);
+            if (FACTORY == factory.get())      
+                FACTORY = nullptr;
             factory.reset();
         }
         UnloadPrefabs();

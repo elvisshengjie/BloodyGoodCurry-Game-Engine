@@ -60,6 +60,13 @@ namespace Framework {
     *****************************************************************************************/
     inline GOC* ClonePrefab(const std::string& name) {
         auto it = master_copies.find(name);
-        return (it == master_copies.end() || !it->second) ? nullptr : it->second->Clone();
+        if (it == master_copies.end() || !it->second)
+            return nullptr;
+
+        GOC* clone = it->second->Clone();
+        if (clone && clone->GetObjectName().empty())
+            clone->SetObjectName(name);
+
+        return clone;
     }
 }

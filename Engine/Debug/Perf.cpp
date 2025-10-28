@@ -148,15 +148,7 @@ void Framework::DrawPerformanceWindow() {
 
 
 
-    // Compare measured frame time vs tracked CPU sections
-    const double measuredFrameMs = sLastDtSec * 1000.0; // dt from Core
-    const double trackedMs = gLast.TrackedTotal();
-    const double untrackedMs = std::max(0.0, measuredFrameMs - trackedMs);
-    ImGui::Separator();
-    ImGui::Text("Measured frame (Core dt): %.2f ms", measuredFrameMs);
-    ImGui::Text("Tracked sections total:   %.2f ms", trackedMs);
-    ImGui::Text("Unaccounted remainder:    %.2f ms", untrackedMs);
-    ImGui::TextDisabled("(swap buffers, vsync, driver/GPU queueing, etc.)");
+
 
     const double totalSystemMs = std::accumulate(
         gLastSystemTimings.begin(), gLastSystemTimings.end(), 0.0,
