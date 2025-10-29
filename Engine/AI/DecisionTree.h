@@ -7,5 +7,5 @@ class DecisionTree
      void run();
      private:
      DecisionNode*rootNode;
-     enum ID{Behavior1};
+     enum ID{Patrol, Attack, Flee };
 };

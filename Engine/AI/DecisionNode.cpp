@@ -2,9 +2,10 @@
 
 //Constructor
 DecisionNode::DecisionNode(std::function<bool()> qns,
-DecisionNode* trueNode, DecisionNode* falseNode,
-std::function<void()> leafAction):mainqns(qns), 
-ifTrue(trueNode),ifFalse(falseNode),action(leafAction){};
+ std::unique_ptr<DecisionNode> trueNode,
+ std::unique_ptr<DecisionNode> falseNode,
+ std::function<void()> leafAction)
+ : mainqns(qns), ifTrue(std::move(trueNode)), ifFalse(std::move(falseNode)), action(leafAction) {}
 
 void DecisionNode::evaluate()
 {

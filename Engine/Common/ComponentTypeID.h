@@ -51,6 +51,9 @@ namespace Framework
         /// SpriteComponent: textured sprite rendering
         CT_SpriteComponent,
         
+        //PlayerComponent
+        CT_PlayerComponent,
+
         /// EnemyComponent: Enemy Component
         CT_EnemyComponent,
         //Decision Tree Component

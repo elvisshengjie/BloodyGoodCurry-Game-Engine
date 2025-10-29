@@ -10,7 +10,8 @@ class DecisionNode
      std::function<void()> action;
      
      DecisionNode(std::function<bool()> qns,
-     DecisionNode* trueNode = nullptr, DecisionNode* falseNode = nullptr,
+     std::unique_ptr<DecisionNode> trueNode = nullptr,
+     std::unique_ptr<DecisionNode> falseNode = nullptr,
      std::function<void()> leafAction = nullptr);
 
      void evaluate();

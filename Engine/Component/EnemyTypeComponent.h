@@ -16,7 +16,6 @@ namespace Framework
             void SendMessage(Message& m) override { (void)m; }
             void Serialize(ISerializer& s) override 
             {
-                std::string typeStr;
                 if (s.HasKey("type"))
                 {
                     std::string typeStr;
