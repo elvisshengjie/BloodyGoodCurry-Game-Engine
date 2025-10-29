@@ -44,6 +44,15 @@
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
 #include "Component/SpriteComponent.h"
+//Player Component
+#include "Component/PlayerComponent.h"
+//Enemy Component
+#include "Component/EnemyComponent.h"
+#include "Component/EnemyAttackComponent.h"
+#include "Component/EnemyDecisionTreeComponent.h"
+#include "Component/EnemyHealthComponent.h"
+#include "Component/EnemyTypeComponent.h"
+#include "Ai/DecisionTreeDefault.h"
 
 #include <vector>
 #include <string>
@@ -92,6 +101,26 @@ namespace mygame {
         }
 
         // TODO: add new component setters here when needed.
+        //Player Components
+        if (auto* player = obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent)){(void)player;}
+       
+        //Enemy Components
+        if (auto* enemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
+        {(void)enemy;}
+        
+        if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
+        {health->health= health->maxhealth;}
+        
+        if (auto* attack = obj->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent)) 
+        {attack->damage = s.attackDamage; attack->attack_speed = s.attack_speed;}
+        
+        // if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent))
+        // {
+        //     if (!ai->tree) ai->tree = CreateDefaultEnemyTree(obj);
+        // }
+        // if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent)) 
+        // {if(!ai->tree){std::make_unique<DecisionTree>(Create)}}
+
     }
 
     /// Panel state (persists across frames).
@@ -262,6 +291,8 @@ namespace mygame {
             for (auto* o : toKill) o->Destroy();              // Destroy non-master prefabs
             FACTORY->Update(0.0f);                            // Apply destruction
         }
+
+
 
         // === Object Count ===
         ImGui::SeparatorText("Counts");                       // Section header

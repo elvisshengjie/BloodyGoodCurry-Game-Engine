@@ -11,6 +11,7 @@
 #include "Systems/LogicSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
+#include "Systems/AiSystem.h"
 #include "Systems/audioSystem.h"
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
@@ -36,6 +37,7 @@ namespace mygame
         GameState currentState = GameState::MAIN_MENU;
 
         MainMenuPage mainMenu;
+        Framework::AiSystem* gAiSystem = nullptr;
     }
 
     void init(gfx::Window& win)
@@ -45,6 +47,12 @@ namespace mygame
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
+        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
+      
+        //(void)gPhysicsSystem;
+        //(void)gAudioSystem;
+        //(void)gRenderSystem;
+
         gSystems.IntializeAll();
 
         // IMPORTANT: pass the real window size so mouse-Y flip is correct.

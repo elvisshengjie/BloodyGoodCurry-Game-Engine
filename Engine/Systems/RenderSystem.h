@@ -36,6 +36,7 @@
 #include "Graphics/GraphicsText.hpp"
 #include "Resource_Manager/Resource_Manager.h"
 
+#include "Debug/HierarchyPanel.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
