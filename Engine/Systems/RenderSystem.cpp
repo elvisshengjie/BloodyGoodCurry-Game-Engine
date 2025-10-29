@@ -290,6 +290,7 @@ namespace Framework {
             t0 = clock::now();
 
             mygame::DrawSpawnPanel();
+            mygame::DrawHierarchyPanel();
 
             if (ImGui::Begin("Crash Tests"))
             {
