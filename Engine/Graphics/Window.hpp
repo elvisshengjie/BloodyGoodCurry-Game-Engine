@@ -57,6 +57,11 @@ namespace gfx {
 
         GLFWwindow* raw() const { return s_window; }
 
+        // Current window size (logical pixels)
+        int Width()  const { return m_width; }
+        int Height() const { return m_height; }
+
+
     private:
         // Global raw pointer to the GLFW window. (kept static to match your original design)
         static GLFWwindow* s_window;

@@ -16,9 +16,10 @@
             All rights reserved.
 *********************************************************************************************/
 #pragma once
-// Systems/RenderSystem.hpp
-#pragma once
+
+// NOTE: Do NOT include <GL/gl.h>. glad already provides OpenGL symbols.
 #include "LogicSystem.h"
+// (No include of GUISystem here to avoid circular deps)
 
 #include "Component/CircleRenderComponent.h"
 #include "Component/RenderComponent.h"
@@ -32,52 +33,63 @@
 #include "Factory/Factory.h"
 #include "Graphics/Graphics.hpp"
 #include "Graphics/Window.hpp"
-#include "Resource_Manager/Resource_Manager.h"
 #include "Graphics/GraphicsText.hpp"
+#include "Resource_Manager/Resource_Manager.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 
 #include <chrono>
+#include <filesystem>
 #include <iostream>
+#include <string>
 #include <vector>
 
-#include <filesystem>
-#include <string>
-namespace gfx {
-    class Window;
-}
+namespace gfx { class Window; }
 
-namespace Framework {
+namespace Framework
+{
     class LogicSystem;
 
-    class RenderSystem : public Framework::ISystem {
+    class RenderSystem : public Framework::ISystem
+    {
     public:
         RenderSystem(gfx::Window& window, LogicSystem& logic);
 
         void Initialize() override;
-
         void Update(float dt) override { (void)dt; }
-
         std::string GetName() override { return "RenderSystem"; }
-
         void Shutdown() override;
         void draw() override;
 
+        // -------------------------------------------------------------------------------------
+        // Public accessors for GUI/text users (GUISystem, MainMenuPage, etc.)
+        // Keep members encapsulated; expose read flags and references safely.
+        // -------------------------------------------------------------------------------------
+        bool IsTextReadyHint()  const { return textReadyHint; }
+        bool IsTextReadyTitle() const { return textReadyTitle; }
+
+        gfx::TextRenderer& GetTextHint() { return textHint; }
+        const gfx::TextRenderer& GetTextHint()  const { return textHint; }
+        gfx::TextRenderer& GetTextTitle() { return textTitle; }
+        const gfx::TextRenderer& GetTextTitle() const { return textTitle; }
+
     private:
         std::filesystem::path GetExeDir() const;
-        std::string FindRoboto() const;
+        std::string           FindRoboto() const;
 
         unsigned CurrentPlayerTexture() const;
-        int CurrentColumns() const;
-        int CurrentRows() const;
+        int      CurrentColumns() const;
+        int      CurrentRows() const;
 
-        gfx::Window* window;
+        gfx::Window* window = nullptr;
         LogicSystem& logic;
 
         int screenW = 1280;
         int screenH = 720;
 
+        // Text renderers (kept private; use getters above)
         gfx::TextRenderer textTitle;
         gfx::TextRenderer textHint;
         bool textReadyTitle = false;
@@ -88,4 +100,4 @@ namespace Framework {
         unsigned runTex = 0;
     };
 
-};// namespace Framework
+} // namespace Framework

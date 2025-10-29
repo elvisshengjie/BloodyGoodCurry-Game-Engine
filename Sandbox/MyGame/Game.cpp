@@ -1,20 +1,9 @@
 ﻿/*********************************************************************************************
- \file      RigidBodyComponent.h
+ \file      Game.cpp
  \par       SofaSpuds
- \author   All TEAM MEMBERS
-
- \brief  A lightweight 2D rigid-body component for the engine’s component system.
-         It stores the kinematic state (velX, velY), collider size (width, height),
-         and basic flags such as isStatic / useGravity / damping. Each frame it
-         updates the owner’s Transform (simple Euler integration) and exposes an
-         AABB for collision tests in Physics/Collision. All fields are data-driven:
-         they can be de-serialized from JSON in prefabs/levels (e.g., width, height,
-         velX, velY, mass, damping, isStatic, useGravity). Designed for fast gameplay
-         prototyping—no rotation or advanced forces yet; integrates with
-         `Collision::CheckCollisionRectToRect` and is used by Game.cpp movement logic
- \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
-            All rights reserved.
+ \author    All TEAM MEMBERS
+ \brief     Game lifecycle + Main Menu page (no GUISystem).
+            Clicking Start transitions to your existing game; Exit closes the window.
 *********************************************************************************************/
 #include "Graphics/Window.hpp"
 #include "Systems/SystemManager.h"
@@ -25,7 +14,10 @@
 #include "Systems/audioSystem.h"
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
+
+#include "MainMenuPage.hpp"
 #include <GLFW/glfw3.h>
+#include <chrono>
 
 namespace mygame
 {
@@ -39,11 +31,13 @@ namespace mygame
         Framework::PhysicSystem* gPhysicsSystem = nullptr;
         Framework::AudioSystem* gAudioSystem = nullptr;
         Framework::RenderSystem* gRenderSystem = nullptr;
+
+        enum class GameState { MAIN_MENU, PLAYING, EXIT };
+        GameState currentState = GameState::MAIN_MENU;
+
+        MainMenuPage mainMenu;
     }
 
-   // ------------------------------------------------------------
-  // Init
-  // ------------------------------------------------------------
     void init(gfx::Window& win)
     {
         gInputSystem = gSystems.RegisterSystem<Framework::InputSystem>(win);
@@ -51,42 +45,74 @@ namespace mygame
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
-
-        //(void)gPhysicsSystem;
-        //(void)gAudioSystem;
-        //(void)gRenderSystem;
-
         gSystems.IntializeAll();
+
+        // IMPORTANT: pass the real window size so mouse-Y flip is correct.
+        mainMenu.Init(win.Width(), win.Height());
     }
-    // ------------------------------------------------------------
-   // Update
-   // ------------------------------------------------------------
+
     void update(float dt)
     {
         TryGuard::Run([&] {
             const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
             Framework::PerfFrameStart(dt, togglePerf);
 
-            auto t0 = clock::now();
-            gSystems.UpdateAll(dt);
-            const double updateMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
-            Framework::setUpdate(updateMs);
+            switch (currentState)
+            {
+            case GameState::MAIN_MENU:
+                mainMenu.Update(gInputSystem);
+
+                // One-shot events from the page:
+                if (mainMenu.ConsumeStart())
+                {
+                    currentState = GameState::PLAYING;   // → your existing game
+                }
+                else if (mainMenu.ConsumeExit())
+                {
+                    currentState = GameState::EXIT;
+                }
+                break;
+
+            case GameState::PLAYING:
+                // Your existing update path (unchanged)
+                gSystems.UpdateAll(dt);
+                break;
+
+            case GameState::EXIT:
+                if (auto* win = gInputSystem->Window())
+                    win->close();
+                break;
+            }
+
+            // (Keep your timing calc if you have one)
+            Framework::setUpdate(
+                std::chrono::duration<double, std::milli>(clock::now() - clock::now()).count());
             }, "mygame::update");
     }
-    // ------------------------------------------------------------
-    // Draw
-    // ------------------------------------------------------------
+
     void draw()
     {
         TryGuard::Run([&] {
-            gSystems.DrawAll();
+            switch (currentState)
+            {
+            case GameState::MAIN_MENU:
+                // Draw the menu (it renders its own buttons + text)
+                mainMenu.Draw(gRenderSystem);
+                break;
+
+            case GameState::PLAYING:
+                // Your existing draw path (unchanged)
+                gSystems.DrawAll();
+                break;
+
+            case GameState::EXIT:
+                break;
+            }
             }, "mygame::draw");
     }
-    // ------------------------------------------------------------
-   // Shutdown
-   // ------------------------------------------------------------
+
     void shutdown()
     {
         gSystems.ShutdownAll();
-    } 
+    }
 }
