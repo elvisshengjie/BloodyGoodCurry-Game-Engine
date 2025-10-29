@@ -263,6 +263,8 @@ namespace mygame {
             FACTORY->Update(0.0f);                            // Apply destruction
         }
 
+
+
         // === Object Count ===
         ImGui::SeparatorText("Counts");                       // Section header
         size_t totalObjs = Framework::FACTORY ? Framework::FACTORY->Objects().size() : 0;
