@@ -14,7 +14,7 @@ void Framework::AiSystem::Update(float dt)
     auto& objects = FACTORY->Objects();
     for (auto& kv : objects)
     {
-        GOC* goc = kv.second;
+        GOC* goc = kv.second.get();
         if (!goc) continue;
         GameComponent* base = goc->GetComponent(ComponentTypeId::CT_EnemyDecisionTreeComponent);
         if (!base) return;
