@@ -8,11 +8,10 @@ namespace Framework
 	{
 		auto& objects = FACTORY->Objects();
 
-		for (auto& [id, objPtr] : objects)
+		for (auto& [id, obj] : objects)
 		{
-			auto* obj = objPtr.get();
-			if (!obj) continue;
-
+			if (!obj) 
+				continue;
 
 			auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
 			auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
@@ -21,47 +20,43 @@ namespace Framework
 				continue;
 
 			// Update pos
-			tr->x += rb->velX * dt;
-			tr->y += rb->velY * dt;
-		}
+			float newX = tr->x + rb->velX * dt;
+			float newY = tr->y + rb->velY * dt;
 
-		// SImple collision checks for now
-		for (auto itA = objects.begin(); itA != objects.end(); itA++)
-		{
-			auto* objA = itA->second.get();
-			if (!objA)
-				continue;
+			AABB playerBoxX(newX, tr->y, rb->width, rb->height);
+			AABB playerBoxY(tr->x, newY, rb->width, rb->height);
 
-			auto* rbA = objA->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-			auto* trA = objA->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-
-			if (!rbA || !trA)
-				continue;
-
-			AABB boxA(trA->x, trA->y, rbA->width, rbA->height);
-
-			for (auto itB = std::next(itA); itB != objects.end(); itB++)
+			// Horizontal Collision
+			for (auto& [otherId, otherObj] : objects)
 			{
-				auto* objB = itB->second.get();
-				if (!objB)
+				if (!otherObj || otherObj == obj)
 					continue;
 
-				auto* rbB = objB->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-				auto* trB = objB->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+				auto* rbO = otherObj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+				auto* trO = otherObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
 
-				if (!rbB || !trB)
+				if (!rbO || !trO)
 					continue;
 
-				AABB boxB(trB->x, trB->y, rbB->width, rbB->height);
+				// Only check walls
+				if (otherObj->GetObjectName() != "Wall")
+					continue;
 
-				// Check for AABB to AABB collision
-				if (Collision::CheckCollisionRectToRect(boxA, boxB))
+				AABB wallBox(trO->x, trO->y, rbO->width, rbO->height);
+
+				if (Collision::CheckCollisionRectToRect(playerBoxX, wallBox))
 				{
-					// Add collision response later, for now just say colliding
-					std::cout << "Collision detected!!!!!";
+					newX = tr->x;
+				}
+				if (Collision::CheckCollisionRectToRect(playerBoxY, wallBox))
+				{
+					newY = tr->y;
 				}
 			}
+			tr->x = newX;
+			tr->y = newY;
 		}
+		
 	}
 
 }
