@@ -4,6 +4,7 @@
 #include "AI/DecisionTreeDefault.h"
 #include "Composition/Composition.h"
 #include "AI/DecisionTree.h"
+#include<iostream>
 #include <Windows.h>
 #ifdef SendMessage
     #undef SendMessage
