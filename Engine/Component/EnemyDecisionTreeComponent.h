@@ -21,6 +21,7 @@ namespace Framework {
         GOC* ownerGOC = GetOwner();
         if (ownerGOC) {
             tree = Framework::CreateDefaultEnemyTree(ownerGOC);
+            std::cout << "[EnemyDecisionTreeComponent] Tree initialized.\n";
         }
     }   
     void SendMessage(Message& m) override { (void)m;}
