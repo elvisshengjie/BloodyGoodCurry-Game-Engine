@@ -1,43 +1,32 @@
 #pragma once
-// MainMenuPage.hpp — simple Start/Exit menu (no GUISystem)
+#include "Systems/InputSystem.h"
+#include "Systems/RenderSystem.h"
 
-namespace Framework { class InputSystem; class RenderSystem; }
+// Very small helper for menu layout
+struct RectF { float x{}, y{}, w{}, h{}; };
 
-namespace mygame
-{
-    struct RectF { float x, y, w, h; };
+class MainMenuPage {
+public:
+    void Init(int screenW, int screenH);
+    void Update(Framework::InputSystem* input);
+    void Draw(Framework::RenderSystem* render);
 
-    class MainMenuPage
-    {
-    public:
-        // Call once after window+render are initialized
-        void Init(int screenW, int screenH);
+    bool ConsumeStart();
+    bool ConsumeExit();
 
-        // Per-frame
-        void Update(Framework::InputSystem* input);
-        void Draw(Framework::RenderSystem* render);
+    // Optional: expose for tests
+    int ScreenW() const { return sw; }
+    int ScreenH() const { return sh; }
 
-        // One-shot events: return true ONCE (latched then cleared)
-        bool ConsumeStart();
-        bool ConsumeExit();
+private:
+    static bool Contains(const RectF& r, double mx, double my);
 
-    private:
-        // Window size (used to flip mouse-Y from top-left to bottom-left)
-        int  sw = 1280, sh = 720;
+    int  sw{ 1280 }, sh{ 720 };
+    RectF startBtn{ 70.f, 110.f, 220.f, 64.f };
+    RectF exitBtn{ 70.f, 190.f, 220.f, 64.f };
 
-        // Button rects are in render space (origin bottom-left)
-        RectF startBtn{ 100.f, 160.f, 260.f, 80.f };
-        RectF exitBtn{ 100.f, 260.f, 260.f, 80.f };
+    bool hoverStart{ false }, hoverExit{ false };
+    bool startLatched{ false }, exitLatched{ false };
 
-        // Hover state
-        bool hoverStart = false;
-        bool hoverExit = false;
-
-        // Latched click flags (consumed by Game.cpp)
-        bool startLatched = false;
-        bool exitLatched = false;
-
-        // Helpers
-        static bool Contains(const RectF& r, double mx, double my);
-    };
-}
+    unsigned menuBgTex{ 0 }; // GL texture for menu.jpg
+};

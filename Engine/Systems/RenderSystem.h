@@ -1,80 +1,43 @@
-﻿/*********************************************************************************************
- \file      RenderSystem.hpp
- \par       SofaSpuds
- \author    yimo kong (yimo.kong@digipen.edu) - Primary Author, 100%
- \brief     Simple 2D render system that draws colored quads for objects with
-            TransformComponent + RenderComponent using a flat-color shader.
- \details   On Initialize(), the system compiles a minimalist GL pipeline (pos-only VS, flat FS),
-            creates a unit quad (QuadGL), caches uniform locations, and builds an orthographic
-            projection (origin at bottom-left). Each Update(), it iterates live objects from the
-            Factory, finds Transform/Render components, builds M = T*R*S and MVP = Ortho*M, sets
-            uMVP/uColor, and issues an indexed draw for the quad. Call SetViewport() on window
-            resize to rebuild the projection. Intended for the sandbox/game and fits a
-            component-based engine (not full ECS).
- \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
-            All rights reserved.
-*********************************************************************************************/
-#pragma once
-
-// NOTE: Do NOT include <GL/gl.h>. glad already provides OpenGL symbols.
+﻿#pragma once
 #include "LogicSystem.h"
-// (No include of GUISystem here to avoid circular deps)
-
 #include "Component/CircleRenderComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/TransformComponent.h"
 #include "Config/WindowConfig.h"
-#include "Debug/CrashLogger.hpp"
 #include "Debug/ImGuiLayer.h"
 #include "Debug/Perf.h"
 #include "Debug/Spawn.h"
+#include "Debug/HierarchyPanel.h"
 #include "Factory/Factory.h"
 #include "Graphics/Graphics.hpp"
 #include "Graphics/Window.hpp"
 #include "Graphics/GraphicsText.hpp"
 #include "Resource_Manager/Resource_Manager.h"
 
-#include "Debug/HierarchyPanel.h"
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <imgui.h>
+namespace Framework {
 
-#include <chrono>
-#include <filesystem>
-#include <iostream>
-#include <string>
-#include <vector>
-
-namespace gfx { class Window; }
-
-namespace Framework
-{
-    class LogicSystem;
-
-    class RenderSystem : public Framework::ISystem
-    {
+    class RenderSystem : public Framework::ISystem {
     public:
         RenderSystem(gfx::Window& window, LogicSystem& logic);
-
         void Initialize() override;
         void Update(float dt) override { (void)dt; }
         std::string GetName() override { return "RenderSystem"; }
         void Shutdown() override;
         void draw() override;
 
-        // -------------------------------------------------------------------------------------
-        // Public accessors for GUI/text users (GUISystem, MainMenuPage, etc.)
-        // Keep members encapsulated; expose read flags and references safely.
-        // -------------------------------------------------------------------------------------
+        // Menu helpers (do NOT draw the engine default background here)
+        void BeginMenuFrame();
+        void EndMenuFrame();
+
+        // Text accessors
         bool IsTextReadyHint()  const { return textReadyHint; }
         bool IsTextReadyTitle() const { return textReadyTitle; }
-
         gfx::TextRenderer& GetTextHint() { return textHint; }
-        const gfx::TextRenderer& GetTextHint()  const { return textHint; }
         gfx::TextRenderer& GetTextTitle() { return textTitle; }
-        const gfx::TextRenderer& GetTextTitle() const { return textTitle; }
+
+        int ScreenWidth()  const { return screenW; }
+        int ScreenHeight() const { return screenH; }
 
     private:
         std::filesystem::path GetExeDir() const;
@@ -87,18 +50,12 @@ namespace Framework
         gfx::Window* window = nullptr;
         LogicSystem& logic;
 
-        int screenW = 1280;
-        int screenH = 720;
+        int screenW = 1280, screenH = 720;
 
-        // Text renderers (kept private; use getters above)
-        gfx::TextRenderer textTitle;
-        gfx::TextRenderer textHint;
-        bool textReadyTitle = false;
-        bool textReadyHint = false;
+        gfx::TextRenderer textTitle, textHint;
+        bool textReadyTitle = false, textReadyHint = false;
 
-        unsigned playerTex = 0;
-        unsigned idleTex = 0;
-        unsigned runTex = 0;
+        unsigned playerTex = 0, idleTex = 0, runTex = 0;
     };
 
 } // namespace Framework

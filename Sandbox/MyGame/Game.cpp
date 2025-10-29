@@ -1,29 +1,20 @@
-﻿/*********************************************************************************************
- \file      Game.cpp
- \par       SofaSpuds
- \author    All TEAM MEMBERS
- \brief     Game lifecycle + Main Menu page (no GUISystem).
-            Clicking Start transitions to your existing game; Exit closes the window.
-*********************************************************************************************/
-#include "Graphics/Window.hpp"
+﻿#include "Graphics/Window.hpp"
 #include "Systems/SystemManager.h"
 #include "Systems/InputSystem.h"
 #include "Systems/LogicSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
-#include "Systems/AiSystem.h"
 #include "Systems/audioSystem.h"
+
+#include "MainMenuPage.hpp"   // <-- correct include (MyGame folder)
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
-
-#include "MainMenuPage.hpp"
 #include <GLFW/glfw3.h>
 #include <chrono>
 
-namespace mygame
-{
-    namespace
-    {
+namespace mygame {
+
+    namespace {
         using clock = std::chrono::high_resolution_clock;
 
         Framework::SystemManager gSystems;
@@ -37,7 +28,6 @@ namespace mygame
         GameState currentState = GameState::MAIN_MENU;
 
         MainMenuPage mainMenu;
-        Framework::AiSystem* gAiSystem = nullptr;
     }
 
     void init(gfx::Window& win)
@@ -47,80 +37,63 @@ namespace mygame
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
-        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
-      
-        //(void)gPhysicsSystem;
-        //(void)gAudioSystem;
-        //(void)gRenderSystem;
-
         gSystems.IntializeAll();
 
-        // IMPORTANT: pass the real window size so mouse-Y flip is correct.
-        mainMenu.Init(win.Width(), win.Height());
+        mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+        currentState = GameState::MAIN_MENU;
     }
 
     void update(float dt)
     {
-        TryGuard::Run([&] {
-            const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
-            Framework::PerfFrameStart(dt, togglePerf);
+        const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
+        Framework::PerfFrameStart(dt, togglePerf);
 
-            switch (currentState)
-            {
-            case GameState::MAIN_MENU:
-                mainMenu.Update(gInputSystem);
+        switch (currentState)
+        {
+        case GameState::MAIN_MENU:
+            mainMenu.Update(gInputSystem);
+            if (mainMenu.ConsumeStart()) currentState = GameState::PLAYING;
+            if (mainMenu.ConsumeExit())  currentState = GameState::EXIT;
+            break;
 
-                // One-shot events from the page:
-                if (mainMenu.ConsumeStart())
-                {
-                    currentState = GameState::PLAYING;   // → your existing game
-                }
-                else if (mainMenu.ConsumeExit())
-                {
-                    currentState = GameState::EXIT;
-                }
-                break;
+        case GameState::PLAYING:
+            gSystems.UpdateAll(dt);
+            break;
 
-            case GameState::PLAYING:
-                // Your existing update path (unchanged)
-                gSystems.UpdateAll(dt);
-                break;
-
-            case GameState::EXIT:
-                if (auto* win = gInputSystem->Window())
-                    win->close();
-                break;
+        case GameState::EXIT:
+            if (gInputSystem) {
+                if (auto* w = gInputSystem->Window()) w->close();  // guard to silence C6011
             }
+            break;
+        }
 
-            // (Keep your timing calc if you have one)
-            Framework::setUpdate(
-                std::chrono::duration<double, std::milli>(clock::now() - clock::now()).count());
-            }, "mygame::update");
+        Framework::setUpdate(0.0); // placeholder
     }
 
     void draw()
     {
-        TryGuard::Run([&] {
-            switch (currentState)
-            {
-            case GameState::MAIN_MENU:
-                // Draw the menu (it renders its own buttons + text)
-                mainMenu.Draw(gRenderSystem);
-                break;
-
-            case GameState::PLAYING:
-                // Your existing draw path (unchanged)
-                gSystems.DrawAll();
-                break;
-
-            case GameState::EXIT:
-                break;
+        switch (currentState)
+        {
+        case GameState::MAIN_MENU:
+            if (gRenderSystem) {
+                gRenderSystem->BeginMenuFrame();
+                mainMenu.Draw(gRenderSystem);     // draws menu.jpg + buttons
+                gRenderSystem->EndMenuFrame();
             }
-            }, "mygame::draw");
+            break;
+
+        case GameState::PLAYING:
+            gSystems.DrawAll();                   // uses engine default background (house)
+            break;
+
+        case GameState::EXIT:
+            break;
+        }
     }
 
     void shutdown()
     {
         gSystems.ShutdownAll();
     }
-}
+
+} // namespace mygame

@@ -40,6 +40,8 @@ namespace gfx {
          */
         static void renderBackground();
 
+        static void renderFullscreenTexture(unsigned tex);
+
         /**
          * \brief Draw a colored rectangle at (posX,posY) with rotation and non-uniform scale.
          * \param r,g,b,a Multiplicative tint.
