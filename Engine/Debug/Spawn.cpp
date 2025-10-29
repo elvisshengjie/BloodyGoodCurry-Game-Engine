@@ -52,6 +52,7 @@
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
+#include "Ai/DecisionTreeDefault.h"
 
 #include <vector>
 #include <string>
@@ -112,7 +113,11 @@ namespace mygame {
         
         if (auto* attack = obj->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent)) 
         {attack->damage = s.attackDamage; attack->attack_speed = s.attack_speed;}
-
+        
+        // if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent))
+        // {
+        //     if (!ai->tree) ai->tree = CreateDefaultEnemyTree(obj);
+        // }
         // if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent)) 
         // {if(!ai->tree){std::make_unique<DecisionTree>(Create)}}
 

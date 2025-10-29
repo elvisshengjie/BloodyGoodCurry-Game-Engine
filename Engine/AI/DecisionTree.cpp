@@ -1,4 +1,4 @@
 #include "DecisionTree.h"
-DecisionTree::DecisionTree(DecisionNode*startNode):rootNode(startNode){}
+DecisionTree::DecisionTree(std::unique_ptr<DecisionNode> startNode):rootNode(std::move(startNode)){}
 void DecisionTree::run(){if (rootNode){rootNode->evaluate();}}
 

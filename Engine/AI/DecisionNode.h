@@ -14,6 +14,14 @@ class DecisionNode
      std::unique_ptr<DecisionNode> falseNode = nullptr,
      std::function<void()> leafAction = nullptr);
 
+     // Delete copy constructor and copy assignment
+     DecisionNode(const DecisionNode&) = delete;
+     DecisionNode& operator=(const DecisionNode&) = delete;
+
+     // Explicitly default move constructor and move assignment
+     DecisionNode(DecisionNode&&) = default;
+     DecisionNode& operator=(DecisionNode&&) = default;
+
      void evaluate();
 
 };

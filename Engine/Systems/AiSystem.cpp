@@ -16,16 +16,18 @@ void Framework::AiSystem::Update(float dt)
     {
         GOC* goc = kv.second.get();
         if (!goc) continue;
-        GameComponent* base = goc->GetComponent(ComponentTypeId::CT_EnemyDecisionTreeComponent);
-        if (!base) return;
+
+        auto* base = goc->GetComponent(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+        if (!base) continue; // skip, don’t return
+
         auto* ai = static_cast<EnemyDecisionTreeComponent*>(base);
         if (ai && ai->tree)
         {
             ai->tree->run();
         }
-        
     }
 }
+
 
 void Framework::AiSystem::draw()
 {
