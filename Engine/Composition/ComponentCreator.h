@@ -1,25 +1,43 @@
-/*********************************************************************************************
+ï»¿/*********************************************************************************************
  \file      ComponentCreator.h
  \par       SofaSpuds
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
  \brief     Declares the ComponentCreator system, which provides an abstract interface
             and templated implementation for dynamically creating game components at
-            runtime. Supports registration via the RegisterComponent macro for use in
-            the GameObjectFactory’s component registry.
+            runtime. Components are constructed by creators and then **immediately
+            wrapped in std::unique_ptr by the caller (the factory)** to enforce
+            singleâ€‘owner semantics.
+
+ \details   Ownership & lifetime model:
+            - The factory stores creators as std::unique_ptr<ComponentCreator> in its
+              registry (string â†’ creator).
+            - ComponentCreator::Create() returns a **raw pointer** to a newly created
+              component. The caller (GameObjectFactory) **must** take ownership
+              by wrapping this pointer in std::unique_ptr<GameComponent> right away.
+            - This design allows the factory to manage component lifetimes uniformly
+              without exposing ownership to clients of the component system.
+
+            Registration is simplified via the RegisterComponent macro, which creates a
+            ComponentCreatorType<T> and transfers ownership to the factory using
+            std::make_unique.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
+
+#include <memory>
 #include <string>
 #include "Component.h"
-#include <memory>
 
-//create a game Component but the details of creation to whoever inherit from me
+// Responsibility: declare a uniform interface for creating components while letting
+// the factory own both creators (unique_ptr) and the components they produce (wrapped
+// into unique_ptr immediately after creation).
 
 namespace Framework {
+
     /*****************************************************************************************
       \class ComponentCreator
       \brief Abstract base class for component creators.
@@ -30,9 +48,7 @@ namespace Framework {
     *****************************************************************************************/
     class ComponentCreator {
     public:
-        // explicit so that to prevent unintended implicit conversion 
-        // ComponentCreator* c = new ComponentCreator(5);   // OK
-        // ComponentCreator*c = 5                           // not allow
+        // explicit to prevent unintended implicit conversions
         /*************************************************************************************
           \brief Constructs a ComponentCreator with the given type ID.
           \param typeId  The ComponentTypeId that this creator is responsible for.
@@ -44,24 +60,23 @@ namespace Framework {
         *************************************************************************************/
         virtual ~ComponentCreator() = default;
 
-        ComponentTypeId TypeId; ///< The type identifier for the component created by this creator
+        ComponentTypeId TypeId; ///< Identifier for the component type produced by this creator
 
-        // = 0 mean that it is a pure virtual function meaning the subclass have to implement it
-        // and return the pointer to GameComponent
         /*************************************************************************************
           \brief Creates a new instance of the component.
           \return Raw pointer to the newly created GameComponent.
-          \note   Must be overridden by derived creators.
+          \note   The **caller takes ownership** and should immediately wrap the result in
+                  std::unique_ptr<GameComponent> to ensure exceptionâ€‘safe, RAII management.
         *************************************************************************************/
-        virtual GameComponent* Create() = 0;
+        virtual GameComponent* Create() = 0; // pure virtual
     };
 
     /*****************************************************************************************
       \class ComponentCreatorType
       \brief Templated concrete creator for a specific component type.
 
-      Implements the Create() function by instantiating objects of type T. Used in
-      conjunction with the RegisterComponent macro to simplify registration.
+      Implements Create() by instantiating objects of type T. Intended to be used with
+      the RegisterComponent macro for simple registration.
     *****************************************************************************************/
     template<typename T>
     class ComponentCreatorType : public ComponentCreator {
@@ -77,30 +92,28 @@ namespace Framework {
         /*************************************************************************************
           \brief Creates a new instance of the component of type T.
           \return Raw pointer to a new T instance.
-          \note   Uses override to enforce correct function signature at compile time.
+          \note   The caller (factory) must immediately wrap in std::unique_ptr.
         *************************************************************************************/
-        GameComponent* Create() override { return new T(); } // Use override to make sure if a derived class function is
-        // not correctly overriding base class will result in compile time error
+        GameComponent* Create() override { return new T(); }
     };
 }
 
-//Register component macro
-// factory API is: void AddComponentCreator(std::string, std::unique_ptr<ComponentCreator>);
-//void AddComponentCreator(std::string name, std::unique_ptr<Framework::ComponentCreator> c);
-/*****************************************************************************************
+// Register component macro
+// Factory API: void AddComponentCreator(const std::string&, std::unique_ptr<ComponentCreator>);
+/*************************************************************************************
   \def RegisterComponent
   \brief Registers a component type with the global factory.
 
-  This macro creates a ComponentCreatorType for the given type and associates it
-  with its ComponentTypeId. The creator is added to the factory’s registry under
-  the stringified type name.
+  Creates a ComponentCreatorType for the given type and associates it with its
+  ComponentTypeId. Ownership of the creator is transferred to the factory via
+  std::make_unique and stored as std::unique_ptr in the registry.
 
   Example:
   \code
       RegisterComponent(TransformComponent);
   \endcode
-*****************************************************************************************/
+*************************************************************************************/
 #define RegisterComponent(type) \
-  FACTORY->AddComponentCreator( \
-      #type, new Framework::ComponentCreatorType<type>( \
-                 Framework::ComponentTypeId::CT_##type))
+    FACTORY->AddComponentCreator( \
+        #type, std::make_unique<Framework::ComponentCreatorType<type>>( \
+            Framework::ComponentTypeId::CT_##type))

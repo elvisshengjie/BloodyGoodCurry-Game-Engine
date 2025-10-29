@@ -1,3 +1,22 @@
+
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
+#include <Windows.h>
+// Avoid Win32 macro collisions with your engine API
+#ifdef SendMessage
+#  undef SendMessage
+#endif
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "RenderSystem.h"
 namespace Framework {
 
@@ -159,9 +178,13 @@ namespace Framework {
 
             if (FACTORY)
             {
-                for (auto& [id, obj] : FACTORY->Objects())
+                for (auto& [id, objPtr] : FACTORY->Objects())
                 {
                     (void)id;
+                    auto* obj = objPtr.get();
+                    if (!obj)
+                        continue;
+
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     if (!tr)
@@ -203,9 +226,13 @@ namespace Framework {
                     }
                 }
 
-                for (auto& [id, obj] : FACTORY->Objects())
+                for (auto& [id, objPtr] : FACTORY->Objects())
                 {
                     (void)id;
+                    auto* obj = objPtr.get();
+                    if (!obj)
+                        continue;
+
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     auto* rc = obj->GetComponentType<Framework::RenderComponent>(
@@ -219,9 +246,12 @@ namespace Framework {
                     gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, rc->r, rc->g, rc->b, rc->a);
                 }
 
-                for (auto& [id, obj] : FACTORY->Objects())
+                for (auto& [id, objPtr] : FACTORY->Objects())
                 {
                     (void)id;
+                    auto* obj = objPtr.get();
+                    if (!obj)
+                        continue;
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(

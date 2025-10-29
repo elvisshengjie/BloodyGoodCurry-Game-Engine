@@ -3,14 +3,14 @@
     "name": "level01",
     "GameObjects": [
       {
-        "name": "circle",
+        "name": "Circle",
         "Components": {
           "TransformComponent": { "x": 0.5, "y": 0.6, "rot": 0.0 },
           "CircleRenderComponent": { "radius": 0.20, "r": 0.9, "g": 0.2, "b": 0.3, "a": 1.0 }
         }
       },
       {
-        "name": "rect",
+        "name": "Rect",
         "Components": {
           "TransformComponent": { "x": 0.0, "y": 0.0, "rot": 0.0 },
           "RenderComponent":    { "w": 0.5, "h": 0.5, "r": 0.95, "g": 0.75, "b": 0.25, "a": 1.0 },

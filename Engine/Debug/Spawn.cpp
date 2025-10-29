@@ -22,7 +22,19 @@
 #include "imgui.h"
 
 // #include "Debug/Perf.h"
+#ifndef WIN32_LEAN_AND_MEAN
+#  define WIN32_LEAN_AND_MEAN
+#endif
 
+#ifndef NOMINMAX
+#  define NOMINMAX
+#endif
+
+#include <Windows.h>
+
+#ifdef SendMessage
+#  undef SendMessage   // prevent collisions with your ECS messaging system
+#endif
 // Engine & game headers
 #include "Factory/Factory.h"                    // FACTORY, GOC, ComponentTypeId
 #include "Composition/PrefabManager.h"          // master_copies, ClonePrefab
@@ -35,7 +47,9 @@
 
 #include <vector>
 #include <string>
-#include <windows.h>
+
+#include <algorithm>
+#include <unordered_map>
 namespace mygame {
     /// Currently selected sprite texture key (shared across panel sessions).
     static std::string sSpriteTexKey;
@@ -86,12 +100,14 @@ namespace mygame {
     bool opened = true;
     float x = static_cast<float>(GetSystemMetrics(SM_CXSCREEN));
     float y = static_cast<float>(GetSystemMetrics(SM_CYSCREEN));
-
+    static std::string gClearPrefab = "Rect"; ///< Default prefab type to clear.
+    static GOC* gSelectedObject = nullptr;
+    static std::string gSelectedPrefabToClear = gSelectedPrefab;
     /*************************************************************************************
       \brief Draws the "Spawn" ImGui panel and handles prefab spawning actions.
     *************************************************************************************/
     void DrawSpawnPanel() {
-        ImGui::SetNextWindowSize(ImVec2(x/4, y/4));
+        ImGui::SetNextWindowSize(ImVec2(x/4, y/4), ImGuiCond_Once);
    
         ImGui::Begin("Spawn", &opened);   // Opens the "Spawn" debug window
 
@@ -112,7 +128,7 @@ namespace mygame {
         // Resolve master prefab...
         GOC* master = nullptr;
         if (auto it = master_copies.find(gSelectedPrefab); it != master_copies.end())
-            master = it->second;
+            master = it->second.get();
 
         if (!master) {
             ImGui::TextDisabled("Missing master for '%s'", gSelectedPrefab.c_str()); // Warn if prefab missing
@@ -178,6 +194,32 @@ namespace mygame {
         ImGui::DragFloat("stepX", &gS.stepX, 0.005f);         // Step offset in X between prefabs
         ImGui::DragFloat("stepY", &gS.stepY, 0.005f);         // Step offset in Y between prefabs
 
+        // Keep the clear selection in sync if it references a prefab that no longer exists.
+        if (!master_copies.empty()) {
+            if (master_copies.find(gSelectedPrefabToClear) == master_copies.end())
+                gSelectedPrefabToClear = master_copies.begin()->first;
+        }
+        else {
+            gSelectedPrefabToClear.clear();
+        }
+
+        // === Clear Prefab Selection ===
+        if (!gSelectedPrefabToClear.empty()) {
+            const char* clearPreview = gSelectedPrefabToClear.c_str();
+            if (ImGui::BeginCombo("Clear Prefab", clearPreview)) {
+                for (auto const& kv : master_copies) {
+                    bool sel = (kv.first == gSelectedPrefabToClear);
+                    if (ImGui::Selectable(kv.first.c_str(), sel))
+                        gSelectedPrefabToClear = kv.first;
+                    if (sel) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+        }
+        else {
+            ImGui::TextDisabled("No prefabs available to clear");
+        }
+
         // === Action Buttons ===
         if (ImGui::Button("Spawn")) {                         // Button to spawn prefabs
             for (int i = 0; i < gS.count; ++i)
@@ -185,12 +227,36 @@ namespace mygame {
         }
 
         ImGui::SameLine();
+        if (ImGui::Button("Clear Selected Prefab") && !gSelectedPrefabToClear.empty()) {         // Button to clear spawned objects of the selected prefab
+            std::vector<GOC*> toKill;
+            toKill.reserve(FACTORY->Objects().size());
+
+            for (auto& [id, objPtr] : FACTORY->Objects()) {
+                auto* obj = objPtr.get();
+                if (!obj) continue;
+                bool isMaster = std::any_of(master_copies.begin(), master_copies.end(),
+                    [&](auto const& kv) { return kv.second.get() == obj; });
+                if (isMaster) continue;
+           
+
+                if (obj->GetObjectName() == gSelectedPrefabToClear)
+                    toKill.push_back(obj);
+            }
+
+            for (auto* o : toKill) o->Destroy();              // Destroy selected prefab instances
+            FACTORY->Update(0.0f);                            // Apply destruction immediately
+        }
+
+
+        ImGui::SameLine();
+
         if (ImGui::Button("Clear All (keep masters)")) {      // Button to clear spawned objects (but keep master prefabs)
             std::vector<GOC*> toKill;
             toKill.reserve(FACTORY->Objects().size());
-            for (auto& [id, obj] : FACTORY->Objects()) {
+            for (auto& [id, objPtr] : FACTORY->Objects()) {
+                auto* obj = objPtr.get();
                 bool isMaster = false;
-                for (auto const& kv : master_copies) { if (kv.second == obj) { isMaster = true; break; } }
+                for (auto const& kv : master_copies) { if (kv.second.get() == obj) { isMaster = true; break; } }
                 if (!isMaster) toKill.push_back(obj);
             }
             for (auto* o : toKill) o->Destroy();              // Destroy non-master prefabs

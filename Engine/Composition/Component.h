@@ -21,9 +21,7 @@
 #include "Common/MessageCom.h"
 #include "Serialization/Serialization.h"
 
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(P) (void)(P)
-#endif
+
 
 //GameObjectComposition = collection of GameComponents.
 //
@@ -111,7 +109,7 @@ namespace Framework
           \param str  Serializer reference.
           \note  Default implementation does nothing; override as needed in derived components.
         *************************************************************************************/
-        virtual void Serialize(ISerializer& str) { UNREFERENCED_PARAMETER(str); };
+        virtual void Serialize(ISerializer& ) {};
 
     protected:
         //this are call when you add componenent to the game object
