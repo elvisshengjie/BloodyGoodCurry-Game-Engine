@@ -6,10 +6,7 @@ namespace Framework {
         : logic(logic) {
     }
     void PhysicSystem::Initialize() {
-        //for (GOC Object : GameObjs)
-        //{
 
-        //}
 
     }
     void PhysicSystem::Update(float dt)

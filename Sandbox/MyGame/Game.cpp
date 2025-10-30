@@ -11,6 +11,8 @@
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/audioSystem.h"
+#include "Systems/EnemySystem.h"
+#include "Systems/AiSystem.h"
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
 
@@ -30,6 +32,7 @@ namespace mygame {
         Framework::AudioSystem* gAudioSystem = nullptr;
         Framework::RenderSystem* gRenderSystem = nullptr;
         Framework::EnemySystem* gEnemySystem = nullptr;
+        Framework::AiSystem* gAiSystem = nullptr;
 
         enum class GameState { MAIN_MENU, PLAYING, EXIT };
         GameState currentState = GameState::MAIN_MENU;
@@ -52,7 +55,6 @@ namespace mygame {
 
         gSystems.IntializeAll();
         
-        gEnemySystem->Initialize();
 
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         currentState = GameState::MAIN_MENU;

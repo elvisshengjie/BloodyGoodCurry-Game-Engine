@@ -16,4 +16,5 @@ namespace Framework
 {
  bool IsPlayerNear(GOC* enemy, float radius = 0.1f); 
  std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy);
+ void UpdateDefaultEnemyTree(GOC* enemy, float dt);
 }
