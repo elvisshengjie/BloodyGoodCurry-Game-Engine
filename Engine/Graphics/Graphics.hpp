@@ -40,6 +40,8 @@ namespace gfx {
          */
         static void renderBackground();
 
+        static void renderFullscreenTexture(unsigned tex);
+
         /**
          * \brief Draw a colored rectangle at (posX,posY) with rotation and non-uniform scale.
          * \param r,g,b,a Multiplicative tint.
@@ -58,6 +60,14 @@ namespace gfx {
          */
         static void renderCircle(float posX, float posY, float radius,
             float r, float g, float b, float a);
+
+
+        // Draw a UI rect in pixel coordinates (origin bottom-left)
+        static void renderRectangleUI(float x, float y, float w, float h,
+            float r, float g, float b, float a,
+            int screenW, int screenH);
+
+
 
         /**
          * \brief Draw a whole-texture sprite with tint.

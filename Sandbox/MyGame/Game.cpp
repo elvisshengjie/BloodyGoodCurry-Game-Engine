@@ -2,8 +2,7 @@
  \file      Game.cpp
  \par       SofaSpuds
  \author    All TEAM MEMBERS
- \brief     Game lifecycle + Main Menu page (no GUISystem).
-            Clicking Start transitions to your existing game; Exit closes the window.
+ \brief     Game lifecycle management + Main Menu transition (GUISystem-backed)
 *********************************************************************************************/
 #include "Graphics/Window.hpp"
 #include "Systems/SystemManager.h"
@@ -11,20 +10,17 @@
 #include "Systems/LogicSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
-#include "Systems/AiSystem.h"
 #include "Systems/audioSystem.h"
-#include "Systems/EnemySystem.h"
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
 
-#include "MainMenuPage.hpp"
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <MainMenuPage.hpp>
 
-namespace mygame
-{
-    namespace
-    {
+namespace mygame {
+
+    namespace {
         using clock = std::chrono::high_resolution_clock;
 
         Framework::SystemManager gSystems;
@@ -39,7 +35,6 @@ namespace mygame
         GameState currentState = GameState::MAIN_MENU;
 
         MainMenuPage mainMenu;
-        Framework::AiSystem* gAiSystem = nullptr;
     }
 
     void init(gfx::Window& win)
@@ -50,9 +45,6 @@ namespace mygame
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
         gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
-
-        gEnemySystem = gSystems.RegisterSystem<Framework::EnemySystem>(win);
-        
       
         //(void)gPhysicsSystem;
         //(void)gAudioSystem;
@@ -62,46 +54,34 @@ namespace mygame
         
         gEnemySystem->Initialize();
 
-        // IMPORTANT: pass the real window size so mouse-Y flip is correct.
-        mainMenu.Init(win.Width(), win.Height());
+        mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+        currentState = GameState::MAIN_MENU;
     }
 
     void update(float dt)
     {
         TryGuard::Run([&] {
-            const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
+            const bool togglePerf = gInputSystem && gInputSystem->IsKeyPressed(GLFW_KEY_F1);
             Framework::PerfFrameStart(dt, togglePerf);
 
             switch (currentState)
             {
             case GameState::MAIN_MENU:
                 mainMenu.Update(gInputSystem);
-
-                // One-shot events from the page:
-                if (mainMenu.ConsumeStart())
-                {
-                    currentState = GameState::PLAYING;   // → your existing game
-                }
-                else if (mainMenu.ConsumeExit())
-                {
-                    currentState = GameState::EXIT;
-                }
+                if (mainMenu.ConsumeStart()) currentState = GameState::PLAYING;
+                if (mainMenu.ConsumeExit())  currentState = GameState::EXIT;
                 break;
 
             case GameState::PLAYING:
-                // Your existing update path (unchanged)
                 gSystems.UpdateAll(dt);
                 break;
 
             case GameState::EXIT:
-                if (auto* win = gInputSystem->Window())
-                    win->close();
+                if (auto* w = gInputSystem->Window()) w->close();
                 break;
             }
 
-            // (Keep your timing calc if you have one)
-            Framework::setUpdate(
-                std::chrono::duration<double, std::milli>(clock::now() - clock::now()).count());
+            Framework::setUpdate(0.0);
             }, "mygame::update");
     }
 
@@ -111,12 +91,14 @@ namespace mygame
             switch (currentState)
             {
             case GameState::MAIN_MENU:
-                // Draw the menu (it renders its own buttons + text)
-                mainMenu.Draw(gRenderSystem);
+                if (gRenderSystem) {
+                    gRenderSystem->BeginMenuFrame();
+                    mainMenu.Draw(gRenderSystem);   // bg + GUI buttons
+                    gRenderSystem->EndMenuFrame();
+                }
                 break;
 
             case GameState::PLAYING:
-                // Your existing draw path (unchanged)
                 gSystems.DrawAll();
                 break;
 
@@ -144,4 +126,5 @@ namespace mygame
 
         std::cout << "[Game] Shutdown complete.\n";
     }
-}
+
+} // namespace mygame

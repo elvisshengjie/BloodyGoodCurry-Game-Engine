@@ -1,69 +1,73 @@
 #include "GUISystem.hpp"
-#include "Systems/InputSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Graphics/Graphics.hpp"
+
 #include <GLFW/glfw3.h>
-#include <glm/vec3.hpp>
+#include <algorithm>
 
-using namespace mygame;
-
-void GUISystem::AddButton(float x, float y, float w, float h, const std::string& label, std::function<void()> onClick)
-{
-    buttons.push_back({ x, y, w, h, label, onClick });
+void GUISystem::Clear() {
+    buttons_.clear();
+    prevMouseDown_ = false;
 }
 
-void GUISystem::Clear()
-{
-    buttons.clear();
+void GUISystem::AddButton(float x, float y, float w, float h,
+    const std::string& label,
+    std::function<void()> onClick) {
+    Button b;
+    b.x = x; b.y = y; b.w = w; b.h = h;
+    b.label = label;
+    b.onClick = std::move(onClick);
+    buttons_.push_back(std::move(b));
 }
 
-void GUISystem::Update(Framework::InputSystem* input)
-{
-    if (!input) return;
+bool GUISystem::Contains(const Button& b, double mx, double my) {
+    return (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h);
+}
 
-    auto mouse = input->Manager().GetMouseState();
-    const double mx = mouse.x;
-    const double my = mouse.y;
-    const bool clicked = input->IsMousePressed(GLFW_MOUSE_BUTTON_LEFT);
+bool GUISystem::RisingEdgeLeftClick(bool now, bool& prev) {
+    const bool edge = (now && !prev);
+    prev = now;
+    return edge;
+}
 
-    up = down = left = right = false;
+void GUISystem::Update(Framework::InputSystem* /*input*/) {
+    GLFWwindow* w = glfwGetCurrentContext();
+    if (!w) return;
 
-    for (auto& b : buttons)
-    {
-        b.hovered = (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h);
+    double mx, myTop;
+    glfwGetCursorPos(w, &mx, &myTop);
 
-        if (b.hovered && clicked && b.onClick)
-            b.onClick();
+    // flip Y so (0,0) is bottom-left (to match your render space)
+    int winW = 0, winH = 0;
+    glfwGetWindowSize(w, &winW, &winH);
+    const double my = static_cast<double>(winH) - myTop;
 
-        if (b.label == "Up" && b.hovered && clicked) up = true;
-        if (b.label == "Down" && b.hovered && clicked) down = true;
-        if (b.label == "Left" && b.hovered && clicked) left = true;
-        if (b.label == "Right" && b.hovered && clicked) right = true;
+    for (auto& b : buttons_) {
+        b.hovered = Contains(b, mx, my);
+    }
+
+    const bool mouseNow = (glfwGetMouseButton(w, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
+    if (RisingEdgeLeftClick(mouseNow, prevMouseDown_)) {
+        for (auto& b : buttons_) {
+            if (b.hovered && b.onClick) {
+                b.onClick();
+                break; // one click -> one button
+            }
+        }
     }
 }
 
-void GUISystem::Draw(Framework::RenderSystem* render)
-{
-    if (!render) return;
+void GUISystem::Draw(Framework::RenderSystem* render) {
+    // simple visual: darker when idle, brighter on hover
+    for (const auto& b : buttons_) {
+        const float c = b.hovered ? 0.85f : 0.55f;
+        gfx::Graphics::renderRectangle(b.x, b.y, 0.f, b.w, b.h, c, c, c, 0.95f);
 
-    for (auto& b : buttons)
-    {
-        const float brightness = b.hovered ? 0.75f : 0.4f;
-
-        // Button background using your custom renderer
-        gfx::Graphics::renderRectangle(b.x, b.y, 0.f, b.w, b.h,
-            brightness, brightness, brightness, 1.0f);
-
-        // Button label via RenderSystem’s text renderer
-        if (render->IsTextReadyHint())
-        {
-            render->GetTextHint().RenderText(
-                b.label.c_str(),
-                b.x + 10.f,
-                b.y + (b.h * 0.5f) - 5.f,
-                0.7f,
-                glm::vec3(1.f, 1.f, 1.f)
-            );
+        if (render && render->IsTextReadyHint()) {
+            // vertically center-ish the label in the button
+            const float labelX = b.x + 24.f;
+            const float labelY = b.y + (b.h * 0.5f) - 8.f;
+            render->GetTextHint().RenderText(b.label.c_str(), labelX, labelY, 0.9f, { 1.f,1.f,1.f });
         }
     }
 }

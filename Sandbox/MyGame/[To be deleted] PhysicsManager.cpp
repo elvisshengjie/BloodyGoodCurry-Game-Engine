@@ -1,34 +1,16 @@
-#include "PhysicSystem.h"
-#include <iostream>
+/*
+#include "[To be deleted] PhysicsManager.h"
+#include <algorithm>
 
-namespace Framework {
-    PhysicSystem::PhysicSystem(LogicSystem& logic)
-        : logic(logic) {
-    }
-    void PhysicSystem::Initialize() {
-        //for (GOC Object : GameObjs)
-        //{
-
-        //}
-
-    }
-    void PhysicSystem::Update(float dt)
-    {
-        //for (GOC)
-        const auto& info = logic.Collision();
-        if (info.playerValid && info.targetValid)
-        {
-            if (Collision::CheckCollisionRectToRect(info.player, info.target))
-            {
-                std::cout << "Collision detected!" << std::endl;
-            }
-        }
-        
+namespace Framework
+{
+	void PhysicsManager::Update(float dt)
+	{
 		auto& objects = FACTORY->Objects();
 
 		for (auto& [id, obj] : objects)
 		{
-			if (!obj)
+			if (!obj) 
 				continue;
 
 			auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
@@ -71,16 +53,11 @@ namespace Framework {
 					newY = tr->y;
 				}
 			}
-			// These are removed as they infinitely send the guy northeast
-			//tr->x = newX;
-			//tr->y = newY;
+			tr->x = newX;
+			tr->y = newY;
 		}
-
 		
-    }
+	}
 
-    void PhysicSystem::Shutdown() {
-        
-    }
 }
-
+*/
