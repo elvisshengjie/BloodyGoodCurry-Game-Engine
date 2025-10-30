@@ -42,12 +42,6 @@ namespace Framework
 
 				if (!rb || !tr)
 					continue;
-
-				// Update pos based on vel
-				tr->x += rb->velX * dt;
-				tr->y += rb->velY * dt;
-
-				// Check collision (later)
 			}
 		}
 		// This is just to return the name so the engine knows what system this is
