@@ -62,7 +62,7 @@ namespace mygame
     void update(float dt)
     {
         TryGuard::Run([&] {
-            const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
+            const bool togglePerf = gInputSystem && gInputSystem->IsKeyPressed(GLFW_KEY_F1);
             Framework::PerfFrameStart(dt, togglePerf);
 
             switch (currentState)
