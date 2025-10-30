@@ -1,4 +1,10 @@
-﻿#include "Graphics/Window.hpp"
+﻿/*********************************************************************************************
+ \file      Game.cpp
+ \par       SofaSpuds
+ \author    All TEAM MEMBERS
+ \brief     Game lifecycle management + Main Menu transition (GUISystem-backed)
+*********************************************************************************************/
+#include "Graphics/Window.hpp"
 #include "Systems/SystemManager.h"
 #include "Systems/InputSystem.h"
 #include "Systems/LogicSystem.h"
@@ -6,11 +12,13 @@
 #include "Systems/RenderSystem.h"
 #include "Systems/audioSystem.h"
 
-#include "MainMenuPage.hpp"   // <-- correct include (MyGame folder)
+
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
+
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <MainMenuPage.hpp>
 
 namespace mygame {
 
@@ -45,50 +53,52 @@ namespace mygame {
 
     void update(float dt)
     {
-        const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
-        Framework::PerfFrameStart(dt, togglePerf);
+        TryGuard::Run([&] {
+            const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
+            Framework::PerfFrameStart(dt, togglePerf);
 
-        switch (currentState)
-        {
-        case GameState::MAIN_MENU:
-            mainMenu.Update(gInputSystem);
-            if (mainMenu.ConsumeStart()) currentState = GameState::PLAYING;
-            if (mainMenu.ConsumeExit())  currentState = GameState::EXIT;
-            break;
+            switch (currentState)
+            {
+            case GameState::MAIN_MENU:
+                mainMenu.Update(gInputSystem);
+                if (mainMenu.ConsumeStart()) currentState = GameState::PLAYING;
+                if (mainMenu.ConsumeExit())  currentState = GameState::EXIT;
+                break;
 
-        case GameState::PLAYING:
-            gSystems.UpdateAll(dt);
-            break;
+            case GameState::PLAYING:
+                gSystems.UpdateAll(dt);
+                break;
 
-        case GameState::EXIT:
-            if (gInputSystem) {
-                if (auto* w = gInputSystem->Window()) w->close();  // guard to silence C6011
+            case GameState::EXIT:
+                if (auto* w = gInputSystem->Window()) w->close();
+                break;
             }
-            break;
-        }
 
-        Framework::setUpdate(0.0); // placeholder
+            Framework::setUpdate(0.0);
+            }, "mygame::update");
     }
 
     void draw()
     {
-        switch (currentState)
-        {
-        case GameState::MAIN_MENU:
-            if (gRenderSystem) {
-                gRenderSystem->BeginMenuFrame();
-                mainMenu.Draw(gRenderSystem);     // draws menu.jpg + buttons
-                gRenderSystem->EndMenuFrame();
+        TryGuard::Run([&] {
+            switch (currentState)
+            {
+            case GameState::MAIN_MENU:
+                if (gRenderSystem) {
+                    gRenderSystem->BeginMenuFrame();
+                    mainMenu.Draw(gRenderSystem);   // bg + GUI buttons
+                    gRenderSystem->EndMenuFrame();
+                }
+                break;
+
+            case GameState::PLAYING:
+                gSystems.DrawAll();
+                break;
+
+            case GameState::EXIT:
+                break;
             }
-            break;
-
-        case GameState::PLAYING:
-            gSystems.DrawAll();                   // uses engine default background (house)
-            break;
-
-        case GameState::EXIT:
-            break;
-        }
+            }, "mygame::draw");
     }
 
     void shutdown()

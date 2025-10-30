@@ -504,6 +504,37 @@ namespace gfx {
         GL_THROW_IF_ERROR("initSpritePipeline");
     }
 
+
+
+    void Graphics::renderRectangleUI(float x, float y, float w, float h,
+        float r, float g, float b, float a,
+        int screenW, int screenH)
+    {
+        // Use the same object shader (expects uMVP & uColor)
+        glUseProgram(objectShader);
+
+        // Ortho that maps (0..screenW, 0..screenH) -> NDC
+        glm::mat4 proj = glm::ortho(0.0f, float(screenW), 0.0f, float(screenH), -1.0f, 1.0f);
+
+        // Our unit rect is centered at (0,0) with size 1x1 (from your VAO_rect definition),
+        // so build a model that places/scales it to the pixel rect.
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(x + w * 0.5f, y + h * 0.5f, 0.0f));
+        model = glm::scale(model, glm::vec3(w, h, 1.0f));
+
+        glm::mat4 mvp = proj * model;
+
+        glUniformMatrix4fv(glGetUniformLocation(objectShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+        glUniform4f(glGetUniformLocation(objectShader, "uColor"), r, g, b, a);
+
+        glBindVertexArray(VAO_rect);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+        glUseProgram(0);
+        GL_THROW_IF_ERROR("renderRectangleUI");
+    }
+
+
     void Graphics::renderFullscreenTexture(unsigned tex)
     {
         if (!tex || !bgShader || !VAO_bg) return; // simple guards
