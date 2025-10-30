@@ -26,20 +26,25 @@ namespace Framework
     std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy)
     {
         if (!enemy) return nullptr;
-       
+        const GOCId enemyID = enemy->GetId();
+ 
         //Patrol Leaf
         auto patrolLeaf = std::make_unique<DecisionNode>
-        (nullptr, nullptr,nullptr,[enemy]()
+        (nullptr, nullptr,nullptr,[enemyID]()
         { 
             static float dir = 1.0f;
+            GOC* enemy = FACTORY->GetObjectWithId(enemyID);
+            if (!enemy) return;
+            auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-            if (tr)
+            if (rb && tr)
             {
-                // simple bounds for patrol range
-                const float patrolSpeed = 0.5f;
+                const float patrolSpeed = 2.0f;  
                 const float patrolRange = 10.0f;
-                tr->x += patrolSpeed * dir;
-                // bounds check
+
+                rb->velX = patrolSpeed * dir;
+                rb->velY = 0.0f;  
+
                 if (tr->x < -patrolRange) dir = 1.0f;
                 if (tr->x > patrolRange) dir = -1.0f;
             }
@@ -48,8 +53,10 @@ namespace Framework
        
         //Attack Leaf
         auto AttackLeaf = std::make_unique<DecisionNode>
-        (nullptr, nullptr,nullptr,[enemy]()
+        (nullptr, nullptr,nullptr,[enemyID]()
         { 
+            GOC* enemy = FACTORY->GetObjectWithId(enemyID);
+            if (!enemy) return;
             auto* attack = enemy->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
             if (attack )
             {
@@ -58,13 +65,17 @@ namespace Framework
         }
         );
 
-        //--Root node: Is Player near?--
-        auto root = std::make_unique<DecisionNode>
-        ([enemy](){ return IsPlayerNear(enemy, 0.5f);},
-        std::move(AttackLeaf),
-        std::move(patrolLeaf),
-        nullptr
-        );
+        //Root node - CAPTURE enemyID
+        auto root = std::make_unique<DecisionNode>([enemyID]() 
+        {  
+            GOC* enemy = FACTORY->GetObjectWithId(enemyID);
+            if (!enemy) return false;
+            return IsPlayerNear(enemy, 0.5f);
+        },
+         std::move(AttackLeaf),
+         std::move(patrolLeaf),
+         nullptr
+          );
 
         return std::make_unique<DecisionTree>(std::move(root));
 

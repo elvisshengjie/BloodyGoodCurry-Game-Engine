@@ -114,12 +114,12 @@ namespace mygame {
         if (auto* attack = obj->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent)) 
         {attack->damage = s.attackDamage; attack->attack_speed = s.attack_speed;}
         
-        // if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent))
-        // {
-        //     if (!ai->tree) ai->tree = CreateDefaultEnemyTree(obj);
-        // }
-        // if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent)) 
-        // {if(!ai->tree){std::make_unique<DecisionTree>(Create)}}
+        if (auto* type = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent))
+        {type->Etype = Framework::EnemyTypeComponent::EnemyType::physical;}
+        
+        if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent))
+        {if (!ai->tree) ai->tree = CreateDefaultEnemyTree(obj);}
+  
 
     }
 

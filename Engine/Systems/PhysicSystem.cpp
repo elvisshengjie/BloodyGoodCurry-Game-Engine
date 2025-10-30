@@ -6,11 +6,15 @@ namespace Framework {
         : logic(logic) {
     }
     void PhysicSystem::Initialize() {
+        //for (GOC Object : GameObjs)
+        //{
+
+        //}
 
     }
     void PhysicSystem::Update(float dt)
     {
-        (void)dt;
+        //for (GOC)
         const auto& info = logic.Collision();
         if (info.playerValid && info.targetValid)
         {

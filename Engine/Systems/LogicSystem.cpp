@@ -120,6 +120,11 @@ namespace Framework {
         RegisterComponent(CircleRenderComponent);
         RegisterComponent(SpriteComponent);
         RegisterComponent(RigidBodyComponent);
+        RegisterComponent(EnemyComponent);
+        RegisterComponent(EnemyAttackComponent);
+        RegisterComponent(EnemyDecisionTreeComponent);
+        RegisterComponent(EnemyHealthComponent);
+        RegisterComponent(EnemyTypeComponent);
         FACTORY = factory.get();
         LoadPrefabs();
 

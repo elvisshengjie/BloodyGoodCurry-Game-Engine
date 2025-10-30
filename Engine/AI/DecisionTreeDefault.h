@@ -9,8 +9,8 @@
 #include "Component/EnemyAttackComponent.h"
 #include "Component/TransformComponent.h"
 #include "Component/PlayerComponent.h"
-//#include "Physics/Dynamics/RigidBodyComponent.h"
-//#include "Physics/System/Physics.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
+#include "Physics/System/Physics.h"
 #include <cstdio>
 namespace Framework 
 {

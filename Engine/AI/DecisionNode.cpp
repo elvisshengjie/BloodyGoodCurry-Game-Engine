@@ -5,7 +5,7 @@ DecisionNode::DecisionNode(std::function<bool()> qns,
  std::unique_ptr<DecisionNode> trueNode,
  std::unique_ptr<DecisionNode> falseNode,
  std::function<void()> leafAction)
- : mainqns(qns), ifTrue(std::move(trueNode)), ifFalse(std::move(falseNode)), action(leafAction) {}
+ : mainqns(std::move(qns)), ifTrue(std::move(trueNode)), ifFalse(std::move(falseNode)), action(std::move(leafAction)) {}
 
 void DecisionNode::evaluate()
 {
