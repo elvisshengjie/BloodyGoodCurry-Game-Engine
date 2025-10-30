@@ -8,6 +8,12 @@ EnemySystem::EnemySystem(gfx::Window& window) : window(&window) {}
 
 void EnemySystem::Initialize()
 {
+
+    if (!FACTORY)
+    {std::cerr << "[EnemySystem] ERROR: FACTORY is null!\n";return;}
+    if (!window)
+    {std::cerr << "[EnemySystem] ERROR: window pointer is null!\n";return;}
+
     std::cout << "[EnemySystem] Creating manual enemy...\n";
     // Create a new enemy GameObject
     GOC* enemy = FACTORY->CreateEmptyComposition();
@@ -48,9 +54,7 @@ void EnemySystem::Initialize()
     auto* typeComp = enemy->EmplaceComponent<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
     typeComp->Etype = EnemyTypeComponent::EnemyType::physical;
     enemy->initialize();
-    // Store the enemy for update/shutdown
     enemies.push_back(enemy);
-
     std::cout << "[EnemySystem] Manual enemy created successfully.\n";
 
 }
@@ -59,9 +63,18 @@ void EnemySystem::Update(float dt)
 {
     (void)dt;
 }
+void EnemySystem::draw(){}
 
 void EnemySystem::Shutdown()
 {
+
+    if (!FACTORY)
+    {
+        std::cerr << "[EnemySystem] ERROR: FACTORY is null during shutdown!\n";
+        enemies.clear();
+        return;
+    }
+
     std::cout << "[EnemySystem] Shutdown.\n";
     for (GOC* enemy : enemies) 
     {FACTORY->Destroy(enemy);}

@@ -13,6 +13,7 @@
 #include "Systems/RenderSystem.h"
 #include "Systems/AiSystem.h"
 #include "Systems/audioSystem.h"
+#include "Systems/EnemySystem.h"
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
 
@@ -32,6 +33,7 @@ namespace mygame
         Framework::PhysicSystem* gPhysicsSystem = nullptr;
         Framework::AudioSystem* gAudioSystem = nullptr;
         Framework::RenderSystem* gRenderSystem = nullptr;
+        Framework::EnemySystem* gEnemySystem = nullptr;
 
         enum class GameState { MAIN_MENU, PLAYING, EXIT };
         GameState currentState = GameState::MAIN_MENU;
@@ -48,12 +50,17 @@ namespace mygame
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
         gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
+
+        gEnemySystem = gSystems.RegisterSystem<Framework::EnemySystem>(win);
+        
       
         //(void)gPhysicsSystem;
         //(void)gAudioSystem;
         //(void)gRenderSystem;
 
         gSystems.IntializeAll();
+        
+        gEnemySystem->Initialize();
 
         // IMPORTANT: pass the real window size so mouse-Y flip is correct.
         mainMenu.Init(win.Width(), win.Height());
@@ -121,6 +128,20 @@ namespace mygame
 
     void shutdown()
     {
+        std::cout << "[Game] Shutting down systems...\n";
+
+        // Only call ShutdownAll(), do NOT manually delete gEnemySystem etc.
         gSystems.ShutdownAll();
+
+        // Null out global pointers so you don’t accidentally access them later
+        gEnemySystem = nullptr;
+        gAiSystem = nullptr;
+        gRenderSystem = nullptr;
+        gAudioSystem = nullptr;
+        gPhysicsSystem = nullptr;
+        gLogicSystem = nullptr;
+        gInputSystem = nullptr;
+
+        std::cout << "[Game] Shutdown complete.\n";
     }
 }
