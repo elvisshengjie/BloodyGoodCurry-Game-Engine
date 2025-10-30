@@ -18,6 +18,7 @@
 #endif
 
 #include "RenderSystem.h"
+#include <imgui.h>
 namespace Framework {
 
     namespace {
@@ -167,6 +168,21 @@ namespace Framework {
         config.dockspace = true;
         config.gamepad = false;
         ImGuiLayer::Initialize(*window, config);
+    }
+    void Framework::RenderSystem::BeginMenuFrame()
+    {
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        // Intentionally DO NOT call Graphics::renderBackground() here.
+        // The MainMenuPage will draw its own menu.jpg.
+        glUseProgram(0);
+    }
+
+    void Framework::RenderSystem::EndMenuFrame()
+    {
+        // Nothing to restore right now; kept for symmetry/future use.
     }
 
     void RenderSystem::draw()

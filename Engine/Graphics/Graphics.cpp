@@ -504,6 +504,26 @@ namespace gfx {
         GL_THROW_IF_ERROR("initSpritePipeline");
     }
 
+    void Graphics::renderFullscreenTexture(unsigned tex)
+    {
+        if (!tex || !bgShader || !VAO_bg) return; // simple guards
+
+        glUseProgram(bgShader);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        int loc = glGetUniformLocation(bgShader, "backgroundTex");
+        glUniform1i(loc, 0);
+
+        glBindVertexArray(VAO_bg);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
+        GL_THROW_IF_ERROR("renderFullscreenTexture");
+    }
+
+
     /*************************************************************************************
       \brief  Intentionally perturb GL state for crash/robustness testing.
       \param  which 1: bg shader=0, 2: bg VAO=0, 3: sprite shader=0,

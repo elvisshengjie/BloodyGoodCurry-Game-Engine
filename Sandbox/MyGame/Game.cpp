@@ -1,36 +1,20 @@
-﻿/*********************************************************************************************
- \file      RigidBodyComponent.h
- \par       SofaSpuds
- \author   All TEAM MEMBERS
-
- \brief  A lightweight 2D rigid-body component for the engine’s component system.
-         It stores the kinematic state (velX, velY), collider size (width, height),
-         and basic flags such as isStatic / useGravity / damping. Each frame it
-         updates the owner’s Transform (simple Euler integration) and exposes an
-         AABB for collision tests in Physics/Collision. All fields are data-driven:
-         they can be de-serialized from JSON in prefabs/levels (e.g., width, height,
-         velX, velY, mass, damping, isStatic, useGravity). Designed for fast gameplay
-         prototyping—no rotation or advanced forces yet; integrates with
-         `Collision::CheckCollisionRectToRect` and is used by Game.cpp movement logic
- \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
-            All rights reserved.
-*********************************************************************************************/
-#include "Graphics/Window.hpp"
+﻿#include "Graphics/Window.hpp"
 #include "Systems/SystemManager.h"
 #include "Systems/InputSystem.h"
 #include "Systems/LogicSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/audioSystem.h"
+
+#include "MainMenuPage.hpp"   // <-- correct include (MyGame folder)
 #include "Debug/CrashLogger.hpp"
 #include "Debug/Perf.h"
 #include <GLFW/glfw3.h>
+#include <chrono>
 
-namespace mygame
-{
-    namespace
-    {
+namespace mygame {
+
+    namespace {
         using clock = std::chrono::high_resolution_clock;
 
         Framework::SystemManager gSystems;
@@ -39,11 +23,13 @@ namespace mygame
         Framework::PhysicSystem* gPhysicsSystem = nullptr;
         Framework::AudioSystem* gAudioSystem = nullptr;
         Framework::RenderSystem* gRenderSystem = nullptr;
+
+        enum class GameState { MAIN_MENU, PLAYING, EXIT };
+        GameState currentState = GameState::MAIN_MENU;
+
+        MainMenuPage mainMenu;
     }
 
-   // ------------------------------------------------------------
-  // Init
-  // ------------------------------------------------------------
     void init(gfx::Window& win)
     {
         gInputSystem = gSystems.RegisterSystem<Framework::InputSystem>(win);
@@ -51,42 +37,63 @@ namespace mygame
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
-
-        //(void)gPhysicsSystem;
-        //(void)gAudioSystem;
-        //(void)gRenderSystem;
-
         gSystems.IntializeAll();
+
+        mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+        currentState = GameState::MAIN_MENU;
     }
-    // ------------------------------------------------------------
-   // Update
-   // ------------------------------------------------------------
+
     void update(float dt)
     {
-        TryGuard::Run([&] {
-            const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
-            Framework::PerfFrameStart(dt, togglePerf);
+        const bool togglePerf = gInputSystem && gInputSystem->IsWindowKeyPressed(GLFW_KEY_F1);
+        Framework::PerfFrameStart(dt, togglePerf);
 
-            auto t0 = clock::now();
+        switch (currentState)
+        {
+        case GameState::MAIN_MENU:
+            mainMenu.Update(gInputSystem);
+            if (mainMenu.ConsumeStart()) currentState = GameState::PLAYING;
+            if (mainMenu.ConsumeExit())  currentState = GameState::EXIT;
+            break;
+
+        case GameState::PLAYING:
             gSystems.UpdateAll(dt);
-            const double updateMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
-            Framework::setUpdate(updateMs);
-            }, "mygame::update");
+            break;
+
+        case GameState::EXIT:
+            if (gInputSystem) {
+                if (auto* w = gInputSystem->Window()) w->close();  // guard to silence C6011
+            }
+            break;
+        }
+
+        Framework::setUpdate(0.0); // placeholder
     }
-    // ------------------------------------------------------------
-    // Draw
-    // ------------------------------------------------------------
+
     void draw()
     {
-        TryGuard::Run([&] {
-            gSystems.DrawAll();
-            }, "mygame::draw");
+        switch (currentState)
+        {
+        case GameState::MAIN_MENU:
+            if (gRenderSystem) {
+                gRenderSystem->BeginMenuFrame();
+                mainMenu.Draw(gRenderSystem);     // draws menu.jpg + buttons
+                gRenderSystem->EndMenuFrame();
+            }
+            break;
+
+        case GameState::PLAYING:
+            gSystems.DrawAll();                   // uses engine default background (house)
+            break;
+
+        case GameState::EXIT:
+            break;
+        }
     }
-    // ------------------------------------------------------------
-   // Shutdown
-   // ------------------------------------------------------------
+
     void shutdown()
     {
         gSystems.ShutdownAll();
-    } 
-}
+    }
+
+} // namespace mygame

@@ -56,6 +56,10 @@ namespace mygame {
         // batch
         int   count{ 1 };             ///< Number of instances to spawn in batch
         float stepX{ 0.05f }, stepY{ 0.0f }; ///< Step offset applied per batch instance
+
+        //Enemy use
+        int attackDamage{ 10 }; // add this
+        float attack_speed{ 1.0f }; // optionally also add speed
     };
 
     /*****************************************************************************************
