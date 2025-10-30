@@ -42,9 +42,7 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
     gui.Draw(render);
 
     // optional title / hint text using your text renderers
-    if (render && render->IsTextReadyTitle()) {
-        render->GetTextTitle().RenderText("SOFA SPUDS", 58.f, 60.f, 1.15f, glm::vec3(1.f, 1.f, 0.f));
-    }
+   
     if (render && render->IsTextReadyHint()) {
         render->GetTextHint().RenderText("Click a button to continue",
             58.f, 108.f, 0.55f, glm::vec3(0.9f, 0.9f, 0.9f));
