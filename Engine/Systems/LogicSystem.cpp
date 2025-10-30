@@ -46,6 +46,8 @@ namespace Framework {
         if (!factory)
             return;
 
+        levelObjects = factory->LastLevelObjects();
+
         if (!IsAlive(player))
             player = nullptr;
         if (!player)
@@ -240,9 +242,7 @@ namespace Framework {
         player = nullptr;
 
         if (factory) {
-            factory->Update(0.0f);
-            if (FACTORY == factory.get())      
-                FACTORY = nullptr;
+            factory->Shutdown();
             factory.reset();
         }
         UnloadPrefabs();

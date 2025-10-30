@@ -20,6 +20,8 @@
 #include "Component/TransformComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
+
+
 namespace Framework
 {
 	/*****************************************************************************************
@@ -30,6 +32,7 @@ namespace Framework
 	public:
 		void Update(float dt) override
 		{
+			dt;
 			for (auto& [id, objPtr] : FACTORY->Objects())
 			{
 				auto* obj = objPtr.get();
