@@ -39,8 +39,8 @@ namespace Framework
             auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
             if (rb && tr)
             {
-                const float patrolSpeed = 0.5f;
-                const float patrolRange = 1.0f;
+                const float patrolSpeed = 0.3f;
+                const float patrolRange = 0.5f;
 
                 rb->velX = patrolSpeed * dir;
                 rb->velY = 0.0f;
