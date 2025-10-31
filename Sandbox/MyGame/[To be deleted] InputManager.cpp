@@ -1,5 +1,5 @@
 
-#include "InputManager.h"
+#include "[To be deleted] InputManager.h"
 #include "Input/Input.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -15,7 +15,7 @@ namespace Framework
 		m_moveLeft = m_input->IsKeyHeld(GLFW_KEY_A) || m_input->IsKeyHeld(GLFW_KEY_LEFT); 
 		m_moveRight = m_input->IsKeyHeld(GLFW_KEY_D) || m_input->IsKeyHeld(GLFW_KEY_RIGHT); 
 
-		m_attack = m_input->IsKeyPressed(GLFW_KEY_SPACE) || m_input->IsKeyPressed(GLFW_KEY_J);
+		m_attack = m_input->IsKeyPressed(GLFW_MOUSE_BUTTON_LEFT);
 
 		if (m_moveUp) std::cout << "Move up\n";
 		if (m_moveDown) std::cout << "Move down\n";
