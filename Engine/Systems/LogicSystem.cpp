@@ -122,6 +122,7 @@ namespace Framework {
         RegisterComponent(CircleRenderComponent);
         RegisterComponent(SpriteComponent);
         RegisterComponent(RigidBodyComponent);
+        RegisterComponent(PlayerComponent);
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
         RegisterComponent(EnemyDecisionTreeComponent);
