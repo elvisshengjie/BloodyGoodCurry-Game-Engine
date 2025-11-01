@@ -117,7 +117,7 @@ namespace Framework
 
         
         auto root = std::make_unique<DecisionNode>(
-            [enemyID](float dt) 
+            [enemyID](float) 
             {
                 GOC* enemy = FACTORY->GetObjectWithId(enemyID);
                 if (!enemy) return false;
