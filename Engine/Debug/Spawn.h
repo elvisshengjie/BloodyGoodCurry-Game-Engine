@@ -88,4 +88,8 @@ namespace mygame {
     const std::string& CurrentSpriteTextureKey();
     unsigned CurrentSpriteTextureHandle();
 
+    const std::string& ActiveLayerName();
+    bool IsLayerIsolationEnabled();
+    bool ShouldRenderLayer(const std::string& layerName);
+
 } // namespace mygame
