@@ -38,7 +38,36 @@ namespace Framework {
 
     namespace {
         using clock = std::chrono::high_resolution_clock;
-    }
+
+        // Camera follow drag-lock state lives only in this translation unit.
+        // We lock camera follow while dragging the Player so screen->world mapping stays stable.
+        bool       gCameraFollowLocked = false;
+        glm::vec2  gCameraLockPos = glm::vec2(0.0f, 0.0f);
+
+        // Helper to test if an object is "Player" by name.
+        inline bool IsPlayerObject(Framework::GOC* obj) {
+            return obj && obj->GetObjectName() == "Player";
+        }
+
+        // Optional helper to zero rigid body velocity if such fields exist.
+        inline void ZeroRigidBodyVelocityIfPresent(Framework::GOC* obj) {
+            if (!obj) return;
+            if (auto* rb = obj->GetComponentType<Framework::RigidBodyComponent>(
+                Framework::ComponentTypeId::CT_RigidBodyComponent))
+            {
+                // If your RigidBodyComponent uses different field names, adjust here.
+                // Common naming patterns:
+                //   rb->vx / rb->vy
+                //   rb->velocity.x / rb->velocity.y
+                //   rb->linearVelocity.x / rb->linearVelocity.y
+                // Try to cover common cases defensively via offsetof checks is overkill here;
+                // provide explicit lines for your project:
+               // rb->vx = 0.0f; rb->vy = 0.0f; // <-- comment out if your struct doesn't have vx/vy
+                // If you also have angular velocity, you may zero it as well:
+                // rb->omega = 0.0f;
+            }
+        }
+    } // anonymous namespace
 
     RenderSystem::RenderSystem(gfx::Window& window, LogicSystem& logic)
         : window(&window), logic(logic) {
@@ -302,6 +331,16 @@ namespace Framework {
                         dragOffsetX = tr->x - worldX;
                         dragOffsetY = tr->y - worldY;
                         draggingSelection = true;
+
+                        // If we started dragging the Player, lock camera follow at the start position.
+                        if (IsPlayerObject(obj))
+                        {
+                            gCameraFollowLocked = true;
+                            gCameraLockPos = glm::vec2(tr->x, tr->y);
+                        }
+
+                        // Optional: Avoid physics-driven drift while dragging.
+                        ZeroRigidBodyVelocityIfPresent(obj);
                     }
                 }
             }
@@ -327,6 +366,9 @@ namespace Framework {
                     {
                         tr->x = worldX + dragOffsetX;
                         tr->y = worldY + dragOffsetY;
+
+                        // Keep physics quiet while dragging.
+                        ZeroRigidBodyVelocityIfPresent(obj);
                     }
                     else
                     {
@@ -346,12 +388,16 @@ namespace Framework {
         }
 
         if (released)
+        {
             draggingSelection = false;
+            // On release, always unlock camera follow (if it was locked due to dragging Player).
+            gCameraFollowLocked = false;
+        }
 
         leftMouseDownPrev = mouseDown;
     }
 
-    // Updated: convert screen-space cursor to world coordinates using the inverse of (Projection * View)
+    // Convert screen-space cursor to world coordinates using the inverse of (Projection * View).
     bool RenderSystem::ScreenToWorld(double cursorX, double cursorY,
         float& worldX, float& worldY,
         bool& insideViewport) const
@@ -757,14 +803,23 @@ namespace Framework {
             HandleShortcuts();
             UpdateGameViewport();
 
-            // === IMPORTANT: update camera first and submit VP before any picking/rendering ===
+            // === Update camera BEFORE picking and rendering ===
             gfx::Graphics::resetViewProjection();
 
             float playerX = 0.0f, playerY = 0.0f;
-            if (logic.GetPlayerWorldPosition(playerX, playerY))
+            const bool hasPlayer = logic.GetPlayerWorldPosition(playerX, playerY);
+
+            if (gCameraFollowLocked)
             {
+                // While locked (dragging Player), keep camera fixed.
+                camera.SnapTo(gCameraLockPos);
+            }
+            else if (hasPlayer)
+            {
+                // Normal follow.
                 camera.SnapTo(glm::vec2(playerX, playerY));
             }
+
             // Submit this frame's View and Projection so picking uses the latest VP.
             gfx::Graphics::setViewProjection(camera.ViewMatrix(), camera.ProjectionMatrix());
 
@@ -810,7 +865,7 @@ namespace Framework {
                             sx = rc->w; sy = rc->h; r = rc->r; g = rc->g; b = rc->b; a = rc->a;
                         }
 
-                        if (obj->GetObjectName() == "Player" && idleTex && runTex)
+                        if (IsPlayerObject(obj) && idleTex && runTex)
                         {
                             gfx::Graphics::renderSpriteFrame(
                                 CurrentPlayerTexture(), tr->x, tr->y, tr->rot,
