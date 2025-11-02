@@ -468,6 +468,8 @@ namespace Framework {
                     auto* obj = objPtr.get();
                     if (!obj)
                         continue;
+                    if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
+                        continue;
 
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
@@ -516,6 +518,8 @@ namespace Framework {
                     auto* obj = objPtr.get();
                     if (!obj)
                         continue;
+                    if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
+                        continue;
 
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
@@ -535,6 +539,8 @@ namespace Framework {
                     (void)id;
                     auto* obj = objPtr.get();
                     if (!obj)
+                        continue;
+                    if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
                         continue;
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
