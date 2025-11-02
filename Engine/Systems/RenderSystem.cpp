@@ -1,4 +1,3 @@
-
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #  define WIN32_LEAN_AND_MEAN
@@ -27,9 +26,14 @@
 #include <system_error>
 #include <vector>
 #include <limits>
+
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
+
 #include "Physics/Dynamics/RigidBodyComponent.h"
+
 namespace Framework {
+
     RenderSystem* RenderSystem::sInstance = nullptr;
 
     namespace {
@@ -39,6 +43,7 @@ namespace Framework {
     RenderSystem::RenderSystem(gfx::Window& window, LogicSystem& logic)
         : window(&window), logic(logic) {
         sInstance = this;
+        // Initialize camera with a default view height so that projection is valid early.
         camera.SetViewHeight(cameraViewHeight);
     }
 
@@ -124,6 +129,7 @@ namespace Framework {
 
         return {};
     }
+
     std::filesystem::path RenderSystem::FindAssetsRoot() const
     {
         namespace fs = std::filesystem;
@@ -195,7 +201,7 @@ namespace Framework {
                 std::string ext = std::filesystem::path(absolute).extension().string();
                 std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c) {
                     return static_cast<char>(std::tolower(c));
-                });
+                    });
 
                 if (ext == ".png" || ext == ".jpg" || ext == ".jpeg")
                 {
@@ -228,6 +234,7 @@ namespace Framework {
         if (handleToggle(GLFW_KEY_F11, fullscreenToggleHeld))
             gameViewportFullWidth = !gameViewportFullWidth;
     }
+
     void RenderSystem::HandleViewportPicking()
     {
         if (!window || !FACTORY)
@@ -258,7 +265,7 @@ namespace Framework {
 
         float worldX = 0.0f;
         float worldY = 0.0f;
-        bool insideViewport = false;
+        bool  insideViewport = false;
         if (!ScreenToWorld(cursorX, cursorY, worldX, worldY, insideViewport))
         {
             draggingSelection = false;
@@ -291,6 +298,7 @@ namespace Framework {
                     if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent))
                     {
+                        // Cache drag offset in world space so that we preserve relative grab point.
                         dragOffsetX = tr->x - worldX;
                         dragOffsetY = tr->y - worldY;
                         draggingSelection = true;
@@ -343,33 +351,48 @@ namespace Framework {
         leftMouseDownPrev = mouseDown;
     }
 
-    bool RenderSystem::ScreenToWorld(double cursorX, double cursorY, float& worldX, float& worldY, bool& insideViewport) const
+    // Updated: convert screen-space cursor to world coordinates using the inverse of (Projection * View)
+    bool RenderSystem::ScreenToWorld(double cursorX, double cursorY,
+        float& worldX, float& worldY,
+        bool& insideViewport) const
     {
-        if (!window)
-            return false;
+        if (!window) return false;
+        if (gameViewport.width <= 0 || gameViewport.height <= 0) return false;
 
-        if (gameViewport.width <= 0 || gameViewport.height <= 0)
-            return false;
-
+        // 1) Convert from window coordinates to normalized [0,1] within the current game viewport.
         const double viewportLeft = static_cast<double>(gameViewport.x);
         const double viewportWidth = static_cast<double>(gameViewport.width);
         const double viewportBottom = static_cast<double>(gameViewport.y);
         const double viewportHeight = static_cast<double>(gameViewport.height);
 
         const int fullHeight = window->Height();
-        if (fullHeight <= 0)
-            return false;
+        if (fullHeight <= 0) return false;
 
+        // GLFW reports Y from top; OpenGL viewport origin is bottom-left, so flip Y.
         const double mouseYFromBottom = static_cast<double>(fullHeight) - cursorY;
 
         const double normalizedX = (cursorX - viewportLeft) / viewportWidth;
         const double normalizedY = (mouseYFromBottom - viewportBottom) / viewportHeight;
 
-        worldX = static_cast<float>(normalizedX * 2.0 - 1.0);
-        worldY = static_cast<float>(normalizedY * 2.0 - 1.0);
-
         insideViewport = (normalizedX >= 0.0 && normalizedX <= 1.0 &&
             normalizedY >= 0.0 && normalizedY <= 1.0);
+        if (!insideViewport) return false;
+
+        // 2) Map [0,1] to NDC [-1,1].
+        const float ndcX = static_cast<float>(normalizedX * 2.0 - 1.0);
+        const float ndcY = static_cast<float>(normalizedY * 2.0 - 1.0);
+
+        // 3) Unproject NDC using the inverse of the current camera VP matrix.
+        // For a 2D orthographic camera, using z=0 is sufficient (scene lies in z=0 plane).
+        const glm::mat4 VP = camera.ProjectionMatrix() * camera.ViewMatrix();
+        const glm::mat4 invVP = glm::inverse(VP);
+
+        const glm::vec4 ndcPos = glm::vec4(ndcX, ndcY, 0.0f, 1.0f);
+        glm::vec4 world = invVP * ndcPos;
+        if (world.w != 0.0f) world /= world.w;
+
+        worldX = world.x;
+        worldY = world.y;
 
         return std::isfinite(worldX) && std::isfinite(worldY);
     }
@@ -422,14 +445,14 @@ namespace Framework {
                 else if (!obj->GetComponentType<Framework::SpriteComponent>(
                     Framework::ComponentTypeId::CT_SpriteComponent))
                 {
+                    // No render bounds information; skip.
                     continue;
                 }
 
-                if (width <= 0.0f)
-                    width = 1.0f;
-                if (height <= 0.0f)
-                    height = 1.0f;
+                if (width <= 0.0f) width = 1.0f;
+                if (height <= 0.0f) height = 1.0f;
 
+                // Transform the point into the object's local space to test oriented rectangles.
                 const float cosR = std::cos(tr->rot);
                 const float sinR = std::sin(tr->rot);
                 const float localX = cosR * dx + sinR * dy;
@@ -465,7 +488,8 @@ namespace Framework {
         const float minSplit = 0.3f;
         const float maxSplit = 0.7f;
         editorSplitRatio = std::clamp(editorSplitRatio, minSplit, maxSplit);
-        //width
+
+        // Width
         int desiredWidth = fullWidth;
         if (showEditor && !gameViewportFullWidth)
         {
@@ -473,8 +497,8 @@ namespace Framework {
             const int maxWidth = std::max(1, fullWidth - 1);
             desiredWidth = std::clamp(desiredWidth, 1, maxWidth);
         }
-        //height
-        // Clamp to 30?00% of window height when not full height.
+
+        // Height
         if (!gameViewportFullHeight) {
             heightRatio = std::clamp(heightRatio, 0.30f, 1.0f);
         }
@@ -484,11 +508,11 @@ namespace Framework {
         int desiredHeight = static_cast<int>(std::lround(fullHeight * heightRatio));
         desiredHeight = std::clamp(desiredHeight, 1, fullHeight);
 
-        // Center vertically when not using full height
+        // Center vertically when not using full height.
         int yOffset = (fullHeight - desiredHeight) / 2;
         if (gameViewportFullHeight) yOffset = 0;
 
-        // Apply if changed
+        // Apply if changed.
         if (gameViewport.width != desiredWidth ||
             gameViewport.height != desiredHeight ||
             gameViewport.y != yOffset)
@@ -504,11 +528,14 @@ namespace Framework {
             if (textReadyTitle) textTitle.setViewport(screenW, screenH);
             if (textReadyHint)  textHint.setViewport(screenW, screenH);
         }
+
+        // Keep camera informed about viewport changes so its projection is correct.
         if (gameViewport.width > 0 && gameViewport.height > 0)
         {
             camera.SetViewportSize(gameViewport.width, gameViewport.height);
         }
         camera.SetViewHeight(cameraViewHeight);
+
         if (gameViewport.width > 0 && gameViewport.height > 0)
             glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
     }
@@ -520,6 +547,7 @@ namespace Framework {
 
         glViewport(0, 0, window->Width(), window->Height());
     }
+
     void RenderSystem::DrawDockspace()
     {
         if (!showEditor)
@@ -530,12 +558,12 @@ namespace Framework {
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-
         const float editorWidth = viewport->WorkSize.x - static_cast<float>(gameViewport.width);
         if (editorWidth <= 1.0f || viewport->WorkSize.y <= 1.0f)
             return;
 
-        const ImVec2 editorPos(viewport->WorkPos.x + static_cast<float>(gameViewport.width), viewport->WorkPos.y);
+        const ImVec2 editorPos(viewport->WorkPos.x + static_cast<float>(gameViewport.width),
+            viewport->WorkPos.y);
         const ImVec2 editorSize(editorWidth, viewport->WorkSize.y);
 
         ImGui::SetNextWindowPos(editorPos, ImGuiCond_Always);
@@ -552,7 +580,8 @@ namespace Framework {
 
         ImGui::Begin("EditorDockHost", nullptr, flags);
         ImGuiID dockspaceId = ImGui::GetID("EditorDockspace");
-        ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode | ImGuiDockNodeFlags_NoDockingInCentralNode;
+        ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode |
+            ImGuiDockNodeFlags_NoDockingInCentralNode;
         ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockFlags);
         ImGui::End();
 
@@ -573,7 +602,8 @@ namespace Framework {
         ImGui::SetNextWindowBgAlpha(0.35f);
 
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
+            ImGuiWindowFlags_NoDocking;
 
         if (ImGui::Begin("Viewport Controls", nullptr, flags))
         {
@@ -587,12 +617,14 @@ namespace Framework {
             bool fullWidth = gameViewportFullWidth;
             if (ImGui::Checkbox("Game Full Width (F11)", &fullWidth))
                 gameViewportFullWidth = fullWidth;
+
             if (showEditor && !gameViewportFullWidth)
             {
                 float splitPercent = editorSplitRatio * 100.0f;
                 if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
                     editorSplitRatio = splitPercent / 100.0f;
             }
+
             bool fullHeight = gameViewportFullHeight;
             if (ImGui::Checkbox("Game Full Height", &fullHeight))
                 gameViewportFullHeight = fullHeight;
@@ -603,10 +635,12 @@ namespace Framework {
                     heightRatio = hPercent / 100.0f;
                 ImGui::TextDisabled("Viewport is centered vertically");
             }
+
             ImGui::Separator();
             ImGui::TextUnformatted("Camera");
             if (ImGui::SliderFloat("View Height (world units)", &cameraViewHeight, 0.4f, 2.5f, "%.2f"))
             {
+                // Smaller height => closer zoom. Keep camera updated immediately.
                 camera.SetViewHeight(cameraViewHeight);
             }
             ImGui::TextDisabled("Smaller values zoom the camera closer to the player.");
@@ -619,7 +653,6 @@ namespace Framework {
         if (sInstance)
             sInstance->HandleFileDrop(count, paths);
     }
-
 
     int RenderSystem::CurrentColumns() const
     {
@@ -642,6 +675,7 @@ namespace Framework {
             screenH = window->Height();
         }
         gameViewport = { 0, 0, screenW, screenH };
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -685,7 +719,6 @@ namespace Framework {
             std::cerr << "[RenderSystem] Warning: window is null, skipping ImGui initialization.\n";
         }
 
-
         assetsRoot = FindAssetsRoot();
         if (!assetsRoot.empty())
         {
@@ -696,10 +729,13 @@ namespace Framework {
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);
     }
+
     void Framework::RenderSystem::BeginMenuFrame()
     {
+        // UI/menu renders in screen space: reset VP to identity and use full window viewport.
         RestoreFullViewport();
         gfx::Graphics::resetViewProjection();
+
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -711,7 +747,7 @@ namespace Framework {
 
     void Framework::RenderSystem::EndMenuFrame()
     {
-        // Nothing to restore right now; kept for symmetry/future use.
+        // Keep symmetry for future state restoration if needed.
         RestoreFullViewport();
     }
 
@@ -720,20 +756,27 @@ namespace Framework {
         TryGuard::Run([&] {
             HandleShortcuts();
             UpdateGameViewport();
-            HandleViewportPicking();
-            auto t0 = clock::now();
 
+            // === IMPORTANT: update camera first and submit VP before any picking/rendering ===
             gfx::Graphics::resetViewProjection();
-            float playerX = 0.0f;
-            float playerY = 0.0f;
+
+            float playerX = 0.0f, playerY = 0.0f;
             if (logic.GetPlayerWorldPosition(playerX, playerY))
             {
                 camera.SnapTo(glm::vec2(playerX, playerY));
-                gfx::Graphics::setViewProjection(camera.ViewMatrix(), camera.ProjectionMatrix());
             }
+            // Submit this frame's View and Projection so picking uses the latest VP.
+            gfx::Graphics::setViewProjection(camera.ViewMatrix(), camera.ProjectionMatrix());
 
+            // Now handle picking with the correct (current) camera matrices.
+            HandleViewportPicking();
+
+            auto t0 = clock::now();
+
+            // Background: prefer a texture named "house" if available, otherwise fallback to gradient.
             if (unsigned bgTex = Resource_Manager::getTexture("house"))
             {
+                // Big background quad in world space (uses camera VP).
                 gfx::Graphics::renderSprite(bgTex, 0.0f, 0.0f, 0.0f, 2.0f, 2.0f, 1.f, 1.f, 1.f, 1.f);
             }
             else
@@ -743,19 +786,17 @@ namespace Framework {
 
             if (FACTORY)
             {
+                // Pass 1: Sprites
                 for (auto& [id, objPtr] : FACTORY->Objects())
                 {
                     (void)id;
                     auto* obj = objPtr.get();
-                    if (!obj)
-                        continue;
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
-                        continue;
+                    if (!obj) continue;
+                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
 
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
-                    if (!tr)
-                        continue;
+                    if (!tr) continue;
 
                     if (auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
                         Framework::ComponentTypeId::CT_SpriteComponent))
@@ -768,6 +809,7 @@ namespace Framework {
                         {
                             sx = rc->w; sy = rc->h; r = rc->r; g = rc->g; b = rc->b; a = rc->a;
                         }
+
                         if (obj->GetObjectName() == "Player" && idleTex && runTex)
                         {
                             gfx::Graphics::renderSpriteFrame(
@@ -792,60 +834,60 @@ namespace Framework {
                     }
                 }
 
+                // Pass 2: Rectangles (non-sprite quads)
                 for (auto& [id, objPtr] : FACTORY->Objects())
                 {
                     (void)id;
                     auto* obj = objPtr.get();
-                    if (!obj)
-                        continue;
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
-                        continue;
+                    if (!obj) continue;
+                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
 
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                         Framework::ComponentTypeId::CT_RenderComponent);
-                    if (!tr || !rc)
-                        continue;
+                    if (!tr || !rc) continue;
+
                     if (obj->GetComponentType<Framework::SpriteComponent>(
                         Framework::ComponentTypeId::CT_SpriteComponent))
                         continue;
 
-                    gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot, rc->w, rc->h, rc->r, rc->g, rc->b, rc->a);
+                    gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
+                        rc->w, rc->h,
+                        rc->r, rc->g, rc->b, rc->a);
                 }
 
+                // Pass 3: Circles
                 for (auto& [id, objPtr] : FACTORY->Objects())
                 {
                     (void)id;
                     auto* obj = objPtr.get();
-                    if (!obj)
-                        continue;
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
-                        continue;
+                    if (!obj) continue;
+                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
+
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
                         Framework::ComponentTypeId::CT_CircleRenderComponent);
-                    if (!tr || !cc)
-                        continue;
+                    if (!tr || !cc) continue;
 
                     gfx::Graphics::renderCircle(tr->x, tr->y, cc->radius, cc->r, cc->g, cc->b, cc->a);
                 }
+
+                // Optional: physics debug overlay
                 if (showPhysicsHitboxes)
                 {
                     for (auto& [id, objPtr] : FACTORY->Objects())
                     {
                         (void)id;
                         auto* obj = objPtr.get();
-                        if (!obj)
-                            continue;
+                        if (!obj) continue;
 
                         auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                             Framework::ComponentTypeId::CT_TransformComponent);
                         auto* rb = obj->GetComponentType<Framework::RigidBodyComponent>(
                             Framework::ComponentTypeId::CT_RigidBodyComponent);
-                        if (!tr || !rb)
-                            continue;
+                        if (!tr || !rb) continue;
 
                         gfx::Graphics::renderRectangleOutline(tr->x, tr->y, 0.0f,
                             rb->width, rb->height,
@@ -854,6 +896,8 @@ namespace Framework {
                     }
                 }
             }
+
+            // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
 
             if (textReadyTitle)
@@ -880,7 +924,7 @@ namespace Framework {
             const double renderMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setRender(renderMs);
 
-            RestoreFullViewport();
+            RestoreFullViewport(); // Restore full window viewport for ImGui.
 
             t0 = clock::now();
 
@@ -890,7 +934,6 @@ namespace Framework {
                 DrawViewportControls();
                 assetBrowser.Draw();
                 mygame::DrawHierarchyPanel();
-
                 mygame::DrawSpawnPanel();
 
                 if (ImGui::Begin("Crash Tests"))
@@ -903,34 +946,31 @@ namespace Framework {
                 }
                 ImGui::End();
 
-                
-            if (ImGui::Begin("Debug Overlays"))
-            {
-                const char* buttonLabel = showPhysicsHitboxes ? "Hide Hitboxes" : "Show Hitboxes";
-                if (ImGui::Button(buttonLabel))
+                if (ImGui::Begin("Debug Overlays"))
                 {
-                    showPhysicsHitboxes = !showPhysicsHitboxes;
+                    const char* buttonLabel = showPhysicsHitboxes ? "Hide Hitboxes" : "Show Hitboxes";
+                    if (ImGui::Button(buttonLabel))
+                    {
+                        showPhysicsHitboxes = !showPhysicsHitboxes;
+                    }
+
+                    ImGui::SameLine();
+                    ImGui::Text("Hitboxes: %s", showPhysicsHitboxes ? "ON" : "OFF");
                 }
-
-                ImGui::SameLine();
-                ImGui::Text("Hitboxes: %s", showPhysicsHitboxes ? "ON" : "OFF");
-            }
-            ImGui::End();
-
+                ImGui::End();
 
                 Framework::DrawPerformanceWindow();
             }
+
             ProcessImportedAssets();
+
             const double imguiMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setImGui(imguiMs);
             }, "RenderSystem::draw");
-
-
     }
 
     void RenderSystem::Shutdown()
     {
-
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), nullptr);
 
@@ -949,4 +989,4 @@ namespace Framework {
         window = nullptr;
     }
 
-};
+} // namespace Framework
