@@ -93,6 +93,7 @@ namespace Framework {
         float editorSplitRatio = 0.5f;
         bool editorToggleHeld = false;
         bool fullscreenToggleHeld = false;
+        bool showPhysicsHitboxes = true;
     };
 
 } // namespace Framework

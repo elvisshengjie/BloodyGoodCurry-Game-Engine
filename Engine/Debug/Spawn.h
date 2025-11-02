@@ -52,6 +52,8 @@ namespace mygame {
 
         // circle (CircleRenderComponent)
         float radius{ 0.08f };        ///< Radius for circle-based components
+        
+        bool overridePrefabSize{ false }; ///< When true, allow overriding prefab width/height
 
         // tint for anything renderable
         float rgba[4]{ 1.f, 1.f, 1.f, 1.f }; ///< RGBA color tint
