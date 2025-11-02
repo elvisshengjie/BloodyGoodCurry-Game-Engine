@@ -859,6 +859,8 @@ namespace Framework {
             {
                 DrawViewportControls();
                 assetBrowser.Draw();
+                mygame::DrawHierarchyPanel();
+
                 mygame::DrawSpawnPanel();
 
                 if (ImGui::Begin("Crash Tests"))
