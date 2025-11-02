@@ -55,16 +55,7 @@ namespace Framework {
             if (auto* rb = obj->GetComponentType<Framework::RigidBodyComponent>(
                 Framework::ComponentTypeId::CT_RigidBodyComponent))
             {
-                // If your RigidBodyComponent uses different field names, adjust here.
-                // Common naming patterns:
-                //   rb->vx / rb->vy
-                //   rb->velocity.x / rb->velocity.y
-                //   rb->linearVelocity.x / rb->linearVelocity.y
-                // Try to cover common cases defensively via offsetof checks is overkill here;
-                // provide explicit lines for your project:
-               // rb->vx = 0.0f; rb->vy = 0.0f; // <-- comment out if your struct doesn't have vx/vy
-                // If you also have angular velocity, you may zero it as well:
-                // rb->omega = 0.0f;
+                
             }
         }
     } // anonymous namespace
