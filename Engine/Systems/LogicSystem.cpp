@@ -178,13 +178,15 @@ namespace Framework {
             if (!player)
                 return;
 
+            auto mouse = input.Manager().GetMouseState();
+
             auto* tr = player->GetComponentType<Framework::TransformComponent>(
                 Framework::ComponentTypeId::CT_TransformComponent);
             auto* rc = player->GetComponentType<Framework::RenderComponent>(
                 Framework::ComponentTypeId::CT_RenderComponent);
             auto* rb = player->GetComponentType<Framework::RigidBodyComponent>(
                 Framework::ComponentTypeId::CT_RigidBodyComponent);
-
+            
             const float rotSpeed = DegToRad(90.f);
             const float scaleRate = 1.5f;
             const bool shift = input.IsKeyPressed(GLFW_KEY_LEFT_SHIFT) ||
@@ -209,6 +211,13 @@ namespace Framework {
                 rc->w = rectBaseW * rectScale;
                 rc->h = rectBaseH * rectScale;
             }
+
+            // rc->w is the image flipping thingamajic
+            if (mouse.x > tr->x)
+                rc->w = std::abs(rc->w);
+            else if (mouse.x < tr->x)
+                rc->w = -std::abs(rc->w); 
+                
 
             if (rb && tr)
             {
