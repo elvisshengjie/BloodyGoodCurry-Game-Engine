@@ -227,13 +227,13 @@ namespace Framework {
                 rc->w = rectBaseW * rectScale;
                 rc->h = rectBaseH * rectScale;
             }
-
+            float normalizedX = (float)((mouse.x / window->Width()) * 2.0 - 1.0);
             // rc->w is the image flipping thingamajic
-            if (mouse.x > tr->x)
+            if (normalizedX > tr->x)
                 rc->w = std::abs(rc->w);
-            else if (mouse.x < tr->x)
+            else if (normalizedX < tr->x)
                 rc->w = -std::abs(rc->w); 
-                
+           
 
             if (rb && tr)
             {
