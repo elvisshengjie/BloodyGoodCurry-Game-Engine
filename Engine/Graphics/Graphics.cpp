@@ -331,9 +331,9 @@ namespace gfx {
     }
 
     /*************************************************************************************
-      \brief  Draw a rectangle outline (wireframe) using the shared quad geometry.
-      \param  lineWidth Thickness of the rendered outline in pixels.
-    *************************************************************************************/
+     \brief  Draw a rectangle outline (wireframe) using the shared quad geometry.
+     \param  lineWidth Thickness of the rendered outline in pixels.
+   *************************************************************************************/
     void Graphics::renderRectangleOutline(float posX, float posY, float rot, float scaleX, float scaleY,
         float r, float g, float b, float a, float lineWidth)
     {
@@ -363,8 +363,6 @@ namespace gfx {
         glUseProgram(0);
         GL_THROW_IF_ERROR("renderRectangleOutline");
     }
-
-
 
     /*************************************************************************************
       \brief  Convenience overload: uniform scaling and white color.

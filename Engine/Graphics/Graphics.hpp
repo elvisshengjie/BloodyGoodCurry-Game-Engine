@@ -52,9 +52,9 @@ namespace gfx {
 
 
         /**
-        * \brief Draw an outline-only rectangle using the shared quad geometry.
-        * \param lineWidth Thickness of the outline in pixels (clamped to >= 1).
-        */
+           * \brief Draw an outline-only rectangle using the shared quad geometry.
+           * \param lineWidth Thickness of the outline in pixels (clamped to >= 1).
+           */
         static void renderRectangleOutline(float posX, float posY, float rot,
             float scaleX, float scaleY,
             float r, float g, float b, float a,
