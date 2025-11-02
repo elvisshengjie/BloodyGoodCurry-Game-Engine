@@ -548,9 +548,9 @@ namespace mygame {
                 gS.rbVelX = mrb->velX;
                 gS.rbVelY = mrb->velY;
             }
-            gS.overridePrefabSize = false;
-            gS.overridePrefabCollider = false;
-            gPendingPrefabSizeSync = false;
+            //gS.overridePrefabSize = false;
+            //gS.overridePrefabCollider = false;
+           // gPendingPrefabSizeSync = false;
         }
 
         const bool hasSprite =
