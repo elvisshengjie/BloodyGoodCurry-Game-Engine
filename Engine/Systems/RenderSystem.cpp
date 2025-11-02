@@ -27,7 +27,7 @@
 #include <system_error>
 #include <vector>
 #include <limits>
-#include <glm/glm.hpp>
+
 #include "Physics/Dynamics/RigidBodyComponent.h"
 namespace Framework {
     RenderSystem* RenderSystem::sInstance = nullptr;
@@ -39,7 +39,6 @@ namespace Framework {
     RenderSystem::RenderSystem(gfx::Window& window, LogicSystem& logic)
         : window(&window), logic(logic) {
         sInstance = this;
-        camera.SetViewHeight(cameraViewHeight);
     }
 
     std::filesystem::path RenderSystem::GetExeDir() const
@@ -474,7 +473,7 @@ namespace Framework {
             desiredWidth = std::clamp(desiredWidth, 1, maxWidth);
         }
         //height
-        // Clamp to 30?00% of window height when not full height.
+        // Clamp to 30–100% of window height when not full height.
         if (!gameViewportFullHeight) {
             heightRatio = std::clamp(heightRatio, 0.30f, 1.0f);
         }
@@ -504,11 +503,7 @@ namespace Framework {
             if (textReadyTitle) textTitle.setViewport(screenW, screenH);
             if (textReadyHint)  textHint.setViewport(screenW, screenH);
         }
-        if (gameViewport.width > 0 && gameViewport.height > 0)
-        {
-            camera.SetViewportSize(gameViewport.width, gameViewport.height);
-        }
-        camera.SetViewHeight(cameraViewHeight);
+
         if (gameViewport.width > 0 && gameViewport.height > 0)
             glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
     }
@@ -603,13 +598,6 @@ namespace Framework {
                     heightRatio = hPercent / 100.0f;
                 ImGui::TextDisabled("Viewport is centered vertically");
             }
-            ImGui::Separator();
-            ImGui::TextUnformatted("Camera");
-            if (ImGui::SliderFloat("View Height (world units)", &cameraViewHeight, 0.4f, 2.5f, "%.2f"))
-            {
-                camera.SetViewHeight(cameraViewHeight);
-            }
-            ImGui::TextDisabled("Smaller values zoom the camera closer to the player.");
         }
         ImGui::End();
     }
@@ -699,7 +687,6 @@ namespace Framework {
     void Framework::RenderSystem::BeginMenuFrame()
     {
         RestoreFullViewport();
-        gfx::Graphics::resetViewProjection();
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -723,23 +710,7 @@ namespace Framework {
             HandleViewportPicking();
             auto t0 = clock::now();
 
-            gfx::Graphics::resetViewProjection();
-            float playerX = 0.0f;
-            float playerY = 0.0f;
-            if (logic.GetPlayerWorldPosition(playerX, playerY))
-            {
-                camera.SnapTo(glm::vec2(playerX, playerY));
-                gfx::Graphics::setViewProjection(camera.ViewMatrix(), camera.ProjectionMatrix());
-            }
-
-            if (unsigned bgTex = Resource_Manager::getTexture("house"))
-            {
-                gfx::Graphics::renderSprite(bgTex, 0.0f, 0.0f, 0.0f, 2.0f, 2.0f, 1.f, 1.f, 1.f, 1.f);
-            }
-            else
-            {
-                gfx::Graphics::renderBackground();
-            }
+            gfx::Graphics::renderBackground();
 
             if (FACTORY)
             {
@@ -854,7 +825,6 @@ namespace Framework {
                     }
                 }
             }
-            gfx::Graphics::resetViewProjection();
 
             if (textReadyTitle)
             {

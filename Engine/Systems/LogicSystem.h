@@ -78,7 +78,7 @@ namespace Framework {
 		float PlayerBaseWidth() const { return rectBaseW; }
 		float PlayerBaseHeight() const { return rectBaseH; }
 		float PlayerScale() const { return rectScale; }
-		bool GetPlayerWorldPosition(float& outX, float& outY) const;
+
 		int ScreenWidth() const { return screenW; }
 		int ScreenHeight() const { return screenH; }
 

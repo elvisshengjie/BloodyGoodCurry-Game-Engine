@@ -122,22 +122,6 @@ namespace Framework {
         animInfo.rows = cfg.rows;
         animInfo.running = (animState == AnimState::Run);
     }
-
-    bool LogicSystem::GetPlayerWorldPosition(float& outX, float& outY) const
-    {
-        if (!player)
-            return false;
-
-        auto* tr = player->GetComponentType<Framework::TransformComponent>(
-            Framework::ComponentTypeId::CT_TransformComponent);
-        if (!tr)
-            return false;
-
-        outX = tr->x;
-        outY = tr->y;
-        return true;
-    }
-
     void LogicSystem::Initialize()
     {
         crashLogger = std::make_unique<CrashLogger>(std::string("../../logs"),
