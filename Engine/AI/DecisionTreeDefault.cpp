@@ -1,6 +1,41 @@
+/*********************************************************************************************
+ \file      DecisionTreeDefault.cpp
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+
+ \brief     Implementation of default decision tree behavior for enemy AI. Defines helper
+            functions that manage proximity checks, tree creation, and periodic updates
+            for simple patrol and attack behaviors.
+
+ \details
+            This module provides a reusable default decision tree structure used by
+            enemy entities. The decision tree includes:
+            - A proximity check to detect the player.
+            - An attack branch triggered upon player detection.
+            - A patrol branch used when the player is not nearby.
+
+            The functions in this file handle tree construction, condition evaluation,
+            and execution of context-specific actions such as movement or attack logic.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "DecisionTreeDefault.h"
 namespace Framework
 {
+    /*****************************************************************************************
+    \brief
+    Checks whether the player is within a specified distance of the given enemy.
+
+    \param enemy
+    Pointer to the enemy game object being evaluated.
+    \param radius
+    Distance threshold for proximity detection (default is 0.1f).
+
+    \return
+    True if the player is within the given radius, otherwise false.
+    *****************************************************************************************/
     bool IsPlayerNear(GOC* enemy, float radius)
     {
         if (!enemy) return false;
@@ -22,7 +57,16 @@ namespace Framework
         float dy = enemyTra->y- playerTra->y;
         return (dx*dx + dy*dy) <= radius*radius;
     }
+    /*****************************************************************************************
+    \brief
+    Creates a default decision tree for basic enemy AI behavior.
 
+    \param enemy
+    Pointer to the enemy game object that will own the decision tree.
+
+    \return
+    A unique pointer to a newly created DecisionTree containing patrol and attack logic.
+    *****************************************************************************************/
     std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy)
     {
         if (!enemy) return nullptr;
@@ -115,7 +159,7 @@ namespace Framework
         }
         );
 
-        
+        //Root Node
         auto root = std::make_unique<DecisionNode>(
             [enemyID](float) 
             {
@@ -131,15 +175,25 @@ namespace Framework
             std::move(AttackLeaf),
             std::move(patrolLeaf),
             [](float) 
-            {
-      
-            }   
+            {}   
         );
 
         return std::make_unique<DecisionTree>(std::move(root));
 
     }
+    /*****************************************************************************************
+    \brief
+    Updates and executes the default decision tree for a given enemy.
 
+    \param enemy
+    Pointer to the enemy game object whose decision tree should be evaluated.
+    \param dt
+    Floating-point delta time or contextual value for logic evaluation.
+
+    \details
+    Initializes the decision tree if it does not yet exist, then runs it to determine
+    and perform the appropriate behavior.
+    *****************************************************************************************/
     void UpdateDefaultEnemyTree(GOC* enemy, float dt)
     {
         if (!enemy) return;

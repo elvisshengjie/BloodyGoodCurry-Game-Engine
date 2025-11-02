@@ -1,3 +1,25 @@
+/*********************************************************************************************
+ \file      DecisionTreeDefault.h
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+
+ \brief     Declaration of default decision tree logic for enemy AI behavior. This module
+            defines helper functions to create and update a standard enemy decision tree
+            using basic conditions such as player proximity and health state.
+
+ \details
+            The default decision tree provides a simple AI structure for enemies:
+            - Detects player proximity for initiating attacks.
+            - Evaluates health to determine when to flee.
+            - Falls back to patrol behavior when no immediate action is required.
+
+            These utilities can be reused across multiple enemy types that require
+            basic reactive decision-making.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "Composition/Composition.h"
 #include "Factory/Factory.h"
