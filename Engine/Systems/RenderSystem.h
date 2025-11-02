@@ -90,6 +90,8 @@ namespace Framework {
         ViewRect gameViewport{};
         bool showEditor = true;
         bool gameViewportFullWidth = false;
+        bool  gameViewportFullHeight = false;
+        float heightRatio = 0.8f;
         float editorSplitRatio = 0.5f;
         bool editorToggleHeld = false;
         bool fullscreenToggleHeld = false;

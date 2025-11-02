@@ -240,7 +240,7 @@ namespace Framework {
         const float minSplit = 0.3f;
         const float maxSplit = 0.7f;
         editorSplitRatio = std::clamp(editorSplitRatio, minSplit, maxSplit);
-
+        //width
         int desiredWidth = fullWidth;
         if (showEditor && !gameViewportFullWidth)
         {
@@ -248,21 +248,36 @@ namespace Framework {
             const int maxWidth = std::max(1, fullWidth - 1);
             desiredWidth = std::clamp(desiredWidth, 1, maxWidth);
         }
+        //height
+        // Clamp to 30–100% of window height when not full height.
+        if (!gameViewportFullHeight) {
+            heightRatio = std::clamp(heightRatio, 0.30f, 1.0f);
+        }
+        else {
+            heightRatio = 1.0f;
+        }
+        int desiredHeight = static_cast<int>(std::lround(fullHeight * heightRatio));
+        desiredHeight = std::clamp(desiredHeight, 1, fullHeight);
 
-        if (gameViewport.width != desiredWidth || gameViewport.height != fullHeight)
+        // Center vertically when not using full height
+        int yOffset = (fullHeight - desiredHeight) / 2;
+        if (gameViewportFullHeight) yOffset = 0;
+
+        // Apply if changed
+        if (gameViewport.width != desiredWidth ||
+            gameViewport.height != desiredHeight ||
+            gameViewport.y != yOffset)
         {
             gameViewport.x = 0;
-            gameViewport.y = 0;
+            gameViewport.y = yOffset;
             gameViewport.width = desiredWidth;
-            gameViewport.height = fullHeight;
+            gameViewport.height = desiredHeight;
 
             screenW = gameViewport.width;
             screenH = gameViewport.height;
 
-            if (textReadyTitle)
-                textTitle.setViewport(screenW, screenH);
-            if (textReadyHint)
-                textHint.setViewport(screenW, screenH);
+            if (textReadyTitle) textTitle.setViewport(screenW, screenH);
+            if (textReadyHint)  textHint.setViewport(screenW, screenH);
         }
 
         if (gameViewport.width > 0 && gameViewport.height > 0)
@@ -348,6 +363,16 @@ namespace Framework {
                 float splitPercent = editorSplitRatio * 100.0f;
                 if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
                     editorSplitRatio = splitPercent / 100.0f;
+            }
+            bool fullHeight = gameViewportFullHeight;
+            if (ImGui::Checkbox("Game Full Height", &fullHeight))
+                gameViewportFullHeight = fullHeight;
+
+            if (!gameViewportFullHeight) {
+                float hPercent = heightRatio * 100.0f;
+                if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                    heightRatio = hPercent / 100.0f;
+                ImGui::TextDisabled("Viewport is centered vertically");
             }
         }
         ImGui::End();

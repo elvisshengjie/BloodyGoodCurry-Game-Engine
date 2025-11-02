@@ -132,7 +132,7 @@ namespace mygame {
         std::vector<std::string> ExtractLayersFromLevel(const std::filesystem::path& levelPath) {
             std::unordered_set<std::string> unique;
 
-            JsonSerializer s;
+            JsonSerializer s{};
             if (s.Open(levelPath.string()) && s.IsGood()) {
                 if (s.EnterObject("Level")) {
                     if (s.EnterArray("GameObjects")) {
@@ -586,24 +586,23 @@ namespace mygame {
 
         // === Rectangle Controls ===
         if (hasRender) {
+            ImGui::SeparatorText("Rect"); // Section header
 
-       ImGui::SeparatorText("Rect"); // Section header
+            // When the checkbox is toggled OFF, copy prefab size back
+            if (ImGui::Checkbox("Override prefab size", &gS.overridePrefabSize)) {
+                if (!gS.overridePrefabSize && masterRender) {
+                    gS.w = masterRender->w;
+                    gS.h = masterRender->h;
+                }
+            }
 
-        if (ImGui::Checkbox("Override prefab size", &gs.overridePrefabSize) && !gs.overridePrefabSize) {
-          gs.w = masterRender->w;
-         gs.h = masterRender->h;
-        }   
+            const bool disableSizeControls = !gS.overridePrefabSize;
+            if (disableSizeControls) ImGui::BeginDisabled();
 
-        const bool disableSizeControls = !gs.overridePrefabSize;
-        if (disableSizeControls)
-            ImGui::BeginDisabled();
+            ImGui::DragFloat("w", &gS.w, 0.005f, 0.01f, 1.0f); // Adjust rectangle width
+            ImGui::DragFloat("h", &gS.h, 0.005f, 0.01f, 1.0f); // Adjust rectangle height
 
-        ImGui::DragFloat("w", &gs.w, 0.005f, 0.01f, 1.0f); // Adjust rectangle width
-        ImGui::DragFloat("h", &gs.h, 0.005f, 0.01f, 1.0f); // Adjust rectangle height
-        
-        if (disableSizeControls)
-            ImGui::EndDisabled();
-
+            if (disableSizeControls) ImGui::EndDisabled();
         }
 
         // === Circle Controls ===
