@@ -190,9 +190,13 @@ namespace Framework
             static float attackTimer = 0.0f;
             const float attackInterval = 0.5;
             attackTimer += dt;
-            if (attackTimer >= attackInterval)
+            if (ai->chaseTimer >= ai->maxChaseDuration)
             {attackTimer=0.0f; std::cout << "Enemy attacks with " << attack->damage << " damage!\n"; }
-            
+            ai->chaseTimer += dt;
+            if (ai->chaseTimer >= ai->maxChaseDuration) {
+                ai->hasSeenPlayer = false;
+                ai->chaseTimer = 0.0f;
+            }
         }
         );
 
@@ -206,6 +210,7 @@ namespace Framework
                 if (IsPlayerNear(enemy, 0.2f))
                 {
                     ai->hasSeenPlayer = true;
+                    ai->chaseTimer = 0.0f;
                 }
                 return ai->hasSeenPlayer;
             },
