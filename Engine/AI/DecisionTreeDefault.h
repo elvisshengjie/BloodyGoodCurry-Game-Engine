@@ -34,6 +34,7 @@
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Physics/System/Physics.h"
 #include <cstdio>
+#include <random>
 namespace Framework 
 {
  bool IsPlayerNear(GOC* enemy, float radius = 0.1f); 

@@ -18,7 +18,7 @@
             and execution of context-specific actions such as movement or attack logic.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content ï¿½ 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #include "DecisionTreeDefault.h"
@@ -76,42 +76,70 @@ namespace Framework
         auto patrolLeaf = std::make_unique<DecisionNode>
         (nullptr, nullptr,nullptr,[enemyID](float dt)
         { 
-            static float dir = 1.0f;
+            
             GOC* enemy = FACTORY->GetObjectWithId(enemyID);
             if (!enemy) return;
             auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-            if (rb && tr)
+            auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+              if (rb && tr && ai)
             {
-                static float pauseTimer = 0.0f;
                 const float patrolSpeed = 0.2f;
                 const float patrolRange = 0.5f;
                 const float pauseDuration = 2.0f;
                 
-                if (pauseTimer > 0.0f)
+                if (ai->pauseTimer > 0.0f)
                 {
-                    pauseTimer -= dt;
+                    ai->pauseTimer -= dt;
                     rb->velX = 0.0f;
                     return;
                 }
-
-                rb->velX = patrolSpeed * dir;
+                rb->velX = patrolSpeed * ai->dir;
                 rb->velY = 0.0f;
+                float newX = tr->x + rb->velX * dt;
+                float newY = tr->y;
+                AABB futureBox(newX, newY, rb->width, rb->height);
+                bool collisionDetected = false;
+                auto& objects = FACTORY->Objects();
+                for (auto& [otherId, otherObj] : objects)
+                {
+                    auto* rbO = otherObj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+                    auto* trO = otherObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                    if (!rbO || !trO) continue;
+                    std::string otherName = otherObj->GetObjectName();
+                    std::transform(otherName.begin(), otherName.end(), otherName.begin(),
+                        [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+                    if (otherName != "rect") continue;
+                    AABB wallBox(trO->x, trO->y, rbO->width, rbO->height);
+                    if (Collision::CheckCollisionRectToRect(futureBox, wallBox)) {
+                        collisionDetected = true;
+                        break;
+                    }
+                }
 
-                tr->x += rb->velX * dt;   
-                tr->y += rb->velY * dt;
+                if (collisionDetected) 
+                {
+                    ai->dir *= -1.0f;
+                    ai->pauseTimer = pauseDuration;
+                }
+                else 
+                {
+                    tr->x = newX;
+                    tr->y = newY;
+                }
+
 
                 if (tr->x < -patrolRange)
                 {
                     tr->x = -patrolRange;
-                    dir = 1.0f;
-                    pauseTimer = pauseDuration; 
+                    ai->dir = 1.0f;
+                    ai->pauseTimer = pauseDuration; 
                 }
                 if (tr->x > patrolRange)
                 {
                     tr->x = patrolRange;
-                    dir = -1.0f;
-                    pauseTimer = pauseDuration;
+                    ai->dir = -1.0f;
+                    ai->pauseTimer = pauseDuration;
                 }
             }
         }
@@ -126,8 +154,17 @@ namespace Framework
             auto* attack = enemy->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
             auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+            auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
             if (!attack || !rb || !tr) return;
             GOC* player = nullptr;
+            if (ai->chaseSpeed < 0.0f) 
+            { 
+                std::random_device rd;
+                std::mt19937 gen(rd());
+                std::uniform_real_distribution<float> dist(0.2f, 0.4f);
+                ai->chaseSpeed = dist(gen);
+            }
+
             auto& objects = FACTORY->Objects();
             for (auto& kv : objects)
             {
@@ -165,12 +202,12 @@ namespace Framework
             {
                 GOC* enemy = FACTORY->GetObjectWithId(enemyID);
                 if (!enemy) return false;
-                static bool hasSeenPlayer = false;
+                auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
                 if (IsPlayerNear(enemy, 0.2f))
                 {
-                    hasSeenPlayer = true;
+                    ai->hasSeenPlayer = true;
                 }
-                return hasSeenPlayer;
+                return ai->hasSeenPlayer;
             },
             std::move(AttackLeaf),
             std::move(patrolLeaf),
