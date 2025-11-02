@@ -176,7 +176,9 @@ namespace mygame {
         }
         // Apply Rectangle render settings
         if (auto* rc = obj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) {
-            rc->w = s.w; rc->h = s.h;
+            if (s.overridePrefabSize) {
+                rc->w = s.w; rc->h = s.h;
+            }
             rc->r = s.rgba[0]; rc->g = s.rgba[1]; rc->b = s.rgba[2]; rc->a = s.rgba[3];
         }
         // Apply Circle render settings
@@ -285,6 +287,7 @@ namespace mygame {
     /// Panel state (persists across frames).
     static std::string gSelectedPrefab = "Rect"; ///< Default prefab choice.
     static SpawnSettings gS;                     ///< Live settings bound to ImGui controls.
+    static bool gPendingPrefabSizeSync = true;   ///< Sync flag to copy prefab dimensions into the panel.
     bool opened = true;
     float x = static_cast<float>(GetSystemMetrics(SM_CXSCREEN));
     float y = static_cast<float>(GetSystemMetrics(SM_CYSCREEN));
@@ -313,8 +316,12 @@ namespace mygame {
             if (ImGui::BeginCombo("Prefab", preview)) {   // Dropdown to pick which prefab to spawn
                 for (auto const& kv : master_copies) {
                     bool sel = (kv.first == gSelectedPrefab);
-                    if (ImGui::Selectable(kv.first.c_str(), sel)) // Select prefab
-                        gSelectedPrefab = kv.first;
+                    if (ImGui::Selectable(kv.first.c_str(), sel)) { // Select prefab
+                        if (gSelectedPrefab != kv.first) {
+                            gSelectedPrefab = kv.first;
+                            gPendingPrefabSizeSync = true;
+                        }
+                    }
                     if (sel) ImGui::SetItemDefaultFocus();        // Keep focus on selected prefab
                 }
                 ImGui::EndCombo();
@@ -334,12 +341,18 @@ namespace mygame {
 
         const bool hasTransform =
             (master->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent) != nullptr);
-        const bool hasRender =
-            (master->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) != nullptr);
+        auto* masterRender = master->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent);
+        const bool hasRender = (masterRender != nullptr);
         const bool hasCircle =
             (master->GetComponentType<CircleRenderComponent>(ComponentTypeId::CT_CircleRenderComponent) != nullptr);
         //const bool hasSprite =
         //    (master->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent) != nullptr);
+        if (gPendingPrefabSizeSync && masterRender) {
+            gS.w = masterRender->w;
+            gS.h = masterRender->h;
+            gPendingPrefabSizeSync = false;
+        }
+
         const bool hasSprite =
             (master->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent) != nullptr);
 
@@ -409,8 +422,17 @@ namespace mygame {
         // === Rectangle Controls ===
         if (hasRender) {
             ImGui::SeparatorText("Rect");                     // Section header
+            if (ImGui::Checkbox("Override prefab size", &gS.overridePrefabSize) && !gS.overridePrefabSize) {
+                gS.w = masterRender->w;
+                gS.h = masterRender->h;
+            }
+            const bool disableSizeControls = !gS.overridePrefabSize;
+            if (disableSizeControls)
+                ImGui::BeginDisabled();
             ImGui::DragFloat("w", &gS.w, 0.005f, 0.01f, 1.0f); // Adjust rectangle width
             ImGui::DragFloat("h", &gS.h, 0.005f, 0.01f, 1.0f); // Adjust rectangle height
+            if (disableSizeControls)
+                ImGui::EndDisabled();
         }
 
         // === Circle Controls ===
