@@ -535,8 +535,8 @@ namespace mygame {
             (master->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent) != nullptr);
         auto* masterRender = master->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent);
         const bool hasRender = (masterRender != nullptr);
-        const bool hasCircle =
-            (master->GetComponentType<CircleRenderComponent>(ComponentTypeId::CT_CircleRenderComponent) != nullptr);
+        auto* masterCircle = master->GetComponentType<CircleRenderComponent>(ComponentTypeId::CT_CircleRenderComponent);
+        const bool hasCircle = (masterCircle != nullptr);
         const bool hasRigidBody =
             (master->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent) != nullptr);
 
@@ -548,6 +548,8 @@ namespace mygame {
                 gS.rbVelX = mrb->velX;
                 gS.rbVelY = mrb->velY;
             }
+            gS.overridePrefabSize = false;
+            gS.overridePrefabCollider = false;
             gPendingPrefabSizeSync = false;
         }
 
