@@ -50,6 +50,9 @@
 
 // Player & Enemy Components
 #include "Component/PlayerComponent.h"
+#include "Component/PlayerAttackComponent.h"
+#include "Component/PlayerHealthComponent.h"
+
 #include "Component/EnemyComponent.h"
 #include "Component/EnemyAttackComponent.h"
 #include "Component/EnemyDecisionTreeComponent.h"
@@ -296,11 +299,15 @@ namespace mygame {
 
         // Player/Enemy bits (if present)
         if (auto* player = obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent)) { (void)player; }
+        if (auto* health = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent)) 
+        {health->playerHealth = health->playerMaxhealth;}
+        if (auto* attack = obj->GetComponentType<PlayerAttackComponent>(ComponentTypeId::CT_PlayerAttackComponent)) 
+        { attack->damage = s.attackDamage; attack->attack_speed = s.attack_speed;}
 
         if (auto* enemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent)) { (void)enemy; }
 
         if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent)) {
-            health->health = health->maxhealth;
+            health->enemyHealth = health->enemyMaxhealth;
         }
 
         if (auto* attack = obj->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent)) {
