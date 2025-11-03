@@ -200,18 +200,12 @@ namespace mygame {
         }
 
         // Prefer a non-Default layer as the initial active layer
-        std::string ChooseDefaultLayerForLevel(const std::string& levelKey) {
-            if (!levelKey.empty()) {
-                if (auto it = gLevelLayers.find(levelKey); it != gLevelLayers.end()) {
-                    for (const auto& nm : it->second) {
-                        if (NormalizeLayerUi(nm) != "Default")
-                            return NormalizeLayerUi(nm);
-                    }
-                    if (!it->second.empty())
-                        return NormalizeLayerUi(it->second.front());
-                }
-            }
-            return "Default";
+        std::string ChooseDefaultLayerForLevel(const std::string& key) {
+            auto it = gLevelLayers.find(key);
+            if (it == gLevelLayers.end()) return "Default";
+            bool hasDefault = false;
+            for (auto& nm : it->second) if (NormalizeLayerUi(nm) == "Default") hasDefault = true;
+            return hasDefault ? "Default" : (it->second.empty() ? "Default" : NormalizeLayerUi(it->second.front()));
         }
 
         void SyncActiveLayerWithLevel(const std::string& levelKey) {
@@ -557,7 +551,7 @@ namespace mygame {
             }
            // gS.overridePrefabSize = false;
            // gS.overridePrefabCollider = false;
-            //gPendingPrefabSizeSync = false;
+            gPendingPrefabSizeSync = false;
         }
 
         const bool hasSprite =
