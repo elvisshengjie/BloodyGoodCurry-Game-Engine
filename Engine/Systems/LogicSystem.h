@@ -27,6 +27,7 @@
 
 #include "Graphics/Window.hpp"
 #include "Physics/Collision/Collision.h"
+#include "Component/HurtBoxComponent.h"
 
 #include "../../Sandbox/MyGame/MathUtils.hpp"
 
