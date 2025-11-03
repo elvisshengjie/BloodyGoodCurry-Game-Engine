@@ -158,6 +158,7 @@ namespace Framework {
         RegisterComponent(PlayerComponent);
         RegisterComponent(PlayerAttackComponent);
         RegisterComponent(PlayerHealthComponent);
+        RegisterComponent(HurtBoxComponent);
 
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
@@ -231,6 +232,7 @@ namespace Framework {
                 rc->h = rectBaseH * rectScale;
             }
             float normalizedX = (float)((mouse.x / window->Width()) * 2.0 - 1.0);
+            float normalizedY = (float)((mouse.y / window->Height()) * -2.0 + 1.0);
             // rc->w is the image flipping thingamajic
             if (normalizedX > tr->x)
                 rc->w = std::abs(rc->w);
@@ -267,6 +269,49 @@ namespace Framework {
             {
                 collisionInfo.player = AABB(tr->x, tr->y, rb->width, rb->height);
                 collisionInfo.playerValid = true;
+
+                auto* hurtbox = player->GetComponentType<Framework::HurtBoxComponent>(
+                    Framework::ComponentTypeId::CT_HurtBoxComponent);
+
+                static float hurtTimer = hurtbox->duration; // Cooldown timer for attack
+
+                if (hurtbox && tr && rc)
+                {
+                    if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT))
+                    {
+                        float dx = normalizedX - tr->x;
+                        float dy = normalizedY - tr->y;
+
+                        float len = std::sqrt(dx * dx + dy * dy);
+                        if (len > 0.0001f)
+                        {
+                            dx /= len;
+                            dy /= len;
+                        }
+
+                        float offset = 0.05f; // This is the offset of where the hurtbox will spawn
+                        float spawnX = tr->x + dx * (std::abs(rc->w) * 0.5f + hurtbox->width * 0.5f + offset);
+                        float spawnY = tr->y + dy * (rc->h * 0.5f + hurtbox->height * 0.5f + offset);
+
+                        hurtbox->spawnX = spawnX;
+                        hurtbox->spawnY = spawnY;
+
+                        hurtbox->ActivateHurtBox();
+
+                        // for debugging
+                        std::cout << "Hurtbox spawned at (" << spawnX << ", " << spawnY << ")\n";
+                    }
+
+                    if (hurtbox->active)
+                    {
+                        hurtTimer -= dt;
+                        if (hurtTimer <= 0.0f)
+                        {
+                            hurtbox->DeactivateHurtBox();
+                            hurtTimer = hurtbox->duration;
+                        }
+                    }
+                }
             }
 
             if (collisionTarget)
