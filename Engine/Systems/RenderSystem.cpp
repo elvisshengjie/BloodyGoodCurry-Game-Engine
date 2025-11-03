@@ -720,6 +720,10 @@ namespace Framework {
 
         std::cout << "[CWD] " << std::filesystem::current_path() << "\n";
         std::cout << "[EXE] " << GetExeDir() << "\n";
+       
+
+        imguiLayoutPath = "../../Data_Files/imgui_layout.ini";
+
 
         if (auto fontPath = FindRoboto(); !fontPath.empty())
         {
@@ -750,6 +754,8 @@ namespace Framework {
         if (window)
         {
             ImGuiLayer::Initialize(*window, config);
+            ImGuiIO& io = ImGui::GetIO();
+            io.IniFilename = "../../Data_Files/imgui_layout.ini";
         }
         else
         {
@@ -1017,6 +1023,8 @@ namespace Framework {
 
     void RenderSystem::Shutdown()
     {
+
+        ImGui::SaveIniSettingsToDisk(imguiLayoutPath.c_str());
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), nullptr);
 
