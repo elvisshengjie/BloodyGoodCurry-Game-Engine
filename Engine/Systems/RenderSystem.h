@@ -13,6 +13,7 @@
 #include "Debug/AssetBrowserPanel.h"
 #include "Factory/Factory.h"
 #include "Graphics/Graphics.hpp"
+#include "Graphics/Camera2D.hpp"
 #include "Graphics/Window.hpp"
 #include "Graphics/GraphicsText.hpp"
 #include "Resource_Manager/Resource_Manager.h"
@@ -105,6 +106,10 @@ namespace Framework {
         bool draggingSelection = false;
         float dragOffsetX = 0.0f;
         float dragOffsetY = 0.0f;
+        gfx::Camera2D camera;
+        float cameraViewHeight = 1.0f;
+
+        std::string imguiLayoutPath{};
     };
 
 } // namespace Framework

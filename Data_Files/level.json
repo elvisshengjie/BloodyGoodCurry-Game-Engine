@@ -28,7 +28,9 @@
        "RenderComponent": { "w": 0.25, "h": 0.25, "r": 1, "g": 1, "b": 1, "a": 1 },
        "SpriteComponent": { "texture_key": "player" },
        "RigidBodyComponent": { "velocity_x": 0, "velocity_y": 0, "width": 0.1, "height": 0.21},
-       "PlayerComponent":{}
+       "PlayerComponent":{},
+       "PlayerHealthComponent": { "playerHealth": 100, "playerMaxhealth": 100 },
+       "PlayerAttackComponent": { "damage": 50, "attack_speed": 1.0}
       }
       },
     {
@@ -36,7 +38,7 @@
       "Components": 
       {
        "TransformComponent": { "x": -0.5, "y": 0.5, "rot": 0.0 },
-       "RenderComponent": { "w": 0.5, "h": 0.5, "r": 1, "g": 1, "b": 1, "a": 1 },
+       "RenderComponent": { "w": 0.3, "h": 0.3, "r": 1, "g": 1, "b": 1, "a": 1 },
        "SpriteComponent": { "texture_key": "boss" },
          "RigidBodyComponent": { "velocity_x": 0.6, "velocity_y": 0.6, "width": 0.25, "height": 0.25}
       }
@@ -51,7 +53,7 @@
       "RigidBodyComponent": { "velocity_x": 10, "velocity_y": 0, "width": 0.1, "height": 0.1 },
       "EnemyComponent": {},
       "EnemyAttackComponent": { "damage": 15, "attack_speed": 1.2 },
-      "EnemyHealthComponent": { "max": 100, "current": 100 },
+      "EnemyHealthComponent": { "enemyHealth": 100, "enemyMaxHealth": 100 },
       "EnemyDecisionTreeComponent": {},
       "EnemyTypeComponent": { "type": "physical" }
       }
