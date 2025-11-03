@@ -42,6 +42,8 @@ public:
     void SetCallbacks(InitFn i, UpdateFn u, RenderFn r, ShutdownFn s) {
         init = i; update = u; render = r; shutdown = s;
     }
+    int GetCurrentNumSteps() const noexcept { return m_CurrentNumSteps; }
+    float GetFixedDeltaSeconds() const noexcept { return m_FixedStep.count(); }
 
 private:
     using Clock = std::chrono::steady_clock;       // monotonic clock for dt
@@ -50,6 +52,7 @@ private:
     bool m_Running{ false };                         ///< Main loop flag
     std::unique_ptr<gfx::Window> m_Window;           ///< Owned window (RAII)
     int m_CurrentNumSteps = 0;
+    SecondsF  m_FixedStep{ 1.0f / 60.0f };
     // Callback storage (may be null)
     InitFn     init{ nullptr };
     UpdateFn   update{ nullptr };

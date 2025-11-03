@@ -80,7 +80,9 @@ namespace mygame {
                 break;
 
             case GameState::EXIT:
-                if (auto* w = gInputSystem->Window()) w->close();
+                if (gInputSystem) {
+                    if (auto* w = gInputSystem->Window()) w->close();
+                }
                 break;
             }
 
