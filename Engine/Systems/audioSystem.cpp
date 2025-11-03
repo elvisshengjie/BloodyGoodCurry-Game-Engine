@@ -1,4 +1,5 @@
 #include "audioSystem.h"
+#include "RenderSystem.h"
 #include <iostream>
 /*********************************************************************************************
  \file      AudioSystem.cpp
@@ -62,7 +63,12 @@ namespace Framework {
      \brief
         Draws the ImGui-based audio debug panel.
     *****************************************************************************************/
-    void AudioSystem::draw() { AudioImGui::Render(); };
+    void AudioSystem::draw() {
+        if (!RenderSystem::IsEditorVisible())
+            return;
+
+        AudioImGui::Render();
+    };
     /*****************************************************************************************
      \brief
         Shuts down the audio system and releases resources.

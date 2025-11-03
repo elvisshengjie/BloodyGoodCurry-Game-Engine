@@ -38,6 +38,9 @@ namespace Framework {
         void BeginMenuFrame();
         void EndMenuFrame();
 
+        // Editor visibility helpers so other systems can react to editor state.
+        static bool IsEditorVisible();
+
         // Text accessors
         bool IsTextReadyHint()  const { return textReadyHint; }
         bool IsTextReadyTitle() const { return textReadyTitle; }
@@ -108,6 +111,8 @@ namespace Framework {
         float dragOffsetY = 0.0f;
         gfx::Camera2D camera;
         float cameraViewHeight = 1.0f;
+        bool cameraEnabled = true;
+        std::string imguiLayoutPath{};
     };
 
 } // namespace Framework
