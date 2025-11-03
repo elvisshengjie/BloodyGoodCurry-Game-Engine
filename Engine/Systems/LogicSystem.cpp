@@ -156,6 +156,9 @@ namespace Framework {
         RegisterComponent(SpriteComponent);
         RegisterComponent(RigidBodyComponent);
         RegisterComponent(PlayerComponent);
+        RegisterComponent(PlayerAttackComponent);
+        RegisterComponent(EnemyHealthComponent);
+
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
         RegisterComponent(EnemyDecisionTreeComponent);
