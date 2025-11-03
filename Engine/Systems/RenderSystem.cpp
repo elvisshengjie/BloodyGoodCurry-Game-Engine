@@ -939,7 +939,21 @@ namespace Framework {
                             rb->width, rb->height,
                             1.f, 0.f, 0.f, 1.f,
                             2.f);
+
+                        // Check hurtboxcomponennt for hurtboxes
+                        if (auto* hb = obj->GetComponentType<Framework::HurtBoxComponent>(
+                            ComponentTypeId::CT_HurtBoxComponent))
+                        {
+                            if (hb->active)
+                            {
+                                gfx::Graphics::renderRectangleOutline(hb->spawnX, hb->spawnY, 0.0f,
+                                    hb->width, hb->height,
+                                    0.f, 1.f, 0.f, 1.f, 2.f);
+                            }
+                        }
                     }
+
+                    
                 }
             }
 
