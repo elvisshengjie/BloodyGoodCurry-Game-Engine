@@ -38,6 +38,9 @@ namespace Framework {
         void BeginMenuFrame();
         void EndMenuFrame();
 
+        // Editor visibility helpers so other systems can react to editor state.
+        static bool IsEditorVisible();
+
         // Text accessors
         bool IsTextReadyHint()  const { return textReadyHint; }
         bool IsTextReadyTitle() const { return textReadyTitle; }

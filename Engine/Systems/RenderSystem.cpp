@@ -627,8 +627,6 @@ namespace Framework {
 
     void RenderSystem::DrawViewportControls()
     {
-        if (!showEditor)
-            return;
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImVec2 pos = viewport->WorkPos;
@@ -650,27 +648,32 @@ namespace Framework {
             bool editorEnabled = showEditor;
             if (ImGui::Checkbox("Editor Enabled (F10)", &editorEnabled))
                 showEditor = editorEnabled;
-
-            bool fullWidth = gameViewportFullWidth;
-            if (ImGui::Checkbox("Game Full Width (F11)", &fullWidth))
-                gameViewportFullWidth = fullWidth;
-
-            if (showEditor && !gameViewportFullWidth)
+            if (!showEditor)
             {
-                float splitPercent = editorSplitRatio * 100.0f;
-                if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                    editorSplitRatio = splitPercent / 100.0f;
+                ImGui::TextDisabled("Editor panels hidden. Press F10 or re-enable above.");
             }
+            else
+            {
+                bool fullWidth = gameViewportFullWidth;
+                if (ImGui::Checkbox("Game Full Width (F11)", &fullWidth))
+                    gameViewportFullWidth = fullWidth;
+                if (!gameViewportFullWidth)
+                {
+                    float splitPercent = editorSplitRatio * 100.0f;
+                    if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                        editorSplitRatio = splitPercent / 100.0f;
+                }
 
-            bool fullHeight = gameViewportFullHeight;
-            if (ImGui::Checkbox("Game Full Height", &fullHeight))
-                gameViewportFullHeight = fullHeight;
+                bool fullHeight = gameViewportFullHeight;
+                if (ImGui::Checkbox("Game Full Height", &fullHeight))
+                    gameViewportFullHeight = fullHeight;
 
-            if (!gameViewportFullHeight) {
-                float hPercent = heightRatio * 100.0f;
-                if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                    heightRatio = hPercent / 100.0f;
-                ImGui::TextDisabled("Viewport is centered vertically");
+                if (!gameViewportFullHeight) {
+                    float hPercent = heightRatio * 100.0f;
+                    if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                        heightRatio = hPercent / 100.0f;
+                    ImGui::TextDisabled("Viewport is centered vertically");
+                }
             }
 
             ImGui::Separator();
@@ -792,6 +795,11 @@ namespace Framework {
     {
         // Keep symmetry for future state restoration if needed.
         RestoreFullViewport();
+    }
+
+    bool RenderSystem::IsEditorVisible()
+    {
+        return sInstance ? sInstance->showEditor : false;
     }
 
     void RenderSystem::draw()
@@ -981,9 +989,10 @@ namespace Framework {
             t0 = clock::now();
 
             DrawDockspace();
+            DrawViewportControls();
             if (showEditor)
             {
-                DrawViewportControls();
+               
                 assetBrowser.Draw();
                 mygame::DrawHierarchyPanel();
                 mygame::DrawSpawnPanel();
@@ -997,19 +1006,18 @@ namespace Framework {
                     if (ImGui::Button("Delete BG texture"))   gfx::Graphics::testCrash(5);
                 }
                 ImGui::End();
-
-                if (ImGui::Begin("Debug Overlays"))
-                {
-                    const char* buttonLabel = showPhysicsHitboxes ? "Hide Hitboxes" : "Show Hitboxes";
-                    if (ImGui::Button(buttonLabel))
+                    if (ImGui::Begin("Debug Overlays"))
                     {
-                        showPhysicsHitboxes = !showPhysicsHitboxes;
-                    }
+                        const char* buttonLabel = showPhysicsHitboxes ? "Hide Hitboxes" : "Show Hitboxes";
+                        if (ImGui::Button(buttonLabel))
+                        {
+                            showPhysicsHitboxes = !showPhysicsHitboxes;
+                        }
 
-                    ImGui::SameLine();
-                    ImGui::Text("Hitboxes: %s", showPhysicsHitboxes ? "ON" : "OFF");
-                }
-                ImGui::End();
+                        ImGui::SameLine();
+                        ImGui::Text("Hitboxes: %s", showPhysicsHitboxes ? "ON" : "OFF");
+                    }
+                    ImGui::End();
 
                 Framework::DrawPerformanceWindow();
             }
