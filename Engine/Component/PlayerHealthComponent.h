@@ -14,8 +14,8 @@ namespace Framework
             void SendMessage(Message& m) override { (void)m; }
             void Serialize(ISerializer& s) override 
             {
-                if (s.HasKey("playerhealth")) StreamRead(s, "playerHealth", playerHealth);
-                if (s.HasKey("playerMaxhealth")) StreamRead(s, "playermMaxhealth", playerMaxhealth);
+                if (s.HasKey("playerHealth")) StreamRead(s, "playerHealth", playerHealth);
+                if (s.HasKey("playerMaxhealth")) StreamRead(s, "playerMaxhealth", playerMaxhealth);
             }
             std::unique_ptr<GameComponent> Clone() const override 
             {
