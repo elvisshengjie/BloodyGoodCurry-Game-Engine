@@ -108,7 +108,7 @@ namespace Framework {
         float dragOffsetY = 0.0f;
         gfx::Camera2D camera;
         float cameraViewHeight = 1.0f;
-
+        bool cameraEnabled = true;
         std::string imguiLayoutPath{};
     };
 
