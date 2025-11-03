@@ -188,9 +188,9 @@ namespace Framework
                 tr->y += rb->velY * dt;
             }
             static float attackTimer = 0.0f;
-            const float attackInterval = 0.5;
+            const float attackInterval = 1.5f;
             attackTimer += dt;
-            if (ai->chaseTimer >= ai->maxChaseDuration)
+            if (attackTimer >= attackInterval)
             {attackTimer=0.0f; std::cout << "Enemy attacks with " << attack->damage << " damage!\n"; }
             ai->chaseTimer += dt;
             if (ai->chaseTimer >= ai->maxChaseDuration) {

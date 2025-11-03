@@ -325,6 +325,7 @@ namespace Framework {
 
                         // If we started dragging the Player, lock camera follow at the start position.
                         if (IsPlayerObject(obj))
+                            if (cameraEnabled && IsPlayerObject(obj))
                         {
                             gCameraFollowLocked = true;
                             gCameraLockPos = glm::vec2(tr->x, tr->y);
@@ -418,6 +419,13 @@ namespace Framework {
         // 2) Map [0,1] to NDC [-1,1].
         const float ndcX = static_cast<float>(normalizedX * 2.0 - 1.0);
         const float ndcY = static_cast<float>(normalizedY * 2.0 - 1.0);
+
+        if (!cameraEnabled)
+        {
+            worldX = ndcX;
+            worldY = ndcY;
+            return true;
+        }
 
         // 3) Unproject NDC using the inverse of the current camera VP matrix.
         // For a 2D orthographic camera, using z=0 is sufficient (scene lies in z=0 plane).
@@ -675,12 +683,35 @@ namespace Framework {
 
             ImGui::Separator();
             ImGui::TextUnformatted("Camera");
+
+            if (!cameraEnabled)
+                ImGui::BeginDisabled();
+
             if (ImGui::SliderFloat("View Height (world units)", &cameraViewHeight, 0.4f, 2.5f, "%.2f"))
             {
                 // Smaller height => closer zoom. Keep camera updated immediately.
                 camera.SetViewHeight(cameraViewHeight);
             }
+            if (!cameraEnabled)
+                ImGui::EndDisabled();
             ImGui::TextDisabled("Smaller values zoom the camera closer to the player.");
+            if (ImGui::Checkbox("Camera Enabled", &cameraEnabled))
+            {
+                if (!cameraEnabled)
+                {
+                    gCameraFollowLocked = false;
+                    gfx::Graphics::resetViewProjection();
+                }
+                else
+                {
+                    camera.SetViewHeight(cameraViewHeight);
+                }
+            }
+
+            if (!cameraEnabled)
+            {
+                ImGui::TextDisabled("Camera disabled: legacy static framing.");
+            }
         }
         ImGui::End();
     }
@@ -720,6 +751,10 @@ namespace Framework {
 
         std::cout << "[CWD] " << std::filesystem::current_path() << "\n";
         std::cout << "[EXE] " << GetExeDir() << "\n";
+       
+
+        imguiLayoutPath = "../../Data_Files/imgui_layout.ini";
+
 
         if (auto fontPath = FindRoboto(); !fontPath.empty())
         {
@@ -750,6 +785,8 @@ namespace Framework {
         if (window)
         {
             ImGuiLayer::Initialize(*window, config);
+            ImGuiIO& io = ImGui::GetIO();
+            io.IniFilename = "../../Data_Files/imgui_layout.ini";
         }
         else
         {
@@ -797,22 +834,25 @@ namespace Framework {
             // === Update camera BEFORE picking and rendering ===
             gfx::Graphics::resetViewProjection();
 
-            float playerX = 0.0f, playerY = 0.0f;
-            const bool hasPlayer = logic.GetPlayerWorldPosition(playerX, playerY);
-
-            if (gCameraFollowLocked)
+            if (cameraEnabled)
             {
-                // While locked (dragging Player), keep camera fixed.
-                camera.SnapTo(gCameraLockPos);
-            }
-            else if (hasPlayer)
-            {
-                // Normal follow.
-                camera.SnapTo(glm::vec2(playerX, playerY));
-            }
+                float playerX = 0.0f, playerY = 0.0f;
+                const bool hasPlayer = logic.GetPlayerWorldPosition(playerX, playerY);
 
-            // Submit this frame's View and Projection so picking uses the latest VP.
-            gfx::Graphics::setViewProjection(camera.ViewMatrix(), camera.ProjectionMatrix());
+                if (gCameraFollowLocked)
+                {
+                    // While locked (dragging Player), keep camera fixed.
+                    camera.SnapTo(gCameraLockPos);
+                }
+                else if (hasPlayer)
+                {
+                    // Normal follow.
+                    camera.SnapTo(glm::vec2(playerX, playerY));
+                }
+
+                // Submit this frame's View and Projection so picking uses the latest VP.
+                gfx::Graphics::setViewProjection(camera.ViewMatrix(), camera.ProjectionMatrix());
+            }
 
             // Now handle picking with the correct (current) camera matrices.
             HandleViewportPicking();
@@ -1017,6 +1057,8 @@ namespace Framework {
 
     void RenderSystem::Shutdown()
     {
+
+        ImGui::SaveIniSettingsToDisk(imguiLayoutPath.c_str());
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), nullptr);
 

@@ -7,6 +7,10 @@
 #include "Component/CircleRenderComponent.h"
 #include "Component/SpriteComponent.h"
 
+#include "Component/PlayerComponent.h"
+#include "Component/PlayerAttackComponent.h"
+#include "Component/PlayerHealthComponent.h"
+
 #include "Component/EnemyComponent.h"
 #include "Component/EnemyAttackComponent.h"
 #include "Component/EnemyDecisionTreeComponent.h"

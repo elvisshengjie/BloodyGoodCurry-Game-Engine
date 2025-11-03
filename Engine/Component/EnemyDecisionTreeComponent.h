@@ -21,7 +21,7 @@ namespace Framework {
         float pauseTimer = 0.0f;
 		float chaseSpeed = 0.0f;
 		float chaseTimer = 0.0f;
-		float maxChaseDuration = 5.0f;
+		float maxChaseDuration = 3.0f;
 		bool hasSeenPlayer = false;
 		void initialize() override
 		{
