@@ -158,7 +158,6 @@ namespace Framework {
         RegisterComponent(PlayerComponent);
         RegisterComponent(PlayerAttackComponent);
         RegisterComponent(PlayerHealthComponent);
-        RegisterComponent(EnemyHealthComponent);
 
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
