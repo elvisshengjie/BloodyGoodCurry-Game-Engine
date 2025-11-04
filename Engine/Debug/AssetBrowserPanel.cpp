@@ -244,9 +244,6 @@ namespace mygame {
         const std::string label = entry.path.filename().string();
         ImGui::PushID(label.c_str());
 
-
-
-
         const bool isDirectory = entry.isDirectory;
         const bool isSelected = IsSelected(entry.path);
         if (isSelected)

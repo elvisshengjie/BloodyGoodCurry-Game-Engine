@@ -203,7 +203,7 @@ namespace Framework
 
                 rb->velX = vx;
                 rb->velY = vy;
-                bool collision = false; 
+              //  bool collision = false; 
                 tr->x += rb->velX * dt;
                 tr->y += rb->velY * dt;
             }
