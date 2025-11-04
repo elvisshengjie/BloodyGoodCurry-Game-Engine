@@ -551,12 +551,8 @@ namespace mygame {
                 gS.rbVelY = mrb->velY;
                 
             }
-            if (auto* atk = master->GetComponentType<EnemyAttackComponent>(
-                ComponentTypeId::CT_EnemyAttackComponent)) {
-                gS.attackDamage = atk->damage;
-                gS.attack_speed = atk->attack_speed;
-            }
-    
+           // gS.overridePrefabSize = false;
+           // gS.overridePrefabCollider = false;
             gPendingPrefabSizeSync = false;
         }
 
