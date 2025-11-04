@@ -4,6 +4,7 @@
 #include "Component/RenderComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/TransformComponent.h"
+#include "Component/EnemyAttackComponent.h"
 #include "Config/WindowConfig.h"
 #include "Debug/ImGuiLayer.h"
 #include "Debug/Perf.h"
@@ -11,6 +12,7 @@
 #include "Debug/Selection.h"
 #include "Debug/HierarchyPanel.h"
 #include "Debug/AssetBrowserPanel.h"
+#include "Debug/JsonEditorPanel.h"
 #include "Factory/Factory.h"
 #include "Graphics/Graphics.hpp"
 #include "Graphics/Camera2D.hpp"
@@ -19,6 +21,8 @@
 #include "Resource_Manager/Resource_Manager.h"
 
 #include <filesystem>
+#include <imgui.h>
+#include <glm/vec2.hpp>
 
 struct GLFWwindow;
 
@@ -54,12 +58,18 @@ namespace Framework {
         std::filesystem::path GetExeDir() const;
         std::string           FindRoboto() const;
         std::filesystem::path FindAssetsRoot() const;
+        std::filesystem::path FindDataFilesRoot() const;
         void HandleFileDrop(int count, const char** paths);
         void ProcessImportedAssets();
         void DrawDockspace();
         void HandleShortcuts();
         void HandleViewportPicking();
+        void UpdateEditorCameraControls(GLFWwindow* native, const ImGuiIO& io, double cursorX, double cursorY);
         bool ScreenToWorld(double cursorX, double cursorY, float& worldX, float& worldY, bool& insideViewport) const;
+        bool CursorToViewportNdc(double cursorX, double cursorY, float& ndcX, float& ndcY, bool& insideViewport) const;
+        bool UnprojectWithCamera(const gfx::Camera2D& cam, float ndcX, float ndcY, float& worldX, float& worldY) const;
+        bool ShouldUseEditorCamera() const;
+        void FrameEditorSelection();
         Framework::GOCId TryPickObject(float worldX, float worldY) const;
         void UpdateGameViewport();
         void RestoreFullViewport();
@@ -77,7 +87,8 @@ namespace Framework {
 
         mygame::AssetBrowserPanel assetBrowser;
         std::filesystem::path assetsRoot;
-
+        mygame::JsonEditorPanel jsonEditor;
+        std::filesystem::path dataFilesRoot;
 
 
         int screenW = 1280, screenH = 720;
@@ -112,6 +123,13 @@ namespace Framework {
         gfx::Camera2D camera;
         float cameraViewHeight = 1.0f;
         bool cameraEnabled = true;
+
+        gfx::Camera2D editorCamera;
+        float editorCameraViewHeight = 1.0f;
+        bool  editorCameraPanning = false;
+        glm::vec2 editorCameraPanStartWorld{ 0.0f, 0.0f };
+        glm::vec2 editorCameraPanStartFocus{ 0.0f, 0.0f };
+        bool editorFrameHeld = false;
         std::string imguiLayoutPath{};
     };
 

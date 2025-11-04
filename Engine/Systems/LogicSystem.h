@@ -28,7 +28,7 @@
 
 #include "Graphics/Window.hpp"
 #include "Physics/Collision/Collision.h"
-#include "Component/HurtBoxComponent.h"
+#include "Component/HitBoxComponent.h"
 
 #include "../../Sandbox/MyGame/MathUtils.hpp"
 
@@ -134,6 +134,7 @@ namespace Framework {
 		int screenH{ 600 };
 
 		bool captured{ false };
+		bool crashTestLatched{ false };
 		std::unique_ptr<CrashLogger> crashLogger;
 	};
 }
