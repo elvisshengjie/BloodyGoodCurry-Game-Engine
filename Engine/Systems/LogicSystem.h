@@ -70,9 +70,9 @@ namespace Framework {
 
 		void Update(float dt) override;
 
-
-
 		void Shutdown() override;
+
+		void ReloadLevel();
 
 		GameObjectFactory* Factory() const { return factory.get(); }
 		const std::vector<GOC*>& LevelObjects() const { return levelObjects; }

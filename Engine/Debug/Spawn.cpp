@@ -541,6 +541,7 @@ namespace mygame {
         const bool hasRigidBody =
             (master->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent) != nullptr);
         const bool hasEnemyAttack = (master->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent) != nullptr);
+        const bool hasEnemyHealth = (master->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent) != nullptr);
 
         if (gPendingPrefabSizeSync) {
             if (masterRender) { gS.w = masterRender->w; gS.h = masterRender->h; }
@@ -551,8 +552,14 @@ namespace mygame {
                 gS.rbVelY = mrb->velY;
                 
             }
-           // gS.overridePrefabSize = false;
-           // gS.overridePrefabCollider = false;
+            if (auto* atk = master->GetComponentType<EnemyAttackComponent>(
+                ComponentTypeId::CT_EnemyAttackComponent)) {
+                gS.attackDamage = atk->damage;
+                gS.attack_speed = atk->attack_speed;
+            }
+         
+            
+    
             gPendingPrefabSizeSync = false;
         }
 
@@ -668,6 +675,14 @@ namespace mygame {
             ImGui::SameLine();
             ImGui::TextDisabled("(lower = faster)");
         }
+
+        if (hasEnemyHealth) {
+            ImGui::SeparatorText("Enemy Health");
+            ImGui::DragInt("Health", &gS.enemyHealth, 1, 0, 100000);      // clamp to non-negative
+            ImGui::DragInt("HealthMax", &gS.enemyMaxhealth, 1, 0, 100000);
+           
+        }
+
         // === Color Controls ===
         if (hasRender || hasCircle) {
             ImGui::SeparatorText("Color");
