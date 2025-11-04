@@ -14,6 +14,7 @@ namespace Framework
 		bool active = false;
 		float spawnX = 0.0f;
 		float spawnY = 0.0f;
+		float damage = 1.0f;
 
 		void initialize() override { active = false; }
 		void SendMessage(Message& m) override { (void)m; }

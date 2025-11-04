@@ -20,6 +20,7 @@
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include <Serialization/JsonSerialization.h>
 #include "InputSystem.h"
+#include "HitBoxSystem.h"
 
 
 #include "Config/WindowConfig.h"
