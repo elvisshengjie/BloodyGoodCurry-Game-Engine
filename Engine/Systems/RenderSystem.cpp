@@ -27,10 +27,10 @@
 #include <vector>
 #include <limits>
 #include <unordered_set>
-
+#include <unordered_map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
-
+#include <glm/gtc/matrix_transform.hpp>
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "../../Sandbox/MyGame/Game.hpp"
 namespace Framework {
@@ -1008,7 +1008,14 @@ namespace Framework {
 
             if (FACTORY)
             {
-                // Pass 1: Sprites
+                std::unordered_map<unsigned, std::vector<gfx::Graphics::SpriteInstance>> spriteBatches;
+                spriteBatches.reserve(64);
+
+                const auto& animState = logic.Animation();
+                const int animCols = std::max(1, CurrentColumns());
+                const int animRows = std::max(1, CurrentRows());
+
+                // Pass 1: Sprites (instanced)
                 for (auto& [id, objPtr] : FACTORY->Objects())
                 {
                     (void)id;
@@ -1031,31 +1038,50 @@ namespace Framework {
                         {
                             sx = rc->w; sy = rc->h; r = rc->r; g = rc->g; b = rc->b; a = rc->a;
                         }
-
+                        unsigned tex = sp->texture_id;
+                        glm::vec4 uvRect(0.0f, 0.0f, 1.0f, 1.0f);
                         if (IsPlayerObject(obj) && idleTex && runTex)
                         {
-                            gfx::Graphics::renderSpriteFrame(
-                                CurrentPlayerTexture(), tr->x, tr->y, tr->rot,
-                                sx, sy,
-                                logic.Animation().frame, CurrentColumns(), CurrentRows(),
-                                r, g, b, a
-                            );
-                            continue;
+                            tex = CurrentPlayerTexture();
+                            if (tex)
+                            {
+                                const int frame = animState.frame;
+                                const float sxUV = 1.0f / static_cast<float>(animCols);
+                                const float syUV = 1.0f / static_cast<float>(animRows);
+                                const int c = frame % animCols;
+                                const int rIdx = frame / animCols;
+                                uvRect = glm::vec4(
+                                    static_cast<float>(c) * sxUV,
+                                    static_cast<float>(rIdx) * syUV,
+                                    sxUV, syUV);
+                            }
                         }
 
-                        unsigned tex = sp->texture_id;
-                        if (!tex && !sp->texture_key.empty())
+                        else if (!tex && !sp->texture_key.empty())
                         {
                             tex = Resource_Manager::getTexture(sp->texture_key);
                             sp->texture_id = tex;
                         }
-                        if (tex)
-                        {
-                            gfx::Graphics::renderSprite(tex, tr->x, tr->y, tr->rot, sx, sy, r, g, b, a);
-                        }
+                        if (!tex)
+                            continue;
+
+                        gfx::Graphics::SpriteInstance instance;
+                        glm::mat4 model(1.0f);
+                        model = glm::translate(model, glm::vec3(tr->x, tr->y, 0.0f));
+                        model = glm::rotate(model, tr->rot, glm::vec3(0, 0, 1));
+                        model = glm::scale(model, glm::vec3(sx, sy, 1.0f));
+                        instance.model = model;
+                        instance.tint = glm::vec4(r, g, b, a);
+                        instance.uv = uvRect;
+
+                        spriteBatches[tex].push_back(instance);
                     }
                 }
-
+                for (auto& [tex, batch] : spriteBatches)
+                {
+                    if (!batch.empty())
+                        gfx::Graphics::renderSpriteBatchInstanced(tex, batch);
+                }
                 // Pass 2: Rectangles (non-sprite quads)
                 for (auto& [id, objPtr] : FACTORY->Objects())
                 {
