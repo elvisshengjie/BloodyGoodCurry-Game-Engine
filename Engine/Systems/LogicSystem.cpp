@@ -333,6 +333,40 @@ namespace Framework {
             }
             }, "LogicSystem::Update");
     }
+    void LogicSystem::ReloadLevel()
+    {
+        if (!factory)
+            return;
+
+        std::filesystem::path levelPath = factory->LastLevelPath();
+        if (levelPath.empty())
+            levelPath = "../../Data_Files/level.json";
+
+        for (auto const& [id, obj] : factory->Objects())
+        {
+            (void)id;
+            if (obj)
+                factory->Destroy(obj.get());
+        }
+        factory->Update(0.0f);
+
+        levelObjects = factory->CreateLevel(levelPath.string());
+
+        player = nullptr;
+        collisionTarget = nullptr;
+        captured = false;
+        rectScale = 1.f;
+        rectBaseW = 0.5f;
+        rectBaseH = 0.5f;
+        animState = AnimState::Idle;
+        frame = 0;
+        frameClock = 0.f;
+        animInfo = AnimationInfo{};
+        collisionInfo = CollisionInfo{};
+
+        RefreshLevelReferences();
+        CachePlayerSize();
+    }
 
     void LogicSystem::Shutdown()
     {
