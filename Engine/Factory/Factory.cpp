@@ -46,7 +46,7 @@
 #include "Component/PlayerComponent.h"
 #include "Component/PlayerHealthComponent.h"
 #include "Component/PlayerAttackComponent.h"
-#include "Component/HurtBoxComponent.h"
+#include "Component/HitBoxComponent.h"
 #include "Component/EnemyComponent.h"
 #include "Component/EnemyAttackComponent.h"
 #include "Component/EnemyDecisionTreeComponent.h"
@@ -355,12 +355,12 @@ namespace Framework {
                 typeStr = "ranged";
             return json{ {"type", typeStr} };
         }
-        case ComponentTypeId::CT_HurtBoxComponent: {
-            auto const& hurt = static_cast<HurtBoxComponent const&>(component);
+        case ComponentTypeId::CT_HitBoxComponent: {
+            auto const& hit = static_cast<HitBoxComponent const&>(component);
             return json{
-            {"hurtwidth",   hurt.width},
-            {"hurtheight",  hurt.height},
-            {"hurtduration",hurt.duration}
+            {"hitwidth",   hit.width},
+            {"hitheight",  hit.height},
+            {"hitduration",hit.duration}
      
             };
         }
