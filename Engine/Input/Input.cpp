@@ -49,19 +49,24 @@ namespace Framework
             return;
 
         // Keyboard
+         
         for (int key = 0; key <= GLFW_KEY_LAST; ++key)
         {
+            if (key < GLFW_KEY_SPACE) {
+                // make sure nothing gets "stuck" for invalid indices
+                m_keyHeld[key] = false;
+                // pressed/released were already cleared at the top of Update()
+                continue;
+            }
+
             int state = glfwGetKey(m_window, key);
             bool wasHeld = m_keyHeld[key];
             bool isHeld = (state == GLFW_PRESS) || (state == GLFW_REPEAT);
 
-            if (isHeld)
-            {
-                if (!wasHeld)
-                    m_keyPressed[key] = true;
+            if (isHeld) {
+                if (!wasHeld) m_keyPressed[key] = true;
             }
-            else if (wasHeld)
-            {
+            else if (wasHeld) {
                 m_keyReleased[key] = true;
             }
 
