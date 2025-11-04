@@ -206,7 +206,7 @@ namespace Framework {
                 Framework::ComponentTypeId::CT_RenderComponent);
             auto* rb = player->GetComponentType<Framework::RigidBodyComponent>(
                 Framework::ComponentTypeId::CT_RigidBodyComponent);
-            
+
             const float rotSpeed = DegToRad(90.f);
             const float scaleRate = 1.5f;
             const bool shift = input.IsKeyPressed(GLFW_KEY_LEFT_SHIFT) ||
@@ -231,14 +231,19 @@ namespace Framework {
                 rc->w = rectBaseW * rectScale;
                 rc->h = rectBaseH * rectScale;
             }
-            float normalizedX = (float)((mouse.x / window->Width()) * 2.0 - 1.0);
-            float normalizedY = (float)((mouse.y / window->Height()) * -2.0 + 1.0);
-            // rc->w is the image flipping thingamajic
-            if (normalizedX > tr->x)
-                rc->w = std::abs(rc->w);
-            else if (normalizedX < tr->x)
-                rc->w = -std::abs(rc->w); 
-           
+            float normalizedX{};
+            float normalizedY{};
+            if (tr && rc) {
+                normalizedX = (float)((mouse.x / window->Width()) * 2.0 - 1.0);
+                normalizedY = (float)((mouse.y / window->Height()) * -2.0 + 1.0);
+                // rc->w is the image flipping thingamajic
+                if (normalizedX > tr->x)
+                    rc->w = std::abs(rc->w);
+                else if (normalizedX < tr->x)
+                    rc->w = -std::abs(rc->w);
+
+            }
+
 
             if (rb && tr)
             {
@@ -327,6 +332,40 @@ namespace Framework {
                 }
             }
             }, "LogicSystem::Update");
+    }
+    void LogicSystem::ReloadLevel()
+    {
+        if (!factory)
+            return;
+
+        std::filesystem::path levelPath = factory->LastLevelPath();
+        if (levelPath.empty())
+            levelPath = "../../Data_Files/level.json";
+
+        for (auto const& [id, obj] : factory->Objects())
+        {
+            (void)id;
+            if (obj)
+                factory->Destroy(obj.get());
+        }
+        factory->Update(0.0f);
+
+        levelObjects = factory->CreateLevel(levelPath.string());
+
+        player = nullptr;
+        collisionTarget = nullptr;
+        captured = false;
+        rectScale = 1.f;
+        rectBaseW = 0.5f;
+        rectBaseH = 0.5f;
+        animState = AnimState::Idle;
+        frame = 0;
+        frameClock = 0.f;
+        animInfo = AnimationInfo{};
+        collisionInfo = CollisionInfo{};
+
+        RefreshLevelReferences();
+        CachePlayerSize();
     }
 
     void LogicSystem::Shutdown()

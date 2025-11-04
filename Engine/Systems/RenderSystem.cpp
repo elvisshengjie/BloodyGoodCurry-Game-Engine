@@ -31,7 +31,7 @@
 #include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
 
 #include "Physics/Dynamics/RigidBodyComponent.h"
-
+#include "../../Sandbox/MyGame/Game.hpp"
 namespace Framework {
 
     RenderSystem* RenderSystem::sInstance = nullptr;
@@ -682,6 +682,36 @@ namespace Framework {
                         heightRatio = hPercent / 100.0f;
                     ImGui::TextDisabled("Viewport is centered vertically");
                 }
+                ImGui::Separator();
+                ImGui::TextUnformatted("Simulation");
+                bool isPlaying = mygame::IsEditorSimulationRunning();
+
+                const bool wasPlaying = isPlaying;
+                if (wasPlaying)
+                    ImGui::BeginDisabled();
+                if (ImGui::Button("Play"))
+                {
+                    mygame::EditorPlaySimulation();
+                    isPlaying = mygame::IsEditorSimulationRunning();
+                }
+                if (wasPlaying)
+                    ImGui::EndDisabled();
+
+                ImGui::SameLine();
+
+                const bool wasStopped = !isPlaying;
+                if (wasStopped)
+                    ImGui::BeginDisabled();
+                if (ImGui::Button("Stop"))
+                {
+                    mygame::EditorStopSimulation();
+                    isPlaying = mygame::IsEditorSimulationRunning();
+                }
+                if (wasStopped)
+                    ImGui::EndDisabled();
+
+                ImGui::SameLine();
+                ImGui::Text("State: %s", isPlaying ? "Playing" : "Stopped");
             }
 
             ImGui::Separator();
