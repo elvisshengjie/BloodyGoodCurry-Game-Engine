@@ -158,7 +158,7 @@ namespace Framework {
         RegisterComponent(PlayerComponent);
         RegisterComponent(PlayerAttackComponent);
         RegisterComponent(PlayerHealthComponent);
-        RegisterComponent(HurtBoxComponent);
+        RegisterComponent(HitBoxComponent);
 
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
@@ -275,8 +275,8 @@ namespace Framework {
                 collisionInfo.player = AABB(tr->x, tr->y, rb->width, rb->height);
                 collisionInfo.playerValid = true;
 
-                auto* hurtbox = player->GetComponentType<Framework::HurtBoxComponent>(
-                    Framework::ComponentTypeId::CT_HurtBoxComponent);
+                auto* hurtbox = player->GetComponentType<Framework::HitBoxComponent>(
+                    Framework::ComponentTypeId::CT_HitBoxComponent);
 
                 static float hurtTimer = hurtbox->duration; // Cooldown timer for attack
 

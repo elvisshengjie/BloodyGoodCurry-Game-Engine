@@ -1143,14 +1143,31 @@ namespace Framework {
                             2.f);
 
                         // Check hurtboxcomponennt for hurtboxes
-                        if (auto* hb = obj->GetComponentType<Framework::HurtBoxComponent>(
-                            ComponentTypeId::CT_HurtBoxComponent))
+                        if (auto* hb = obj->GetComponentType<Framework::HitBoxComponent>(
+                            ComponentTypeId::CT_HitBoxComponent))
                         {
                             if (hb->active)
                             {
                                 gfx::Graphics::renderRectangleOutline(hb->spawnX, hb->spawnY, 0.0f,
                                     hb->width, hb->height,
                                     0.f, 1.f, 0.f, 1.f, 2.f);
+                            }
+                        }
+                        if (auto* ea = obj->GetComponentType<Framework::EnemyAttackComponent>(
+                            ComponentTypeId::CT_EnemyAttackComponent))
+                        {
+                            if (ea->hitbox && ea->hitbox->active)
+                            {
+                                gfx::Graphics::renderRectangleOutline(
+                                    ea->hitbox->spawnX,
+                                    ea->hitbox->spawnY,
+                                    0.0f,
+                                    ea->hitbox->width,
+                                    ea->hitbox->height,
+                                    1.0f, 0.0f, 0.0f, 1.0f, // red outline for enemy attacks
+                                    2.0f
+                                );
+
                             }
                         }
                     }
