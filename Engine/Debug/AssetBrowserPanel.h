@@ -1,8 +1,7 @@
 /*********************************************************************************************
  \file      AssetBrowserPanel.h
  \par       SofaSpuds
- \author    you (your.email@digipen.edu) - Main Author, 70%
-            erika.ishii (erika.ishii@digipen.edu) - Author, 30%
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Content browser panel for navigating, previewing, and importing project assets.
  \details   Manages an assets root, renders a thumbnail/grid view, supports drag-and-drop
             imports and texture replacement, and caches small previews for quick browsing.
