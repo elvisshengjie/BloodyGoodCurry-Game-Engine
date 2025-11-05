@@ -2,6 +2,7 @@
  \file      LogicSystem.cpp
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Author, 10%
+             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 20%
            
  \brief     Core gameplay loop and input-driven logic for the sample sandbox.
  \details   This module owns high-level game state orchestration:
