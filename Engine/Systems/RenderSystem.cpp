@@ -1,3 +1,25 @@
+﻿/*********************************************************************************************
+ \file      RenderSystem.cpp
+ \par       SofaSpuds
+ \author    erika.ishii (erika.ishii@digipen.edu) - Author, 30%
+
+ \brief     Editor/game viewport orchestration: camera control, picking/dragging,
+            split-view docking, ImGui panels, asset import plumbings, and frame submit.
+ \details   The RenderSystem coordinates how the scene is viewed and interacted with:
+            - Viewports: computes game viewport (split width/height) and restores full window.
+            - Cameras: editor camera (pan/zoom/frame selection) and follow camera for gameplay.
+            - Picking/Drag: screen→world unproject, object hit-testing, and drag with offsets.
+            - Rendering: sets VP matrices, submits background and batched sprites, draws UI text.
+            - Editor UI: dockspace host, viewport controls, asset browser, JSON editor, panels.
+            - Imports: handles OS file drops and refreshes textures used by sprite components.
+            - Lifecycle: initialize(), per-frame draw(), shutdown(), and menu-frame helpers.
+            Uses Graphics.cpp for GPU work (VAOs/shaders/sprite draw) and ImGui for tools.
+            Camera math relies on GLM; input comes via GLFW.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
 #  define WIN32_LEAN_AND_MEAN
@@ -95,7 +117,7 @@ namespace Framework {
                     if (sprite->texture_key == key)
                         sprite->texture_id = handle;
                 }
-                
+
             }
         }
     } // anonymous namespace
@@ -108,7 +130,11 @@ namespace Framework {
         editorCameraViewHeight = cameraViewHeight;
         editorCamera.SetViewHeight(editorCameraViewHeight);
     }
-
+/*************************************************************************************
+  \brief  Return directory path of the running executable (platform-specific).
+  \return Filesystem path to exe’s parent directory.
+  \note   Used for probing asset/data roots when launching from different CWDs.
+*************************************************************************************/
     std::filesystem::path RenderSystem::GetExeDir() const
     {
 #if defined(_WIN32)
@@ -129,7 +155,11 @@ namespace Framework {
         return std::filesystem::current_path();
 #endif
     }
-
+/*************************************************************************************
+  \brief  Probe for a Roboto font file in common asset locations.
+  \return Absolute/relative path string to a usable Roboto .ttf, or empty if not found.
+  \details Tries several relative paths and ascends parents to locate assets/Fonts.
+*************************************************************************************/
     std::string RenderSystem::FindRoboto() const
     {
         namespace fs = std::filesystem;
@@ -191,7 +221,11 @@ namespace Framework {
 
         return {};
     }
-
+/*************************************************************************************
+  \brief  Locate the canonical assets/ directory.
+  \return Canonical path if found; otherwise an empty path.
+  \details Walks up from CWD and exe directory, checking for an 'assets' folder.
+*************************************************************************************/
     std::filesystem::path RenderSystem::FindAssetsRoot() const
     {
         namespace fs = std::filesystem;
@@ -215,7 +249,11 @@ namespace Framework {
 
         return {};
     }
-
+/*************************************************************************************
+  \brief  Locate the canonical Data_Files/ directory.
+  \return Canonical path if found; otherwise an empty path.
+  \details Similar to FindAssetsRoot(), but probes for 'Data_Files' plus a few fallbacks.
+*************************************************************************************/
     std::filesystem::path RenderSystem::FindDataFilesRoot() const
     {
         namespace fs = std::filesystem;
@@ -266,12 +304,20 @@ namespace Framework {
 
         return {};
     }
-
+ /*************************************************************************************
+  \brief  Choose the current player sprite texture (idle vs run) based on animation state.
+  \return GL texture handle of the active player sprite sheet.
+*************************************************************************************/
     unsigned RenderSystem::CurrentPlayerTexture() const
     {
         return logic.Animation().running ? runTex : idleTex;
     }
-
+/*************************************************************************************
+  \brief  Queue external files dropped from the OS into the Asset Browser.
+  \param  count  Number of dropped paths.
+  \param  paths  Array of UTF-8 file path strings.
+  \details Converts to std::filesystem::path and hands over to AssetBrowser for import.
+*************************************************************************************/
     void RenderSystem::HandleFileDrop(int count, const char** paths)
     {
         if (count <= 0 || !paths || assetsRoot.empty())
@@ -288,7 +334,10 @@ namespace Framework {
         if (!dropped.empty())
             assetBrowser.QueueExternalFiles(dropped);
     }
-
+ /*************************************************************************************
+  \brief  Handle assets that were just imported (textures/audio) and refresh live sprites.
+  \details For textures, refreshes SpriteComponent texture_id when keys match.
+*************************************************************************************/
     void RenderSystem::ProcessImportedAssets()
     {
         if (assetsRoot.empty())
@@ -301,7 +350,7 @@ namespace Framework {
         std::unordered_set<std::string> processed;
         for (const auto& relative : pending)
         {
-            
+
             std::string key = relative.generic_string();
             if (key.empty() || !processed.insert(key).second)
                 continue;
@@ -326,12 +375,16 @@ namespace Framework {
                 if (isTexture)
                 {
                     RefreshSpriteComponentsForKey(key);
-                   
+
                 }
             }
         }
     }
-
+/*************************************************************************************
+  \brief  Keyboard shortcuts for toggling editor/fullscreen and framing selection.
+  \details F10 toggles editor panels; F11 toggles game full width; F frames selection
+           (only in editor camera mode).
+*************************************************************************************/
     void RenderSystem::HandleShortcuts()
     {
         if (!window)
@@ -365,7 +418,11 @@ namespace Framework {
             editorFrameHeld = glfwGetKey(native, GLFW_KEY_F) == GLFW_PRESS;
         }
     }
-
+/*************************************************************************************
+  \brief  Editor viewport picking/dragging and camera-follow lock while dragging Player.
+  \details Converts cursor to world (ScreenToWorld), selects nearest hit, preserves drag
+           offset, zeroes body velocity if present, and unlocks follow on mouse release.
+*************************************************************************************/
     void RenderSystem::HandleViewportPicking()
     {
         if (!window || !FACTORY)
@@ -438,10 +495,10 @@ namespace Framework {
                         // If we started dragging the Player, lock camera follow at the start position.
                         if (IsPlayerObject(obj))
                             if (cameraEnabled && IsPlayerObject(obj))
-                        {
-                            gCameraFollowLocked = true;
-                            gCameraLockPos = glm::vec2(tr->x, tr->y);
-                        }
+                            {
+                                gCameraFollowLocked = true;
+                                gCameraLockPos = glm::vec2(tr->x, tr->y);
+                            }
 
                         // Optional: Avoid physics-driven drift while dragging.
                         ZeroRigidBodyVelocityIfPresent(obj);
@@ -501,7 +558,14 @@ namespace Framework {
         leftMouseDownPrev = mouseDown;
     }
 
-    // Convert screen-space cursor to world coordinates using the inverse of (Projection * View).
+/*************************************************************************************
+  \brief  Convert a screen cursor position to world space.
+  \param  cursorX,cursorY  Screen coordinates (GLFW).
+  \param  worldX,worldY    Output world coordinates.
+  \param  insideViewport   True if the cursor is over the game viewport.
+  \return True if conversion succeeded and point lies in the viewport.
+  \details Uses active camera’s inverse VP (Projection*View) to unproject.
+*************************************************************************************/
     bool RenderSystem::ScreenToWorld(double cursorX, double cursorY,
         float& worldX, float& worldY,
         bool& insideViewport) const
@@ -526,7 +590,11 @@ namespace Framework {
         const gfx::Camera2D& activeCamera = usingEditorCamera ? editorCamera : camera;
         return UnprojectWithCamera(activeCamera, ndcX, ndcY, worldX, worldY);
     }
-
+/*************************************************************************************
+  \brief  Map screen cursor to normalized device coords within the game viewport.
+  \return True on success; sets ndcX/ndcY (\[-1,\+1\]) and insideViewport flag.
+  \note   Accounts for ImGui work area and Y-up mapping.
+*************************************************************************************/
     bool RenderSystem::CursorToViewportNdc(double cursorX, double cursorY,
         float& ndcX, float& ndcY, bool& insideViewport) const
     {
@@ -539,7 +607,7 @@ namespace Framework {
         if (gameViewport.width <= 0 || gameViewport.height <= 0)
             return false;
 
-       
+
         const double viewportLeft = static_cast<double>(gameViewport.x);
         const double viewportWidth = static_cast<double>(gameViewport.width);
         const double viewportBottom = static_cast<double>(gameViewport.y);
@@ -549,7 +617,7 @@ namespace Framework {
         if (fullHeight <= 0)
             return false;
 
-        
+
         const double mouseYFromBottom = static_cast<double>(fullHeight) - cursorY;
 
         const double normalizedX = (cursorX - viewportLeft) / viewportWidth;
@@ -563,6 +631,10 @@ namespace Framework {
         return true;
     }
 
+    /*************************************************************************************
+  \brief  Unproject an NDC point using the provided camera’s inverse VP.
+  \return True if the resulting world coordinates are finite.
+*************************************************************************************/
     bool RenderSystem::UnprojectWithCamera(const gfx::Camera2D& cam,
         float ndcX, float ndcY,
         float& worldX, float& worldY) const
@@ -580,6 +652,10 @@ namespace Framework {
 
         return std::isfinite(worldX) && std::isfinite(worldY);
     }
+/*************************************************************************************
+  \brief  Decide if the editor camera should drive the view this frame.
+  \details Editor must be shown, simulation must be stopped, and a valid viewport present.
+*************************************************************************************/
     bool RenderSystem::ShouldUseEditorCamera() const
     {
         if (!showEditor)
@@ -590,7 +666,14 @@ namespace Framework {
             return false;
         return true;
     }
-
+/*************************************************************************************
+  \brief  Editor camera panning and zooming using middle-mouse and wheel.
+  \param  native   GLFW window pointer.
+  \param  io       ImGuiIO for wheel/mouse capture checks.
+  \param  cursorX  Screen X.
+  \param  cursorY  Screen Y.
+  \details Pans when MMB is held inside the viewport; zooms about the cursor with wheel.
+*************************************************************************************/
     void RenderSystem::UpdateEditorCameraControls(GLFWwindow* native, const ImGuiIO& io,
         double cursorX, double cursorY)
     {
@@ -661,7 +744,10 @@ namespace Framework {
             }
         }
     }
-
+/*************************************************************************************
+  \brief  Center the editor camera on the selected object and adjust zoom to fit it.
+  \details Estimates an extent from circle/rect/sprite size and adds padding to view height.
+*************************************************************************************/
     void RenderSystem::FrameEditorSelection()
     {
         if (!ShouldUseEditorCamera())
@@ -702,6 +788,11 @@ namespace Framework {
         editorCamera.SetViewHeight(desiredHeight);
         editorCameraViewHeight = editorCamera.ViewHeight();
     }
+/*************************************************************************************
+  \brief  Hit-test objects at (worldX,worldY) and return the nearest pickable one.
+  \return GOCId of the best match or 0 if none.
+  \details Tests circles and oriented rects; ignores layers filtered by game/editor rules.
+*************************************************************************************/
     Framework::GOCId RenderSystem::TryPickObject(float worldX, float worldY) const
     {
         if (!FACTORY)
@@ -779,7 +870,11 @@ namespace Framework {
 
         return bestId;
     }
-
+/*************************************************************************************
+  \brief  Compute and apply the game viewport rectangle inside the window.
+  \details Supports editor split width, optional full height, vertical centering, and notifies
+           cameras/text to update their projection/viewports. Calls glViewport accordingly.
+*************************************************************************************/
     void RenderSystem::UpdateGameViewport()
     {
         if (!window)
@@ -846,7 +941,9 @@ namespace Framework {
         if (gameViewport.width > 0 && gameViewport.height > 0)
             glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
     }
-
+/*************************************************************************************
+  \brief  Restore GL viewport to the full window (used before UI/menu draws).
+*************************************************************************************/
     void RenderSystem::RestoreFullViewport()
     {
         if (!window)
@@ -854,7 +951,10 @@ namespace Framework {
 
         glViewport(0, 0, window->Width(), window->Height());
     }
-
+/*************************************************************************************
+  \brief  Draw the editor dockspace host window on the right side of the screen.
+  \details Creates a passthrough dock node sized to the editor region; no background/chrome.
+*************************************************************************************/
     void RenderSystem::DrawDockspace()
     {
         if (!showEditor)
@@ -894,7 +994,10 @@ namespace Framework {
 
         ImGui::PopStyleVar(2);
     }
-
+/*************************************************************************************
+  \brief  Small always-on-top helper for toggles and camera settings.
+  \details Lets you toggle editor/full-width/full-height, play/stop sim, and camera enable/zoom.
+*************************************************************************************/
     void RenderSystem::DrawViewportControls()
     {
 
@@ -1010,23 +1113,33 @@ namespace Framework {
         }
         ImGui::End();
     }
-
+/*************************************************************************************
+  \brief  GLFW drop-files callback trampoline into RenderSystem instance.
+*************************************************************************************/
     void RenderSystem::GlfwDropCallback(GLFWwindow*, int count, const char** paths)
     {
         if (sInstance)
             sInstance->HandleFileDrop(count, paths);
     }
-
+/*************************************************************************************
+  \brief  Convenience accessor for current animation sheet columns.
+*************************************************************************************/
     int RenderSystem::CurrentColumns() const
     {
         return logic.Animation().columns;
     }
-
+/*************************************************************************************
+  \brief  Convenience accessor for current animation sheet rows.
+*************************************************************************************/
     int RenderSystem::CurrentRows() const
     {
         return logic.Animation().rows;
     }
-
+/*************************************************************************************
+  \brief  One-time GL/ImGui/asset setup and window/config discovery.
+  \details Loads fonts, background/sprite textures, initializes Graphics.cpp, ImGui layer,
+           discovers assets and Data_Files roots, and wires file-drop callback.
+*************************************************************************************/
     void RenderSystem::Initialize()
     {
         WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
@@ -1046,7 +1159,7 @@ namespace Framework {
 
         std::cout << "[CWD] " << std::filesystem::current_path() << "\n";
         std::cout << "[EXE] " << GetExeDir() << "\n";
-       
+
 
         imguiLayoutPath = "../../Data_Files/imgui_layout.ini";
 
@@ -1102,7 +1215,10 @@ namespace Framework {
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);
     }
-
+/*************************************************************************************
+  \brief  Prepare GL state for drawing the main menu pages (screen-space).
+  \note   Uses full-window viewport and identity VP so UI is not camera-affected.
+*************************************************************************************/
     void Framework::RenderSystem::BeginMenuFrame()
     {
         // UI/menu renders in screen space: reset VP to identity and use full window viewport.
@@ -1117,18 +1233,33 @@ namespace Framework {
         // The MainMenuPage will draw its own menu.jpg.
         glUseProgram(0);
     }
-
+/*************************************************************************************
+  \brief  Symmetric end to BeginMenuFrame() — restores full viewport for later passes.
+*************************************************************************************/
     void Framework::RenderSystem::EndMenuFrame()
     {
         // Keep symmetry for future state restoration if needed.
         RestoreFullViewport();
     }
-
+/*************************************************************************************
+  \brief  Static visibility query for the editor UI (used by external panels).
+  \return True if the editor panels are currently shown.
+*************************************************************************************/
     bool RenderSystem::IsEditorVisible()
     {
         return sInstance ? sInstance->showEditor : false;
     }
-
+/*************************************************************************************
+  \brief  Main per-frame render/update entry: sets VP, draws world/UI, and editor tools.
+  \details Order:
+           1) Shortcuts + viewport update
+           2) VP reset, choose camera (editor/game follow), and set VP
+           3) Picking/drag
+           4) Background, batched sprites, text in screen-space
+           5) Dockspace, controls, asset/json panels, debug overlays
+           6) Imported assets processing and perf timing
+  \note    Uses TryGuard::Run(...) to isolate and label crashes as "RenderSystem::draw".
+*************************************************************************************/
     void RenderSystem::draw()
     {
         TryGuard::Run([&] {
@@ -1295,8 +1426,8 @@ namespace Framework {
 
                     gfx::Graphics::renderCircle(tr->x, tr->y, cc->radius, cc->r, cc->g, cc->b, cc->a);
                 }
-                
-                // Optional: physics debug overlay
+
+                //physics debug overlay
                 if (showPhysicsHitboxes && logic.hitBoxSystem)
                 {
                     for (auto& [id, objPtr] : FACTORY->Objects())
@@ -1334,7 +1465,7 @@ namespace Framework {
                         }
                     }
 
-                    
+
                 }
             }
 
@@ -1373,7 +1504,7 @@ namespace Framework {
             DrawViewportControls();
             if (showEditor)
             {
-               
+
                 assetBrowser.Draw();
                 jsonEditor.Draw();
                 mygame::DrawHierarchyPanel();
@@ -1388,18 +1519,18 @@ namespace Framework {
                     if (ImGui::Button("Delete BG texture"))   gfx::Graphics::testCrash(5);
                 }
                 ImGui::End();
-                    if (ImGui::Begin("Debug Overlays"))
+                if (ImGui::Begin("Debug Overlays"))
+                {
+                    const char* buttonLabel = showPhysicsHitboxes ? "Hide Hitboxes" : "Show Hitboxes";
+                    if (ImGui::Button(buttonLabel))
                     {
-                        const char* buttonLabel = showPhysicsHitboxes ? "Hide Hitboxes" : "Show Hitboxes";
-                        if (ImGui::Button(buttonLabel))
-                        {
-                            showPhysicsHitboxes = !showPhysicsHitboxes;
-                        }
-
-                        ImGui::SameLine();
-                        ImGui::Text("Hitboxes: %s", showPhysicsHitboxes ? "ON" : "OFF");
+                        showPhysicsHitboxes = !showPhysicsHitboxes;
                     }
-                    ImGui::End();
+
+                    ImGui::SameLine();
+                    ImGui::Text("Hitboxes: %s", showPhysicsHitboxes ? "ON" : "OFF");
+                }
+                ImGui::End();
 
                 Framework::DrawPerformanceWindow();
             }
@@ -1410,7 +1541,9 @@ namespace Framework {
             Framework::setImGui(imguiMs);
             }, "RenderSystem::draw");
     }
-
+/*************************************************************************************
+  \brief  Persist ImGui layout, detach callbacks, and release any per-frame resources.
+*************************************************************************************/
     void RenderSystem::Shutdown()
     {
 
