@@ -331,6 +331,7 @@ namespace Framework {
             {
                 if (!obj) continue;
 
+                // Check if object is an enemy
                 if (obj->GetObjectName() == "Enemy")
                 {
                     auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
@@ -341,31 +342,40 @@ namespace Framework {
                         // Build the enemy's collision box
                         AABB enemyBox(tr->x, tr->y, rb->width, rb->height);
 
-                        // Check against the player
+                        // --- Player HitBox Collision Check ---
                         if (player)
                         {
-                            auto* rbP = player->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-                            auto* trP = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-
-                            if (rbP && trP)
+                            auto* attack = player->GetComponentType<PlayerAttackComponent>(ComponentTypeId::CT_PlayerAttackComponent);
+                            if (attack && attack->hitbox && attack->hitbox->active)
                             {
-                                AABB playerBox(trP->x, trP->y, rbP->width, rbP->height);
+                                // Build the player's active hitbox
+                                AABB playerHitBox(
+                                    attack->hitbox->spawnX,
+                                    attack->hitbox->spawnY,
+                                    attack->hitbox->width,
+                                    attack->hitbox->height
+                                );
 
-                                if (Collision::CheckCollisionRectToRect(playerBox, enemyBox))
+                                // Check for intersection between hitbox and enemy
+                                if (Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
                                 {
-                                    std::cout << "Player hit by enemy at (" << tr->x << ", " << tr->y << ")\n";
+                                    std::cout << "Enemy hit by player at (" << tr->x << ", " << tr->y << ")\n";
 
-                                    // Apply damage if player has health
-                                    if (auto* health = player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
+                                    // Apply damage if enemy has health
+                                    if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                                     {
-                                        health->TakeDamage(1.0f); // Example: 1 damage
+                                        health->TakeDamage(attack->damage);
                                     }
+
+                                    // Deactivate hitbox after successful hit
+                                    attack->hitbox->DeactivateHurtBox();
                                 }
                             }
                         }
                     }
                 }
             }
+
 
             if (hitBoxSystem)
                 hitBoxSystem->Update(dt);
@@ -479,11 +489,19 @@ namespace Framework {
             }
 
             // Check player attack hitbox against enemies
-            if (attack && attack->PerformAttack())
+            if (attack)
             {
                 auto* hb = attack->hitbox.get();
                 AABB playerHitBox(hb->spawnX, hb->spawnY, hb->width, hb->height);
-                hitBoxSystem->SpawnHitBox(player,hb->spawnX, hb->width, hb->height, attack->damage, , 0.1f);
+                hitBoxSystem->SpawnHitBox(
+                    player,
+                    hb->spawnX,
+                    hb->width,
+                    hb->height,
+                    static_cast<float>(attack->damage),
+                    attack->attack_speed,
+                    0.1f
+                );
                 for (auto* obj : levelObjects)
                 {
                     if (!obj || obj->GetObjectName() != "Enemy") continue;

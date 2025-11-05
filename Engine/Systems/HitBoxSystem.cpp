@@ -159,7 +159,7 @@ namespace Framework
 						auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
 						if (health)
 						{
-							health->TakeDamage(it->hitbox->damage);
+							health->TakeDamage(static_cast<int>(it->hitbox->damage));
 							std::cout << "Enemy hit! Remaining HP: " << health->enemyHealth << "\n";
 						}
 						hit = true;

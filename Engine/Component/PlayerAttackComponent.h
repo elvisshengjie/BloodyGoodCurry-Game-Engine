@@ -32,18 +32,20 @@ namespace Framework
             }
             void PerformAttack(TransformComponent* playerTr)
             {
+
                 if (!playerTr) return;
                 if (!hitbox) hitbox = std::make_unique<HitBoxComponent>();
                 hitbox->spawnX = playerTr->x + 50;
                 hitbox->spawnY = playerTr->y;
                 hitbox->width = 50;
                 hitbox->height = 50;
-                hitbox->damage = damage;
+                hitbox->damage = static_cast<float>(damage);
                 hitbox->duration = 0.2f;
                 hitbox->ActivateHurtBox();
             }
             void Update(float dt, TransformComponent* tr)
             {
+                (void)tr;
                 if (hitbox && hitbox->active)
                 {
                     hitbox->duration -= dt;
