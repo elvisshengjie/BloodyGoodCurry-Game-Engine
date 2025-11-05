@@ -13,11 +13,15 @@
             - Audio helper: modal that lists .wav/.mp3 files in the current folder.
             - Status line: user feedback after operations (import/replace/no-op), colored by
               success/error.
+<<<<<<< HEAD
             Notes:
               * The panel uses defensive filesystem operations (weakly_canonical, error_code)
                 to remain stable against missing/invalid entries and platform quirks.
               * Texture previews are created via gfx::Graphics and destroyed deterministically
                 when pruned or on panel destruction.
+=======
+           
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.

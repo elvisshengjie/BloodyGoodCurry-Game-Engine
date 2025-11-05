@@ -1,3 +1,30 @@
+/*********************************************************************************************
+ \file      LogicSystem.cpp
+ \par       SofaSpuds
+ \author    erika.ishii (erika.ishii@digipen.edu) - Author, 10%
+           
+ \brief     Core gameplay loop and input-driven logic for the sample sandbox.
+ \details   This module owns high-level game state orchestration:
+            - Factory lifetime: component registration, prefab loading/unloading, level create/destroy.
+            - Player references: discovery, cached size for scale operations, animation state machine.
+            - Input mapping: WASD movement, Q/E rotation, Z/X scale, R reset, Shift accelerator.
+            - HitBoxSystem integration: spawns short-lived attack boxes towards cursor on LMB.
+            - Crash logging utilities: F9 forces a safe, logged crash for robustness testing.
+            - Collision �debug info�: builds AABBs for player/target to visualize or check overlap.
+
+            Performance & stability:
+            * Uses TryGuard::Run to isolate Update() logic and attribute errors with a tag.
+            * Minimizes per-frame object lookups by caching player/targets (validated via IsAlive()).
+            * Time-based animation frame stepping decoupled from render rate via fps in AnimConfig.
+
+            Conventions:
+            * Screen coordinates are in normalized device space (-1..+1) for mouse mapping.
+            * Layering, physics, and rendering are handled by their respective systems; LogicSystem
+              manipulates components (Transform/Render/RigidBody) but does not own them.
+ \copyright
+            All content �2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 
 #include "Systems/LogicSystem.h"
 #include <cctype>
@@ -5,18 +32,34 @@
 #include <csignal>
 
 namespace Framework {
+
+    /*****************************************************************************************
+      \brief Construct a LogicSystem bound to a window and input system.
+      \param window  Reference to the active gfx::Window (dimension queries, etc.).
+      \param input   Reference to the engine-wide InputSystem.
+    *****************************************************************************************/
     LogicSystem::LogicSystem(gfx::Window& window, InputSystem& input)
         : window(&window), input(input) {
     }
 
+    /// Defaulted virtual destructor; shuts down via Shutdown().
     LogicSystem::~LogicSystem() = default;
 
+    /*****************************************************************************************
+      \brief Get the currently active animation configuration (idle vs run).
+      \return const AnimConfig& Either runConfig or idleConfig depending on AnimState.
+    *****************************************************************************************/
     const LogicSystem::AnimConfig& LogicSystem::CurrentConfig() const
     {
         return animState == AnimState::Run ? runConfig : idleConfig;
     }
 
-
+    /*****************************************************************************************
+      \brief Check if a given object pointer still exists in the factory.
+      \param obj Candidate object pointer.
+      \return true if obj is found among factory->Objects(); false otherwise.
+      \note   Useful to invalidate cached pointers when levels reload or objects are destroyed.
+    *****************************************************************************************/
     bool LogicSystem::IsAlive(GOC* obj) const
     {
         if (!obj || !factory)
@@ -30,6 +73,13 @@ namespace Framework {
         return false;
     }
 
+<<<<<<< HEAD
+=======
+    /*****************************************************************************************
+      \brief Cache the player�s base rectangle width/height once for scale operations.
+      \note  Called after player is discovered; resets rectScale to 1.f and marks captured=true.
+    *****************************************************************************************/
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
     GOC* LogicSystem::FindAnyAlivePlayer()
     {
         if (!factory)
@@ -64,6 +114,13 @@ namespace Framework {
         }
     }
 
+    /*****************************************************************************************
+      \brief Refresh references after level load or object churn.
+             - Updates levelObjects with LastLevelObjects()
+             - Finds/validates player
+             - Finds/validates a default collision target ("rect", case-insensitive)
+             - Caches player size if needed
+    *****************************************************************************************/
     void LogicSystem::RefreshLevelReferences()
     {
         if (!factory)
@@ -121,6 +178,15 @@ namespace Framework {
         }
     }
 
+    /*****************************************************************************************
+      \brief Step the sprite-sheet animation based on desired run/idle state.
+      \param dt      Delta time (seconds).
+      \param wantRun Whether the input implies running (vs idle).
+      \details
+        - Switching state resets frame and local clock.
+        - frameClock accumulates fps-scaled time; increments frame when >= 1.0.
+        - animInfo is updated for the renderer to pick the correct UV cell.
+    *****************************************************************************************/
     void LogicSystem::UpdateAnimation(float dt, bool wantRun)
     {
         AnimState desired = wantRun ? AnimState::Run : AnimState::Idle;
@@ -145,6 +211,12 @@ namespace Framework {
         animInfo.running = (animState == AnimState::Run);
     }
 
+    /*****************************************************************************************
+      \brief Get the player's world position (if available).
+      \param outX [out] Player world X.
+      \param outY [out] Player world Y.
+      \return true if player and TransformComponent are present; false otherwise.
+    *****************************************************************************************/
     bool LogicSystem::GetPlayerWorldPosition(float& outX, float& outY) const
     {
         if (!player)
@@ -160,6 +232,14 @@ namespace Framework {
         return true;
     }
 
+    /*****************************************************************************************
+      \brief Initialize the game logic systems and world.
+             - Sets up crash logging (file + logcat mirror).
+             - Installs terminate/signal handlers.
+             - Instantiates factory; registers components; loads prefabs; creates initial level.
+             - Discovers player and caches initial size; loads window config.
+             - Builds HitBoxSystem and prints control help.
+    *****************************************************************************************/
     void LogicSystem::Initialize()
     {
         crashLogger = std::make_unique<CrashLogger>(std::string("../../logs"),
@@ -204,9 +284,15 @@ namespace Framework {
         screenW = cfg.width;
         screenH = cfg.height;
 
+<<<<<<< HEAD
         
         hitBoxSystem = new HitBoxSystem(*this); 
         hitBoxSystem->Initialize(); 
+=======
+        // Build HitBoxSystem after references are valid.
+        hitBoxSystem = new HitBoxSystem(*this);
+        hitBoxSystem->Initialize();
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
 
         std::cout << "\n=== Controls ===\n"
             << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
@@ -216,10 +302,27 @@ namespace Framework {
             << "=======================================\n";
     }
 
+    /*****************************************************************************************
+      \brief Per-frame update: input handling, physics intent, animation stepping, hitbox spawn,
+             collision AABB bookkeeping, and crash-test handling.
+      \param dt Delta time (seconds).
+      \details
+        - Press F9 to generate a deliberate, logged crash (latched to prevent spam).
+        - Delegates physics/AI progression to factory->Update(dt).
+        - Player rotation: Q/E (�90 deg/s), clamp to [-pi, +pi], R to reset.
+        - Player scale: Z/X (�rate), clamped to [0.25, 4.0], R to reset.
+        - Velocity intent from WASD mapped into RigidBody (actual motion elsewhere).
+        - Sprite �flip� via rc->w sign compared against mouse X for simple facing.
+        - LMB spawns a timed HitBox in the look direction (towards cursor).
+    *****************************************************************************************/
     void LogicSystem::Update(float dt)
     {
         TryGuard::Run([&] {
+<<<<<<< HEAD
              bool triggerCrash = input.IsKeyPressed(GLFW_KEY_F9);
+=======
+            bool triggerCrash = input.IsKeyPressed(GLFW_KEY_F9);
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
             if (triggerCrash && !crashTestLatched) {
                 crashTestLatched = true;
                 if (g_crashLogger) {
@@ -228,15 +331,26 @@ namespace Framework {
                 }
                 std::cout << "[CrashLog] Deliberate crash requested via F9.\n";
                 std::raise(SIGABRT);
+<<<<<<< HEAD
             } else if (!triggerCrash) {
                 crashTestLatched = false;
             }
+=======
+            }
+            else if (!triggerCrash) {
+                crashTestLatched = false;
+            }
+
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
             if (factory)
                 factory->Update(dt);
 
             RefreshLevelReferences();
             if (hitBoxSystem)
                 hitBoxSystem->Update(dt); 
+
+            if (hitBoxSystem)
+                hitBoxSystem->Update(dt);
 
             if (!player)
                 return;
@@ -256,6 +370,7 @@ namespace Framework {
                 input.IsKeyPressed(GLFW_KEY_RIGHT_SHIFT);
             const float accel = shift ? 3.f : 1.f;
 
+            // Rotation controls (Q/E), clamped to [-pi, +pi], R to reset.
             if (tr)
             {
                 if (input.IsKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
@@ -265,6 +380,7 @@ namespace Framework {
                 if (input.IsKeyPressed(GLFW_KEY_R)) tr->rot = 0.f;
             }
 
+            // Scaling controls (Z/X), clamped; R resets scale and size.
             if (rc)
             {
                 if (input.IsKeyPressed(GLFW_KEY_X)) rectScale *= (1.f + scaleRate * dt * accel);
@@ -274,20 +390,22 @@ namespace Framework {
                 rc->w = rectBaseW * rectScale;
                 rc->h = rectBaseH * rectScale;
             }
+
+            // Map mouse to NDC (-1..+1) for simple facing/aiming computations.
             float normalizedX{};
             float normalizedY{};
             if (tr && rc) {
                 normalizedX = (float)((mouse.x / window->Width()) * 2.0 - 1.0);
                 normalizedY = (float)((mouse.y / window->Height()) * -2.0 + 1.0);
-                // rc->w is the image flipping thingamajic
+
+                // Flip sprite by width sign based on mouse relative position.
                 if (normalizedX > tr->x)
                     rc->w = std::abs(rc->w);
                 else if (normalizedX < tr->x)
                     rc->w = -std::abs(rc->w);
-
             }
 
-
+            // Velocity intent set on RigidBody; an external system integrates it.
             if (rb && tr)
             {
                 rb->velX = 0.0f;
@@ -299,6 +417,7 @@ namespace Framework {
                 if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = -1.f;
             }
 
+            // Running state if any movement keys are held (arrow keys supported too).
             const bool wantRun = input.IsKeyHeld(GLFW_KEY_A) ||
                 input.IsKeyHeld(GLFW_KEY_D) ||
                 input.IsKeyHeld(GLFW_KEY_W) ||
@@ -310,6 +429,7 @@ namespace Framework {
 
             UpdateAnimation(dt, wantRun);
 
+            // Collision debug info (player vs a target rect)
             collisionInfo.playerValid = false;
             collisionInfo.targetValid = false;
 
@@ -318,6 +438,10 @@ namespace Framework {
                 collisionInfo.player = AABB(tr->x, tr->y, rb->width, rb->height);
                 collisionInfo.playerValid = true;
 
+<<<<<<< HEAD
+=======
+                // LMB spawns a short-lived hit box in the facing direction (towards cursor).
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
                 if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && hitBoxSystem)
                 {
                     float dx = normalizedX - tr->x;
@@ -330,7 +454,12 @@ namespace Framework {
                         dy /= len;
                     }
 
+<<<<<<< HEAD
                     float offset = 0.05f; // This is the offset of where the hurtbox will spawn
+=======
+                    // Offset places the hitbox slightly ahead of the player bounds.
+                    float offset = 0.05f;
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
                     float spawnX = tr->x + dx * (std::abs(rc->w) * 0.5f + 0.25f + offset);
                     float spawnY = tr->y + dy * (rc->h * 0.5f + 0.25f + offset);
 
@@ -341,7 +470,11 @@ namespace Framework {
 
                     hitBoxSystem->SpawnHitBox(player, spawnX, spawnY, hitboxWidth, hitboxHeight, hitboxDamage, hitboxDuration);
 
+<<<<<<< HEAD
                     // for debugging
+=======
+                    // Debug print for visibility.
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
                     std::cout << "Hurtbox spawned at (" << spawnX << ", " << spawnY << ")\n";
                 }
                 
@@ -361,7 +494,16 @@ namespace Framework {
             }
             }, "LogicSystem::Update");
     }
+<<<<<<< HEAD
     
+=======
+
+    /*****************************************************************************************
+      \brief Reload the current level (or a default one) and reset cached state.
+             - Destroys all live objects, recreates the level, clears cached pointers/state,
+               then refreshes references and caches player size again.
+    *****************************************************************************************/
+>>>>>>> 6baee9b2a300877840f912289198f6e48ae9d79f
     void LogicSystem::ReloadLevel()
     {
         if (!factory)
@@ -397,6 +539,11 @@ namespace Framework {
         CachePlayerSize();
     }
 
+    /*****************************************************************************************
+      \brief Shutdown and release owned systems/resources.
+             - Clears references, shuts down factory and unloads prefabs.
+             - Tears down crash logger and HitBoxSystem.
+    *****************************************************************************************/
     void LogicSystem::Shutdown()
     {
         levelObjects.clear();
@@ -422,4 +569,4 @@ namespace Framework {
             hitBoxSystem = nullptr;
         }
     }
-}
+} // namespace Framework
