@@ -2,6 +2,7 @@
  \file      RenderSystem.cpp
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Author, 30%
+             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 10%
 
  \brief     Editor/game viewport orchestration: camera control, picking/dragging,
             split-view docking, ImGui panels, asset import plumbings, and frame submit.
@@ -1442,7 +1443,63 @@ namespace Framework {
                     gfx::Graphics::renderCircle(tr->x, tr->y, cc->radius, cc->r, cc->g, cc->b, cc->a);
                 }
 
+                // Pass 4: Hover/Selection highlight outlines (editor)
+                // Drawn in world space, using same VP as the object passes above.
                 //physics debug overlay
+
+                const auto hoveredId = mygame::GetHoverObjectId();
+                const auto selectedId = mygame::GetSelectedObjectId();
+                if ((hoveredId != 0) || (selectedId != 0))
+                {
+                    auto drawOutline = [](float x, float y, float rot, float w, float h, bool selected)
+                        {
+                            // Selected: thicker cyan; Hover: thinner yellow
+                            if (selected)
+                                gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 0.f, 1.f, 1.f, 1.f, 6.f);
+                            else
+                                gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 1.f, 1.f, 0.f, 1.f, 2.f);
+                        };
+
+                    for (auto& [id, objPtr] : FACTORY->Objects())
+                    {
+                        (void)id;
+                        auto* obj = objPtr.get();
+                        if (!obj) continue;
+                        if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
+
+                        const bool isHovered = (id == hoveredId);
+                        const bool isSelected = (id == selectedId);
+                        if (!isHovered && !isSelected) continue;
+
+                        auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                            Framework::ComponentTypeId::CT_TransformComponent);
+                        if (!tr) continue;
+
+                        // Determine bounds: prefer rect/sprite (w,h); otherwise circle radius; else skip
+                        float w = 0.f, h = 0.f;
+                        if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                            Framework::ComponentTypeId::CT_RenderComponent))
+                        {
+                            w = (rc->w > 0.f) ? rc->w : 1.f;
+                            h = (rc->h > 0.f) ? rc->h : 1.f;
+                            drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
+                        }
+                        else if (obj->GetComponentType<Framework::SpriteComponent>(
+                            Framework::ComponentTypeId::CT_SpriteComponent))
+                        {
+                            // Sprites use RenderComponent for size in this engine; if missing, give a safe default box
+                            w = 1.f; h = 1.f;
+                            drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
+                        }
+                        else if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
+                            Framework::ComponentTypeId::CT_CircleRenderComponent))
+                        {
+                            const float d = std::max(0.1f, cc->radius * 2.f);
+                            drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
+                        }
+                        // If none of the above, we don’t know the visual bounds; skip outlining.
+                    }
+                }
                 if (showPhysicsHitboxes && logic.hitBoxSystem)
                 {
                     for (auto& [id, objPtr] : FACTORY->Objects())
