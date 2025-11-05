@@ -73,6 +73,24 @@ namespace mygame {
         //EnemyHealth
         int enemyHealth{};
         int enemyMaxhealth{};
+
+        //player use
+        int attackDamagep{};
+        float attack_speedp{};
+
+        //playerHealth
+        int playerHealth{};
+        int playerMaxhealth{};
+
+        // override toggles (default: inherit from prefab JSON)
+        bool overridePrefabTransform{ false };
+        bool overridePrefabCircle{ false };
+        bool overrideSpriteTexture{ false };      // 
+        bool overrideEnemyAttack{ false };        // for damage/attack_speed
+        bool overrideEnemyHealth{ false };        // for health fields
+        bool overridePrefabVelocity{ false };     // velocities 
+        bool overridePlayerAttack{ false };
+        bool overridePlayerHealth{ false };
     };
 
     /*****************************************************************************************

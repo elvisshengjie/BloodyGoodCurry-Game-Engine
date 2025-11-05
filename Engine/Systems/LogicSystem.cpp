@@ -2,6 +2,7 @@
 #include "Systems/LogicSystem.h"
 #include <cctype>
 #include <string_view>
+#include <csignal>
 
 namespace Framework {
     LogicSystem::LogicSystem(gfx::Window& window, InputSystem& input)
@@ -27,6 +28,26 @@ namespace Framework {
                 return true;
         }
         return false;
+    }
+
+    GOC* LogicSystem::FindAnyAlivePlayer()
+    {
+        if (!factory)
+            return nullptr;
+
+        for (auto& [id, ptr] : factory->Objects())
+        {
+            if (auto* obj = ptr.get())
+            {
+                // Check if this object has a PlayerComponent
+                if (obj->GetComponentType<PlayerComponent>(
+                    ComponentTypeId::CT_PlayerComponent))
+                {
+                    return obj; // return the first alive player found
+                }
+            }
+        }
+        return nullptr;
     }
     void LogicSystem::CachePlayerSize()
     {
@@ -54,15 +75,16 @@ namespace Framework {
             player = nullptr;
         if (!player)
         {
-            for (auto* obj : levelObjects)
+            player = FindAnyAlivePlayer();
+            if (player)
             {
-                if (obj && obj->GetObjectName() == "Player")
-                {
-                    player = obj;
-                    break;
-                }
+                std::cout << "[LogicSystem] Player re-assigned to another alive instance: "
+                    << player->GetObjectName() << "\n";
+                captured = false; // force CachePlayerSize() again
             }
         }
+        if (player && !captured)
+            CachePlayerSize();
 
         if (!IsAlive(collisionTarget))
             collisionTarget = nullptr;
@@ -145,6 +167,8 @@ namespace Framework {
             std::string("ENGINE/CRASH"));
         g_crashLogger = crashLogger.get();
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
+        std::cout << "[CrashLog] Press F9 to force a crash-test (logs to file + logcat).\n";
+        std::cout << "[CrashLog] Android builds mirror to ENGINE/CRASH in logcat.\n";
 
         InstallTerminateHandler();
         InstallSignalHandlers();
@@ -158,7 +182,7 @@ namespace Framework {
         RegisterComponent(PlayerComponent);
         RegisterComponent(PlayerAttackComponent);
         RegisterComponent(PlayerHealthComponent);
-        RegisterComponent(HurtBoxComponent);
+        RegisterComponent(HitBoxComponent);
 
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
@@ -180,20 +204,39 @@ namespace Framework {
         screenW = cfg.width;
         screenH = cfg.height;
 
+        
+        hitBoxSystem = new HitBoxSystem(*this); 
+        hitBoxSystem->Initialize(); 
+
         std::cout << "\n=== Controls ===\n"
             << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
             << "A/D held => Run animation, otherwise Idle\n"
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
+            << "F9: Trigger crash logging test (SIGABRT)\n"
             << "=======================================\n";
     }
 
     void LogicSystem::Update(float dt)
     {
         TryGuard::Run([&] {
+             bool triggerCrash = input.IsKeyPressed(GLFW_KEY_F9);
+            if (triggerCrash && !crashTestLatched) {
+                crashTestLatched = true;
+                if (g_crashLogger) {
+                    auto line = g_crashLogger->WriteWithStack("manual_trigger", "key=F9|stage=pre_abort");
+                    g_crashLogger->Mirror(line);
+                }
+                std::cout << "[CrashLog] Deliberate crash requested via F9.\n";
+                std::raise(SIGABRT);
+            } else if (!triggerCrash) {
+                crashTestLatched = false;
+            }
             if (factory)
                 factory->Update(dt);
 
             RefreshLevelReferences();
+            if (hitBoxSystem)
+                hitBoxSystem->Update(dt); 
 
             if (!player)
                 return;
@@ -275,48 +318,33 @@ namespace Framework {
                 collisionInfo.player = AABB(tr->x, tr->y, rb->width, rb->height);
                 collisionInfo.playerValid = true;
 
-                auto* hurtbox = player->GetComponentType<Framework::HurtBoxComponent>(
-                    Framework::ComponentTypeId::CT_HurtBoxComponent);
-
-                static float hurtTimer = hurtbox->duration; // Cooldown timer for attack
-
-                if (hurtbox && tr && rc)
+                if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && hitBoxSystem)
                 {
-                    if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT))
+                    float dx = normalizedX - tr->x;
+                    float dy = normalizedY - tr->y;
+
+                    float len = std::sqrt(dx * dx + dy * dy);
+                    if (len > 0.0001f)
                     {
-                        float dx = normalizedX - tr->x;
-                        float dy = normalizedY - tr->y;
-
-                        float len = std::sqrt(dx * dx + dy * dy);
-                        if (len > 0.0001f)
-                        {
-                            dx /= len;
-                            dy /= len;
-                        }
-
-                        float offset = 0.05f; // This is the offset of where the hurtbox will spawn
-                        float spawnX = tr->x + dx * (std::abs(rc->w) * 0.5f + hurtbox->width * 0.5f + offset);
-                        float spawnY = tr->y + dy * (rc->h * 0.5f + hurtbox->height * 0.5f + offset);
-
-                        hurtbox->spawnX = spawnX;
-                        hurtbox->spawnY = spawnY;
-
-                        hurtbox->ActivateHurtBox();
-
-                        // for debugging
-                        std::cout << "Hurtbox spawned at (" << spawnX << ", " << spawnY << ")\n";
+                        dx /= len;
+                        dy /= len;
                     }
 
-                    if (hurtbox->active)
-                    {
-                        hurtTimer -= dt;
-                        if (hurtTimer <= 0.0f)
-                        {
-                            hurtbox->DeactivateHurtBox();
-                            hurtTimer = hurtbox->duration;
-                        }
-                    }
+                    float offset = 0.05f; // This is the offset of where the hurtbox will spawn
+                    float spawnX = tr->x + dx * (std::abs(rc->w) * 0.5f + 0.25f + offset);
+                    float spawnY = tr->y + dy * (rc->h * 0.5f + 0.25f + offset);
+
+                    float hitboxWidth = 0.5f;
+                    float hitboxHeight = 0.5f;
+                    float hitboxDamage = 1.0f;
+                    float hitboxDuration = 0.1f;
+
+                    hitBoxSystem->SpawnHitBox(player, spawnX, spawnY, hitboxWidth, hitboxHeight, hitboxDamage, hitboxDuration);
+
+                    // for debugging
+                    std::cout << "Hurtbox spawned at (" << spawnX << ", " << spawnY << ")\n";
                 }
+                
             }
 
             if (collisionTarget)
@@ -333,6 +361,7 @@ namespace Framework {
             }
             }, "LogicSystem::Update");
     }
+    
     void LogicSystem::ReloadLevel()
     {
         if (!factory)
@@ -384,6 +413,13 @@ namespace Framework {
         {
             g_crashLogger = nullptr;
             crashLogger.reset();
+        }
+
+        if (hitBoxSystem)
+        {
+            hitBoxSystem->Shutdown();
+            delete hitBoxSystem;
+            hitBoxSystem = nullptr;
         }
     }
 }

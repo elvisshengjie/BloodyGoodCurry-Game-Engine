@@ -2,10 +2,11 @@
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
 #include "Common/ComponentTypeID.h"
-
+#include "Common/System.h"
+#include "Factory/Factory.h"
 namespace Framework
 {
-	class HurtBoxComponent : public GameComponent
+	class HitBoxComponent : public GameComponent
 	{
 	public:
 		float width = 5.0f;
@@ -14,20 +15,22 @@ namespace Framework
 		bool active = false;
 		float spawnX = 0.0f;
 		float spawnY = 0.0f;
+		GOC* owner = nullptr;
+		float damage = 1.0f;
 
 		void initialize() override { active = false; }
 		void SendMessage(Message& m) override { (void)m; }
 
 		void Serialize(ISerializer& s) override
 		{
-			if (s.HasKey("hurtwidth")) StreamRead(s, "hurtwidth", width);
-			if (s.HasKey("hurtheight")) StreamRead(s, "hurtheight", height);
-			if (s.HasKey("hurtduration")) StreamRead(s, "hurtduration", duration);
+			if (s.HasKey("width")) StreamRead(s, "width", width);
+			if (s.HasKey("height")) StreamRead(s, "height", height);
+			if (s.HasKey("duration")) StreamRead(s, "duration", duration);
 		}
 
 		std::unique_ptr<GameComponent> Clone() const override
 		{
-			auto copy = std::make_unique<HurtBoxComponent>();
+			auto copy = std::make_unique<HitBoxComponent>();
 			copy->width = width;
 			copy->height = height;
 			copy->duration = duration;
