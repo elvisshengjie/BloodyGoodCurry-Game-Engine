@@ -73,24 +73,31 @@ namespace Framework
 
 				auto* hitbox = obj->GetComponentType<HitBoxComponent>(ComponentTypeId::CT_HitBoxComponent);
 
-				if (hitbox && hitbox->active)
+				if (hitbox)
 				{
-					AABB hitboxAABB(it->hitbox->spawnX, it->hitbox->spawnY,
-									it->hitbox->width, it->hitbox->height);
+					if (!hitbox->active)
+						hitbox->ActivateHurtBox(); // ensure it's active
 
-					AABB hurtboxAABB(hitbox->spawnX, hitbox->spawnY,
-									 hitbox->width, hitbox->height);
+					AABB playerHit(it->hitbox->spawnX, it->hitbox->spawnY,
+						it->hitbox->width, it->hitbox->height);
 
-					if (Collision::CheckCollisionRectToRect(hitboxAABB, hurtboxAABB))
+					AABB enemyHit(hitbox->spawnX, hitbox->spawnY,
+						hitbox->width, hitbox->height);
+
+					if (Collision::CheckCollisionRectToRect(playerHit, enemyHit))
 					{
-						std::cout << "Hit detected! ("
-							<< hitboxAABB.min.getX() << ", " << hitboxAABB.min.getY() << ") vs ("
-							<< hurtboxAABB.min.getX() << ", " << hurtboxAABB.min.getY() << ")\n";
+						auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+						if (health)
+						{
+							health->TakeDamage(it->hitbox->damage);
+							std::cout << "Enemy hit! Remaining HP: " << health->enemyHealth << "\n";
+						}
 						hit = true;
 						break;
 					}
 				}
 			}
+
 
 			if (hit || it->timer <= 0.f)
 			{

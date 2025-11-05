@@ -214,6 +214,47 @@ namespace Framework {
                 factory->Update(dt);
 
             RefreshLevelReferences();
+            for (auto* obj : levelObjects)
+            {
+                if (!obj) continue;
+
+                if (obj->GetObjectName() == "Enemy")
+                {
+                    auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+                    auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+
+                    if (rb && tr)
+                    {
+                        // Build the enemy's collision box
+                        AABB enemyBox(tr->x, tr->y, rb->width, rb->height);
+
+                        // Check against the player
+                        if (player)
+                        {
+                            auto* rbP = player->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+                            auto* trP = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+
+                            if (rbP && trP)
+                            {
+                                AABB playerBox(trP->x, trP->y, rbP->width, rbP->height);
+
+                                if (Collision::CheckCollisionRectToRect(playerBox, enemyBox))
+                                {
+                                    std::cout << "Player hit by enemy at (" << tr->x << ", " << tr->y << ")\n";
+
+                                    // Apply damage if player has health
+                                    if (auto* health = player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
+                                    {
+                                        health->TakeDamage(1.0f); // Example: 1 damage
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
             if (hitBoxSystem)
                 hitBoxSystem->Update(dt); 
 

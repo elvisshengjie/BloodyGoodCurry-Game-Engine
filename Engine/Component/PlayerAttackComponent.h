@@ -1,6 +1,7 @@
 #pragma once
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
+#include "Component/HitBoxComponent.h"
 #include <iostream>
 namespace Framework
 {

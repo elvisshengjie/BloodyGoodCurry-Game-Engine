@@ -128,11 +128,7 @@ namespace Framework {
                     // Reduce health if component exists
                     if (auto* health = playerObj->GetComponentType<PlayerHealthComponent>(
                         ComponentTypeId::CT_PlayerHealthComponent))
-                    {
-                        health->playerHealth -= enemyAttack->damage;
-                        if (health->playerHealth < 0) health->playerHealth = 0;
-                        std::cout << "Player Health: " << health->playerHealth << "\n";
-                    }
+                    {health->TakeDamage(enemyAttack->damage);}
 
                     // Disable hitbox so it doesn’t deal damage every frame
                     enemyAttack->hitbox->DeactivateHurtBox();
