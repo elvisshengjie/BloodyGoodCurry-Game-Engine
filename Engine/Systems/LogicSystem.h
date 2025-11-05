@@ -47,7 +47,7 @@ namespace Framework {
 
 	class InputsSyetm;
 	class GameObjectFactory;
-	
+	class HitBoxSystem; 
 
 	class LogicSystem :public Framework::ISystem {
 	public:
@@ -88,6 +88,7 @@ namespace Framework {
 		int ScreenWidth() const { return screenW; }
 		int ScreenHeight() const { return screenH; }
 
+		HitBoxSystem* hitBoxSystem = nullptr;
 
 		std::string GetName() override{ return "LogicSystem"; }
 
