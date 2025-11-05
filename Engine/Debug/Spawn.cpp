@@ -30,7 +30,9 @@
 #ifndef NOMINMAX
 #  define NOMINMAX
 #endif
-
+#if defined(APIENTRY)
+#  undef APIENTRY
+#endif
 #include <Windows.h>
 
 #ifdef SendMessage

@@ -5,6 +5,9 @@
 #ifndef NOMINMAX
 #  define NOMINMAX
 #endif
+#if defined(APIENTRY)
+#  undef APIENTRY
+#endif
 #include <Windows.h>
 // Avoid Win32 macro collisions with your engine API
 #ifdef SendMessage
