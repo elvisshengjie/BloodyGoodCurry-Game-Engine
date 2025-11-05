@@ -24,30 +24,6 @@
 #pragma once
 #include <memory>
 #include <functional>
-/*********************************************************************************************
- \class DecisionNode
- \brief
-    Represents a single node in a decision tree for AI or behavior logic.
-
- \details
-    Each DecisionNode contains a conditional function (`mainqns`) that returns a boolean value,
-    two child nodes (`ifTrue` and `ifFalse`) for branching based on the result of the condition,
-    and an action function (`action`) to execute when the node is evaluated.
-
-    When `evaluate(float dt)` is called, the node checks its condition. If the condition returns
-    true, the `ifTrue` child node is evaluated next; otherwise, the `ifFalse` child node is
-    evaluated. The node's `action` function is executed after the condition check, allowing
-    custom behavior to be performed at each node in the decision tree.
-
-    This structure allows complex AI or behavior logic to be defined modularly using
-    a tree of nodes, where each node represents a single decision point and potential action.
-
- \note
-    - Copy semantics are deleted to enforce unique ownership of child nodes.
-    - Move semantics are explicitly defaulted to allow transfer of ownership.
-    - Use `evaluate(float dt)` each AI update cycle to traverse the tree from the current node.
-*********************************************************************************************/
-
 class DecisionNode
 {
     public:
