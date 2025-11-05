@@ -1476,20 +1476,21 @@ namespace Framework {
                         if (!tr) continue;
 
                         // Determine bounds: prefer rect/sprite (w,h); otherwise circle radius; else skip
-                        float w = 0.f, h = 0.f;
+                   
                         if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                             Framework::ComponentTypeId::CT_RenderComponent))
                         {
-                            w = (rc->w > 0.f) ? rc->w : 1.f;
-                            h = (rc->h > 0.f) ? rc->h : 1.f;
+                            float w = std::abs(rc->w);
+                            float h = std::abs(rc->h);
+                            if (w <= 0.f) w = 1.f;
+                            if (h <= 0.f) h = 1.f;
                             drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
                         }
                         else if (obj->GetComponentType<Framework::SpriteComponent>(
                             Framework::ComponentTypeId::CT_SpriteComponent))
                         {
                             // Sprites use RenderComponent for size in this engine; if missing, give a safe default box
-                            w = 1.f; h = 1.f;
-                            drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
+                            drawOutline(tr->x, tr->y, tr->rot, 1.f, 1.f, isSelected);
                         }
                         else if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
                             Framework::ComponentTypeId::CT_CircleRenderComponent))
