@@ -1,6 +1,7 @@
 #pragma once
 #include "Composition/Component.h"
 #include "LogicSystem.h"
+#include "Component/HitBoxComponent.h"
 
 namespace Framework
 {
@@ -12,6 +13,12 @@ namespace Framework
 	class HitBoxSystem
 	{
 	public:
+		struct ActiveHitBox
+		{
+			std::unique_ptr<HitBoxComponent> hitbox;
+			GameObjectComposition* owner;
+			float timer;
+		};
 		HitBoxSystem(LogicSystem& logic);
 		~HitBoxSystem();
 
@@ -25,14 +32,9 @@ namespace Framework
 			float damage = 1.0f,
 			float duration = 0.1f);
 
-	private:
-		struct ActiveHitBox
-		{
-			std::unique_ptr<HurtBoxComponent> hitbox;
-			GameObjectComposition* owner;
-			float timer;
-		};
+		const std::vector<ActiveHitBox>& GetActiveHitBoxes() const { return activeHitBoxes; }
 
+	private:
 		LogicSystem& logic;
 		std::vector<ActiveHitBox> activeHitBoxes; 
 	};
