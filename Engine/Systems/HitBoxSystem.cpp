@@ -75,8 +75,8 @@ namespace Framework
 
 				if (hitbox && hitbox->active)
 				{
-					AABB hitboxAABB(it->hitbox->spawnX, it->hitbox->spawnY,
-									it->hitbox->width, it->hitbox->height);
+		/*			AABB hitboxAABB(it->hitbox->spawnX, it->hitbox->spawnY,
+									it->hitbox->width, it->hitbox->height);*/
 
 					AABB hurtboxAABB(hitbox->spawnX, hitbox->spawnY,
 									 hitbox->width, hitbox->height);
