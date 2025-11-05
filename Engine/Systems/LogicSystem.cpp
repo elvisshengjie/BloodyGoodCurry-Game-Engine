@@ -29,6 +29,26 @@ namespace Framework {
         }
         return false;
     }
+
+    GOC* LogicSystem::FindAnyAlivePlayer()
+    {
+        if (!factory)
+            return nullptr;
+
+        for (auto& [id, ptr] : factory->Objects())
+        {
+            if (auto* obj = ptr.get())
+            {
+                // Check if this object has a PlayerComponent
+                if (obj->GetComponentType<PlayerComponent>(
+                    ComponentTypeId::CT_PlayerComponent))
+                {
+                    return obj; // return the first alive player found
+                }
+            }
+        }
+        return nullptr;
+    }
     void LogicSystem::CachePlayerSize()
     {
         if (!player)
@@ -55,15 +75,16 @@ namespace Framework {
             player = nullptr;
         if (!player)
         {
-            for (auto* obj : levelObjects)
+            player = FindAnyAlivePlayer();
+            if (player)
             {
-                if (obj && obj->GetObjectName() == "Player")
-                {
-                    player = obj;
-                    break;
-                }
+                std::cout << "[LogicSystem] Player re-assigned to another alive instance: "
+                    << player->GetObjectName() << "\n";
+                captured = false; // force CachePlayerSize() again
             }
         }
+        if (player && !captured)
+            CachePlayerSize();
 
         if (!IsAlive(collisionTarget))
             collisionTarget = nullptr;

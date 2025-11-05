@@ -87,7 +87,7 @@ namespace Framework {
 		bool GetPlayerWorldPosition(float& outX, float& outY) const;
 		int ScreenWidth() const { return screenW; }
 		int ScreenHeight() const { return screenH; }
-
+		GOC* FindAnyAlivePlayer();
 		HitBoxSystem* hitBoxSystem = nullptr;
 
 		std::string GetName() override{ return "LogicSystem"; }
