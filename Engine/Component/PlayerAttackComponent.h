@@ -2,6 +2,8 @@
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
 #include "Component/HitBoxComponent.h"
+#include "Component/TransformComponent.h"
+#include <memory>
 #include <iostream>
 namespace Framework
 {
@@ -11,6 +13,7 @@ namespace Framework
         public:
             int damage{50};
             float attack_speed{1.0f};
+            std::unique_ptr<HitBoxComponent> hitbox;
             PlayerAttackComponent() = default;
             PlayerAttackComponent(int dmg, float spd) : damage(dmg), attack_speed(spd) {}
             void initialize() override { std::cout << "This object has a PlayerAttackComponent!\n"; }
@@ -26,6 +29,30 @@ namespace Framework
                copy->damage= damage;
                copy->attack_speed= attack_speed;
                return copy;
+            }
+            void PerformAttack(TransformComponent* playerTr)
+            {
+                if (!playerTr) return;
+                if (!hitbox) hitbox = std::make_unique<HitBoxComponent>();
+                hitbox->spawnX = playerTr->x + 50;
+                hitbox->spawnY = playerTr->y;
+                hitbox->width = 50;
+                hitbox->height = 50;
+                hitbox->damage = damage;
+                hitbox->duration = 0.2f;
+                hitbox->ActivateHurtBox();
+            }
+            void Update(float dt, TransformComponent* tr)
+            {
+                if (hitbox && hitbox->active)
+                {
+                    hitbox->duration -= dt;
+                    if (hitbox->duration <= 0.0f)
+                    {
+                        hitbox->DeactivateHurtBox();
+                        hitbox->duration = 0.2f; // reset for next attack
+                    }
+                }
             }
     };
 }

@@ -19,6 +19,7 @@
 #include "Graphics/Window.hpp"
 #include "Graphics/GraphicsText.hpp"
 #include "Resource_Manager/Resource_Manager.h"
+#include "Component/PlayerAttackComponent.h"
 
 #include <filesystem>
 #include <imgui.h>

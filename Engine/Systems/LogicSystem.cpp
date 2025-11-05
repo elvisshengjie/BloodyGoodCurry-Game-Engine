@@ -198,7 +198,7 @@ namespace Framework {
     void LogicSystem::Update(float dt)
     {
         TryGuard::Run([&] {
-             bool triggerCrash = input.IsKeyPressed(GLFW_KEY_F9);
+            bool triggerCrash = input.IsKeyPressed(GLFW_KEY_F9);
             if (triggerCrash && !crashTestLatched) {
                 crashTestLatched = true;
                 if (g_crashLogger) {
@@ -207,7 +207,8 @@ namespace Framework {
                 }
                 std::cout << "[CrashLog] Deliberate crash requested via F9.\n";
                 std::raise(SIGABRT);
-            } else if (!triggerCrash) {
+            }
+            else if (!triggerCrash) {
                 crashTestLatched = false;
             }
             if (factory)
@@ -254,10 +255,6 @@ namespace Framework {
                 }
             }
 
-
-            if (hitBoxSystem)
-                hitBoxSystem->Update(dt); 
-
             if (!player)
                 return;
 
@@ -269,6 +266,8 @@ namespace Framework {
                 Framework::ComponentTypeId::CT_RenderComponent);
             auto* rb = player->GetComponentType<Framework::RigidBodyComponent>(
                 Framework::ComponentTypeId::CT_RigidBodyComponent);
+            auto* attack = player->GetComponentType<Framework::PlayerAttackComponent>(
+                Framework::ComponentTypeId::CT_PlayerAttackComponent);
 
             const float rotSpeed = DegToRad(90.f);
             const float scaleRate = 1.5f;
@@ -307,7 +306,6 @@ namespace Framework {
 
             }
 
-
             if (rb && tr)
             {
                 rb->velX = 0.0f;
@@ -330,6 +328,68 @@ namespace Framework {
 
             UpdateAnimation(dt, wantRun);
 
+            // Update PlayerAttackComponent (handles hitbox lifetime)
+            if (attack && tr)
+            {
+                attack->Update(dt, tr);
+            }
+
+            // Handle attack input
+            if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
+            {
+                float dx = normalizedX - tr->x;
+                float dy = normalizedY - tr->y;
+
+                float len = std::sqrt(dx * dx + dy * dy);
+                if (len > 0.0001f)
+                {
+                    dx /= len;
+                    dy /= len;
+                }
+
+                auto attackTr = *tr;
+                float offset = 0.05f;
+                attackTr.x = tr->x + dx * (std::abs(rc->w) * 0.5f + 0.25f + offset);
+                attackTr.y = tr->y + dy * (rc->h * 0.5f + 0.25f + offset);
+
+                attack->PerformAttack(&attackTr);
+
+                std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
+            }
+
+            // Check player attack hitbox against enemies
+            if (attack && attack->PerformAttack())
+            {
+                auto* hb = attack->hitbox.get();
+                AABB playerHitBox(hb->spawnX, hb->spawnY, hb->width, hb->height);
+                hitBoxSystem->SpawnHitBox(player,hb->spawnX, hb->width, hb->height, attack->damage, , 0.1f);
+                for (auto* obj : levelObjects)
+                {
+                    if (!obj || obj->GetObjectName() != "Enemy") continue;
+
+                    auto* trE = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                    auto* rbE = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+
+                    if (!trE || !rbE) continue;
+
+                    AABB enemyBox(trE->x, trE->y, rbE->width, rbE->height);
+
+                    if (Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
+                    {
+                        std::cout << "Enemy hit by player at (" << trE->x << ", " << trE->y << ")\n";
+
+                        if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
+                        {
+                            health->TakeDamage(attack->damage);
+                            std::cout << "Enemy took " << attack->damage << " damage.\n";
+                        }
+
+                        hb->DeactivateHurtBox();
+                        break;
+                    }
+                }
+            }
+
             collisionInfo.playerValid = false;
             collisionInfo.targetValid = false;
 
@@ -337,34 +397,6 @@ namespace Framework {
             {
                 collisionInfo.player = AABB(tr->x, tr->y, rb->width, rb->height);
                 collisionInfo.playerValid = true;
-
-                if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && hitBoxSystem)
-                {
-                    float dx = normalizedX - tr->x;
-                    float dy = normalizedY - tr->y;
-
-                    float len = std::sqrt(dx * dx + dy * dy);
-                    if (len > 0.0001f)
-                    {
-                        dx /= len;
-                        dy /= len;
-                    }
-
-                    float offset = 0.05f; // This is the offset of where the hurtbox will spawn
-                    float spawnX = tr->x + dx * (std::abs(rc->w) * 0.5f + 0.25f + offset);
-                    float spawnY = tr->y + dy * (rc->h * 0.5f + 0.25f + offset);
-
-                    float hitboxWidth = 0.5f;
-                    float hitboxHeight = 0.5f;
-                    float hitboxDamage = 1.0f;
-                    float hitboxDuration = 0.1f;
-
-                    hitBoxSystem->SpawnHitBox(player, spawnX, spawnY, hitboxWidth, hitboxHeight, hitboxDamage, hitboxDuration);
-
-                    // for debugging
-                    std::cout << "Hurtbox spawned at (" << spawnX << ", " << spawnY << ")\n";
-                }
-                
             }
 
             if (collisionTarget)

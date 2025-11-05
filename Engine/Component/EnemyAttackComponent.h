@@ -1,3 +1,30 @@
+/*********************************************************************************************
+ \file      EnemyAttackComponent.h
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+
+ \brief     Declaration and implementation of the EnemyAttackComponent class. This component
+            defines enemy attack logic, handling timing, hitbox activation, and damage output
+            during combat interactions.
+
+ \details
+            The EnemyAttackComponent provides essential combat behavior for enemy entities:
+            - Manages attack intervals using an internal timer and attack speed variable.
+            - Spawns and updates hitboxes to detect collisions with player entities.
+            - Supports serialization of attack and hitbox parameters for configurable tuning.
+            - Utilizes TransformComponent data to align attack position with the enemy’s
+              current world coordinates.
+
+            Designed for reuse across multiple enemy types, this component forms the core
+            of basic melee-style attack functionality within the game framework.
+
+ \note      HitBoxComponent is managed through a std::unique_ptr to ensure proper ownership
+            semantics and automatic cleanup when the component is destroyed.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
