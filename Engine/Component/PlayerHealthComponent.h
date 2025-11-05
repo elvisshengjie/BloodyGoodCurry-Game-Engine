@@ -33,7 +33,7 @@ namespace Framework
 {
     /*****************************************************************************************
       \class PlayerHealthComponent
-      \brief Component that holds the player�s current and maximum health values.
+      \brief Component that holds the player's current and maximum health values.
 
       This component acts as a simple data container. It can be queried or modified by
       combat, healing, or UI systems to update gameplay state accordingly.

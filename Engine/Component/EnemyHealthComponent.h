@@ -28,6 +28,7 @@
 #include "Serialization/Serialization.h"
 #include <iostream>
 #include <algorithm>
+
 namespace Framework
 {
     /*****************************************************************************************
@@ -82,6 +83,32 @@ namespace Framework
             copy->enemyHealth = enemyHealth;
             copy->enemyMaxhealth = enemyMaxhealth;
             return copy;
+        }
+
+        /*************************************************************************************
+          \brief Reduces enemy health by a given damage amount.
+          \param dmg The amount of damage to apply.
+          \details
+              Ensures health does not drop below zero. Outputs debug info to console.
+        *************************************************************************************/
+        void TakeDamage(int dmg)
+        {
+            enemyHealth = std::max(enemyHealth - dmg, 0);
+            std::cout << "[EnemyHealthComponent] Took " << dmg
+                << " damage, current health = " << enemyHealth << "\n";
+        }
+
+        /*************************************************************************************
+          \brief Increases enemy health by a given amount.
+          \param amount The amount of health to restore.
+          \details
+              Ensures health does not exceed enemyMaxhealth. Outputs debug info to console.
+        *************************************************************************************/
+        void Heal(int amount)
+        {
+            enemyHealth = std::min(enemyHealth + amount, enemyMaxhealth);
+            std::cout << "[EnemyHealthComponent] Healed " << amount
+                << ", current health = " << enemyHealth << "\n";
         }
     };
 }

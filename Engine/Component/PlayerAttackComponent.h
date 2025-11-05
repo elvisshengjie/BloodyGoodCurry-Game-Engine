@@ -46,6 +46,7 @@ namespace Framework
     public:
         int damage{ 50 };             ///< Base attack damage of the player.
         float attack_speed{ 1.0f };   ///< Time interval or multiplier controlling attack rate.
+        std::unique_ptr<HitBoxComponent> hitbox;
 
         /*************************************************************************************
           \brief Default constructor initializes attack values to their defaults.
@@ -97,5 +98,47 @@ namespace Framework
             copy->attack_speed = attack_speed;
             return copy;
         }
+
+        /*************************************************************************************
+          \brief Performs an attack by spawning or updating the hitbox relative to the player.
+          \param playerTr Pointer to the player's TransformComponent to determine spawn position.
+        *************************************************************************************/
+        void PerformAttack(TransformComponent* playerTr)
+        {
+            if (!playerTr) return;
+            if (!hitbox) hitbox = std::make_unique<HitBoxComponent>();
+
+            hitbox->spawnX = playerTr->x + 50;
+            hitbox->spawnY = playerTr->y;
+            hitbox->width = 50;
+            hitbox->height = 50;
+            hitbox->damage = static_cast<float>(damage);
+            hitbox->duration = 0.2f;
+            hitbox->ActivateHurtBox();
+        }
+
+        /*************************************************************************************
+          \brief Updates the hitbox duration and deactivates it when time expires.
+          \param dt Delta time since last update.
+          \param tr Pointer to the player's TransformComponent (optional for future use).
+        *************************************************************************************/
+        void Update(float dt, TransformComponent* tr)
+        {
+            (void)tr;
+            if (hitbox && hitbox->active)
+            {
+                hitbox->duration -= dt;
+                if (hitbox->duration <= 0.0f)
+                {
+                    hitbox->DeactivateHurtBox();
+                    hitbox->duration = 0.2f; // reset for next attack
+                }
+            }
+        }
+
+
+
+
+
     };
 }
