@@ -9,7 +9,7 @@
 			- Collision: On each Update(), checks hit box vs. world hurt boxes (other objs'
 			  HitBoxComponent flagged active) via AABB overlap.
 			- Integration: Driven by LogicSystem (e.g., mouse click creates a hit box in
-			  the player’s facing direction).
+			  the playerï¿½s facing direction).
 
 			Notes:
 			* The same HitBoxComponent struct is reused for both "hit" and "hurt" roles:
@@ -19,7 +19,7 @@
 			* This module stores hit boxes internally (not added to factory); they are
 			  ephemeral gameplay helpers rather than persistent game objects.
  \copyright
-			All content ©2025 DigiPen Institute of Technology Singapore.
+			All content ï¿½2025 DigiPen Institute of Technology Singapore.
 			All rights reserved.
 *********************************************************************************************/
 
@@ -140,8 +140,8 @@ namespace Framework
 
 				if (hitbox && hitbox->active)
 				{
-					AABB hitboxAABB(it->hitbox->spawnX, it->hitbox->spawnY,
-						it->hitbox->width, it->hitbox->height);
+		/*			AABB hitboxAABB(it->hitbox->spawnX, it->hitbox->spawnY,
+									it->hitbox->width, it->hitbox->height);*/
 
 					AABB hurtboxAABB(hitbox->spawnX, hitbox->spawnY,
 						hitbox->width, hitbox->height);

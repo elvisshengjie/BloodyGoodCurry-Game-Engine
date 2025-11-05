@@ -10,7 +10,7 @@
             - Input mapping: WASD movement, Q/E rotation, Z/X scale, R reset, Shift accelerator.
             - HitBoxSystem integration: spawns short-lived attack boxes towards cursor on LMB.
             - Crash logging utilities: F9 forces a safe, logged crash for robustness testing.
-            - Collision “debug info”: builds AABBs for player/target to visualize or check overlap.
+            - Collision ï¿½debug infoï¿½: builds AABBs for player/target to visualize or check overlap.
 
             Performance & stability:
             * Uses TryGuard::Run to isolate Update() logic and attribute errors with a tag.
@@ -22,7 +22,7 @@
             * Layering, physics, and rendering are handled by their respective systems; LogicSystem
               manipulates components (Transform/Render/RigidBody) but does not own them.
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            All content ï¿½2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -74,9 +74,28 @@ namespace Framework {
     }
 
     /*****************************************************************************************
-      \brief Cache the player’s base rectangle width/height once for scale operations.
+      \brief Cache the playerï¿½s base rectangle width/height once for scale operations.
       \note  Called after player is discovered; resets rectScale to 1.f and marks captured=true.
     *****************************************************************************************/
+    GOC* LogicSystem::FindAnyAlivePlayer()
+    {
+        if (!factory)
+            return nullptr;
+
+        for (auto& [id, ptr] : factory->Objects())
+        {
+            if (auto* obj = ptr.get())
+            {
+                // Check if this object has a PlayerComponent
+                if (obj->GetComponentType<PlayerComponent>(
+                    ComponentTypeId::CT_PlayerComponent))
+                {
+                    return obj; // return the first alive player found
+                }
+            }
+        }
+        return nullptr;
+    }
     void LogicSystem::CachePlayerSize()
     {
         if (!player)
@@ -110,15 +129,16 @@ namespace Framework {
             player = nullptr;
         if (!player)
         {
-            for (auto* obj : levelObjects)
+            player = FindAnyAlivePlayer();
+            if (player)
             {
-                if (obj && obj->GetObjectName() == "Player")
-                {
-                    player = obj;
-                    break;
-                }
+                std::cout << "[LogicSystem] Player re-assigned to another alive instance: "
+                    << player->GetObjectName() << "\n";
+                captured = false; // force CachePlayerSize() again
             }
         }
+        if (player && !captured)
+            CachePlayerSize();
 
         if (!IsAlive(collisionTarget))
             collisionTarget = nullptr;
@@ -280,10 +300,10 @@ namespace Framework {
       \details
         - Press F9 to generate a deliberate, logged crash (latched to prevent spam).
         - Delegates physics/AI progression to factory->Update(dt).
-        - Player rotation: Q/E (±90 deg/s), clamp to [-pi, +pi], R to reset.
-        - Player scale: Z/X (±rate), clamped to [0.25, 4.0], R to reset.
+        - Player rotation: Q/E (ï¿½90 deg/s), clamp to [-pi, +pi], R to reset.
+        - Player scale: Z/X (ï¿½rate), clamped to [0.25, 4.0], R to reset.
         - Velocity intent from WASD mapped into RigidBody (actual motion elsewhere).
-        - Sprite “flip” via rc->w sign compared against mouse X for simple facing.
+        - Sprite ï¿½flipï¿½ via rc->w sign compared against mouse X for simple facing.
         - LMB spawns a timed HitBox in the look direction (towards cursor).
     *****************************************************************************************/
     void LogicSystem::Update(float dt)
