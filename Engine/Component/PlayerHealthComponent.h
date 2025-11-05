@@ -1,66 +1,90 @@
-/*********************************************************************************************
- \file      PlayerHealthComponent.h
- \par       SofaSpuds
- \author    - Primary Author, 100%
-
- \brief     Declares the PlayerHealthComponent class, which stores and manages the player�s
-            health data. This component defines current and maximum health values used by
-            gameplay systems for combat, UI, and respawn logic.
-
- \details
-            The PlayerHealthComponent is a lightweight data container that tracks the
-            player�s current and maximum health values. It provides serialization for
-            prefab-driven initialization and supports cloning for respawning or prefab
-            instancing. Systems such as combat, damage, and UI can reference this data
-            to update the player�s health bar or trigger death behavior.
-
-            Responsibilities:
-            - Store and manage player health values.
-            - Provide serialization for prefab or save data.
-            - Support deep-copy functionality.
-            - Log initialization for debugging purposes.
-
- \copyright
-            All content � 2025 DigiPen Institute of Technology Singapore.
-            All rights reserved.
-*********************************************************************************************/
 #pragma once
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
 #include <iostream>
 #include <algorithm>
+
 namespace Framework
 {
     /*****************************************************************************************
       \class PlayerHealthComponent
-      \brief Component that holds the player's current and maximum health values.
+      \brief Component that stores and manages the player's current and maximum health values.
 
-      This component acts as a simple data container. It can be queried or modified by
-      combat, healing, or UI systems to update gameplay state accordingly.
+      This component acts as a data container for player health, which can be accessed or
+      modified by combat, healing, or UI systems during gameplay.
     *****************************************************************************************/
     class PlayerHealthComponent : public GameComponent
     {
-        public:
-            int playerHealth{100};
-            int playerMaxhealth{ 100 };
-            void initialize() override { std::cout << "This object has a PlayerHealthComponent!\n"; }
-            void SendMessage(Message& m) override { (void)m; }
-            void Serialize(ISerializer& s) override 
-            {
-                if (s.HasKey("playerHealth")) StreamRead(s, "playerHealth", playerHealth);
-                if (s.HasKey("playerMaxhealth")) StreamRead(s, "playerMaxhealth", playerMaxhealth);
-            }
-            std::unique_ptr<GameComponent> Clone() const override 
-            {
-             auto copy = std::make_unique<PlayerHealthComponent>();
-             copy->playerHealth = playerHealth;
-             copy->playerMaxhealth = playerMaxhealth;
-             return copy;
-            }
-            // Reduce health
-            void TakeDamage(int dmg)
-            {playerHealth = std::max(playerHealth - dmg, static_cast<int>(0)); std::cout << "[PlayerHealthComponent] Took " << dmg << " damage"<< "\n";}
-            void Heal(int amount)
-            {playerHealth = std::min(playerHealth + amount, static_cast<int>(playerMaxhealth)); std::cout << "[PlayerHealthComponent] Healed " << amount << ", current health = " << playerHealth << "\n";}
+    public:
+        int playerHealth{ 100 };        ///< Current health of the player.
+        int playerMaxhealth{ 100 };     ///< Maximum health value of the player.
+
+        /*************************************************************************************
+          \brief Initializes the component.
+          \details Prints a debug message confirming the component exists on this GameObject.
+        *************************************************************************************/
+        void initialize() override
+        {
+            std::cout << "This object has a PlayerHealthComponent!\n";
+        }
+
+        /*************************************************************************************
+          \brief Handles messages sent to this component.
+          \param m Reference to the message object.
+          \note Currently unused; included for interface consistency.
+        *************************************************************************************/
+        void SendMessage(Message& m) override
+        {
+            (void)m;
+        }
+
+        /*************************************************************************************
+          \brief Serializes health data using the given serializer.
+          \param s Reference to the serializer.
+          \details Reads "playerHealth" and "playerMaxhealth" keys if they exist in the
+                   serialized data (e.g., prefab or level file).
+        *************************************************************************************/
+        void Serialize(ISerializer& s) override
+        {
+            if (s.HasKey("playerHealth")) StreamRead(s, "playerHealth", playerHealth);
+            if (s.HasKey("playerMaxhealth")) StreamRead(s, "playerMaxhealth", playerMaxhealth);
+        }
+
+        /*************************************************************************************
+          \brief Creates a deep copy of this component.
+          \return A unique_ptr holding the cloned PlayerHealthComponent instance.
+          \details Copies both current and maximum health values to the new component.
+        *************************************************************************************/
+        std::unique_ptr<GameComponent> Clone() const override
+        {
+            auto copy = std::make_unique<PlayerHealthComponent>();
+            copy->playerHealth = playerHealth;
+            copy->playerMaxhealth = playerMaxhealth;
+            return copy;
+        }
+
+        /*************************************************************************************
+          \brief Reduces the player's health by a specified damage amount.
+          \param dmg Amount of damage to apply.
+          \details Ensures health does not drop below zero. Outputs debug information to console.
+        *************************************************************************************/
+        void TakeDamage(int dmg)
+        {
+            playerHealth = std::max(playerHealth - dmg, 0);
+            std::cout << "[PlayerHealthComponent] Took " << dmg
+                << " damage, current health = " << playerHealth << "\n";
+        }
+
+        /*************************************************************************************
+          \brief Increases the player's health by a specified amount.
+          \param amount Amount of health to restore.
+          \details Ensures health does not exceed playerMaxhealth. Outputs debug information to console.
+        *************************************************************************************/
+        void Heal(int amount)
+        {
+            playerHealth = std::min(playerHealth + amount, playerMaxhealth);
+            std::cout << "[PlayerHealthComponent] Healed " << amount
+                << ", current health = " << playerHealth << "\n";
+        }
     };
 }
