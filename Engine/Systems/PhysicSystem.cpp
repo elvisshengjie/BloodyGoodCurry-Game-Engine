@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      PhysicSystem.cpp
  \par       SofaSpuds
- \author    
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
  \brief     Lightweight 2D physics step: AABB moves/collisions + enemy hitbox damage.
  \details   Updates Transform by RigidBody velocity (dt) with axis-separated AABB tests
             against same-layer “rect” walls, then checks active EnemyAttack hitboxes

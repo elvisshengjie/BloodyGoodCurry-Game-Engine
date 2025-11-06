@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      HitBoxComponent.h
  \par       SofaSpuds
- \author     - Primary Author, 100%
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
 
  \brief     Declares the HitBoxComponent class, which defines the active area used for
             hit detection or damage application during attacks. Each hitbox instance
