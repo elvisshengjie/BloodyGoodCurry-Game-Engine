@@ -51,7 +51,9 @@ namespace Framework
         /*************************************************************************************
           \brief Default constructor initializes attack values to their defaults.
         *************************************************************************************/
-        PlayerAttackComponent() = default;
+        PlayerAttackComponent() {
+            if (!hitbox) hitbox = std::make_unique<HitBoxComponent>();
+        }
 
         /*************************************************************************************
           \brief Parameterized constructor to set custom attack stats.
@@ -64,7 +66,13 @@ namespace Framework
           \brief Called when the component is initialized.
           \details Prints a message confirming that this GameObject has a PlayerAttackComponent.
         *************************************************************************************/
-        void initialize() override { std::cout << "This object has a PlayerAttackComponent!\n"; }
+        void initialize() override {
+            if (!hitbox) hitbox = std::make_unique<HitBoxComponent>();
+            // reasonable defaults if JSON doesn’t specify
+            hitbox->width = hitbox->width == 0.f ? 0.5f : hitbox->width;
+            hitbox->height = hitbox->height == 0.f ? 0.5f : hitbox->height;
+            hitbox->active = false;
+            std::cout << "This object has a PlayerAttackComponent!\n"; }
 
         /*************************************************************************************
           \brief Handles incoming messages sent to this component.
