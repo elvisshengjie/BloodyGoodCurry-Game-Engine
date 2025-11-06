@@ -1,3 +1,28 @@
+/*********************************************************************************************
+ \file      HitBoxSystem.cpp
+ \par       SofaSpuds
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
+ \brief     Spawns and updates short-lived hit boxes for attack interactions.
+ \details   This lightweight system manages transient attack volumes (HitBoxComponent):
+			- Creation: SpawnHitBox() attaches owner/context and a lifetime timer.
+			- Lifetime: Each active hit box counts down; removed when it expires or hits.
+			- Collision: On each Update(), checks hit box vs. world hurt boxes (other objs'
+			  HitBoxComponent flagged active) via AABB overlap.
+			- Integration: Driven by LogicSystem (e.g., mouse click creates a hit box in
+			  the player�s facing direction).
+
+			Notes:
+			* The same HitBoxComponent struct is reused for both "hit" and "hurt" roles:
+			  - Newly spawned (this system) is used as the "hit" volume.
+			  - Other objects expose their "hurt" volume when HitBoxComponent::active == true.
+			* Collision uses AABB vs AABB through Collision::CheckCollisionRectToRect.
+			* This module stores hit boxes internally (not added to factory); they are
+			  ephemeral gameplay helpers rather than persistent game objects.
+ \copyright
+			All content �2025 DigiPen Institute of Technology Singapore.
+			All rights reserved.
+*********************************************************************************************/
+
 #include "HitBoxSystem.h"
 #include "Composition/Component.h"
 #include "LogicSystem.h"
@@ -73,19 +98,30 @@ namespace Framework
 
 				auto* hitbox = obj->GetComponentType<HitBoxComponent>(ComponentTypeId::CT_HitBoxComponent);
 
-				if (hitbox && hitbox->active)
+				if (hitbox)
 				{
+					if (!hitbox->active)
+						hitbox->ActivateHurtBox(); // ensure it's active
+
+					AABB playerHit(it->hitbox->spawnX, it->hitbox->spawnY,
+						it->hitbox->width, it->hitbox->height);
 		/*			AABB hitboxAABB(it->hitbox->spawnX, it->hitbox->spawnY,
 									it->hitbox->width, it->hitbox->height);*/
 
 					AABB hurtboxAABB(hitbox->spawnX, hitbox->spawnY,
 									 hitbox->width, hitbox->height);
 
-					if (Collision::CheckCollisionRectToRect(hitboxAABB, hurtboxAABB))
+					AABB enemyHit(hitbox->spawnX, hitbox->spawnY,
+						hitbox->width, hitbox->height);
+
+					if (Collision::CheckCollisionRectToRect(playerHit, enemyHit))
 					{
-						std::cout << "Hit detected! ("
-							<< hitboxAABB.min.getX() << ", " << hitboxAABB.min.getY() << ") vs ("
-							<< hurtboxAABB.min.getX() << ", " << hurtboxAABB.min.getY() << ")\n";
+						auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+						if (health)
+						{
+							health->TakeDamage(static_cast<int>(it->hitbox->damage));
+							std::cout << "Enemy hit! Remaining HP: " << health->enemyHealth << "\n";
+						}
 						hit = true;
 						break;
 					}

@@ -2,6 +2,7 @@
  \file      LogicSystem.h
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Author, 10%
+            yimo kong (yimo.kong@digipen.edu)      - Author, 10%
  \brief     Game logic coordinator: level load/refresh, input-driven updates, animation.
  \details   Owns the GameObjectFactory and level objects, advances player/enemy state each
             frame, updates sprite animation, exposes simple collision snapshots, and

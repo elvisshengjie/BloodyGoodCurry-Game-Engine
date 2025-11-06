@@ -18,7 +18,7 @@
             and execution of context-specific actions such as movement or attack logic.
 
  \copyright
-            All content � 2025 DigiPen Institute of Technology Singapore.
+            All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #include "DecisionTreeDefault.h"

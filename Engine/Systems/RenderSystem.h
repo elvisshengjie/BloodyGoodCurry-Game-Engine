@@ -1,7 +1,8 @@
 ﻿/*********************************************************************************************
  \file      RenderSystem.h
  \par       SofaSpuds
- \author    erika.ishii (erika.ishii@digipen.edu) - Author, 30%
+ \author    yimo.kong ( yimo.kong@digipen.edu) - Primary Author, 50%
+            erika.ishii (erika.ishii@digipen.edu) - Author, 30%
  \brief     Editor-aware 2D render system: game viewport, UI dockspace, text, and picking.
  \details   Drives all frame-time drawing for the sandbox/editor:
             - Game viewport: manages full/partial splits, camera control, screen→world unproject.
@@ -36,6 +37,7 @@
 #include "Graphics/Window.hpp"
 #include "Graphics/GraphicsText.hpp"
 #include "Resource_Manager/Resource_Manager.h"
+#include "Component/PlayerAttackComponent.h"
 
 #include <filesystem>
 #include <imgui.h>
