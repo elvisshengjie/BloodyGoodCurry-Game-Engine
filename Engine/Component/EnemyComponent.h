@@ -15,7 +15,7 @@
             enemy objects.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
@@ -48,7 +48,7 @@ namespace Framework
         void SendMessage(Message& m) override { (void)m; }
 
         /*************************************************************************************
-          \brief Serializes this component’s data.
+          \brief Serializes this componentï¿½s data.
           \param s  Reference to the serializer.
           \note  No data to serialize at present.
         *************************************************************************************/

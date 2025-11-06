@@ -16,7 +16,7 @@
               - Saving/loading enemy state across levels.
 
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -57,7 +57,7 @@ void EnemySystem::Update(float dt)
 
 /*****************************************************************************************
   \brief Optional debug visualization hook for enemies.
-         Keep this lightweight—avoid gameplay mutations here.
+         Keep this lightweightï¿½avoid gameplay mutations here.
 *****************************************************************************************/
 void EnemySystem::draw()
 {

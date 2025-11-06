@@ -1,3 +1,27 @@
+/*********************************************************************************************
+ \file      EnemyTypeComponent.h
+ \par       SofaSpuds
+ \author    - Primary Author, 100%
+
+ \brief     Declares the EnemyTypeComponent class, which defines the behavioral classification
+            of an enemy entity (e.g., physical or ranged). This component allows game systems
+            such as AI and combat to adjust logic depending on enemy type.
+
+ \details
+            The EnemyTypeComponent serves as a lightweight identifier that determines how
+            an enemy behaves or interacts within the game world. It is primarily used by
+            combat, AI, or spawning systems to differentiate enemies and trigger type-specific
+            logic.
+
+            Responsibilities:
+            - Define the enemy's classification (physical or ranged).
+            - Provide serialization support for prefab and level data.
+            - Support deep-copy functionality for prefab instancing or runtime duplication.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"

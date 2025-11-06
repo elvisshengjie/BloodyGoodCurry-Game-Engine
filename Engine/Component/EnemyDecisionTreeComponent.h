@@ -9,7 +9,7 @@
 
  \details
             EnemyDecisionTreeComponent integrates the AI/DecisionTree system into the
-            engine’s ECS architecture. When initialized, it automatically constructs a
+            engine's ECS architecture. When initialized, it automatically constructs a
             default decision tree for the owning GameObjectComposition via
             CreateDefaultEnemyTree(). The component stores additional runtime data such
             as movement direction, chase timers, and flags indicating whether the player
@@ -21,7 +21,7 @@
             - Provides a framework for extensible enemy AI logic.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
@@ -45,7 +45,7 @@ namespace Framework {
 
     /*****************************************************************************************
       \brief Creates a default decision tree for an enemy.
-      \param enemy  Pointer to the enemy’s GameObjectComposition.
+      \param enemy  Pointer to the enemyï¿½s GameObjectComposition.
       \return A unique_ptr to a new DecisionTree instance configured for default AI behavior.
     *****************************************************************************************/
     std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy);

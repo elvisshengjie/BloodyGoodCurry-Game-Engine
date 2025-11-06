@@ -1,3 +1,30 @@
+/*********************************************************************************************
+ \file      PlayerHealthComponent.h
+ \par       SofaSpuds
+ \author    - Primary Author, 100%
+
+ \brief     Declares the PlayerHealthComponent class, which stores and manages the player’s
+            current and maximum health values. This component provides basic functionality
+            to apply damage, heal the player, and serialize health-related data.
+
+ \details
+            The PlayerHealthComponent serves as a fundamental gameplay data holder, tracking
+            the player’s vitality throughout the game. It can be queried or modified by
+            systems such as:
+            - Combat (to apply or calculate damage)
+            - Healing (to restore lost health)
+            - UI (to display health bars or damage indicators)
+
+            Responsibilities:
+            - Store current and maximum player health values.
+            - Apply health modifications (damage and healing).
+            - Provide serialization for prefabs or level data.
+            - Support deep-copy functionality for prefab instancing.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"

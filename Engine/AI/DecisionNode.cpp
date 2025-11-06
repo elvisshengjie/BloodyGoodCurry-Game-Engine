@@ -15,7 +15,7 @@
             - An action function executed at leaf nodes or when no branch is available.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #include "DecisionNode.h"
@@ -54,7 +54,7 @@ DecisionNode::DecisionNode
 
  \details
     - If a condition exists, it is evaluated to decide between true or false branches.
-    - If no branches exist, the node’s action is executed instead.
+    - If no branches exist, the nodeï¿½s action is executed instead.
     - If no condition is defined, the node directly performs its action.
 *********************************************************************************************/
 void DecisionNode::evaluate(float dt)

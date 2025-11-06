@@ -20,7 +20,7 @@
             - Logs initialization messages for debugging.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
@@ -54,7 +54,7 @@ namespace Framework
         void SendMessage(Message& m) override { (void)m; }
 
         /*************************************************************************************
-          \brief Serializes the component’s data.
+          \brief Serializes the componentï¿½s data.
           \param s  Reference to the serializer.
           \note  No data is serialized at present.
         *************************************************************************************/

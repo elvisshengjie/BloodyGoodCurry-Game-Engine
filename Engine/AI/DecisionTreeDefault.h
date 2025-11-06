@@ -17,7 +17,7 @@
             basic reactive decision-making.
 
  \copyright
-            All content � 2025 DigiPen Institute of Technology Singapore.
+            All content 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
