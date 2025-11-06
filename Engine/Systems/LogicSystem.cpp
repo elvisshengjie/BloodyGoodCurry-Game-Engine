@@ -30,9 +30,15 @@
 *********************************************************************************************/
 
 #include "Systems/LogicSystem.h"
+#include "Debug/Selection.h"
 #include <cctype>
+#include <string>
 #include <string_view>
 #include <csignal>
+#include <cmath>
+#include <algorithm>
+#include <filesystem>
+#include <iostream>
 
 namespace Framework {
 
@@ -111,6 +117,8 @@ namespace Framework {
             rectBaseH = rc->h;
             rectScale = 1.f;
             captured = true;
+            if (player)
+                scaleStates.erase(player->GetId()); // reset per-object scaling cache for player
         }
     }
 
@@ -385,25 +393,122 @@ namespace Framework {
                 input.IsKeyPressed(GLFW_KEY_RIGHT_SHIFT);
             const float accel = shift ? 3.f : 1.f;
 
-            // Rotation controls (Q/E), clamped to [-pi, +pi], R to reset.
-            if (tr)
+            // Determine which object we are editing/transforming: selected object or player
+            Framework::TransformComponent* targetTr = tr;
+            Framework::RenderComponent* targetRc = rc;
+            Framework::RigidBodyComponent* targetRb = rb;
+            Framework::GOCId targetId = player ? player->GetId() : 0;
+
+            if (factory && mygame::HasSelectedObject())
             {
-                if (input.IsKeyPressed(GLFW_KEY_Q)) tr->rot += rotSpeed * dt * accel;
-                if (input.IsKeyPressed(GLFW_KEY_E)) tr->rot -= rotSpeed * dt * accel;
-                if (tr->rot > 3.14159265f)  tr->rot -= 6.28318530f;
-                if (tr->rot < -3.14159265f) tr->rot += 6.28318530f;
-                if (input.IsKeyPressed(GLFW_KEY_R)) tr->rot = 0.f;
+                Framework::GOCId selectedId = mygame::GetSelectedObjectId();
+                if (auto* selected = factory->GetObjectWithId(selectedId))
+                {
+                    targetId = selectedId;
+                    targetTr = selected->GetComponentType<Framework::TransformComponent>(
+                        Framework::ComponentTypeId::CT_TransformComponent);
+                    targetRc = selected->GetComponentType<Framework::RenderComponent>(
+                        Framework::ComponentTypeId::CT_RenderComponent);
+                    targetRb = selected->GetComponentType<Framework::RigidBodyComponent>(
+                        Framework::ComponentTypeId::CT_RigidBodyComponent);
+                }
             }
 
-            // Scaling controls (Z/X), clamped; R resets scale and size.
-            if (rc)
+            // Rotation controls (Q/E), clamped to [-pi, +pi], R to reset.
+            if (targetTr)
             {
-                if (input.IsKeyPressed(GLFW_KEY_X)) rectScale *= (1.f + scaleRate * dt * accel);
-                if (input.IsKeyPressed(GLFW_KEY_Z)) rectScale *= (1.f - scaleRate * dt * accel);
-                rectScale = std::clamp(rectScale, 0.25f, 4.0f);
-                if (input.IsKeyPressed(GLFW_KEY_R)) rectScale = 1.f;
-                rc->w = rectBaseW * rectScale;
-                rc->h = rectBaseH * rectScale;
+                if (input.IsKeyPressed(GLFW_KEY_Q)) targetTr->rot += rotSpeed * dt * accel;
+                if (input.IsKeyPressed(GLFW_KEY_E)) targetTr->rot -= rotSpeed * dt * accel;
+                if (targetTr->rot > 3.14159265f)  targetTr->rot -= 6.28318530f;
+                if (targetTr->rot < -3.14159265f) targetTr->rot += 6.28318530f;
+                if (input.IsKeyPressed(GLFW_KEY_R)) targetTr->rot = 0.f;
+            }
+
+            // Scaling controls (Z/X), clamped; R resets scale and size. Works for selected object or player.
+            if ((targetRc || targetRb) && targetId != 0)
+            {
+                auto& scaleState = scaleStates[targetId];
+                if (!scaleState.initialized)
+                {
+                    const bool isPlayerTarget = (player && targetId == player->GetId());
+
+                    if (isPlayerTarget)
+                    {
+                        scaleState.baseRenderW = std::abs(rectBaseW);
+                        scaleState.baseRenderH = std::abs(rectBaseH);
+                        scaleState.scale = rectScale;
+                    }
+                    else if (targetRc)
+                    {
+                        scaleState.baseRenderW = std::abs(targetRc->w);
+                        scaleState.baseRenderH = std::abs(targetRc->h);
+                        scaleState.scale = 1.f;
+                    }
+
+                    if (targetRb)
+                    {
+                        scaleState.baseColliderW = targetRb->width;
+                        scaleState.baseColliderH = targetRb->height;
+                    }
+                    else
+                    {
+                        scaleState.baseColliderW = scaleState.baseRenderW;
+                        scaleState.baseColliderH = scaleState.baseRenderH;
+                    }
+
+                    if (!targetRc && !isPlayerTarget)
+                    {
+                        // No render component: fall back to collider dims to visualize scale
+                        scaleState.baseRenderW = scaleState.baseColliderW;
+                        scaleState.baseRenderH = scaleState.baseColliderH;
+                    }
+
+                    scaleState.initialized = true;
+                }
+
+                bool scaleChanged = false;
+                if (input.IsKeyPressed(GLFW_KEY_X))
+                {
+                    scaleState.scale *= (1.f + scaleRate * dt * accel);
+                    scaleChanged = true;
+                }
+                if (input.IsKeyPressed(GLFW_KEY_Z))
+                {
+                    scaleState.scale *= (1.f - scaleRate * dt * accel);
+                    scaleChanged = true;
+                }
+                if (input.IsKeyPressed(GLFW_KEY_R))
+                {
+                    scaleState.scale = 1.f;
+                    scaleChanged = true;
+                }
+
+                scaleState.scale = std::clamp(scaleState.scale, 0.25f, 4.0f);
+
+                if (scaleChanged)
+                {
+                    if (targetRc)
+                    {
+                        const float widthSign = (targetRc->w >= 0.f) ? 1.f : -1.f;
+                        const float baseW = scaleState.baseRenderW;
+                        const float baseH = scaleState.baseRenderH;
+                        targetRc->w = widthSign * baseW * scaleState.scale;
+                        targetRc->h = baseH * scaleState.scale;
+                    }
+
+                    if (targetRb)
+                    {
+                        targetRb->width = scaleState.baseColliderW * scaleState.scale;
+                        targetRb->height = scaleState.baseColliderH * scaleState.scale;
+                    }
+
+                    if (player && targetId == player->GetId())
+                    {
+                        rectScale = scaleState.scale;
+                        rectBaseW = scaleState.baseRenderW;
+                        rectBaseH = scaleState.baseRenderH;
+                    }
+                }
             }
 
             // Map mouse to NDC (-1..+1) for simple facing/aiming computations.
@@ -524,6 +629,7 @@ namespace Framework {
 
         player = nullptr;
         collisionTarget = nullptr;
+        scaleStates.clear();
         captured = false;
         rectScale = 1.f;
         rectBaseW = 0.5f;
@@ -554,6 +660,8 @@ namespace Framework {
             factory.reset();
         }
         UnloadPrefabs();
+
+        scaleStates.clear();
 
         if (crashLogger)
         {
