@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyHealthComponent.h
  \par       SofaSpuds
- \author    - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu)- Primary Author, 100%
 
  \brief     Declares the EnemyHealthComponent class, which stores and manages basic
             health data for enemy entities. This component defines current and maximum

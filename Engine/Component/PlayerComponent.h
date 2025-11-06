@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      PlayerComponent.h
  \par       SofaSpuds
- \author    - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu)- Primary Author, 100%
 
  \brief     Declares the PlayerComponent class, a simple data container used to identify
             player-controlled entities within the game. It currently functions as a tag
