@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      PlayerHealthComponent.h
  \par       SofaSpuds
- \author    - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu)- Primary Author, 100%
 
  \brief     Declares the PlayerHealthComponent class, which stores and manages the player’s
             current and maximum health values. This component provides basic functionality

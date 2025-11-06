@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemySystem.cpp
  \par       SofaSpuds
- \author  
+ \author    jianwei.c (jianwei.c@digipen.edu)
  \brief     Skeleton system for enemy lifecycle control (init, per-frame update, draw, shutdown).
  \details   This module is the staging point for enemy-related logic. It currently stubs out
             the standard system hooks and keeps a pointer to the active window for any

@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyDecisionTreeComponent.h
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Declares the EnemyDecisionTreeComponent class, which attaches an AI decision
             tree to an enemy game object. This component governs high-level enemy
