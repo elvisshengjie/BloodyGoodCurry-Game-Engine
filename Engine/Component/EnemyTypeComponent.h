@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyTypeComponent.h
  \par       SofaSpuds
- \author    - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu)- Primary Author, 100%
 
  \brief     Declares the EnemyTypeComponent class, which defines the behavioral classification
             of an enemy entity (e.g., physical or ranged). This component allows game systems

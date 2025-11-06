@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      PlayerAttackComponent.h
  \par       SofaSpuds
- \author    - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu)- Primary Author, 100%
 
  \brief     Declares the PlayerAttackComponent class, which defines the player�s attack
             properties such as base damage and attack speed. This component serves as

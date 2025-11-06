@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      HitBoxSystem.cpp
  \par       SofaSpuds
- \author    
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
  \brief     Spawns and updates short-lived hit boxes for attack interactions.
  \details   This lightweight system manages transient attack volumes (HitBoxComponent):
 			- Creation: SpawnHitBox() attaches owner/context and a lifetime timer.

@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      DecisionNode.cpp
  \par       SofaSpuds
- \author   e - Primary Author, 100%
+ \author   jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Implementation of the DecisionNode class, which represents a single node in a
             decision tree. Each node evaluates a condition, executes an action, or branches
@@ -15,7 +15,7 @@
             - An action function executed at leaf nodes or when no branch is available.
 
  \copyright
-            All content 2025 DigiPen Institute of Technology Singapore.
+            All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #include "DecisionNode.h"

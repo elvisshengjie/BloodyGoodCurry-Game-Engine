@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyComponent.h
  \par       SofaSpuds
- \author     - Primary Author, 100%
+ \author     jianwei.c (jianwei.c@digipen.edu)- Primary Author, 100%
 
  \brief     Declares the EnemyComponent class, a simple data-holder component used to
             mark or store enemy-related information within the game object composition.

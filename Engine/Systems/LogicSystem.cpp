@@ -4,6 +4,8 @@
  \author    erika.ishii (erika.ishii@digipen.edu) - Author, 10%
             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 20%
             yimo kong (yimo.kong@digipen.edu)      - Author, 10%
+            Ho Jun (h.jun@digipen.edu) - Author, 20%
+
  \brief     Core gameplay loop and input-driven logic for the sample sandbox.
  \details   This module owns high-level game state orchestration:
             - Factory lifetime: component registration, prefab loading/unloading, level create/destroy.

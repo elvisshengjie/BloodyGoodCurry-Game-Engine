@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemySystem.h
  \par       SofaSpuds
- \author    
+ \author    jianwei.c (jianwei.c@digipen.edu)
  \brief     Interface and state for enemy lifecycle control (init, update, draw, shutdown).
  \details   Holds a window reference for size-aware logic and a working list of enemy objects.
             Actual behaviors are implemented in the corresponding .cpp using registered
