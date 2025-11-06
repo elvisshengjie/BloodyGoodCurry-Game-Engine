@@ -3,7 +3,7 @@
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Author, 10%
              elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 20%
-           
+
  \brief     Core gameplay loop and input-driven logic for the sample sandbox.
  \details   This module owns high-level game state orchestration:
             - Factory lifetime: component registration, prefab loading/unloading, level create/destroy.
@@ -11,7 +11,7 @@
             - Input mapping: WASD movement, Q/E rotation, Z/X scale, R reset, Shift accelerator.
             - HitBoxSystem integration: spawns short-lived attack boxes towards cursor on LMB.
             - Crash logging utilities: F9 forces a safe, logged crash for robustness testing.
-            - Collision �debug info�: builds AABBs for player/target to visualize or check overlap.
+            - Collision "debug info": builds AABBs for player/target to visualize or check overlap.
 
             Performance & stability:
             * Uses TryGuard::Run to isolate Update() logic and attribute errors with a tag.
@@ -23,7 +23,7 @@
             * Layering, physics, and rendering are handled by their respective systems; LogicSystem
               manipulates components (Transform/Render/RigidBody) but does not own them.
  \copyright
-            All content �2025 DigiPen Institute of Technology Singapore.
+            All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -75,8 +75,7 @@ namespace Framework {
     }
 
     /*****************************************************************************************
-      \brief Cache the player�s base rectangle width/height once for scale operations.
-      \note  Called after player is discovered; resets rectScale to 1.f and marks captured=true.
+      \brief Find the first alive object with a PlayerComponent.
     *****************************************************************************************/
     GOC* LogicSystem::FindAnyAlivePlayer()
     {
@@ -87,19 +86,20 @@ namespace Framework {
         {
             if (auto* obj = ptr.get())
             {
-                // Check if this object has a PlayerComponent
-                if (obj->GetComponentType<PlayerComponent>(
-                    ComponentTypeId::CT_PlayerComponent))
-                {
-                    return obj; // return the first alive player found
-                }
+                if (obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
+                    return obj;
             }
         }
         return nullptr;
     }
+
+    /*****************************************************************************************
+      \brief Cache the player's base rectangle width/height once for scale operations.
+      \note  Called after player is discovered; resets rectScale to 1.f and marks captured=true.
+    *****************************************************************************************/
     void LogicSystem::CachePlayerSize()
     {
-        if (!player)
+        if (!IsAlive(player))
             return;
 
         if (auto* rc = player->GetComponentType<Framework::RenderComponent>(
@@ -180,10 +180,6 @@ namespace Framework {
       \brief Step the sprite-sheet animation based on desired run/idle state.
       \param dt      Delta time (seconds).
       \param wantRun Whether the input implies running (vs idle).
-      \details
-        - Switching state resets frame and local clock.
-        - frameClock accumulates fps-scaled time; increments frame when >= 1.0.
-        - animInfo is updated for the renderer to pick the correct UV cell.
     *****************************************************************************************/
     void LogicSystem::UpdateAnimation(float dt, bool wantRun)
     {
@@ -217,7 +213,7 @@ namespace Framework {
     *****************************************************************************************/
     bool LogicSystem::GetPlayerWorldPosition(float& outX, float& outY) const
     {
-        if (!player)
+        if (!IsAlive(player))
             return false;
 
         auto* tr = player->GetComponentType<Framework::TransformComponent>(
@@ -298,14 +294,6 @@ namespace Framework {
       \brief Per-frame update: input handling, physics intent, animation stepping, hitbox spawn,
              collision AABB bookkeeping, and crash-test handling.
       \param dt Delta time (seconds).
-      \details
-        - Press F9 to generate a deliberate, logged crash (latched to prevent spam).
-        - Delegates physics/AI progression to factory->Update(dt).
-        - Player rotation: Q/E (�90 deg/s), clamp to [-pi, +pi], R to reset.
-        - Player scale: Z/X (�rate), clamped to [0.25, 4.0], R to reset.
-        - Velocity intent from WASD mapped into RigidBody (actual motion elsewhere).
-        - Sprite �flip� via rc->w sign compared against mouse X for simple facing.
-        - LMB spawns a timed HitBox in the look direction (towards cursor).
     *****************************************************************************************/
     void LogicSystem::Update(float dt)
     {
@@ -327,62 +315,56 @@ namespace Framework {
             if (factory)
                 factory->Update(dt);
 
+            // Keep references fresh each frame in case of spawns/deletions.
             RefreshLevelReferences();
+
+            // --- Enemy loop: reacts to player's ACTIVE hitbox if both sides are valid ---
             for (auto* obj : levelObjects)
             {
                 if (!obj) continue;
 
-                // Check if object is an enemy
                 if (obj->GetObjectName() == "Enemy")
                 {
                     auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
                     auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                    if (!(rb && tr)) continue;
 
-                    if (rb && tr)
+                    AABB enemyBox(tr->x, tr->y, rb->width, rb->height);
+
+                    if (IsAlive(player))
                     {
-                        // Build the enemy's collision box
-                        AABB enemyBox(tr->x, tr->y, rb->width, rb->height);
-
-                        // --- Player HitBox Collision Check ---
-                        if (player)
+                        auto* attack = player->GetComponentType<PlayerAttackComponent>(ComponentTypeId::CT_PlayerAttackComponent);
+                        if (attack && attack->hitbox && attack->hitbox->active)
                         {
-                            auto* attack = player->GetComponentType<PlayerAttackComponent>(ComponentTypeId::CT_PlayerAttackComponent);
-                            if (attack && attack->hitbox && attack->hitbox->active)
+                            AABB playerHitBox(
+                                attack->hitbox->spawnX,
+                                attack->hitbox->spawnY,
+                                attack->hitbox->width,
+                                attack->hitbox->height
+                            );
+
+                            if (Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
                             {
-                                // Build the player's active hitbox
-                                AABB playerHitBox(
-                                    attack->hitbox->spawnX,
-                                    attack->hitbox->spawnY,
-                                    attack->hitbox->width,
-                                    attack->hitbox->height
-                                );
-
-                                // Check for intersection between hitbox and enemy
-                                if (Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
+                                std::cout << "Enemy hit by player at (" << tr->x << ", " << tr->y << ")\n";
+                                if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                                 {
-                                    std::cout << "Enemy hit by player at (" << tr->x << ", " << tr->y << ")\n";
-
-                                    // Apply damage if enemy has health
-                                    if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
-                                    {
-                                        health->TakeDamage(attack->damage);
-                                    }
-
-                                    // Deactivate hitbox after successful hit
-                                    attack->hitbox->DeactivateHurtBox();
+                                    health->TakeDamage(attack->damage);
                                 }
+                                attack->hitbox->DeactivateHurtBox();
                             }
                         }
                     }
                 }
             }
 
-
             if (hitBoxSystem)
                 hitBoxSystem->Update(dt);
 
-            if (!player)
+            // If player pointer is gone this frame, bail out from player-driven logic.
+            if (!IsAlive(player)) {
+                player = nullptr;
                 return;
+            }
 
             auto mouse = input.Manager().GetMouseState();
 
@@ -425,9 +407,9 @@ namespace Framework {
             // Map mouse to NDC (-1..+1) for simple facing/aiming computations.
             float normalizedX{};
             float normalizedY{};
-            if (tr && rc) {
-                normalizedX = (float)((mouse.x / window->Width()) * 2.0 - 1.0);
-                normalizedY = (float)((mouse.y / window->Height()) * -2.0 + 1.0);
+            if (tr && rc && window) {
+                normalizedX = static_cast<float>((mouse.x / window->Width()) * 2.0 - 1.0);
+                normalizedY = static_cast<float>((mouse.y / window->Height()) * -2.0 + 1.0);
 
                 // Flip sprite by width sign based on mouse relative position.
                 if (normalizedX > tr->x)
@@ -466,7 +448,7 @@ namespace Framework {
                 attack->Update(dt, tr);
             }
 
-            // Handle attack input
+            // Handle attack input: spawn through PlayerAttackComponent only (single source of truth).
             if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
             {
                 float dx = normalizedX - tr->x;
@@ -489,47 +471,6 @@ namespace Framework {
                 std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
             }
 
-            // Check player attack hitbox against enemies
-            if (attack)
-            {
-                auto* hb = attack->hitbox.get();
-                AABB playerHitBox(hb->spawnX, hb->spawnY, hb->width, hb->height);
-                hitBoxSystem->SpawnHitBox(
-                    player,
-                    hb->spawnX,
-                    hb->width,
-                    hb->height,
-                    static_cast<float>(attack->damage),
-                    attack->attack_speed,
-                    0.1f
-                );
-                for (auto* obj : levelObjects)
-                {
-                    if (!obj || obj->GetObjectName() != "Enemy") continue;
-
-                    auto* trE = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-                    auto* rbE = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-
-                    if (!trE || !rbE) continue;
-
-                    AABB enemyBox(trE->x, trE->y, rbE->width, rbE->height);
-
-                    if (Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
-                    {
-                        std::cout << "Enemy hit by player at (" << trE->x << ", " << trE->y << ")\n";
-
-                        if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
-                        {
-                            health->TakeDamage(attack->damage);
-                            std::cout << "Enemy took " << attack->damage << " damage.\n";
-                        }
-
-                        hb->DeactivateHurtBox();
-                        break;
-                    }
-                }
-            }
-
             // Collision debug info (player vs a target rect)
             collisionInfo.playerValid = false;
             collisionInfo.targetValid = false;
@@ -538,38 +479,9 @@ namespace Framework {
             {
                 collisionInfo.player = AABB(tr->x, tr->y, rb->width, rb->height);
                 collisionInfo.playerValid = true;
-
-                // LMB spawns a short-lived hit box in the facing direction (towards cursor).
-                if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && hitBoxSystem)
-                {
-                    float dx = normalizedX - tr->x;
-                    float dy = normalizedY - tr->y;
-
-                    float len = std::sqrt(dx * dx + dy * dy);
-                    if (len > 0.0001f)
-                    {
-                        dx /= len;
-                        dy /= len;
-                    }
-
-                    // Offset places the hitbox slightly ahead of the player bounds.
-                    float offset = 0.05f;
-                    float spawnX = tr->x + dx * (std::abs(rc->w) * 0.5f + 0.25f + offset);
-                    float spawnY = tr->y + dy * (rc->h * 0.5f + 0.25f + offset);
-
-                    float hitboxWidth = 0.5f;
-                    float hitboxHeight = 0.5f;
-                    float hitboxDamage = 1.0f;
-                    float hitboxDuration = 0.1f;
-
-                    hitBoxSystem->SpawnHitBox(player, spawnX, spawnY, hitboxWidth, hitboxHeight, hitboxDamage, hitboxDuration);
-
-                    // Debug print for visibility.
-                    std::cout << "Hurtbox spawned at (" << spawnX << ", " << spawnY << ")\n";
-                }
             }
 
-            if (collisionTarget)
+            if (IsAlive(collisionTarget))
             {
                 auto* tr2 = collisionTarget->GetComponentType<Framework::TransformComponent>(
                     Framework::ComponentTypeId::CT_TransformComponent);
