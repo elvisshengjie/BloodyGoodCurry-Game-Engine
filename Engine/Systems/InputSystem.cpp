@@ -51,6 +51,7 @@ namespace Framework
 		input.Update();
 
 		// For debugging
+		/*
 		if (input.IsKeyPressed(GLFW_KEY_W))  std::cout << "W Key pressed!" << std::endl;
 		if (input.IsKeyHeld(GLFW_KEY_W))     std::cout << "W Key held!" << std::endl;
 		if (input.IsKeyReleased(GLFW_KEY_W)) std::cout << "W Key released!" << std::endl;
@@ -70,6 +71,7 @@ namespace Framework
 		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT))  std::cout << "LMB pressed!" << std::endl;
 		if (input.IsMouseHeld(GLFW_MOUSE_BUTTON_LEFT))     std::cout << "LMB held!" << std::endl;
 		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT)) std::cout << "LMB released!" << std::endl;
+		*/
 		
 	}
 

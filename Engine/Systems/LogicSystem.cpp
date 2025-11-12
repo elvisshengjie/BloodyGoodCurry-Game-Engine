@@ -573,7 +573,8 @@ namespace Framework {
                 attackTr.x = tr->x + dx * (std::abs(rc->w) * 0.5f + 0.25f + offset);
                 attackTr.y = tr->y + dy * (rc->h * 0.5f + 0.25f + offset);
 
-                attack->PerformAttack(&attackTr);
+                //attack->PerformAttack(&attackTr);
+                hitBoxSystem->SpawnHitBox(player, attackTr.x, attackTr.y, 0.1f, 0.1f, 10.0f, 0.2f);
 
                 std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
             }
