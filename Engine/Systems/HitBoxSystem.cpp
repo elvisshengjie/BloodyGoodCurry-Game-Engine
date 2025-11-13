@@ -173,14 +173,15 @@ namespace Framework
 				{
 					if (HB->team == HitBoxComponent::Team::Player)
 					{
-						if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent));
-						{
-							//Please put in enemy health damage here
-						}
+						auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+						if (health)
+						health->TakeDamage(static_cast<int>(HB->damage));
 					}
 					else if (HB->team == HitBoxComponent::Team::Enemy)
 					{
-						// Player health take damage here
+						auto* health = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
+						if (health)
+						health->TakeDamage(static_cast<int>(HB->damage));
 					}
 
 					hit = true;
