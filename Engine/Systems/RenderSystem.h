@@ -93,7 +93,10 @@ namespace Framework {
 
         /// \brief Returns true if the editor UI is visible (for other systems to adapt).
         static bool IsEditorVisible();
+        // Global accessor to the current RenderSystem instance (set in ctor, cleared in Shutdown).
+        static RenderSystem* Get();
 
+     
         // Text accessors
         /// \brief  True if the hint text renderer is ready (font/atlas loaded).
         bool IsTextReadyHint()  const { return textReadyHint; }
@@ -108,7 +111,7 @@ namespace Framework {
         int ScreenWidth()  const { return screenW; }
         /// \brief  Back-buffer height in pixels.
         int ScreenHeight() const { return screenH; }
-
+        bool  ScreenToWorld(double cursorX, double cursorY, float& worldX, float& worldY, bool& insideViewport) const;
     private:
         // --- Filesystem / asset resolution ------------------------------------------------
         std::filesystem::path GetExeDir() const;
@@ -127,7 +130,7 @@ namespace Framework {
 
         // --- Camera & picking helpers -----------------------------------------------------
         void  UpdateEditorCameraControls(GLFWwindow* native, const ImGuiIO& io, double cursorX, double cursorY);
-        bool  ScreenToWorld(double cursorX, double cursorY, float& worldX, float& worldY, bool& insideViewport) const;
+       
         bool  CursorToViewportNdc(double cursorX, double cursorY, float& ndcX, float& ndcY, bool& insideViewport) const;
         bool  UnprojectWithCamera(const gfx::Camera2D& cam, float ndcX, float ndcY, float& worldX, float& worldY) const;
         bool  ShouldUseEditorCamera() const;
@@ -216,6 +219,8 @@ namespace Framework {
 
         // --- Layout persistence -----------------------------------------------------------
         std::string imguiLayoutPath{};       //!< Optional saved ImGui layout path.
+
+     
     };
 
 } // namespace Framework

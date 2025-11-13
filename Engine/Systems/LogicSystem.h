@@ -119,6 +119,7 @@ namespace Framework {
         enum class AnimState { Idle, Run };
         struct AnimConfig { int cols; int rows; int frames; float fps; };
 
+       
         struct ScaleState
         {
             float baseRenderW{ 1.f };

@@ -21,7 +21,7 @@
             * Time-based animation frame stepping decoupled from render rate via fps in AnimConfig.
 
             Conventions:
-            * Screen coordinates are in normalized device space (-1..+1) for mouse mapping.
+            * Screen coordinates are mapped to world space via RenderSystem::ScreenToWorld().
             * Layering, physics, and rendering are handled by their respective systems; LogicSystem
               manipulates components (Transform/Render/RigidBody) but does not own them.
  \copyright
@@ -30,6 +30,7 @@
 *********************************************************************************************/
 
 #include "Systems/LogicSystem.h"
+#include "Systems/RenderSystem.h"      // <-- NEW: for ScreenToWorld / camera-based world mapping
 #include "Debug/Selection.h"
 #include <cctype>
 #include <string>
@@ -511,20 +512,43 @@ namespace Framework {
                 }
             }
 
-            // Map mouse to NDC (-1..+1) for simple facing/aiming computations.
-            float normalizedX{};
-            float normalizedY{};
+            // --- Mouse to world: use RenderSystem camera for consistent world-space aiming ---
+            float mouseWorldX = 0.0f;
+            float mouseWorldY = 0.0f;
+            bool  mouseInsideViewport = false;
 
+            // Direction from player -> mouse in world space (normalized)
+            float aimDirX = 0.0f;
+            float aimDirY = 0.0f;
 
-            if (tr && rc && window) {
-                normalizedX = static_cast<float>((mouse.x / window->Width()) * 2.0 - 1.0);
-                normalizedY = static_cast<float>((mouse.y / window->Height()) * -2.0 + 1.0);
+            if (tr)
+            {
+                if (auto* rs = RenderSystem::Get())
+                {
+                    if (rs->ScreenToWorld(mouse.x, mouse.y,
+                        mouseWorldX, mouseWorldY, mouseInsideViewport)
+                        && mouseInsideViewport)
+                    {
+                        const float dx = mouseWorldX - tr->x;
+                        const float dy = mouseWorldY - tr->y;
+                        const float lenSq = dx * dx + dy * dy;
+                        if (lenSq > 1e-6f)
+                        {
+                            const float invLen = 1.0f / std::sqrt(lenSq);
+                            aimDirX = dx * invLen;
+                            aimDirY = dy * invLen;
+                        }
 
-                // Flip sprite by width sign based on mouse relative position.
-                if (normalizedX > tr->x)
-                    rc->w = std::abs(rc->w);
-                else if (normalizedX < tr->x)
-                    rc->w = -std::abs(rc->w);
+                        // Flip sprite by width sign based on world-space direction.
+                        if (rc && aimDirX != 0.0f)
+                        {
+                            if (aimDirX >= 0.0f)
+                                rc->w = std::abs(rc->w);
+                            else
+                                rc->w = -std::abs(rc->w);
+                        }
+                    }
+                }
             }
 
             // Velocity intent set on RigidBody; an external system integrates it.
@@ -560,25 +584,24 @@ namespace Framework {
             // Handle attack input: spawn through PlayerAttackComponent only (single source of truth).
             if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
             {
-                float dx = normalizedX - tr->x;
-                float dy = normalizedY - tr->y;
-
-                float len = std::sqrt(dx * dx + dy * dy);
-                if (len > 0.0001f)
+                // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
+                if (aimDirX != 0.0f || aimDirY != 0.0f)
                 {
-                    dx /= len;
-                    dy /= len;
+                    auto attackTr = *tr;
+                    const float offset = 0.05f;
+                    const float halfW = std::abs(rc->w) * 0.5f;
+                    const float halfH = rc->h * 0.5f;
+
+                    attackTr.x = tr->x + aimDirX * (halfW + 0.25f + offset);
+                    attackTr.y = tr->y + aimDirY * (halfH + 0.25f + offset);
+
+                    hitBoxSystem->SpawnHitBox(player,
+                        attackTr.x, attackTr.y,
+                        0.1f, 0.1f,
+                        10.0f, 0.2f);
+
+                    std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
                 }
-
-                auto attackTr = *tr;
-                float offset = 0.05f;
-                attackTr.x = tr->x + dx * (std::abs(rc->w) * 0.5f + 0.25f + offset);
-                attackTr.y = tr->y + dy * (rc->h * 0.5f + 0.25f + offset);
-
-                //attack->PerformAttack(&attackTr);
-                hitBoxSystem->SpawnHitBox(player, attackTr.x, attackTr.y, 0.1f, 0.1f, 10.0f, 0.2f);
-
-                std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
             }
 
             // Collision debug info (player vs a target rect)

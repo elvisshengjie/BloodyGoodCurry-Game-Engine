@@ -64,6 +64,10 @@
 namespace Framework {
 
     RenderSystem* RenderSystem::sInstance = nullptr;
+    RenderSystem* RenderSystem::Get()
+    {
+        return sInstance;
+    }
 
     namespace {
         using clock = std::chrono::high_resolution_clock;
