@@ -112,6 +112,8 @@ namespace Framework
 					AABB enemyHit(hitbox->spawnX, hitbox->spawnY,
 						hitbox->width, hitbox->height);
 
+					/*if (Collision::CheckCollisionRectToRect(playerHit, enemyHit))*/
+						std::cout << "a";
 					if (Collision::CheckCollisionRectToRect(playerHit, enemyHit))
 					{
 						auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);

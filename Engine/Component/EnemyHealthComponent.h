@@ -42,8 +42,8 @@ namespace Framework
     class EnemyHealthComponent : public GameComponent
     {
     public:
-        int enemyHealth{ 100 };      ///< Current health of the enemy.
-        int enemyMaxhealth{ 100 };   ///< Maximum health value for the enemy.
+        int enemyHealth{ 1 };      ///< Current health of the enemy.
+        int enemyMaxhealth{ 1 };   ///< Maximum health value for the enemy.
 
         /*************************************************************************************
           \brief Initializes the component.
