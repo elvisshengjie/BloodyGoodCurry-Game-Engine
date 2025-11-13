@@ -514,6 +514,8 @@ namespace Framework {
             // Map mouse to NDC (-1..+1) for simple facing/aiming computations.
             float normalizedX{};
             float normalizedY{};
+
+
             if (tr && rc && window) {
                 normalizedX = static_cast<float>((mouse.x / window->Width()) * 2.0 - 1.0);
                 normalizedY = static_cast<float>((mouse.y / window->Height()) * -2.0 + 1.0);
