@@ -4,6 +4,7 @@
  \author    yimo.kong ( yimo.kong@digipen.edu) - Primary Author, 50%
             erika.ishii (erika.ishii@digipen.edu) - Author, 30%
             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 10%
+            h.jun (h.jun@digipen.edu) - Author, 10%
 
  \brief     Editor/game viewport orchestration: camera control, picking/dragging,
             split-view docking, ImGui panels, asset import plumbings, and frame submit.
