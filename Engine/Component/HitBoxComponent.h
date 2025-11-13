@@ -43,6 +43,14 @@ namespace Framework
     class HitBoxComponent : public GameComponent
     {
     public:
+        enum class Team
+        {
+            Player,
+            Enemy,
+            Neutral
+        };                           /// For determining hurtbox for player or enemy
+        Team team = Team::Neutral;
+
         float width = 5.0f;          ///< Width of the hitbox in world units.
         float height = 5.0f;         ///< Height of the hitbox in world units.
         float duration = 0.1f;       ///< Lifetime of the hitbox in seconds.
