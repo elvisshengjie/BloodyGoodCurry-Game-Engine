@@ -109,7 +109,55 @@ namespace Framework
 		active.owner = attacker;
 		active.timer = duration;
 
-		activeHitBoxes.push_back(std::move(active));
+		activeHitBoxes.push_back(std::move(active)); 
+	}
+
+	void HitBoxSystem::SpawnProjectile(GameObjectComposition* attacker,
+		float targetX, float targetY,
+		float dirX, float dirY,
+		float speed,
+		float width, float height,
+		float damage,
+		float duration)
+	{
+		if (!attacker)
+			return;
+
+		// Normalized direction
+		float len = std::sqrt(dirX * dirX + dirY * dirY);
+		if (len < 0.0001f)
+			return;
+		dirX /= len;
+		dirY /= len;
+
+		auto newhitbox = std::make_unique<HitBoxComponent>();
+		newhitbox->spawnX = targetX; 
+		newhitbox->spawnY = targetY; 
+		newhitbox->width = width; 
+		newhitbox->height = height; 
+		newhitbox->damage = damage; 
+		newhitbox->duration = duration; 
+		newhitbox->owner = attacker;
+
+		// Set the team / make sure friendly fire doesnt happen
+		if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
+			newhitbox->team = HitBoxComponent::Team::Player; 
+		else if (attacker->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
+			newhitbox->team = HitBoxComponent::Team::Enemy;
+
+		newhitbox->ActivateHurtBox();
+
+		ActiveHitBox projectile; 
+		projectile.hitbox = std::move(newhitbox);
+		projectile.owner = attacker;
+		projectile.timer = duration;
+
+		// Movement
+		projectile.velX = dirX * speed;
+		projectile.velY = dirY * speed;
+		projectile.isProjectile = true;
+
+		activeHitBoxes.push_back(std::move(projectile));
 	}
 
 	/*****************************************************************************************
@@ -136,6 +184,12 @@ namespace Framework
 			{
 				it = activeHitBoxes.erase(it);
 				continue;
+			}
+
+			if (it->isProjectile)
+			{
+				it->hitbox->spawnX += it->velX * dt;
+				it->hitbox->spawnY += it->velY * dt;
 			}
 
 			AABB hitboxAABB(
@@ -188,9 +242,24 @@ namespace Framework
 					break;
 				}
 
-				/*
-				auto* hitbox = obj->GetComponentType<HitBoxComponent>(ComponentTypeId::CT_HitBoxComponent);
 				
+			}
+
+			// Remove immediately if hit or expired; otherwise keep ticking.
+			if (hit || it->timer <= 0.f)
+			{
+				it = activeHitBoxes.erase(it);
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+} // namespace Framework
+/*
+				auto* hitbox = obj->GetComponentType<HitBoxComponent>(ComponentTypeId::CT_HitBoxComponent);
+
 				if (hitbox)
 				{
 					if (!hitbox->active)
@@ -219,17 +288,3 @@ namespace Framework
 						break; // stop after first contact
 					}
 				}*/
-			}
-
-			// Remove immediately if hit or expired; otherwise keep ticking.
-			if (hit || it->timer <= 0.f)
-			{
-				it = activeHitBoxes.erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}
-} // namespace Framework
