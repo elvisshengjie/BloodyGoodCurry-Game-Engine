@@ -592,8 +592,8 @@ namespace Framework {
                     const float halfW = std::abs(rc->w) * 0.5f;
                     const float halfH = rc->h * 0.5f;
 
-                    attackTr.x = tr->x + aimDirX * (halfW + 0.25f + offset);
-                    attackTr.y = tr->y + aimDirY * (halfH + 0.25f + offset);
+                    attackTr.x = tr->x + aimDirX * (halfW + offset);
+                    attackTr.y = tr->y + aimDirY * (halfH + offset);
 
                     hitBoxSystem->SpawnHitBox(player,
                         attackTr.x, attackTr.y,

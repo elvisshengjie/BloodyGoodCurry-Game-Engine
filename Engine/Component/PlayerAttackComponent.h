@@ -116,7 +116,7 @@ namespace Framework
             if (!playerTr) return;
             if (!hitbox) hitbox = std::make_unique<HitBoxComponent>();
 
-            hitbox->spawnX = playerTr->x + 50;
+            hitbox->spawnX = playerTr->x;
             hitbox->spawnY = playerTr->y;
             hitbox->width = 50;
             hitbox->height = 50;
