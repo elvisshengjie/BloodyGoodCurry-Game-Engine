@@ -189,7 +189,7 @@ namespace Framework {
         ViewRect gameViewport{};         //!< Active game viewport in pixels.
 
         // --- Editor layout flags ----------------------------------------------------------
-        bool  showEditor = true;   //!< Toggle editor UI visibility.
+        bool  showEditor = false;   //!< Toggle editor UI visibility.
         bool  gameViewportFullWidth = false;  //!< Maximize viewport width.
         bool  gameViewportFullHeight = false;  //!< Maximize viewport height.
         float heightRatio = 0.8f;   //!< Viewport height vs window height.

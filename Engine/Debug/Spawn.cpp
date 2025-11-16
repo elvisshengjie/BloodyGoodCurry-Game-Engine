@@ -350,6 +350,9 @@ namespace mygame {
                 tr->y = s.y + s.stepY * index;
                 tr->rot = s.rot;
             }
+
+            tr->x += s.stepX * index;
+            tr->y += s.stepY * index;
         }
 
         auto* spriteComp = obj->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent);

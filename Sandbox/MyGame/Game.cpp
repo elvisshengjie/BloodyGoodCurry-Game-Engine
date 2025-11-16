@@ -67,9 +67,13 @@ namespace mygame {
     void update(float dt)
     {
         TryGuard::Run([&] {
+            // F1 toggle for performance window (edge-triggered)
+            static bool prevTogglePerf = false;
             const bool togglePerf = gInputSystem && gInputSystem->IsKeyPressed(GLFW_KEY_F1);
-            Framework::PerfFrameStart(dt, togglePerf);
-
+            if (togglePerf && !prevTogglePerf) {
+                Framework::ToggleVisible();
+            }
+            prevTogglePerf = togglePerf;
             switch (currentState)
             {
             case GameState::MAIN_MENU:

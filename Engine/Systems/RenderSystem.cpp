@@ -438,7 +438,13 @@ namespace Framework {
             draggingSelection = false;
             return;
         }
-
+        if (!showEditor)
+        {
+            // no picking/dragging when editor UI is hidden
+            leftMouseDownPrev = false;
+            draggingSelection = false;
+            return;
+        }
         GLFWwindow* native = window->raw();
         if (!native)
         {
@@ -1028,64 +1034,70 @@ namespace Framework {
             bool editorEnabled = showEditor;
             if (ImGui::Checkbox("Editor Enabled (F10)", &editorEnabled))
                 showEditor = editorEnabled;
+
             if (!showEditor)
             {
                 ImGui::TextDisabled("Editor panels hidden. Press F10 or re-enable above.");
+                // No more controls when editor is off
+                ImGui::End();
+                return;
             }
-            else
+
+            // ---- everything below this only shows when editor is ON ----
+
+            bool fullWidth = gameViewportFullWidth;
+            if (ImGui::Checkbox("Game Full Width (F11)", &fullWidth))
+                gameViewportFullWidth = fullWidth;
+            if (!gameViewportFullWidth)
             {
-                bool fullWidth = gameViewportFullWidth;
-                if (ImGui::Checkbox("Game Full Width (F11)", &fullWidth))
-                    gameViewportFullWidth = fullWidth;
-                if (!gameViewportFullWidth)
-                {
-                    float splitPercent = editorSplitRatio * 100.0f;
-                    if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                        editorSplitRatio = splitPercent / 100.0f;
-                }
-
-                bool fullHeight = gameViewportFullHeight;
-                if (ImGui::Checkbox("Game Full Height", &fullHeight))
-                    gameViewportFullHeight = fullHeight;
-
-                if (!gameViewportFullHeight) {
-                    float hPercent = heightRatio * 100.0f;
-                    if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                        heightRatio = hPercent / 100.0f;
-                    ImGui::TextDisabled("Viewport is centered vertically");
-                }
-                ImGui::Separator();
-                ImGui::TextUnformatted("Simulation");
-                bool isPlaying = mygame::IsEditorSimulationRunning();
-
-                const bool wasPlaying = isPlaying;
-                if (wasPlaying)
-                    ImGui::BeginDisabled();
-                if (ImGui::Button("Play"))
-                {
-                    mygame::EditorPlaySimulation();
-                    isPlaying = mygame::IsEditorSimulationRunning();
-                }
-                if (wasPlaying)
-                    ImGui::EndDisabled();
-
-                ImGui::SameLine();
-
-                const bool wasStopped = !isPlaying;
-                if (wasStopped)
-                    ImGui::BeginDisabled();
-                if (ImGui::Button("Stop"))
-                {
-                    mygame::EditorStopSimulation();
-                    isPlaying = mygame::IsEditorSimulationRunning();
-                }
-                if (wasStopped)
-                    ImGui::EndDisabled();
-
-                ImGui::SameLine();
-                ImGui::Text("State: %s", isPlaying ? "Playing" : "Stopped");
+                float splitPercent = editorSplitRatio * 100.0f;
+                if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                    editorSplitRatio = splitPercent / 100.0f;
             }
 
+            bool fullHeight = gameViewportFullHeight;
+            if (ImGui::Checkbox("Game Full Height", &fullHeight))
+                gameViewportFullHeight = fullHeight;
+
+            if (!gameViewportFullHeight) {
+                float hPercent = heightRatio * 100.0f;
+                if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                    heightRatio = hPercent / 100.0f;
+                ImGui::TextDisabled("Viewport is centered vertically");
+            }
+
+            ImGui::Separator();
+            ImGui::TextUnformatted("Simulation");
+            bool isPlaying = mygame::IsEditorSimulationRunning();
+
+            const bool wasPlaying = isPlaying;
+            if (wasPlaying)
+                ImGui::BeginDisabled();
+            if (ImGui::Button("Play"))
+            {
+                mygame::EditorPlaySimulation();
+                isPlaying = mygame::IsEditorSimulationRunning();
+            }
+            if (wasPlaying)
+                ImGui::EndDisabled();
+
+            ImGui::SameLine();
+
+            const bool wasStopped = !isPlaying;
+            if (wasStopped)
+                ImGui::BeginDisabled();
+            if (ImGui::Button("Stop"))
+            {
+                mygame::EditorStopSimulation();
+                isPlaying = mygame::IsEditorSimulationRunning();
+            }
+            if (wasStopped)
+                ImGui::EndDisabled();
+
+            ImGui::SameLine();
+            ImGui::Text("State: %s", isPlaying ? "Playing" : "Stopped");
+
+            // ---- Camera section (editor-only) ----
             ImGui::Separator();
             ImGui::TextUnformatted("Camera");
 
@@ -1094,12 +1106,13 @@ namespace Framework {
 
             if (ImGui::SliderFloat("View Height (world units)", &cameraViewHeight, 0.4f, 2.5f, "%.2f"))
             {
-                // Smaller height => closer zoom. Keep camera updated immediately.
                 camera.SetViewHeight(cameraViewHeight);
             }
             if (!cameraEnabled)
                 ImGui::EndDisabled();
+
             ImGui::TextDisabled("Smaller values zoom the camera closer to the player.");
+
             if (ImGui::Checkbox("Camera Enabled", &cameraEnabled))
             {
                 if (!cameraEnabled)
@@ -1452,103 +1465,103 @@ namespace Framework {
                 // Pass 4: Hover/Selection highlight outlines (editor)
                 // Drawn in world space, using same VP as the object passes above.
                 //physics debug overlay
-
-                const auto hoveredId = mygame::GetHoverObjectId();
-                const auto selectedId = mygame::GetSelectedObjectId();
-                if ((hoveredId != 0) || (selectedId != 0))
-                {
-                    auto drawOutline = [](float x, float y, float rot, float w, float h, bool selected)
-                        {
-                            // Selected: thicker cyan; Hover: thinner yellow
-                            if (selected)
-                                gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 0.f, 1.f, 1.f, 1.f, 6.f);
-                            else
-                                gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 1.f, 1.f, 0.f, 1.f, 2.f);
-                        };
-
-                    for (auto& [id, objPtr] : FACTORY->Objects())
+                if (showEditor) {
+                    const auto hoveredId = mygame::GetHoverObjectId();
+                    const auto selectedId = mygame::GetSelectedObjectId();
+                    if ((hoveredId != 0) || (selectedId != 0))
                     {
-                        (void)id;
-                        auto* obj = objPtr.get();
-                        if (!obj) continue;
-                        if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-
-                        const bool isHovered = (id == hoveredId);
-                        const bool isSelected = (id == selectedId);
-                        if (!isHovered && !isSelected) continue;
-
-                        auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                            Framework::ComponentTypeId::CT_TransformComponent);
-                        if (!tr) continue;
-
-                        // Determine bounds: prefer rect/sprite (w,h); otherwise circle radius; else skip
-                   
-                        if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
-                            Framework::ComponentTypeId::CT_RenderComponent))
-                        {
-                            float w = std::abs(rc->w);
-                            float h = std::abs(rc->h);
-                            if (w <= 0.f) w = 1.f;
-                            if (h <= 0.f) h = 1.f;
-                            drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
-                        }
-                        else if (obj->GetComponentType<Framework::SpriteComponent>(
-                            Framework::ComponentTypeId::CT_SpriteComponent))
-                        {
-                            // Sprites use RenderComponent for size in this engine; if missing, give a safe default box
-                            drawOutline(tr->x, tr->y, tr->rot, 1.f, 1.f, isSelected);
-                        }
-                        else if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
-                            Framework::ComponentTypeId::CT_CircleRenderComponent))
-                        {
-                            const float d = std::max(0.1f, cc->radius * 2.f);
-                            drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
-                        }
-                        // If none of the above, we don’t know the visual bounds; skip outlining.
-                    }
-                }
-                if (showPhysicsHitboxes && logic.hitBoxSystem)
-                {
-                    for (auto& [id, objPtr] : FACTORY->Objects())
-                    {
-                        (void)id;
-                        auto* obj = objPtr.get();
-                        if (!obj) continue;
-
-                        auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                            Framework::ComponentTypeId::CT_TransformComponent);
-                        auto* rb = obj->GetComponentType<Framework::RigidBodyComponent>(
-                            Framework::ComponentTypeId::CT_RigidBodyComponent);
-                        if (!tr || !rb) continue;
-
-                        gfx::Graphics::renderRectangleOutline(tr->x, tr->y, 0.0f,
-                            rb->width, rb->height,
-                            1.f, 0.f, 0.f, 1.f,
-                            2.f);
-
-                        // Check hurtboxcomponennt for hurtboxes
-                        for (const auto& activeHit : logic.hitBoxSystem->GetActiveHitBoxes())
-                        {
-                            if (activeHit.hitbox && activeHit.hitbox->active)
+                        auto drawOutline = [](float x, float y, float rot, float w, float h, bool selected)
                             {
-                                gfx::Graphics::renderRectangleOutline(
-                                    activeHit.hitbox->spawnX,
-                                    activeHit.hitbox->spawnY,
-                                    0.0f,
-                                    activeHit.hitbox->width,
-                                    activeHit.hitbox->height,
-                                    0.0f, 1.0f, 0.0f, 1.0f, // green outline for enemy attacks
-                                    2.0f
-                                );
+                                // Selected: thicker cyan; Hover: thinner yellow
+                                if (selected)
+                                    gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 0.f, 1.f, 1.f, 1.f, 6.f);
+                                else
+                                    gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 1.f, 1.f, 0.f, 1.f, 2.f);
+                            };
+
+                        for (auto& [id, objPtr] : FACTORY->Objects())
+                        {
+                            (void)id;
+                            auto* obj = objPtr.get();
+                            if (!obj) continue;
+                            if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
+
+                            const bool isHovered = (id == hoveredId);
+                            const bool isSelected = (id == selectedId);
+                            if (!isHovered && !isSelected) continue;
+
+                            auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                                Framework::ComponentTypeId::CT_TransformComponent);
+                            if (!tr) continue;
+
+                            // Determine bounds: prefer rect/sprite (w,h); otherwise circle radius; else skip
+
+                            if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                                Framework::ComponentTypeId::CT_RenderComponent))
+                            {
+                                float w = std::abs(rc->w);
+                                float h = std::abs(rc->h);
+                                if (w <= 0.f) w = 1.f;
+                                if (h <= 0.f) h = 1.f;
+                                drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
                             }
+                            else if (obj->GetComponentType<Framework::SpriteComponent>(
+                                Framework::ComponentTypeId::CT_SpriteComponent))
+                            {
+                                // Sprites use RenderComponent for size in this engine; if missing, give a safe default box
+                                drawOutline(tr->x, tr->y, tr->rot, 1.f, 1.f, isSelected);
+                            }
+                            else if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
+                                Framework::ComponentTypeId::CT_CircleRenderComponent))
+                            {
+                                const float d = std::max(0.1f, cc->radius * 2.f);
+                                drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
+                            }
+                            // If none of the above, we don’t know the visual bounds; skip outlining.
+                        }
+                    }
+                    if (showPhysicsHitboxes && logic.hitBoxSystem)
+                    {
+                        for (auto& [id, objPtr] : FACTORY->Objects())
+                        {
+                            (void)id;
+                            auto* obj = objPtr.get();
+                            if (!obj) continue;
+
+                            auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                                Framework::ComponentTypeId::CT_TransformComponent);
+                            auto* rb = obj->GetComponentType<Framework::RigidBodyComponent>(
+                                Framework::ComponentTypeId::CT_RigidBodyComponent);
+                            if (!tr || !rb) continue;
+
+                            gfx::Graphics::renderRectangleOutline(tr->x, tr->y, 0.0f,
+                                rb->width, rb->height,
+                                1.f, 0.f, 0.f, 1.f,
+                                2.f);
+
+                            // Check hurtboxcomponennt for hurtboxes
+                            for (const auto& activeHit : logic.hitBoxSystem->GetActiveHitBoxes())
+                            {
+                                if (activeHit.hitbox && activeHit.hitbox->active)
+                                {
+                                    gfx::Graphics::renderRectangleOutline(
+                                        activeHit.hitbox->spawnX,
+                                        activeHit.hitbox->spawnY,
+                                        0.0f,
+                                        activeHit.hitbox->width,
+                                        activeHit.hitbox->height,
+                                        0.0f, 1.0f, 0.0f, 1.0f, // green outline for enemy attacks
+                                        2.0f
+                                    );
+                                }
+                            }
+
                         }
 
+
                     }
-
-
                 }
             }
-
             // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
 
