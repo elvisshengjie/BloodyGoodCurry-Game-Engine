@@ -43,6 +43,11 @@ namespace Framework
 			std::unique_ptr<HitBoxComponent> hitbox;
 			GameObjectComposition* owner{};
 			float timer{};
+
+			// For projectiles
+			float velX = 0.f;
+			float velY = 0.f;
+			bool isProjectile = false;
 		};
 		/*************************************************************************
 		 \brief  Construct the hitbox system with access to logic/scene queries.
@@ -82,6 +87,14 @@ namespace Framework
 		*************************************************************************/
 		void SpawnHitBox(GameObjectComposition* attacker,
 			float targetX, float targetY,
+			float width = 0.2f, float height = 0.2f,
+			float damage = 1.0f,
+			float duration = 0.1f);
+
+		void SpawnProjectile(GameObjectComposition* attacker,
+			float targetX, float targetY,
+			float dirX, float dirY,
+			float speed,
 			float width = 0.2f, float height = 0.2f,
 			float damage = 1.0f,
 			float duration = 0.1f);

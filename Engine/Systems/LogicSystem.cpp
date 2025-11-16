@@ -603,6 +603,29 @@ namespace Framework {
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
                 }
             }
+            else if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && attack && tr && rc)
+            {
+                // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
+                if (aimDirX != 0.0f || aimDirY != 0.0f)
+                {
+                    auto attackTr = *tr;
+                    const float offset = 0.05f;
+                    const float halfW = std::abs(rc->w) * 0.5f;
+                    const float halfH = rc->h * 0.5f;
+
+                    attackTr.x = tr->x + aimDirX * (halfW + offset);
+                    attackTr.y = tr->y + aimDirY * (halfH + offset);
+
+                    hitBoxSystem->SpawnProjectile(player,
+                        attackTr.x, attackTr.y,
+                        aimDirX, aimDirY,
+                        0.1f,
+                        0.1f, 0.1f,
+                        10.0f, 5.f);
+
+                    std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
+                }
+            }
 
             // Collision debug info (player vs a target rect)
             collisionInfo.playerValid = false;
