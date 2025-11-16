@@ -215,8 +215,8 @@ namespace Framework
                     enemy,
                     spawnX,
                     spawnY,
-                    attack->hitbox->width,
-                    attack->hitbox->height,
+                    static_cast<float>(attack->hitbox->width),
+                    static_cast<float>(attack->hitbox->height),
                     attack->damage,
                     attack->hitbox->duration
                 );
