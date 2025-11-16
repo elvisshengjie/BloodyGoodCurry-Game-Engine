@@ -217,8 +217,8 @@ namespace Framework
                     spawnY,
                     static_cast<float>(attack->hitbox->width),
                     static_cast<float>(attack->hitbox->height),
-                    attack->damage,
-                    attack->hitbox->duration
+                    static_cast<float>(attack->damage),
+                    static_cast<float>(attack->hitbox->duration)
                 );
 
                 std::cout << "[DEBUG] Enemy ID " << enemy->GetId()
