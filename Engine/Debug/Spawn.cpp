@@ -440,10 +440,6 @@ namespace mygame {
             type->Etype = Framework::EnemyTypeComponent::EnemyType::physical;
         }
 
-        if (auto* ai = obj->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent)) {
-            if (!ai->tree) ai->tree = CreateDefaultEnemyTree(obj);
-        }
-
         // Assign layer on creation
         obj->SetLayerName(gActiveLayer);
     }

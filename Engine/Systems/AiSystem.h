@@ -47,7 +47,7 @@ namespace Framework {
     *****************************************************************************************/
 	class AiSystem :public Framework::ISystem {
 	public:
-		explicit AiSystem(gfx::Window& window);
+        explicit AiSystem(gfx::Window& window,LogicSystem& logicSystem);
 		void Initialize() override;
 		void Update(float dt) override;
 		void draw() override;
@@ -55,6 +55,7 @@ namespace Framework {
 		std::string GetName() override{ return "AiSystem"; }
 	private:
 		gfx::Window* window;
+        LogicSystem* logic;
 	};
 
 }

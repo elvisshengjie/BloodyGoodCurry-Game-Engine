@@ -30,6 +30,7 @@
 #include "AI/DecisionTreeDefault.h"
 #include "Composition/Composition.h"
 #include "AI/DecisionTree.h"
+#include "Systems/LogicSystem.h"
 #include <iostream>
 
 #define NOMINMAX
@@ -48,7 +49,7 @@ namespace Framework {
       \param enemy  Pointer to the enemy�s GameObjectComposition.
       \return A unique_ptr to a new DecisionTree instance configured for default AI behavior.
     *****************************************************************************************/
-    std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy);
+    std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy, LogicSystem* logic);
 
     /*****************************************************************************************
       \class EnemyDecisionTreeComponent
@@ -68,6 +69,9 @@ namespace Framework {
         float chaseTimer = 0.0f;             ///< Accumulated time spent in chase mode.
         float maxChaseDuration = 3.0f;       ///< Maximum allowed chase time before reset.
         bool hasSeenPlayer = false;          ///< Tracks whether the enemy has detected the player.
+       
+
+        EnemyDecisionTreeComponent() = default;
 
         /*************************************************************************************
           \brief Initializes the decision tree for this enemy component.
@@ -77,13 +81,7 @@ namespace Framework {
               - Logs a debug message upon successful initialization.
         *************************************************************************************/
         void initialize() override
-        {
-            GOC* ownerGOC = GetOwner();
-            if (ownerGOC) {
-                tree = Framework::CreateDefaultEnemyTree(ownerGOC);
-                std::cout << "[EnemyDecisionTreeComponent] Tree initialized.\n";
-            }
-        }
+        {std::cout << "[EnemyDecisionTreeComponent] Tree initialized.\n";   }
 
         /*************************************************************************************
           \brief Handles incoming messages sent to this component.
@@ -106,6 +104,13 @@ namespace Framework {
         std::unique_ptr<GameComponent> Clone() const override
         {
             auto copy = std::make_unique<EnemyDecisionTreeComponent>();
+            copy->dir = dir;
+            copy->pauseTimer = pauseTimer;
+            copy->chaseSpeed = chaseSpeed;
+            copy->chaseTimer = chaseTimer;
+            copy->maxChaseDuration = maxChaseDuration;
+            copy->hasSeenPlayer = hasSeenPlayer;
+
             return copy;
         }
     };

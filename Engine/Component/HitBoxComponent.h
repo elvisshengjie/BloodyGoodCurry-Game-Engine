@@ -53,7 +53,7 @@ namespace Framework
 
         float width = 5.0f;          ///< Width of the hitbox in world units.
         float height = 5.0f;         ///< Height of the hitbox in world units.
-        float duration = 0.1f;       ///< Lifetime of the hitbox in seconds.
+        float duration = 1.0f;       ///< Lifetime of the hitbox in seconds.
         bool active = false;         ///< Whether the hitbox is currently active.
         float spawnX = 0.0f;         ///< X-position offset relative to the attacker.
         float spawnY = 0.0f;         ///< Y-position offset relative to the attacker.
