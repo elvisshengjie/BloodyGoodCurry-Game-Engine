@@ -43,7 +43,7 @@
 #endif
 
 namespace Framework {
-
+    enum class Facing { LEFT, RIGHT };
     /*****************************************************************************************
       \brief Creates a default decision tree for an enemy.
       \param enemy  Pointer to the enemy�s GameObjectComposition.
@@ -69,7 +69,7 @@ namespace Framework {
         float chaseTimer = 0.0f;             ///< Accumulated time spent in chase mode.
         float maxChaseDuration = 3.0f;       ///< Maximum allowed chase time before reset.
         bool hasSeenPlayer = false;          ///< Tracks whether the enemy has detected the player.
-       
+        Facing facing = Facing::RIGHT;
 
         EnemyDecisionTreeComponent() = default;
 

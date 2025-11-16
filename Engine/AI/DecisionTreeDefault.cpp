@@ -202,20 +202,29 @@ namespace Framework
             {
                 attack->attack_timer = 0.0f;
                 attack->hitbox->active = true;
+
                 // Spawn hitbox based on enemy direction
-                float offsetX = (vx > 0.0f) ? attack->hitbox->width : (vx < 0.0f ? -attack->hitbox->width : 0.0f);
-                float offsetY = (vy > 0.0f) ? attack->hitbox->height : (vy < 0.0f ? -attack->hitbox->height : 0.0f);
+                float offsetX = (ai->facing == Facing::RIGHT) ? attack->hitbox->width :
+                    (ai->facing == Facing::LEFT) ? -attack->hitbox->width : 0.0f;
+                float offsetY = 0.0f;
+
                 float spawnX = tr->x + offsetX;
                 float spawnY = tr->y + offsetY;
+
                 logic->hitBoxSystem->SpawnHitBox(
                     enemy,
-                    spawnX, spawnY,
+                    spawnX,
+                    spawnY,
                     attack->hitbox->width,
                     attack->hitbox->height,
                     attack->damage,
                     attack->hitbox->duration
                 );
-                std::cout << "[DEBUG] Hitbox spawned at (" << spawnX << ", " << spawnY << ")\n";
+
+                std::cout << "[DEBUG] Enemy ID " << enemy->GetId()
+                    << " spawned hitbox at (" << spawnX << ", " << spawnY << ")"
+                    << " with damage " << attack->damage
+                    << " and size (" << attack->hitbox->width << "x" << attack->hitbox->height << ")\n";
             }
             
             if (attack->hitbox->active)
