@@ -274,6 +274,8 @@ namespace Framework {
         RegisterComponent(EnemyDecisionTreeComponent);
         RegisterComponent(EnemyHealthComponent);
         RegisterComponent(EnemyTypeComponent);
+
+        RegisterComponent(AudioComponent);
         FACTORY = factory.get();
         LoadPrefabs();
 

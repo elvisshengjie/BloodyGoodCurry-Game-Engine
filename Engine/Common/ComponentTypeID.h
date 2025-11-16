@@ -69,6 +69,8 @@ namespace Framework
         CT_EnemyHealthComponent,
         //Enemy Type Component
         CT_EnemyTypeComponent,
+        //Audio Component
+        CT_AudioComponent,
 
         /// Maximum enum value marker (not a real component, used for iteration/validation)
         CT_MaxComponent

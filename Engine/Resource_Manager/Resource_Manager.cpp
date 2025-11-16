@@ -124,6 +124,7 @@ void Resource_Manager::loadAll(const std::string& directory)
                 std::cout << "[Resource_Manager] Loaded: " << id
                     << " (" << path.string() << ")"
                     << std::endl;
+
             }
         }
     }
