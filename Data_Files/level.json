@@ -59,7 +59,12 @@
           },
           "AudioComponent":
           {
-            "soundID": "footsteps",
+            "sounds": 
+            {
+              "footsteps":"footsteps",
+              "Slash1": "Slash1",
+              "GrappleShoot1": "GrappleShoot1"
+            },
             "volume": 1.0,
             "loop": 0,
             "playing": 0

@@ -389,6 +389,8 @@ namespace Framework {
                 Framework::ComponentTypeId::CT_RigidBodyComponent);
             auto* attack = player->GetComponentType<Framework::PlayerAttackComponent>(
                 Framework::ComponentTypeId::CT_PlayerAttackComponent);
+            auto* audio = player->GetComponentType<Framework::AudioComponent>
+                (Framework::ComponentTypeId::CT_AudioComponent);
 
             const float rotSpeed = DegToRad(90.f);
             const float scaleRate = 1.5f;
@@ -603,7 +605,9 @@ namespace Framework {
                         10.0f, 0.2f);
 
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
+                    audio->TriggerSound("Slash1");
                 }
+               
             }
             else if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && attack && tr && rc)
             {
@@ -626,6 +630,7 @@ namespace Framework {
                         10.0f, 5.f);
 
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
+                    audio->TriggerSound("GrappleShoot1");
                 }
             }
 

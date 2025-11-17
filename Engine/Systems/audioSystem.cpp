@@ -73,22 +73,12 @@ namespace Framework {
             auto* rb = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
             if (!rb || !audio) continue;
-
-            // Play footsteps only if the object is moving
+            // Footsteps audio
             bool isMoving = (rb->velX != 0.0f || rb->velY != 0.0f);
-
             if (isMoving && !audio->playing)
-            {
-                // Start playing the sound
-                SoundManager::getInstance().playSound(audio->soundID, audio->volume, 1.0f, audio->loop);
-                audio->playing = true; // mark as playing so we don't restart it every frame
-            }
-            else if (!isMoving && audio->playing)
-            {
-                // Stop the sound if movement stopped
-                SoundManager::getInstance().stopSound(audio->soundID);
-                audio->playing = false;
-            }
+            {audio->Play("footsteps");}
+            if (!isMoving)
+            {SoundManager::getInstance().stopSound(audio->sounds["footsteps"]);audio->playing = false;}
         }
     }
 
