@@ -322,7 +322,7 @@ namespace Framework {
         }
         case ComponentTypeId::CT_RenderComponent: {
             auto const& rc = static_cast<RenderComponent const&>(component);
-            return json{ {"w", rc.w}, {"h", rc.h}, {"r", rc.r}, {"g", rc.g}, {"b", rc.b}, {"a", rc.a} };
+            return json{ {"w", rc.w}, {"h", rc.h}, {"r", rc.r}, {"g", rc.g}, {"b", rc.b}, {"a", rc.a}, {"visible", rc.visible} };
         }
         case ComponentTypeId::CT_CircleRenderComponent: {
             auto const& cc = static_cast<CircleRenderComponent const&>(component);
