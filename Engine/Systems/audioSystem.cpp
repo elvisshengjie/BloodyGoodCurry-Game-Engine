@@ -45,21 +45,6 @@ namespace Framework {
         
         // Load all sounds (previously in AudioImGui)
         Resource_Manager::loadAll("../../assets/Audio");
-        //To iterate through the sound list and give them each a sound component
-        auto soundList = SoundManager::getInstance().getLoadedSounds();
-        for (const auto& soundID : soundList)
-        {
-            GOC* goc = FACTORY->CreateEmptyComposition();
-            if (!goc) { std::cerr << "[AudioSystem] Failed to create GOC for " << soundID << "\n"; continue;}
-            goc->AddComponent(ComponentTypeId::CT_AudioComponent,std::make_unique<AudioComponent>());
-            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
-            audio->soundID = soundID;
-            audio->volume = 1.0f;
-            audio->loop = false;
-            audio->playing = false;
-            std::cout << "[AudioSystem] Created Audio GameObject for sound: "
-                << soundID << std::endl;
-        }
 
         // Set default master volume
         SoundManager::getInstance().setMasterVolume(0.7f);
@@ -74,7 +59,39 @@ namespace Framework {
      \param dt
         Delta time since the last frame (currently unused, reserved for future logic).
     *****************************************************************************************/
-    void AudioSystem::Update(float dt){ (void)dt; }
+    void AudioSystem::Update(float dt)
+    {
+        (void)dt;
+
+        // Iterate all game objects in the factory
+        for (auto& [id, gocPtr] : FACTORY->Objects())
+        {
+            if (!gocPtr) continue;
+            GOC* goc = gocPtr.get();
+
+            // Get Rigidbody and Audio components
+            auto* rb = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+            if (!rb || !audio) continue;
+
+            // Play footsteps only if the object is moving
+            bool isMoving = (rb->velX != 0.0f || rb->velY != 0.0f);
+
+            if (isMoving && !audio->playing)
+            {
+                // Start playing the sound
+                SoundManager::getInstance().playSound(audio->soundID, audio->volume, 1.0f, audio->loop);
+                audio->playing = true; // mark as playing so we don't restart it every frame
+            }
+            else if (!isMoving && audio->playing)
+            {
+                // Stop the sound if movement stopped
+                SoundManager::getInstance().stopSound(audio->soundID);
+                audio->playing = false;
+            }
+        }
+    }
+
     /*****************************************************************************************
      \brief
         Draws the ImGui-based audio debug panel.
