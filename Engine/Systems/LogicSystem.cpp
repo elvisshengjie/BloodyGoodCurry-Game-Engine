@@ -268,7 +268,7 @@ namespace Framework {
         RegisterComponent(PlayerAttackComponent);
         RegisterComponent(PlayerHealthComponent);
         RegisterComponent(HitBoxComponent);
-
+        RegisterComponent(SpriteAnimationComponent);
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
         RegisterComponent(EnemyDecisionTreeComponent);
@@ -330,6 +330,43 @@ namespace Framework {
 
             // Keep references fresh each frame in case of spawns/deletions.
             RefreshLevelReferences();
+
+            auto AdvanceSpriteAnimations = [&](float step)
+                {
+                    if (!factory)
+                        return;
+
+                    for (auto& [id, objPtr] : factory->Objects())
+                    {
+                        (void)id;
+                        auto* obj = objPtr.get();
+                        if (!obj)
+                            continue;
+
+                        auto* anim = obj->GetComponentType<Framework::SpriteAnimationComponent>(
+                            Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+                        if (!anim || !anim->HasFrames())
+                            continue;
+
+                        anim->Advance(step);
+                        size_t frameIndex = anim->CurrentFrameIndex();
+                        if (frameIndex >= anim->frames.size())
+                            continue;
+
+                        const auto& frame = anim->frames[frameIndex];
+                        auto* sprite = obj->GetComponentType<Framework::SpriteComponent>(
+                            Framework::ComponentTypeId::CT_SpriteComponent);
+                        if (!sprite)
+                            continue;
+
+                        sprite->texture_key = frame.texture_key;
+                        unsigned tex = anim->ResolveFrameTexture(frameIndex);
+                        if (tex)
+                            sprite->texture_id = tex;
+                    }
+                };
+
+            AdvanceSpriteAnimations(dt);
 
             // --- Enemy loop: reacts to player's ACTIVE hitbox if both sides are valid ---
             for (auto* obj : levelObjects)

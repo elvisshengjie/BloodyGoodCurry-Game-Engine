@@ -96,7 +96,7 @@ namespace Framework {
                 std::string otherName = otherObj->GetObjectName();
                 std::transform(otherName.begin(), otherName.end(), otherName.begin(),
                     [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
-                if (otherName != "rect")
+                if (otherName != "rect" && otherName != "invisiblehitbox")
                     continue;
 
                 AABB wallBox(trO->x, trO->y, rbO->width, rbO->height);

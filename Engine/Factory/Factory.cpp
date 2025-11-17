@@ -42,6 +42,7 @@
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
 #include "Component/SpriteComponent.h"
+#include "Component/SpriteAnimationComponent.h"
 
 #include "Component/PlayerComponent.h"
 #include "Component/PlayerHealthComponent.h"
@@ -333,6 +334,22 @@ namespace Framework {
             if (!sp.texture_key.empty()) out["texture_key"] = sp.texture_key;
             if (!sp.path.empty()) out["path"] = sp.path;
             return out;
+        }
+        case ComponentTypeId::CT_SpriteAnimationComponent: {
+            auto const& anim = static_cast<SpriteAnimationComponent const&>(component);
+            json frames = json::array();
+            for (const auto& frame : anim.frames) {
+                json entry = json::object();
+                if (!frame.texture_key.empty()) entry["texture_key"] = frame.texture_key;
+                if (!frame.path.empty()) entry["path"] = frame.path;
+                frames.push_back(entry);
+            }
+            return json{
+                {"fps", anim.fps},
+                {"loop", anim.loop},
+                {"play", anim.play},
+                {"frames", frames}
+            };
         }
         case ComponentTypeId::CT_RigidBodyComponent: {
             auto const& rb = static_cast<RigidBodyComponent const&>(component);
