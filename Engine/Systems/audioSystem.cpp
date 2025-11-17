@@ -45,6 +45,22 @@ namespace Framework {
         
         // Load all sounds (previously in AudioImGui)
         Resource_Manager::loadAll("../../assets/Audio");
+        //To iterate through the sound list and give them each a sound component
+        auto soundList = SoundManager::getInstance().getLoadedSounds();
+        for (const auto& soundID : soundList)
+        {
+            GOC* goc = FACTORY->CreateEmptyComposition();
+            if (!goc) { std::cerr << "[AudioSystem] Failed to create GOC for " << soundID << "\n"; continue;}
+            goc->AddComponent(ComponentTypeId::CT_AudioComponent,std::make_unique<AudioComponent>());
+            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+            audio->soundID = soundID;
+            audio->volume = 1.0f;
+            audio->loop = false;
+            audio->playing = false;
+            std::cout << "[AudioSystem] Created Audio GameObject for sound: "
+                << soundID << std::endl;
+        }
+
         // Set default master volume
         SoundManager::getInstance().setMasterVolume(0.7f);
         std::cout << "[AudioSystem] Audio system initialized successfully.\n";
