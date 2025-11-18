@@ -29,6 +29,7 @@
 #include "Debug/Spawn.h"
 #include "Debug/Selection.h"
 #include "Debug/HierarchyPanel.h"
+#include "Debug/InspectorPanel.h"
 #include "Debug/AssetBrowserPanel.h"
 #include "Debug/JsonEditorPanel.h"
 #include "Factory/Factory.h"
