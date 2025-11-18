@@ -396,16 +396,13 @@ namespace Framework {
                             if (Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
                             {
                                 std::cout << "Enemy hit by player at (" << tr->x << ", " << tr->y << ")\n";
-                                if (auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
-                                {
-                                    health->TakeDamage(attack->damage);
-                                }
                                 attack->hitbox->DeactivateHurtBox();
                             }
                         }
                     }
                 }
             }
+
 
             if (hitBoxSystem)
                 hitBoxSystem->Update(dt);
@@ -637,9 +634,10 @@ namespace Framework {
                     attackTr.y = tr->y + aimDirY * (halfH + offset);
 
                     hitBoxSystem->SpawnHitBox(player,
-                        attackTr.x, attackTr.y,
-                        0.1f, 0.1f,
-                        10.0f, 0.2f);
+                     attackTr.x, attackTr.y,
+                     0.1f, 0.1f,
+                     10.0f, 0.2f
+                    ,HitBoxComponent::Team::Player);
 
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
                     audio->TriggerSound("Slash1");
@@ -664,7 +662,7 @@ namespace Framework {
                         aimDirX, aimDirY,
                         0.1f,
                         0.1f, 0.1f,
-                        10.0f, 5.f);
+                        10.0f, 5.f, HitBoxComponent::Team::Thrown);
 
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
                     audio->TriggerSound("GrappleShoot1");
