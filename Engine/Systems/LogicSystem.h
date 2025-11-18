@@ -20,6 +20,7 @@
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
 #include "Component/SpriteComponent.h"
+#include "Component/SpriteAnimationComponent.h"
 #include "Component/PlayerComponent.h"
 #include "Component/PlayerAttackComponent.h"
 #include "Component/PlayerHealthComponent.h"

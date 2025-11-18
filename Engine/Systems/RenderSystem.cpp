@@ -1358,13 +1358,25 @@ namespace Framework {
                         float sx = 1.f, sy = 1.f;
                         float r = 1.f, g = 1.f, b = 1.f, a = 1.f;
 
+                        // If a RenderComponent is present, use its size/tint AND visibility
                         if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                             Framework::ComponentTypeId::CT_RenderComponent))
                         {
-                            sx = rc->w; sy = rc->h; r = rc->r; g = rc->g; b = rc->b; a = rc->a;
+                            // Skip invisible sprites
+                            if (!rc->visible || rc->a <= 0.0f)
+                                continue;
+
+                            sx = rc->w;
+                            sy = rc->h;
+                            r = rc->r;
+                            g = rc->g;
+                            b = rc->b;
+                            a = rc->a;
                         }
+
                         unsigned tex = sp->texture_id;
                         glm::vec4 uvRect(0.0f, 0.0f, 1.0f, 1.0f);
+
                         if (IsPlayerObject(obj) && idleTex && runTex)
                         {
                             tex = CurrentPlayerTexture();
@@ -1381,12 +1393,12 @@ namespace Framework {
                                     sxUV, syUV);
                             }
                         }
-
                         else if (!tex && !sp->texture_key.empty())
                         {
                             tex = Resource_Manager::getTexture(sp->texture_key);
                             sp->texture_id = tex;
                         }
+
                         if (!tex)
                             continue;
 
@@ -1402,11 +1414,13 @@ namespace Framework {
                         spriteBatches[tex].push_back(instance);
                     }
                 }
+
                 for (auto& [tex, batch] : spriteBatches)
                 {
                     if (!batch.empty())
                         gfx::Graphics::renderSpriteBatchInstanced(tex, batch);
                 }
+
                 // Pass 2: Rectangles (non-sprite quads)
                 for (auto& [id, objPtr] : FACTORY->Objects())
                 {
@@ -1421,9 +1435,14 @@ namespace Framework {
                         Framework::ComponentTypeId::CT_RenderComponent);
                     if (!tr || !rc) continue;
 
+                    // NEW: skip invisible rect-only renderables
+                    if (!rc->visible || rc->a <= 0.0f)
+                        continue;
+
                     if (obj->GetComponentType<Framework::SpriteComponent>(
                         Framework::ComponentTypeId::CT_SpriteComponent))
                         continue;
+
                     unsigned rectTex = rc->texture_id;
                     if (!rectTex && !rc->texture_key.empty())
                     {
@@ -1464,7 +1483,7 @@ namespace Framework {
 
                 // Pass 4: Hover/Selection highlight outlines (editor)
                 // Drawn in world space, using same VP as the object passes above.
-                //physics debug overlay
+                // physics debug overlay
                 if (showEditor) {
                     const auto hoveredId = mygame::GetHoverObjectId();
                     const auto selectedId = mygame::GetSelectedObjectId();
@@ -1494,8 +1513,6 @@ namespace Framework {
                                 Framework::ComponentTypeId::CT_TransformComponent);
                             if (!tr) continue;
 
-                            // Determine bounds: prefer rect/sprite (w,h); otherwise circle radius; else skip
-
                             if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                                 Framework::ComponentTypeId::CT_RenderComponent))
                             {
@@ -1517,9 +1534,9 @@ namespace Framework {
                                 const float d = std::max(0.1f, cc->radius * 2.f);
                                 drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
                             }
-                            // If none of the above, we don’t know the visual bounds; skip outlining.
                         }
                     }
+
                     if (showPhysicsHitboxes && logic.hitBoxSystem)
                     {
                         for (auto& [id, objPtr] : FACTORY->Objects())
@@ -1555,13 +1572,11 @@ namespace Framework {
                                     );
                                 }
                             }
-
                         }
-
-
                     }
                 }
             }
+
             // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
 
@@ -1634,6 +1649,7 @@ namespace Framework {
             Framework::setImGui(imguiMs);
             }, "RenderSystem::draw");
     }
+
 /*************************************************************************************
   \brief  Persist ImGui layout, detach callbacks, and release any per-frame resources.
 *************************************************************************************/

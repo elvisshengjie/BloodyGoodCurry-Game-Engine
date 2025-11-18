@@ -53,6 +53,9 @@ namespace Framework
 
         /// SpriteComponent: textured sprite rendering
         CT_SpriteComponent,
+
+        /// SpriteAnimationComponent: drives sprite-frame swapping for animations
+        CT_SpriteAnimationComponent,
         
         //PlayerComponent
         CT_PlayerComponent,
