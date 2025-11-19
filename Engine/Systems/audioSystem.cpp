@@ -75,10 +75,10 @@ namespace Framework {
             if (!rb || !audio) continue;
             // Footsteps audio
             bool isMoving = (rb->velX != 0.0f || rb->velY != 0.0f);
-            if (isMoving && !audio->playing)
-            {audio->Play("footsteps");}
-            if (!isMoving)
-            {SoundManager::getInstance().stopSound(audio->sounds["footsteps"]);audio->playing = false;}
+            if (isMoving)
+            {if (!audio->playing["footsteps"])audio->Play("footsteps");}
+            else
+            {if (audio->playing["footsteps"])  audio->Stop("footsteps");}
         }
     }
 
