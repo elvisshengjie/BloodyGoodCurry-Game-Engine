@@ -64,15 +64,7 @@ namespace
 
         ImGui::Checkbox("Visible", &render.visible);
 
-        //std::array<char, 256> keyBuffer{};
-        //std::array<char, 256> pathBuffer{};
-        //std::snprintf(keyBuffer.data(), keyBuffer.size(), "%s", render.texture_key.c_str());
-        //std::snprintf(pathBuffer.data(), pathBuffer.size(), "%s", render.texture_path.c_str());
-
-        //if (ImGui::InputText("Texture Key", keyBuffer.data(), keyBuffer.size()))
-        //    render.texture_key = keyBuffer.data();
-        //if (ImGui::InputText("Texture Path", pathBuffer.data(), pathBuffer.size()))
-        //    render.texture_path = pathBuffer.data();
+    
     }
 
     void DrawCircleRenderSection(CircleRenderComponent& circle)
@@ -114,7 +106,7 @@ namespace
 
 namespace mygame
 {
-    void DrawInspectorPanel()
+    void DrawPropertiesEditor()
     {
         using namespace Framework;
 
@@ -134,8 +126,7 @@ namespace mygame
         {
             object = FACTORY->GetObjectWithId(mygame::GetSelectedObjectId());
         }
-
-        if (!ImGui::Begin("Inspector"))
+        if (!ImGui::Begin("Properties Editor"))
         {
             ImGui::End();
             return;
