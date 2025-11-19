@@ -50,6 +50,7 @@
 #include "Composition/Composition.h"
 #include "Serialization/JsonSerialization.h"
 #include "Core/Layer.h"
+#include <optional>
 
 // Factory responsibilities (summary)
 // - Create GOCs and assign unique IDs
@@ -117,9 +118,12 @@ namespace Framework {
         bool SaveLevel(const std::string& filename, const std::string& levelName = "");
 
         // --- Object ID & Lookup ---
-        /// Assigns a unique ID and **transfers ownership** of the GOC into the factory’s id map.
-        /// Returns a **non-owning** pointer to the registered object.
-        GOC* IdGameObject(std::unique_ptr<GOC> gameObject);
+        /// Assigns a unique ID (or reuses a requested one) and **transfers ownership**
+        /// of the GOC into the factory’s id map. Returns a **non-owning** pointer to
+        /// the registered object.
+        GOC* IdGameObject(std::unique_ptr<GOC> gameObject,
+            std::optional<GOCId> fixedId = std::nullopt);
+
 
         /// Retrieves a GOC by its unique ID; returns a **non-owning** pointer or nullptr if not found.
         GOC* GetObjectWithId(GOCId id);
@@ -171,6 +175,8 @@ namespace Framework {
 
         std::string ComponentNameFromId(ComponentTypeId id) const;
         json SerializeComponentToJson(const GameComponent& component) const;
+        void DeserializeComponentFromJson(GameComponent& component, const json& data) const;
+        GOC* InstantiateFromSnapshotInternal(const json& data);
         bool SaveLevelInternal(const std::string& filename, const std::vector<GOC*>& objects,
             const std::string& levelName);
 
@@ -178,6 +184,11 @@ namespace Framework {
         /// Read-only accessor for all objects managed by the factory (ownership retained by factory).
         const GameObjectIdMapType& Objects() const { return GameObjectIdMap; }
 
+        /// Serialize a single live object into a JSON snapshot used by editor systems.
+        json SnapshotGameObject(const GOC& object) const;
+
+        /// Instantiate a new object from a JSON snapshot (used by editor undo).
+        GOC* InstantiateFromSnapshot(const json& data);
         /// Snapshot of the most recently saved or loaded level objects.
         const std::vector<GOC*>& LastLevelObjects() const { return LastLevelCache; }
 

@@ -55,6 +55,7 @@
 #include "Component/EnemyTypeComponent.h"
 
 #include "Physics/Dynamics/RigidBodyComponent.h"
+
 // Summary of responsibilities:
 // - Create empty game objects (GOCs)
 // - Assign each a unique integer ID and keep an ownership table (id -> std::unique_ptr<GOC>)
@@ -82,9 +83,7 @@ namespace Framework {
     /*************************************************************************************
       \brief Destroys the factory, cleaning up all remaining objects and creators.
       \details
-        - Clearing GameObjectIdMap destroys all GOCs via std::unique_ptr.
-        - Clearing ObjectsToBeDeleted simply drops IDs (no live objects remain).
-        - Clearing ComponentMap destroys all registered ComponentCreators via std::unique_ptr.
+        - Clears all game objects and component creators via std::unique_ptr.
         - Resets global FACTORY pointer to nullptr.
     *************************************************************************************/
     GameObjectFactory::~GameObjectFactory() {
@@ -265,7 +264,6 @@ namespace Framework {
             s.ReadString("name", levelName);
             LastLevelNameCache = levelName;
         }
-    
 
         if (s.EnterArray("GameObjects")) {
             size_t n = s.ArraySize();
@@ -302,7 +300,6 @@ namespace Framework {
         return {};
     }
 
-
     /*************************************************************************************
      \brief Serialize a single attached component into a JSON object.
      \param component The component to serialize (polymorphic GameComponent&).
@@ -322,7 +319,20 @@ namespace Framework {
         }
         case ComponentTypeId::CT_RenderComponent: {
             auto const& rc = static_cast<RenderComponent const&>(component);
-            return json{ {"w", rc.w}, {"h", rc.h}, {"r", rc.r}, {"g", rc.g}, {"b", rc.b}, {"a", rc.a}, {"visible", rc.visible} };
+            json out = {
+               {"w", rc.w},
+               {"h", rc.h},
+               {"r", rc.r},
+               {"g", rc.g},
+               {"b", rc.b},
+               {"a", rc.a},
+               {"visible", rc.visible}
+            };
+            if (!rc.texture_key.empty())
+                out["texture_key"] = rc.texture_key;
+            if (!rc.texture_path.empty())
+                out["texture_path"] = rc.texture_path;
+            return out;
         }
         case ComponentTypeId::CT_CircleRenderComponent: {
             auto const& cc = static_cast<CircleRenderComponent const&>(component);
@@ -405,7 +415,6 @@ namespace Framework {
         }
         return json::object();
     }
-
 
     /*************************************************************************************
      \brief Save a set of GOCs to a level JSON file.
@@ -493,22 +502,21 @@ namespace Framework {
     }
 
     /*************************************************************************************
- \brief Save a specific subset of game objects into a level file.
- \param filename  Target JSON file path to write to.
- \param objects   List of non-owning GOC* pointers to serialize (must belong to the factory).
- \param levelName Optional level name; overrides the default filename stem.
- \return true if the level was successfully saved; false on failure.
- \details
-   - Acts as a convenience wrapper for SaveLevelInternal().
-   - The caller explicitly specifies which objects to write (e.g., a selection or layer subset).
-   - SaveLevelInternal handles JSON formatting, component serialization, and directory creation.
-*************************************************************************************/
+     \brief Save a specific subset of game objects into a level file.
+     \param filename  Target JSON file path to write to.
+     \param objects   List of non-owning GOC* pointers to serialize (must belong to the factory).
+     \param levelName Optional level name; overrides the default filename stem.
+     \return true if the level was successfully saved; false on failure.
+     \details
+       - Acts as a convenience wrapper for SaveLevelInternal().
+       - The caller explicitly specifies which objects to write (e.g., a selection or layer subset).
+       - SaveLevelInternal handles JSON formatting, component serialization, and directory creation.
+    *************************************************************************************/
     bool GameObjectFactory::SaveLevel(const std::string& filename, const std::vector<GOC*>& objects,
         const std::string& levelName)
     {
         return SaveLevelInternal(filename, objects, levelName);
     }
-
 
     /*************************************************************************************
      \brief Save all active (non-deleted) game objects currently owned by the factory.
@@ -536,20 +544,56 @@ namespace Framework {
     /*************************************************************************************
       \brief Assigns a unique ID to the GOC and registers it in the id→object map.
       \param gameObject Newly constructed GOC to identify and take ownership of.
+      \param fixedId    Optional explicit id to reuse (used by some loaders/undo systems).
       \return Non-owning pointer to the now-registered GOC.
       \details
-        - Increments the running ID counter.
+        - Increments the running ID counter when no fixedId is used.
         - Moves the unique_ptr into GameObjectIdMap, which now owns the object.
     *************************************************************************************/
-    GOC* GameObjectFactory::IdGameObject(std::unique_ptr<GOC> gameObject) {
+    GOC* GameObjectFactory::IdGameObject(std::unique_ptr<GOC> gameObject,
+        std::optional<GOCId> fixedId) {
         if (!gameObject)
             return nullptr;
 
-        ++LastGameObjectId;   // assign next unique sequential ID
-        gameObject->ObjectId = LastGameObjectId; // friend access grants direct write
-        GOC* raw = gameObject.get();             // non-owning view
+        bool reuseRequested = fixedId.has_value() && fixedId.value() != 0;
+        GOCId assignedId = 0;
+
+        if (reuseRequested)
+        {
+            assignedId = fixedId.value();
+            auto existing = GameObjectIdMap.find(assignedId);
+            if (existing != GameObjectIdMap.end())
+            {
+                // If the previous object is still pending deletion, finish removing it so
+                // the ID can be reused. Otherwise, fall back to issuing a new ID.
+                if (ObjectsToBeDeleted.count(assignedId))
+                {
+                    LayerData.RemoveObject(assignedId);
+                    GameObjectIdMap.erase(existing);
+                }
+                else
+                {
+                    reuseRequested = false;
+                }
+            }
+
+            if (reuseRequested)
+            {
+                ObjectsToBeDeleted.erase(assignedId);
+                if (assignedId > LastGameObjectId)
+                    LastGameObjectId = assignedId;
+            }
+        }
+
+        if (!reuseRequested)
+        {
+            assignedId = ++LastGameObjectId;
+        }
+
+        gameObject->ObjectId = assignedId;
+        GOC* raw = gameObject.get();
         LayerData.AssignToLayer(raw->ObjectId, raw->GetLayerName());
-        GameObjectIdMap.emplace(LastGameObjectId, std::move(gameObject)); // take ownership
+        GameObjectIdMap.emplace(assignedId, std::move(gameObject));
         return raw;
     }
 
@@ -656,4 +700,277 @@ namespace Framework {
     {
         ComponentMap[name] = std::move(creator);
     }
-}
+
+    /*************************************************************************************
+      \brief Deserialize a single component from a JSON object and apply it to an instance.
+      \param component Target component instance (already created and attached).
+      \param data      JSON blob produced by SerializeComponentToJson().
+      \note  Missing keys are ignored and leave fields unchanged.
+    *************************************************************************************/
+    void GameObjectFactory::DeserializeComponentFromJson(GameComponent& component,
+        const json& data) const
+    {
+        if (!data.is_object())
+            return;
+
+        auto readFloat = [&](const char* key, float& out)
+            {
+                auto it = data.find(key);
+                if (it != data.end() && it->is_number())
+                    out = static_cast<float>(it->get<double>());
+            };
+
+        auto readInt = [&](const char* key, int& out)
+            {
+                auto it = data.find(key);
+                if (it != data.end() && it->is_number_integer())
+                    out = it->get<int>();
+            };
+
+        auto readBool = [&](const char* key, bool& out)
+            {
+                auto it = data.find(key);
+                if (it != data.end() && it->is_boolean())
+                    out = it->get<bool>();
+            };
+
+        auto readString = [&](const char* key, std::string& out)
+            {
+                auto it = data.find(key);
+                if (it != data.end() && it->is_string())
+                    out = it->get<std::string>();
+            };
+
+        switch (component.GetTypeId())
+        {
+        case ComponentTypeId::CT_TransformComponent:
+        {
+            auto& tr = static_cast<TransformComponent&>(component);
+            readFloat("x", tr.x);
+            readFloat("y", tr.y);
+            readFloat("rot", tr.rot);
+            break;
+        }
+        case ComponentTypeId::CT_RenderComponent:
+        {
+            auto& rc = static_cast<RenderComponent&>(component);
+            readFloat("w", rc.w);
+            readFloat("h", rc.h);
+            readFloat("r", rc.r);
+            readFloat("g", rc.g);
+            readFloat("b", rc.b);
+            readFloat("a", rc.a);
+            readBool("visible", rc.visible);
+            readString("texture_key", rc.texture_key);
+            readString("texture_path", rc.texture_path);
+            break;
+        }
+        case ComponentTypeId::CT_CircleRenderComponent:
+        {
+            auto& cc = static_cast<CircleRenderComponent&>(component);
+            readFloat("radius", cc.radius);
+            readFloat("r", cc.r);
+            readFloat("g", cc.g);
+            readFloat("b", cc.b);
+            readFloat("a", cc.a);
+            break;
+        }
+        case ComponentTypeId::CT_SpriteComponent:
+        {
+            auto& sp = static_cast<SpriteComponent&>(component);
+            readString("texture_key", sp.texture_key);
+            readString("path", sp.path);
+            break;
+        }
+        case ComponentTypeId::CT_SpriteAnimationComponent:
+        {
+            auto& anim = static_cast<SpriteAnimationComponent&>(component);
+            readFloat("fps", anim.fps);
+            if (auto it = data.find("loop"); it != data.end())
+            {
+                if (it->is_boolean()) anim.loop = it->get<bool>();
+                else if (it->is_number_integer()) anim.loop = it->get<int>() != 0;
+            }
+            if (auto it = data.find("play"); it != data.end())
+            {
+                if (it->is_boolean()) anim.play = it->get<bool>();
+                else if (it->is_number_integer()) anim.play = it->get<int>() != 0;
+            }
+            if (auto it = data.find("frames"); it != data.end() && it->is_array())
+            {
+                anim.frames.clear();
+                for (const auto& frameData : *it)
+                {
+                    if (!frameData.is_object())
+                        continue;
+                    SpriteAnimationFrame frame;
+                    if (auto keyIt = frameData.find("texture_key"); keyIt != frameData.end() && keyIt->is_string())
+                        frame.texture_key = keyIt->get<std::string>();
+                    if (auto pathIt = frameData.find("path"); pathIt != frameData.end() && pathIt->is_string())
+                        frame.path = pathIt->get<std::string>();
+                    anim.frames.emplace_back(std::move(frame));
+                }
+            }
+            break;
+        }
+        case ComponentTypeId::CT_RigidBodyComponent:
+        {
+            auto& rb = static_cast<RigidBodyComponent&>(component);
+            readFloat("velocity_x", rb.velX);
+            readFloat("velocity_y", rb.velY);
+            readFloat("width", rb.width);
+            readFloat("height", rb.height);
+            break;
+        }
+        case ComponentTypeId::CT_PlayerHealthComponent:
+        {
+            auto& hp = static_cast<PlayerHealthComponent&>(component);
+            readInt("playerHealth", hp.playerHealth);
+            readInt("playerMaxhealth", hp.playerMaxhealth);
+            break;
+        }
+        case ComponentTypeId::CT_PlayerAttackComponent:
+        {
+            auto& atk = static_cast<PlayerAttackComponent&>(component);
+            readInt("damage", atk.damage);
+            readFloat("attack_speed", atk.attack_speed);
+            break;
+        }
+        case ComponentTypeId::CT_EnemyAttackComponent:
+        {
+            auto& atk = static_cast<EnemyAttackComponent&>(component);
+            readInt("damage", atk.damage);
+            readFloat("attack_speed", atk.attack_speed);
+            if (atk.hitbox)
+            {
+                readFloat("hitwidth", atk.hitbox->width);
+                readFloat("hitheight", atk.hitbox->height);
+                readFloat("hitduration", atk.hitbox->duration);
+            }
+            break;
+        }
+        case ComponentTypeId::CT_EnemyHealthComponent:
+        {
+            auto& hp = static_cast<EnemyHealthComponent&>(component);
+            readInt("enemyHealth", hp.enemyHealth);
+            readInt("enemyMaxhealth", hp.enemyMaxhealth);
+            break;
+        }
+        case ComponentTypeId::CT_EnemyTypeComponent:
+        {
+            auto& type = static_cast<EnemyTypeComponent&>(component);
+            std::string typeStr;
+            readString("type", typeStr);
+            if (typeStr == "ranged")
+                type.Etype = EnemyTypeComponent::EnemyType::ranged;
+            else
+                type.Etype = EnemyTypeComponent::EnemyType::physical;
+            break;
+        }
+        case ComponentTypeId::CT_HitBoxComponent:
+        {
+            auto& hit = static_cast<HitBoxComponent&>(component);
+            readFloat("width", hit.width);
+            readFloat("height", hit.height);
+            readFloat("duration", hit.duration);
+            break;
+        }
+        case ComponentTypeId::CT_EnemyComponent:
+        case ComponentTypeId::CT_PlayerComponent:
+        case ComponentTypeId::CT_EnemyDecisionTreeComponent:
+        case ComponentTypeId::CT_InputComponents:
+        case ComponentTypeId::CT_AudioComponent:
+        default:
+            break;
+        }
+    }
+
+    /*************************************************************************************
+      \brief Take a full JSON snapshot of a single GOC for undo/redo.
+      \param object The object to snapshot.
+      \return JSON blob describing name, layer, and all serializable components.
+      \note   Stores an internal "_undo_id" field with the original object ID.
+    *************************************************************************************/
+    json GameObjectFactory::SnapshotGameObject(const GOC& object) const
+    {
+        json objJson = json::object();
+        objJson["_undo_id"] = object.ObjectId;
+        if (!object.ObjectName.empty())
+            objJson["name"] = object.ObjectName;
+        objJson["layer"] = object.LayerName;
+
+        json comps = json::object();
+        for (auto const& up : object.Components)
+        {
+            if (!up)
+                continue;
+            const GameComponent& comp = *up;
+            std::string compName = ComponentNameFromId(comp.GetTypeId());
+            if (compName.empty())
+                continue;
+            comps[compName] = SerializeComponentToJson(comp);
+        }
+
+        objJson["Components"] = std::move(comps);
+        return objJson;
+    }
+
+    /*************************************************************************************
+      \brief Internal helper to instantiate a GOC from a JSON snapshot.
+      \param data Snapshot produced by SnapshotGameObject().
+      \return Newly created and initialized GOC*, or nullptr on failure.
+      \details
+        - Rebuilds name, layer, and all serializable components.
+        - Currently **does not reuse the original ID** to avoid conflicts with
+          other systems caching IDs / pointers; the object gets a fresh ID.
+    *************************************************************************************/
+    GOC* GameObjectFactory::InstantiateFromSnapshotInternal(const json& data)
+    {
+        if (!data.is_object())
+            return nullptr;
+
+        auto goc = std::make_unique<GOC>();
+        if (auto it = data.find("name"); it != data.end() && it->is_string())
+            goc->SetObjectName(it->get<std::string>());
+        if (auto it = data.find("layer"); it != data.end() && it->is_string())
+            goc->SetLayerName(it->get<std::string>());
+
+        // We keep reading _undo_id for potential future use, but we don't
+        // reuse it in IdGameObject() to avoid accidental state corruption.
+        std::optional<GOCId> desiredId;
+        if (auto it = data.find("_undo_id"); it != data.end() && it->is_number_unsigned())
+            desiredId = it->get<GOCId>();
+
+        if (auto compIt = data.find("Components"); compIt != data.end() && compIt->is_object())
+        {
+            for (auto& [compName, compData] : compIt->items())
+            {
+                auto creatorIt = ComponentMap.find(compName);
+                if (creatorIt == ComponentMap.end())
+                    continue;
+                ComponentCreator* creator = creatorIt->second.get();
+                if (!creator)
+                    continue;
+                std::unique_ptr<GameComponent> comp(creator->Create());
+                if (!comp)
+                    continue;
+                if (compData.is_object())
+                    DeserializeComponentFromJson(*comp, compData);
+                goc->AddComponent(creator->TypeId, std::move(comp));
+            }
+        }
+
+        // IMPORTANT: always assign a fresh ID when resurrecting from undo to avoid
+        // collisions with stale references in other systems.
+        GOC* raw = IdGameObject(std::move(goc), std::nullopt);
+        if (raw)
+            raw->initialize();
+        return raw;
+    }
+
+    GOC* GameObjectFactory::InstantiateFromSnapshot(const json& data)
+    {
+        return InstantiateFromSnapshotInternal(data);
+    }
+
+} // namespace Framework
