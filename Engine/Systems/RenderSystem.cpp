@@ -389,7 +389,7 @@ namespace Framework {
     }
 /*************************************************************************************
   \brief  Keyboard shortcuts for toggling editor/fullscreen and framing selection.
-  \details F10 toggles editor panels; F11 toggles game full width; F frames selection
+  \details F10 toggles editor panels; F11 toggles fullscreen; F frames selection
            (only in editor camera mode).
 *************************************************************************************/
     void RenderSystem::HandleShortcuts()
@@ -413,7 +413,11 @@ namespace Framework {
             showEditor = !showEditor;
 
         if (handleToggle(GLFW_KEY_F11, fullscreenToggleHeld))
-            gameViewportFullWidth = !gameViewportFullWidth;
+        {
+            window->ToggleFullscreen();
+            screenW = window->Width();
+            screenH = window->Height();
+        }
         if (ShouldUseEditorCamera())
         {
             if (handleToggle(GLFW_KEY_F, editorFrameHeld))
@@ -1046,7 +1050,7 @@ namespace Framework {
             // ---- everything below this only shows when editor is ON ----
 
             bool fullWidth = gameViewportFullWidth;
-            if (ImGui::Checkbox("Game Full Width (F11)", &fullWidth))
+            if (ImGui::Checkbox("Game Full Width", &fullWidth))
                 gameViewportFullWidth = fullWidth;
             if (!gameViewportFullWidth)
             {
