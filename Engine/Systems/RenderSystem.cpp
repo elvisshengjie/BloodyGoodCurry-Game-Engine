@@ -1437,8 +1437,43 @@ namespace Framework {
 
             auto t0 = clock::now();
 
-            // Background: prefer a texture named "house" if available, otherwise fallback to gradient.
-            if (unsigned bgTex = Resource_Manager::getTexture("house"))
+            static unsigned hawkerFloorTex = 0;
+            static unsigned hawkerHdbTex = 0;
+
+            auto ensureBackgroundTexture = [](unsigned& textureHandle,
+                const char* key,
+                const char* path)
+                {
+                    if (textureHandle)
+                        return;
+
+                    textureHandle = Resource_Manager::getTexture(key);
+                    if (!textureHandle && path)
+                    {
+                        if (Resource_Manager::load(key, path))
+                        {
+                            textureHandle = Resource_Manager::getTexture(key);
+                        }
+                    }
+                };
+
+            ensureBackgroundTexture(hawkerFloorTex,
+                "hawker_floor_bg",
+                "../../assets/Textures/Environment/lvl 1_Hawker/Floor.png");
+            ensureBackgroundTexture(hawkerHdbTex,
+                "hawker_hdb_bg",
+                "../../assets/Textures/Environment/lvl 1_Hawker/HDB.png");
+
+            if (hawkerFloorTex && hawkerHdbTex)
+            {
+                gfx::Graphics::renderSprite(hawkerHdbTex, 0.0f, 0.5f, 0.0f,
+                    2.0f, 1.0f,
+                    1.f, 1.f, 1.f, 1.f);
+                gfx::Graphics::renderSprite(hawkerFloorTex, 0.0f, -0.5f, 0.0f,
+                    2.0f, 1.0f,
+                    1.f, 1.f, 1.f, 1.f);
+            }
+            else if (unsigned bgTex = Resource_Manager::getTexture("house"))
             {
                 // Big background quad in world space (uses camera VP).
                 gfx::Graphics::renderSprite(bgTex, 0.0f, 0.0f, 0.0f, 2.0f, 2.0f, 1.f, 1.f, 1.f, 1.f);
