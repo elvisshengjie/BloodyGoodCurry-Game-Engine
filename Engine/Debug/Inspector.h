@@ -1,5 +1,5 @@
 /*********************************************************************************************
- \file      Inspectorpanel.h
+ \file      Inspector.h
  \par       SofaSpuds
  \author    
 
@@ -9,7 +9,7 @@
             that designers can review or tweak values without leaving the editor viewport.
 
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            All content ï¿½2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once

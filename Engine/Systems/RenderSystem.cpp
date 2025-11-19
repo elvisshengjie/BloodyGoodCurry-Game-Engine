@@ -57,7 +57,7 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include "Debug/InspectorPanel.h"
+#include "Debug/Inspector.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
 #include <glm/gtc/matrix_transform.hpp>

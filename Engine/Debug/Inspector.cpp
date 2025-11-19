@@ -1,5 +1,5 @@
 /*********************************************************************************************
- \file      InspectorPanel.cpp
+ \file      Inspector.cpp
  \par       SofaSpuds
  \author    ChatGPT (OpenAI)
 
@@ -11,10 +11,10 @@
             inspectable.
 
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            All content ï¿½2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
-#include "Inspectorpanel.h"
+#include "Inspector.h"
 
 #include "Debug/Selection.h"
 #include "Factory/Factory.h"
