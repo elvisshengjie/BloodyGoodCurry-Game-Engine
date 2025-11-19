@@ -14,7 +14,7 @@
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
-#include "InspectorPanel.h"
+#include "Inspectorpanel.h"
 
 #include "Debug/Selection.h"
 #include "Factory/Factory.h"

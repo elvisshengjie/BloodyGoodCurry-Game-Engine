@@ -1,5 +1,5 @@
 /*********************************************************************************************
- \file      InspectorPanel.h
+ \file      Inspectorpanel.h
  \par       SofaSpuds
  \author    
 
