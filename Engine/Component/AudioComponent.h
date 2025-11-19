@@ -91,5 +91,19 @@ namespace Framework
 
         void Update(float dt) 
         {(void)dt;}
+        ~AudioComponent() override 
+        {
+            for (auto& [action, isPlaying] : playing)
+            {
+                if (isPlaying)
+                {
+                    auto it = sounds.find(action);
+                    if (it != sounds.end())
+                    {
+                        SoundManager::getInstance().stopSound(it->second.id);
+                    }
+                }
+            }
+        }
     };
 }

@@ -68,7 +68,14 @@ namespace Framework {
         {
             if (!gocPtr) continue;
             GOC* goc = gocPtr.get();
-
+            if (auto* ph = goc->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
+            {
+                if (ph->playerHealth <= 0)
+                {
+                    if (auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                        audio->Stop("footsteps");
+                }
+            }
             // Get Rigidbody and Audio components
             auto* rb = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
