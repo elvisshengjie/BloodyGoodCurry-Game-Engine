@@ -197,6 +197,7 @@ namespace Framework {
         float editorSplitRatio = 0.5f;   //!< Editor/game split ratio.
         bool  editorToggleHeld = false;  //!< Debounce toggle key.
         bool  fullscreenToggleHeld = false;  //!< Debounce fullscreen toggle.
+        bool  deleteKeyHeld = false; //!< Debounce Delete shortcut used for removing objects.
         bool  showPhysicsHitboxes = true;   //!< Debug: draw physics hitboxes.
 
         // --- Mouse drag selection ---------------------------------------------------------
