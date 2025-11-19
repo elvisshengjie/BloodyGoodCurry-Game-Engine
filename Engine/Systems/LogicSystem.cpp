@@ -135,7 +135,24 @@ namespace Framework {
         if (!factory)
             return;
 
-        levelObjects = factory->LastLevelObjects();
+        // Rebuild the level object cache every frame so we only keep alive objects.
+        // The previous implementation grabbed the snapshot returned by
+        // GameObjectFactory::LastLevelObjects(), which is only updated when a level is
+        // loaded/saved. Once gameplay started, pointers to objects that were destroyed
+        // (e.g. the player being killed by enemies) remained inside levelObjects even
+        // though the underlying memory had been freed. Systems like HitBoxSystem
+        // iterate this list every frame and dereference each pointer to query
+        // components. Walking into enemies would quickly destroy either the player or
+        // an enemy, leaving a dangling pointer behind and eventually causing an access
+        // violation when the stale pointer was dereferenced. Rebuilding the cache from
+        // the factory’s current ownership map guarantees we only keep valid objects.
+        levelObjects.clear();
+        for (auto const& [id, obj] : factory->Objects())
+        {
+            (void)id;
+            if (obj)
+                levelObjects.push_back(obj.get());
+        }
 
         if (!IsAlive(player))
             player = nullptr;
