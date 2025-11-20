@@ -27,7 +27,6 @@ namespace Framework
 		float velY = 1.0f;
 		float width = 1.0f;
 		float height = 1.0f;
-		float dampening = 0.7f;
 
 		void initialize() override {}
 		void SendMessage(Message& m) override { (void)m; }
@@ -50,13 +49,17 @@ namespace Framework
 		*****************************************************************************************/
 		std::unique_ptr<GameComponent>Clone() const override 
 		{
+			// Create new CircleRenderComponent on heap
+			// Wrap inside unique_ptr so it is automatically clean up if something goes wrong
 			auto copy = std::make_unique<RigidBodyComponent>();
+			//copy the values 
 			copy->velX = velX;
 			copy->velY = velY;
 			copy->width = width;
 			copy->height = height;
-			copy->dampening = dampening;
+			//Transfer ownership to whoever call clone()
 			return copy;
+
 		}
 	};
 }
