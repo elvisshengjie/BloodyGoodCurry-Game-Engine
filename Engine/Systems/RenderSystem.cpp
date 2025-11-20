@@ -1461,6 +1461,30 @@ namespace Framework {
             // Now handle picking with the correct (current) camera matrices.
             HandleViewportPicking();
 
+            // Layering
+            std::vector<unsigned> sortedIds;
+            sortedIds.reserve(FACTORY->Objects().size());
+
+            for (auto& [id, objPtr] : FACTORY->Objects())
+                sortedIds.push_back(id);
+
+            // Sort by RenderComponent::layer
+            std::sort(sortedIds.begin(), sortedIds.end(), 
+                [](unsigned a, unsigned b) 
+                {
+                    auto* objA = FACTORY->GetObjectWithId(a); 
+                    auto* objB = FACTORY->GetObjectWithId(b); 
+
+                    auto* rcA = objA ? objA->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr; 
+                    auto* rcB = objB ? objB->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr; 
+
+                    int la = rcA ? rcA->layer : 0; 
+                    int lb = rcB ? rcB->layer : 0; 
+
+                    return la < lb; 
+                });
+
+
             auto t0 = clock::now();
 
             static unsigned hawkerFloorTex = 0;
@@ -1519,10 +1543,10 @@ namespace Framework {
                 const int animRows = std::max(1, CurrentRows());
 
                 // Pass 1: Sprites (instanced)
-                for (auto& [id, objPtr] : FACTORY->Objects())
+                for (unsigned id : sortedIds)
                 {
-                    (void)id;
-                    auto* obj = objPtr.get();
+                    auto& objPtr = FACTORY->Objects().at(id); 
+                    GOC* obj = objPtr.get(); 
                     if (!obj) continue;
                     if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
 
@@ -1641,10 +1665,10 @@ namespace Framework {
                 }
 
                 // Pass 2: Rectangles (non-sprite quads)
-                for (auto& [id, objPtr] : FACTORY->Objects())
+                for (unsigned id : sortedIds) 
                 {
-                    (void)id;
-                    auto* obj = objPtr.get();
+                    auto& objPtr = FACTORY->Objects().at(id); 
+                    GOC* obj = objPtr.get();  
                     if (!obj) continue;
                     if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
 
@@ -1684,10 +1708,10 @@ namespace Framework {
                 }
 
                 // Pass 3: Circles
-                for (auto& [id, objPtr] : FACTORY->Objects())
+                for (unsigned id : sortedIds) 
                 {
-                    (void)id;
-                    auto* obj = objPtr.get();
+                    auto& objPtr = FACTORY->Objects().at(id); 
+                    GOC* obj = objPtr.get(); 
                     if (!obj) continue;
                     if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
 
@@ -1716,10 +1740,10 @@ namespace Framework {
                                     gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 1.f, 1.f, 0.f, 1.f, 2.f);
                             };
 
-                        for (auto& [id, objPtr] : FACTORY->Objects())
+                        for (unsigned id : sortedIds) 
                         {
-                            (void)id;
-                            auto* obj = objPtr.get();
+                            auto& objPtr = FACTORY->Objects().at(id); 
+                            GOC* obj = objPtr.get(); 
                             if (!obj) continue;
                             if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
 
@@ -1757,10 +1781,10 @@ namespace Framework {
 
                     if (showPhysicsHitboxes && logic.hitBoxSystem)
                     {
-                        for (auto& [id, objPtr] : FACTORY->Objects())
+                        for (unsigned id : sortedIds) 
                         {
-                            (void)id;
-                            auto* obj = objPtr.get();
+                            auto& objPtr = FACTORY->Objects().at(id); 
+                            GOC* obj = objPtr.get(); 
                             if (!obj) continue;
 
                             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
