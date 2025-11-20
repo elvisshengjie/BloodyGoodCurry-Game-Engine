@@ -1564,22 +1564,7 @@ namespace Framework {
                                 tex = sample.texture;
                             uvRect = sample.uv;
                         }
-                        else if (IsPlayerObject(obj) && idleTex && runTex)
-                        {
-                            tex = CurrentPlayerTexture();
-                            if (tex)
-                            {
-                                const int frame = animState.frame;
-                                const float sxUV = 1.0f / static_cast<float>(animCols);
-                                const float syUV = 1.0f / static_cast<float>(animRows);
-                                const int c = frame % animCols;
-                                const int rIdx = frame / animCols;
-                                uvRect = glm::vec4(
-                                    static_cast<float>(c) * sxUV,
-                                    static_cast<float>(rIdx) * syUV,
-                                    sxUV, syUV);
-                            }
-                        }
+                        
                         else if (!tex && !sp->texture_key.empty())
                         {
                             tex = Resource_Manager::getTexture(sp->texture_key);

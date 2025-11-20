@@ -89,9 +89,53 @@ namespace Framework {
                 }
                 s.ExitArray();
             }
+            // --- NEW: sprite-sheet animations[] -----------------------------------
+            if (s.EnterArray("animations")) {
+                animations.clear();
+                animations.reserve(s.ArraySize());
 
-            // NOTE: you can later extend this to serialize `animations` as well
-            // (sprite-sheet based configs, textureKey, spriteSheetPath, etc.)
+                for (size_t i = 0; i < s.ArraySize(); ++i) {
+                    if (!s.EnterIndex(i))
+                        continue;
+
+                    SpriteSheetAnimation sheet{};
+
+                    if (s.HasKey("name"))            StreamRead(s, "name", sheet.name);
+                    if (s.HasKey("textureKey"))      StreamRead(s, "textureKey", sheet.textureKey);
+                    if (s.HasKey("spriteSheetPath")) StreamRead(s, "spriteSheetPath", sheet.spriteSheetPath);
+
+                    // config object
+                    if (s.EnterObject("config")) {
+                        StreamRead(s, "totalFrames", sheet.config.totalFrames);
+                        StreamRead(s, "rows", sheet.config.rows);
+                        StreamRead(s, "columns", sheet.config.columns);
+                        StreamRead(s, "startFrame", sheet.config.startFrame);
+                        StreamRead(s, "endFrame", sheet.config.endFrame);
+                        StreamRead(s, "fps", sheet.config.fps);
+                        int loopInt = sheet.config.loop ? 1 : 0;
+                        StreamRead(s, "loop", loopInt);
+                        sheet.config.loop = (loopInt != 0);
+                        s.ExitObject();
+                    }
+
+                    if (s.HasKey("currentFrame"))
+                        StreamRead(s, "currentFrame", sheet.currentFrame);
+
+                    sheet.accumulator = 0.0f;
+                    sheet.textureId = 0;  // lazily loaded later
+
+                    animations.push_back(std::move(sheet));
+
+                    s.ExitObject(); // leave animations[i]
+                }
+
+                s.ExitArray();
+            }
+
+            // active animation index
+            if (s.HasKey("activeAnimation")) {
+                StreamRead(s, "activeAnimation", activeAnimation);
+            }
         }
 
         std::unique_ptr<GameComponent> Clone() const override {
