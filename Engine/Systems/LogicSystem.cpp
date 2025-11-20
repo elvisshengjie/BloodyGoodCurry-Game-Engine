@@ -635,56 +635,60 @@ namespace Framework {
             {
                 attack->Update(dt, tr);
             }
-
-            // Handle attack input: spawn through PlayerAttackComponent only (single source of truth).
-            if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
+            
+            if (RenderSystem::IsEditorVisible() == false)
             {
-                // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
-                if (aimDirX != 0.0f || aimDirY != 0.0f)
+                // Handle attack input: spawn through PlayerAttackComponent only (single source of truth).
+                if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
                 {
-                    auto attackTr = *tr;
-                    const float offset = 0.05f;
-                    const float halfW = std::abs(rc->w) * 0.5f;
-                    const float halfH = rc->h * 0.5f;
+                    // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
+                    if (aimDirX != 0.0f || aimDirY != 0.0f)
+                    {
+                        auto attackTr = *tr;
+                        const float offset = 0.05f;
+                        const float halfW = std::abs(rc->w) * 0.5f;
+                        const float halfH = rc->h * 0.5f;
 
-                    attackTr.x = tr->x + aimDirX * (halfW + offset);
-                    attackTr.y = tr->y + aimDirY * (halfH + offset);
+                        attackTr.x = tr->x + aimDirX * (halfW + offset);
+                        attackTr.y = tr->y + aimDirY * (halfH + offset);
 
-                    hitBoxSystem->SpawnHitBox(player,
-                     attackTr.x, attackTr.y,
-                     0.1f, 0.1f,
-                     10.0f, 0.2f
-                    ,HitBoxComponent::Team::Player);
+                        hitBoxSystem->SpawnHitBox(player,
+                            attackTr.x, attackTr.y,
+                            0.1f, 0.1f,
+                            10.0f, 0.2f
+                            , HitBoxComponent::Team::Player);
 
-                    std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
-                    audio->TriggerSound("Slash1");
+                        std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
+                        audio->TriggerSound("Slash1");
+                    }
+
                 }
-               
-            }
-            else if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && attack && tr && rc)
-            {
-                // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
-                if (aimDirX != 0.0f || aimDirY != 0.0f)
+                else if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && attack && tr && rc)
                 {
-                    auto attackTr = *tr;
-                    const float offset = 0.05f;
-                    const float halfW = std::abs(rc->w) * 0.5f;
-                    const float halfH = rc->h * 0.5f;
+                    // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
+                    if (aimDirX != 0.0f || aimDirY != 0.0f)
+                    {
+                        auto attackTr = *tr;
+                        const float offset = 0.05f;
+                        const float halfW = std::abs(rc->w) * 0.5f;
+                        const float halfH = rc->h * 0.5f;
 
-                    attackTr.x = tr->x + aimDirX * (halfW + offset);
-                    attackTr.y = tr->y + aimDirY * (halfH + offset);
+                        attackTr.x = tr->x + aimDirX * (halfW + offset);
+                        attackTr.y = tr->y + aimDirY * (halfH + offset);
 
-                    hitBoxSystem->SpawnProjectile(player,
-                        attackTr.x, attackTr.y,
-                        aimDirX, aimDirY,
-                        0.1f,
-                        0.1f, 0.1f,
-                        10.0f, 5.f, HitBoxComponent::Team::Thrown);
+                        hitBoxSystem->SpawnProjectile(player,
+                            attackTr.x, attackTr.y,
+                            aimDirX, aimDirY,
+                            0.1f,
+                            0.1f, 0.1f,
+                            10.0f, 5.f, HitBoxComponent::Team::Thrown);
 
-                    std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
-                    audio->TriggerSound("GrappleShoot1");
+                        std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
+                        audio->TriggerSound("GrappleShoot1");
+                    }
                 }
             }
+            
 
             // Collision debug info (player vs a target rect)
             collisionInfo.playerValid = false;
