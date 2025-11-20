@@ -148,6 +148,10 @@ namespace Framework {
         AnimState         AttackStateForIndex(int comboIndex) const;
         float             AttackDurationForState(AnimState state) const;
         AnimationInfo::Mode ModeForState(AnimState state) const;
+        std::string_view  AnimNameForState(AnimState state) const;
+        int               AnimationIndexForState(const SpriteAnimationComponent* comp, AnimState state) const;
+        AnimConfig        ConfigFromSpriteSheet(const SpriteAnimationComponent* comp, AnimState state) const;
+        void              ApplyAnimationStateToComponent(AnimState state);
 
         bool  IsAlive(GOC* obj) const;
         void  CachePlayerSize();
