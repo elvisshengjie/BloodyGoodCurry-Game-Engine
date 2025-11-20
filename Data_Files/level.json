@@ -66,19 +66,19 @@
             "a": 1.0,
             "b": 1.0,
             "g": 1.0,
-            "h": 0.25,
+            "h": 0.24375000596046448,
             "r": 1.0,
             "visible": true,
-            "w": 0.25
+            "w": 0.24375000596046448
           },
           "RigidBodyComponent": {
-            "height": 0.20999999344348907,
+            "height": 0.20475000143051147,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
-            "width": 0.10000000149011612
+            "width": 0.09750000387430191
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 4,
+            "activeAnimation": 0,
             "animations": [
               {
                 "config": {
@@ -90,7 +90,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 2,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -105,7 +105,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "run",
                 "spriteSheetPath": "../../assets\\Textures\\Character\\Ming_Sprite\\Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -120,7 +120,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 10,
+                "currentFrame": 2,
                 "name": "attack1",
                 "spriteSheetPath": "../../assets\\Textures\\Character\\Ming_Sprite\\1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -162,12 +162,12 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "attack3_sheet"
+            "texture_key": "idle_sheet"
           },
           "TransformComponent": {
             "rot": -0.02617994137108326,
-            "x": -0.40486085414886475,
-            "y": -1.577777624130249
+            "x": -0.2381940633058548,
+            "y": -1.3111112117767334
           }
         },
         "layer": "Default",
@@ -195,8 +195,8 @@
           },
           "TransformComponent": {
             "rot": 0.0,
-            "x": 616.460205078125,
-            "y": 616.199951171875
+            "x": 790.890380859375,
+            "y": 790.630126953125
           }
         },
         "layer": "Default",

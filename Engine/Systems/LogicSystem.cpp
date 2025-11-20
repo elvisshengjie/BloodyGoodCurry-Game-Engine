@@ -85,11 +85,17 @@ namespace Framework {
     void LogicSystem::SetAnimState(AnimState newState)
     {
         if (animState == newState)
+        {
+            ApplyAnimationStateToComponent(newState);
             return;
+        }
 
         animState = newState;
         frame = 0;
         frameClock = 0.f;
+
+
+        ApplyAnimationStateToComponent(newState);
     }
 
     LogicSystem::AnimState LogicSystem::AttackStateForIndex(int comboIndex) const
@@ -108,8 +114,14 @@ namespace Framework {
     {
         if (!IsAttackState(state))
             return 0.f;
+        const SpriteAnimationComponent* anim = nullptr;
+        if (IsAlive(player))
+        {
+            anim = player->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
+        }
 
-        const AnimConfig& cfg = ConfigForState(state);
+        const AnimConfig cfg = ConfigFromSpriteSheet(anim, state);
+
         if (cfg.fps <= 0.f)
             return 0.f;
 
@@ -120,9 +132,7 @@ namespace Framework {
     {
         comboStep = ((comboIndex - 1) % 3 + 3) % 3 + 1;   // store 1..3 for bookkeeping
         AnimState nextState = AttackStateForIndex(comboStep);
-        animState = nextState;
-        frame = 0;
-        frameClock = 0.f;
+        SetAnimState(nextState);
         attackTimer = AttackDurationForState(nextState);
     }
 
@@ -143,6 +153,81 @@ namespace Framework {
         case AnimState::Idle:
         default:                 return AnimationInfo::Mode::Idle;
         }
+    }
+
+    std::string_view LogicSystem::AnimNameForState(AnimState state) const
+    {
+        switch (state)
+        {
+        case AnimState::Run:     return "run";
+        case AnimState::Attack1: return "attack1";
+        case AnimState::Attack2: return "attack2";
+        case AnimState::Attack3: return "attack3";
+        case AnimState::Idle:
+        default:                 return "idle";
+        }
+    }
+
+    int LogicSystem::AnimationIndexForState(const SpriteAnimationComponent* comp, AnimState state) const
+    {
+        if (!comp)
+            return -1;
+
+        auto equalsIgnoreCase = [](std::string_view a, std::string_view b)
+            {
+                if (a.size() != b.size())
+                    return false;
+                for (std::size_t i = 0; i < a.size(); ++i)
+                {
+                    unsigned char c1 = static_cast<unsigned char>(a[i]);
+                    unsigned char c2 = static_cast<unsigned char>(b[i]);
+                    if (std::tolower(c1) != std::tolower(c2))
+                        return false;
+                }
+                return true;
+            };
+
+        const std::string_view desired = AnimNameForState(state);
+        for (std::size_t i = 0; i < comp->animations.size(); ++i)
+        {
+            if (equalsIgnoreCase(comp->animations[i].name, desired))
+                return static_cast<int>(i);
+        }
+
+        return -1;
+    }
+
+    LogicSystem::AnimConfig LogicSystem::ConfigFromSpriteSheet(const SpriteAnimationComponent* comp, AnimState state) const
+    {
+        AnimConfig cfg = ConfigForState(state);
+        if (!comp)
+            return cfg;
+
+        const int index = AnimationIndexForState(comp, state);
+        if (index < 0 || index >= static_cast<int>(comp->animations.size()))
+            return cfg;
+
+        const auto& sheet = comp->animations[static_cast<std::size_t>(index)];
+        cfg.cols = std::max(1, sheet.config.columns);
+        cfg.rows = std::max(1, sheet.config.rows);
+        cfg.frames = std::max(1, sheet.config.totalFrames);
+        cfg.fps = sheet.config.fps;
+        return cfg;
+    }
+
+    void LogicSystem::ApplyAnimationStateToComponent(AnimState state)
+    {
+        if (!IsAlive(player))
+            return;
+
+        auto* anim = player->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
+        if (!anim)
+            return;
+
+        const int index = AnimationIndexForState(anim, state);
+        if (index >= 0 && index != anim->ActiveAnimationIndex())
+            //2222
+            anim->SetActiveAnimation(index);
     }
 
     /*****************************************************************************************
@@ -292,6 +377,11 @@ namespace Framework {
     *****************************************************************************************/
     void LogicSystem::UpdateAnimation(float dt, bool wantRun)
     {
+        SpriteAnimationComponent* animComp = nullptr;
+        if (IsAlive(player))
+        {
+            animComp = player->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
+        }
         // If we are in an attack animation, let it run to completion.
         if (IsAttackState(animState))
         {
@@ -309,7 +399,7 @@ namespace Framework {
             SetAnimState(desired);
         }
 
-        const AnimConfig& cfg = CurrentConfig();
+        const AnimConfig cfg = ConfigFromSpriteSheet(animComp, animState);
         frameClock += dt * cfg.fps;
         while (frameClock >= 1.f)
         {
@@ -459,7 +549,7 @@ namespace Framework {
                             continue;
 
                         anim->Advance(step);
-                       
+
                         auto* sprite = obj->GetComponentType<Framework::SpriteComponent>(
                             Framework::ComponentTypeId::CT_SpriteComponent);
                         if (!sprite)
