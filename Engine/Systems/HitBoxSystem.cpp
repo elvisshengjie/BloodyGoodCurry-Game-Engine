@@ -279,8 +279,11 @@ namespace Framework
 					}
 
 					const float knockStrength = 0.5f;
-					targetRb->velX = dx * knockStrength;
-					targetRb->velY = dy * knockStrength * 0.4f;
+					targetRb->velX += dx * knockStrength;
+					targetRb->velY += dy * knockStrength * 0.3f;
+					std::cout << "[DEBUG] Knockback applied to object ID " << obj->GetId()
+						<< " | dx: " << dx << ", dy: " << dy
+						<< " | velX: " << targetRb->velX << ", velY: " << targetRb->velY << "\n";
 				}
 				hit = true;
 				break;

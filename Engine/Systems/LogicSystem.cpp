@@ -804,13 +804,12 @@ namespace Framework {
             // Velocity intent set on RigidBody; an external system integrates it.
             if (rb && tr)
             {
-                rb->velX = 0.0f;
-                rb->velY = 0.0f;
-
-                if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = 1.f;
-                if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = -1.f;
-                if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = 1.f;
-                if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = -1.f;
+                if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f);
+                if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f);
+                if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D)) rb->velX *= rb->dampening;
+                if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY,1.f);
+                if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
+                if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S)) rb->velY *= rb->dampening;
             }
 
             // Running state if any movement keys are held (arrow keys supported too).

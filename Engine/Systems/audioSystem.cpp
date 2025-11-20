@@ -81,7 +81,8 @@ namespace Framework {
             auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
             if (!rb || !audio) continue;
             // Footsteps audio
-            bool isMoving = (rb->velX != 0.0f || rb->velY != 0.0f);
+            const float movementThreshold = 0.05f; // tweak this as needed
+            bool isMoving = (std::fabs(rb->velX) > movementThreshold || std::fabs(rb->velY) > movementThreshold);
             if (isMoving)
             {if (!audio->playing["footsteps"])audio->Play("footsteps");}
             else
