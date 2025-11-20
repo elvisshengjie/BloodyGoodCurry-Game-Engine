@@ -80,15 +80,16 @@ void MainMenuPage::Init(int screenW, int screenH)
         "../../assets/Textures/exit_btn.png");
     exitBtnHoverTex = exitBtnIdleTex;
 
-    // --- Build GUI buttons with callbacks that flip latches ---
-    gui.Clear();
-    gui.AddButton(startBtn.x, startBtn.y, startBtn.w, startBtn.h, "Start",
-        startBtnIdleTex, startBtnHoverTex,
-        [this]() { startLatched = true; });
+    //// --- Build GUI buttons with callbacks that flip latches ---
+    //gui.Clear();
+    //gui.AddButton(startBtn.x, startBtn.y, startBtn.w, startBtn.h, "Start",
+    //    startBtnIdleTex, startBtnHoverTex,
+    //    [this]() { startLatched = true; });
 
-    gui.AddButton(exitBtn.x, exitBtn.y, exitBtn.w, exitBtn.h, "Exit",
-        exitBtnIdleTex, exitBtnHoverTex,
-        [this]() { exitLatched = true; });
+    //gui.AddButton(exitBtn.x, exitBtn.y, exitBtn.w, exitBtn.h, "Exit",
+    //    exitBtnIdleTex, exitBtnHoverTex,
+    //    [this]() { exitLatched = true; });
+    BuildGui();
 }
 
 /*************************************************************************************
@@ -107,6 +108,9 @@ void MainMenuPage::Update(Framework::InputSystem* input)
 *************************************************************************************/
 void MainMenuPage::Draw(Framework::RenderSystem* render)
 {
+    if (render) {
+        SyncLayout(render->ScreenWidth(), render->ScreenHeight());
+    }
     // 1) Background
     if (menuBgTex) {
         gfx::Graphics::renderFullscreenTexture(menuBgTex);
@@ -142,4 +146,36 @@ bool MainMenuPage::ConsumeExit()
     if (!exitLatched)  return false;
     exitLatched = false;
     return true;
+}
+
+void MainMenuPage::SyncLayout(int screenW, int screenH)
+{
+    if (screenW == sw && screenH == sh)
+        return;
+
+    sw = screenW;
+    sh = screenH;
+
+    // Maintain relative positions when the window/fullscreen size changes.
+    const float baseW = 1280.f;
+    const float baseH = 720.f;
+    const float scaleX = sw / baseW;
+    const float scaleY = sh / baseH;
+
+    startBtn = { 100.f * scaleX, 260.f * scaleY, 220.f * scaleX, 58.f * scaleY };
+    exitBtn = { 100.f * scaleX, 180.f * scaleY, 220.f * scaleX, 58.f * scaleY };
+
+    BuildGui();
+}
+
+void MainMenuPage::BuildGui()
+{
+    gui.Clear();
+    gui.AddButton(startBtn.x, startBtn.y, startBtn.w, startBtn.h, "Start",
+        startBtnIdleTex, startBtnHoverTex,
+        [this]() { startLatched = true; });
+
+    gui.AddButton(exitBtn.x, exitBtn.y, exitBtn.w, exitBtn.h, "Exit",
+        exitBtnIdleTex, exitBtnHoverTex,
+        [this]() { exitLatched = true; });
 }
