@@ -90,7 +90,7 @@
       "SpriteComponent": { "texture_key": "boss" },
       "RigidBodyComponent": { "velocity_x": 10, "velocity_y": 0, "width": 0.13, "height": 0.24 },
       "EnemyComponent": {},
-      "EnemyAttackComponent": { "damage": 1, "attack_speed": 1.2 },
+      "EnemyAttackComponent": { "damage": 1, "attack_speed": 3.0 },
       "EnemyHealthComponent": { "enemyHealth": 2, "enemyMaxHealth": 2 },
       "EnemyDecisionTreeComponent": {},
       "EnemyTypeComponent": { "type": "ranged" }
@@ -105,7 +105,7 @@
       "SpriteComponent": { "texture_key": "boss" },
       "RigidBodyComponent": { "velocity_x": 10, "velocity_y": 0, "width": 0.13, "height": 0.24 },
       "EnemyComponent": {},
-      "EnemyAttackComponent": { "damage": 1, "attack_speed": 1.2 },
+      "EnemyAttackComponent": { "damage": 1, "attack_speed": 3.0 },
       "EnemyHealthComponent": { "enemyHealth": 2, "enemyMaxHealth": 2 },
       "EnemyDecisionTreeComponent": {},
       "EnemyTypeComponent": { "type": "physical" }

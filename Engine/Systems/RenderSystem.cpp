@@ -1787,6 +1787,8 @@ namespace Framework {
                                         0.0f, 1.0f, 0.0f, 1.0f, // green outline for enemy attacks
                                         2.0f
                                     );
+                                    std::cout << "Hit Box produced at coordinate:" << activeHit.hitbox->spawnX
+                                        << "," << activeHit.hitbox->spawnY << std::endl;
                                 }
                             }
                         }
