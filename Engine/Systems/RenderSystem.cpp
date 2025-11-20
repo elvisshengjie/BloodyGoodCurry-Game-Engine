@@ -1530,6 +1530,9 @@ namespace Framework {
                         Framework::ComponentTypeId::CT_TransformComponent);
                     if (!tr) continue;
 
+                    auto* animComp = obj->GetComponentType<Framework::SpriteAnimationComponent>(
+                        Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+
                     if (auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
                         Framework::ComponentTypeId::CT_SpriteComponent))
                     {
@@ -1555,22 +1558,14 @@ namespace Framework {
                         unsigned tex = sp->texture_id;
                         glm::vec4 uvRect(0.0f, 0.0f, 1.0f, 1.0f);
 
-                        if (IsPlayerObject(obj) && idleTex && runTex)
+                        if (animComp && animComp->HasSpriteSheets())
                         {
-                            tex = CurrentPlayerTexture();
-                            if (tex)
-                            {
-                                const int frame = animState.frame;
-                                const float sxUV = 1.0f / static_cast<float>(animCols);
-                                const float syUV = 1.0f / static_cast<float>(animRows);
-                                const int c = frame % animCols;
-                                const int rIdx = frame / animCols;
-                                uvRect = glm::vec4(
-                                    static_cast<float>(c) * sxUV,
-                                    static_cast<float>(rIdx) * syUV,
-                                    sxUV, syUV);
-                            }
+                            auto sample = animComp->CurrentSheetSample();
+                            if (sample.texture)
+                                tex = sample.texture;
+                            uvRect = sample.uv;
                         }
+                        
                         else if (!tex && !sp->texture_key.empty())
                         {
                             tex = Resource_Manager::getTexture(sp->texture_key);
@@ -1826,6 +1821,19 @@ namespace Framework {
 
             RestoreFullViewport(); // Restore full window viewport for ImGui.
 
+            if (showEditor)
+            {
+                if (ImGui::BeginMainMenuBar())
+                {
+                    if (ImGui::BeginMenu("View"))
+                    {
+                        ImGui::MenuItem("Animation Editor", nullptr, &showAnimationEditor);
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMainMenuBar();
+                }
+            }
+
             t0 = clock::now();
 
             DrawDockspace();
@@ -1838,6 +1846,7 @@ namespace Framework {
                 mygame::DrawSpawnPanel();
                 mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
+                mygame::DrawAnimationEditor(showAnimationEditor);
 
                 if (ImGui::Begin("Crash Tests"))
                 {
