@@ -1799,23 +1799,23 @@ namespace Framework {
 
             if (textReadyTitle)
             {
-                textTitle.RenderText(
+                /*textTitle.RenderText(
                     "Bloody Good Curry",
                     32.0f,
                     static_cast<float>(screenH) - 64.0f,
                     1.05f,
                     glm::vec3(1.0f, 1.0f, 1.0f)
-                );
+                );*/
             }
             if (textReadyHint)
             {
-                textHint.RenderText(
+                /*textHint.RenderText(
                     "Press WASD to run",
                     32.0f,
                     40.0f,
                     0.75f,
                     glm::vec3(0.95f, 0.85f, 0.10f)
-                );
+                );*/
             }
 
             const double renderMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
