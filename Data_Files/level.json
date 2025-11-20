@@ -47,7 +47,16 @@
       },
       {
         "Components": {
-          "AudioComponent": {},
+          "AudioComponent":{
+            "sounds": 
+            {
+              "footsteps": { "id": "footsteps", "loop": true },
+              "Slash1": { "id": "Slash1", "loop": false },
+              "GrappleShoot1": { "id": "GrappleShoot1", "loop": false }
+            },
+            "volume": 1.0,
+            "playing": 0
+          },
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
             "height": 0.15000000596046448,
@@ -55,7 +64,7 @@
           },
           "PlayerAttackComponent": {
             "attack_speed": 1.0,
-            "damage": 50
+            "damage": 1
           },
           "PlayerComponent": {},
           "PlayerHealthComponent": {
@@ -206,13 +215,13 @@
         "Components": {
           "EnemyAttackComponent": {
             "attack_speed": 1.2000000476837158,
-            "damage": 15
+            "damage": 1
           },
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 100,
-            "enemyMaxhealth": 1
+            "enemyHealth": 2,
+            "enemyMaxhealth": 2
           },
           "EnemyTypeComponent": {
             "type": "ranged"
@@ -248,13 +257,13 @@
         "Components": {
           "EnemyAttackComponent": {
             "attack_speed": 1.2000000476837158,
-            "damage": 15
+            "damage": 1
           },
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 100,
-            "enemyMaxhealth": 1
+            "enemyHealth": 2,
+            "enemyMaxhealth": 2
           },
           "EnemyTypeComponent": {
             "type": "physical"
