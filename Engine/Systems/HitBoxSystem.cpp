@@ -264,6 +264,24 @@ namespace Framework
 					if (health)
 						health->TakeDamage(static_cast<int>(HB->damage));
 				}
+				auto* attackerTr = attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+				auto* targetRb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+
+				if (attackerTr && targetRb)
+				{
+					float dx = tr->x - attackerTr->x;
+					float dy = tr->y - attackerTr->y;
+					float len = std::sqrt(dx * dx + dy * dy);
+					if (len > 0.001f)
+					{
+						dx /= len;
+						dy /= len;
+					}
+
+					const float knockStrength = 0.5f;
+					targetRb->velX = dx * knockStrength;
+					targetRb->velY = dy * knockStrength * 0.4f;
+				}
 				hit = true;
 				break;
 			}

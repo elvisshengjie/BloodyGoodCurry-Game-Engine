@@ -13,6 +13,7 @@
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
 #include "Factory/Factory.h"
+#include "Debug/Selection.h"
 
 namespace mygame
 {
@@ -162,20 +163,24 @@ namespace mygame
                 return false;
 
             UndoAction action = gUndoStack.back();
-            gUndoStack.pop_back();
 
             bool requiresFactorySweep = false;
+            bool undoApplied = false;
 
             switch (action.kind)
             {
             case UndoKind::Transform:
             {
+                // Undo a transform: restore the "before" transform state
                 Framework::GOC* obj =
                     Framework::FACTORY->GetObjectWithId(action.objectId);
                 if (obj)
+                {
                     ApplyTransformSnapshot(*obj, action.before);
+                    undoApplied = true;
+                }
+                break;
             }
-            break;
 
             case UndoKind::Created:
             {
@@ -186,9 +191,10 @@ namespace mygame
                 {
                     Framework::FACTORY->Destroy(obj);
                     requiresFactorySweep = true;
+                    undoApplied = true;
                 }
+                break;
             }
-            break;
 
             case UndoKind::Deleted:
             {
@@ -198,13 +204,21 @@ namespace mygame
                     Framework::GOC* restored =
                         Framework::FACTORY->InstantiateFromSnapshot(action.snapshot);
 
-                    (void)restored;
-                    // Optional: reselect the restored object:
-                    // if (restored) mygame::SetSelectedObjectId(restored->GetId());
+                    if (restored)
+                    {
+                        mygame::SetSelectedObjectId(restored->GetId());
+                        undoApplied = true;
+                    }
                 }
+                break;
             }
-            break;
             }
+
+            if (!undoApplied)
+                return false;
+
+            // Only drop the action if it actually did something.
+            gUndoStack.pop_back();
 
             if (requiresFactorySweep)
             {
