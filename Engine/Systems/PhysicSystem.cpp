@@ -70,7 +70,7 @@ namespace Framework {
                 continue;
 
             // Integrate proposed new position
-            float newX = tr->x + rb->velX * dt;
+            float newX = tr->x + rb->velX *dt;
             float newY = tr->y + rb->velY * dt;
 
             // Build trial AABBs for axis-separated collision checks

@@ -85,7 +85,7 @@ namespace Framework
             if (rb && tr && ai)
             {
     
-                const float patrolSpeed = 0.2f;
+                const float patrolSpeed = 1.0f;
                 const float patrolRange = 0.5f;
                 const float pauseDuration = 2.0f;
                 
@@ -123,11 +123,7 @@ namespace Framework
                     ai->dir *= -1.0f;
                     ai->pauseTimer = pauseDuration;
                 }
-                else 
-                {
-                    tr->x = newX;
-                    tr->y = newY;
-                }
+
 
 
                 if (tr->x < -patrolRange)
@@ -159,13 +155,7 @@ namespace Framework
             if (!attack || !rb || !tr) return;
             GOC* player = nullptr;
 
-            if (ai->chaseSpeed < 0.0f) 
-            { 
-                std::random_device rd;
-                std::mt19937 gen(rd());
-                std::uniform_real_distribution<float> dist(0.3f, 0.5f);
-                ai->chaseSpeed = dist(gen);
-            }
+            ai->chaseSpeed = 0.1f;
 
             auto& objects = FACTORY->Objects();
             for (auto& kv : objects)
@@ -182,21 +172,26 @@ namespace Framework
             float dx = trplayer->x - tr->x;
             float dy = trplayer->y - tr->y;
             float distance = std::sqrt(dx*dx + dy*dy);
-            const float speed = 0.3f;
-            const float nudge = 0.2f;
-            float vx = 0.0f, vy = 0.0f;
+            const float speed = 1.0f;
             const float baseDuration = 0.15f;
-            if (distance > 0.1f)
-            {
-                if (std::fabs(dx) > 0.01f) { vx = (dx > 0.0f ? speed : -speed); vy = 0.0f; }
-                else if (std::fabs(dy) > 0.01f) { vx = 0.0f; vy = (dy > 0.0f ? speed : -speed); }
-                if (std::fabs(vx) < 0.01f && std::fabs(vy) < 0.01f) { vx = (dx > 0.0f ? -nudge : nudge); vy = (dy > 0.0f ? -nudge : nudge); }
-            }
+            const float accel = 0.5f;          
 
-            rb->velX = vx;
-            rb->velY = vy;
-            tr->x += rb->velX * dt;
-            tr->y += rb->velY * dt;
+            if (distance > 0.01f)
+            {
+                float norm = std::sqrt(dx * dx + dy * dy);
+                float targetVX = (dx / norm) * speed;
+                float targetVY = (dy / norm) * speed;
+
+                // Smooth approach using simple linear interpolation
+                rb->velX += (targetVX - rb->velX) * std::min(accel * dt, 1.0f);
+                rb->velY += (targetVY - rb->velY) * std::min(accel * dt, 1.0f);
+            }
+            else
+            {
+                // stop when very close
+                rb->velX *= 0.5f;
+                rb->velY *= 0.5f;
+            }
             
             attack->attack_timer += dt;
 
@@ -207,12 +202,13 @@ namespace Framework
                 ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
                 float direction = (ai->facing == Facing::LEFT) ? -1.0f : 1.0f;
 
-                float hbWidth = rb->width * 0.8f;
-                float hbHeight = rb->height * 0.8f;
+                float hbWidth = rb->width * 1.5f;
+                float hbHeight = rb->height* 1.0f;
 
                 // Spawn X just outside enemy's hitbox
-                float spawnX = tr->x + direction * (rb->width / 2.0f + hbWidth / 2.0f);
-                float spawnY = tr->y; // centered vertically
+                float spawnX = tr->x;
+                float spawnY = tr->y;
+
                 attack->hitbox->duration = baseDuration;
                 logic->hitBoxSystem->SpawnHitBox(
                     enemy,
@@ -224,26 +220,27 @@ namespace Framework
                     attack->hitbox->duration,
                     HitBoxComponent::Team::Enemy
                 );
-                std::cout << "[DEBUG] Enemy ID " << enemy->GetId()
-                    << " spawned hitbox at (" << spawnX << ", " << spawnY << ")"
-                    << " with damage " << attack->damage
-                    << " and size (" << attack->hitbox->width << "x" << attack->hitbox->height << ")\n";
+                
             }
-            
+            // Update hitbox duration
             if (attack->hitbox->active)
             {
-                attack->hitbox->duration -=dt;
+                attack->hitbox->duration -= dt;
                 if (attack->hitbox->duration <= 0.0f)
-                {
                     attack->hitbox->active = false;
+            }
+            
+            if (distance > 0.5f) {
+                ai->chaseTimer += dt;
+                if (ai->chaseTimer >= ai->maxChaseDuration) {
+                    ai->hasSeenPlayer = false;
+                    ai->chaseTimer = 0.0f;
                 }
             }
-        
-            
-            ai->chaseTimer += dt;
-            if (ai->chaseTimer >= ai->maxChaseDuration) {
-                ai->hasSeenPlayer = false;
-                ai->chaseTimer = 0.0f;
+            else 
+            {
+                ai->chaseTimer = 0.0f; // reset while player is near
+                ai->hasSeenPlayer = true;
             }
         }
         );
