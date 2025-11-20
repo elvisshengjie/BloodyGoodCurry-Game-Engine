@@ -455,24 +455,36 @@ namespace Framework {
 
                         auto* anim = obj->GetComponentType<Framework::SpriteAnimationComponent>(
                             Framework::ComponentTypeId::CT_SpriteAnimationComponent);
-                        if (!anim || !anim->HasFrames())
+                        if (!anim || (!anim->HasFrames() && !anim->HasSpriteSheets()))
                             continue;
 
                         anim->Advance(step);
-                        size_t frameIndex = anim->CurrentFrameIndex();
-                        if (frameIndex >= anim->frames.size())
-                            continue;
-
-                        const auto& frame = anim->frames[frameIndex];
+                       
                         auto* sprite = obj->GetComponentType<Framework::SpriteComponent>(
                             Framework::ComponentTypeId::CT_SpriteComponent);
                         if (!sprite)
                             continue;
 
-                        sprite->texture_key = frame.texture_key;
-                        unsigned tex = anim->ResolveFrameTexture(frameIndex);
-                        if (tex)
-                            sprite->texture_id = tex;
+                        if (anim->HasSpriteSheets())
+                        {
+                            auto sample = anim->CurrentSheetSample();
+                            if (!sample.textureKey.empty())
+                                sprite->texture_key = sample.textureKey;
+                            if (sample.texture)
+                                sprite->texture_id = sample.texture;
+                        }
+                        else
+                        {
+                            size_t frameIndex = anim->CurrentFrameIndex();
+                            if (frameIndex >= anim->frames.size())
+                                continue;
+
+                            const auto& frame = anim->frames[frameIndex];
+                            sprite->texture_key = frame.texture_key;
+                            unsigned tex = anim->ResolveFrameTexture(frameIndex);
+                            if (tex)
+                                sprite->texture_id = tex;
+                        }
                     }
                 };
 

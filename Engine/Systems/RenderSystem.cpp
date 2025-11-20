@@ -1529,6 +1529,9 @@ namespace Framework {
                         Framework::ComponentTypeId::CT_TransformComponent);
                     if (!tr) continue;
 
+                    auto* animComp = obj->GetComponentType<Framework::SpriteAnimationComponent>(
+                        Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+
                     if (auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
                         Framework::ComponentTypeId::CT_SpriteComponent))
                     {
@@ -1554,7 +1557,14 @@ namespace Framework {
                         unsigned tex = sp->texture_id;
                         glm::vec4 uvRect(0.0f, 0.0f, 1.0f, 1.0f);
 
-                        if (IsPlayerObject(obj) && idleTex && runTex)
+                        if (animComp && animComp->HasSpriteSheets())
+                        {
+                            auto sample = animComp->CurrentSheetSample();
+                            if (sample.texture)
+                                tex = sample.texture;
+                            uvRect = sample.uv;
+                        }
+                        else if (IsPlayerObject(obj) && idleTex && runTex)
                         {
                             tex = CurrentPlayerTexture();
                             if (tex)
@@ -1823,6 +1833,19 @@ namespace Framework {
 
             RestoreFullViewport(); // Restore full window viewport for ImGui.
 
+            if (showEditor)
+            {
+                if (ImGui::BeginMainMenuBar())
+                {
+                    if (ImGui::BeginMenu("View"))
+                    {
+                        ImGui::MenuItem("Animation Editor", nullptr, &showAnimationEditor);
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMainMenuBar();
+                }
+            }
+
             t0 = clock::now();
 
             DrawDockspace();
@@ -1835,6 +1858,7 @@ namespace Framework {
                 mygame::DrawSpawnPanel();
                 mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
+                mygame::DrawAnimationEditor(showAnimationEditor);
 
                 if (ImGui::Begin("Crash Tests"))
                 {
