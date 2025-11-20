@@ -82,8 +82,9 @@ namespace Framework
             auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
             auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
-              if (rb && tr && ai)
+            if (rb && tr && ai)
             {
+    
                 const float patrolSpeed = 0.2f;
                 const float patrolRange = 0.5f;
                 const float pauseDuration = 2.0f;
@@ -157,6 +158,7 @@ namespace Framework
             auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
             if (!attack || !rb || !tr) return;
             GOC* player = nullptr;
+
             if (ai->chaseSpeed < 0.0f) 
             { 
                 std::random_device rd;
@@ -183,7 +185,7 @@ namespace Framework
             const float speed = 0.3f;
             const float nudge = 0.2f;
             float vx = 0.0f, vy = 0.0f;
-            
+            const float baseDuration = 0.15f;
             if (distance > 0.1f)
             {
                 if (std::fabs(dx) > 0.01f) { vx = (dx > 0.0f ? speed : -speed); vy = 0.0f; }
@@ -198,29 +200,30 @@ namespace Framework
             
             attack->attack_timer += dt;
 
-            if (attack->attack_timer >= attack->attack_speed)
+            if (attack->attack_timer >= attack->attack_speed && !attack->hitbox->active)
             {
                 attack->attack_timer = 0.0f;
                 attack->hitbox->active = true;
+                ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
+                float direction = (ai->facing == Facing::LEFT) ? -1.0f : 1.0f;
 
-                // Spawn hitbox based on enemy direction
-                float offsetX = (ai->facing == Facing::RIGHT) ? attack->hitbox->width :
-                    (ai->facing == Facing::LEFT) ? -attack->hitbox->width : 0.0f;
-                float offsetY = 0.0f;
+                float hbWidth = rb->width * 0.8f;
+                float hbHeight = rb->height * 0.8f;
 
-                float spawnX = tr->x + offsetX;
-                float spawnY = tr->y + offsetY;
-
+                // Spawn X just outside enemy's hitbox
+                float spawnX = tr->x + direction * (rb->width / 2.0f + hbWidth / 2.0f);
+                float spawnY = tr->y; // centered vertically
+                attack->hitbox->duration = baseDuration;
                 logic->hitBoxSystem->SpawnHitBox(
                     enemy,
                     spawnX,
                     spawnY,
-                    static_cast<float>(attack->hitbox->width),
-                    static_cast<float>(attack->hitbox->height),
+                    hbWidth,
+                    hbHeight,
                     static_cast<float>(attack->damage),
-                    static_cast<float>(attack->hitbox->duration)
+                    attack->hitbox->duration,
+                    HitBoxComponent::Team::Enemy
                 );
-
                 std::cout << "[DEBUG] Enemy ID " << enemy->GetId()
                     << " spawned hitbox at (" << spawnX << ", " << spawnY << ")"
                     << " with damage " << attack->damage
@@ -233,7 +236,6 @@ namespace Framework
                 if (attack->hitbox->duration <= 0.0f)
                 {
                     attack->hitbox->active = false;
-                    attack->hitbox->duration = 1.0f;
                 }
             }
         
