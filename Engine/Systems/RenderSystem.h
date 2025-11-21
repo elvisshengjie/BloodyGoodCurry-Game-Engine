@@ -131,7 +131,6 @@ namespace Framework {
 
     private:
         // --- Filesystem / asset resolution ------------------------------------------------
-        std::filesystem::path GetExeDir() const;
         std::string           FindRoboto() const;
         std::filesystem::path FindAssetsRoot() const;
         std::filesystem::path FindDataFilesRoot() const;

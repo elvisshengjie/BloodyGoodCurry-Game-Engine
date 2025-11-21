@@ -1,4 +1,5 @@
 #include "audioSystem.h"
+#include "Core/PathUtils.h"
 #include "RenderSystem.h"
 #include <iostream>
 /*********************************************************************************************
@@ -44,7 +45,7 @@ namespace Framework {
         }
         
         // Load all sounds (previously in AudioImGui)
-        Resource_Manager::loadAll("../../assets/Audio");
+        Resource_Manager::loadAll(Framework::ResolveAssetPath("Audio").string());
 
         // Set default master volume
         SoundManager::getInstance().setMasterVolume(0.7f);

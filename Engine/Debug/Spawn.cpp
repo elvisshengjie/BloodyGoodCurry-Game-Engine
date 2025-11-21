@@ -28,6 +28,7 @@
             All rights reserved.
 *********************************************************************************************/
 #include "Debug/Spawn.h"
+#include "Core/PathUtils.h"
 #include "Selection.h"
 #include "Debug/UndoStack.h"
 #include "imgui.h"
@@ -115,7 +116,7 @@ namespace mygame {
     static std::string gLevelStatusMessage;
     static bool gLevelStatusIsError = false;
     /// Directory where level JSON files are located (relative to executable).
-    static const std::filesystem::path kLevelDirectory("../../Data_Files");
+    static const std::filesystem::path kLevelDirectory(Framework::ResolveDataPath(""));
 
     /// Active layer name used for newly spawned objects.
     static std::string gActiveLayer = "Default";

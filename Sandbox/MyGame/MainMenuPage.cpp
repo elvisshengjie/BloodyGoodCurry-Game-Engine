@@ -26,6 +26,7 @@
 *********************************************************************************************/
 
 #include "MainMenuPage.hpp"
+#include "Core/PathUtils.h"
 #include "Graphics/Graphics.hpp"
 #include "Resource_Manager/Resource_Manager.h"
 #include <glm/vec3.hpp>
@@ -67,17 +68,22 @@ void MainMenuPage::Init(int screenW, int screenH)
             // 3) Final fallback: raw GL texture load (no RM caching)
             return gfx::Graphics::loadTexture(path);
         };
-
     // --- Background ---
-    menuBgTex = resolveTexture({ "menu_bg", "menu" }, "../../assets/Textures/menu.jpg");
+    const std::string menuBgPath =
+        Framework::ResolveAssetPath("Textures/menu.jpg").string();
+    menuBgTex = resolveTexture({ "menu_bg", "menu" }, menuBgPath.c_str());
 
-    // --- Buttons (idle/hover share the same asset here; replace if you have distinct ones) ---
+    // --- Buttons ---
+    const std::string startBtnPath =
+        Framework::ResolveAssetPath("Textures/start_btn.png").string();
     startBtnIdleTex = resolveTexture({ "menu_start_btn", "start_btn", "start" },
-        "../../assets/Textures/start_btn.png");
+        startBtnPath.c_str());
     startBtnHoverTex = startBtnIdleTex;
 
+    const std::string exitBtnPath =
+        Framework::ResolveAssetPath("Textures/exit_btn.png").string();
     exitBtnIdleTex = resolveTexture({ "menu_exit_btn", "exit_btn", "exit" },
-        "../../assets/Textures/exit_btn.png");
+        exitBtnPath.c_str());
     exitBtnHoverTex = exitBtnIdleTex;
 
     // --- Build GUI buttons with callbacks that flip latches ---

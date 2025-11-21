@@ -3,11 +3,13 @@
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
 #include "Resource_Manager/Resource_Manager.h"
-
+#include "Core/PathUtils.h"
 #include <glm/vec4.hpp>
 
 #include <algorithm>
+#include <filesystem>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace Framework {
@@ -212,7 +214,8 @@ namespace Framework {
             const auto& frame = frames[index];
             unsigned tex = Resource_Manager::getTexture(frame.texture_key);
             if (!tex && !frame.path.empty()) {
-                if (Resource_Manager::load(frame.texture_key, frame.path))
+                const auto resolvedPath = ResolveAnimationPath(frame.path);
+                if (Resource_Manager::load(frame.texture_key, resolvedPath))
                     tex = Resource_Manager::getTexture(frame.texture_key);
             }
             return tex;
@@ -347,7 +350,8 @@ namespace Framework {
             if (anim.spriteSheetPath.empty())
                 return;
 
-            if (Resource_Manager::load(anim.textureKey, anim.spriteSheetPath))
+            const auto resolvedPath = ResolveAnimationPath(anim.spriteSheetPath);
+            if (Resource_Manager::load(anim.textureKey, resolvedPath))
                 anim.textureId = Resource_Manager::getTexture(anim.textureKey);
             else
                 anim.textureId = Resource_Manager::getTexture(anim.textureKey);
@@ -374,6 +378,25 @@ namespace Framework {
             for (size_t i = 0; i < frames.size(); ++i) {
                 ResolveFrameTexture(i);
             }
+        }
+        // Normalize animation paths to the packaged assets directory.
+        static std::string ResolveAnimationPath(const std::string& rawPath) {
+            if (rawPath.empty())
+                return rawPath;
+
+            std::string normalized = rawPath;
+            std::replace(normalized.begin(), normalized.end(), '\\', '/');
+
+            std::filesystem::path asPath{ normalized };
+            if (asPath.is_absolute())
+                return asPath.string();
+
+            constexpr std::string_view kPrefix = "assets/";
+            const auto pos = normalized.find(kPrefix);
+            if (pos != std::string::npos)
+                asPath = normalized.substr(pos + kPrefix.size());
+
+            return Framework::ResolveAssetPath(asPath).string();
         }
 
         size_t currentFrame{ 0 };
