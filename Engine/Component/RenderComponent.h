@@ -18,6 +18,9 @@
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
 #include "Resource_Manager/Resource_Manager.h"
+#include "Core/PathUtils.h"
+#include <filesystem>
+
 
 namespace Framework {
     /*****************************************************************************************
@@ -46,14 +49,22 @@ namespace Framework {
                  Default implementation does nothing but may be extended if needed.
         *************************************************************************************/
         void initialize() override {
-            if (!texture_key.empty()) {
+            if (texture_key.empty())
+                return;
+
+            texture_id = Resource_Manager::getTexture(texture_key);
+            if (texture_id)
+                return;
+
+            if (texture_path.empty())
+                return;
+
+            const auto resolvedPath = Framework::ResolveAssetPath(std::filesystem::path(texture_path));
+            const std::string& pathStr = resolvedPath.empty() ? texture_path : resolvedPath.string();
+
+            if (Resource_Manager::load(texture_key, pathStr))
                 texture_id = Resource_Manager::getTexture(texture_key);
-                if (!texture_id && !texture_path.empty()) {
-                    if (Resource_Manager::load(texture_key, texture_path)) {
-                        texture_id = Resource_Manager::getTexture(texture_key);
-                    }
-                }
-            }
+            
         }
 
         /*************************************************************************************
