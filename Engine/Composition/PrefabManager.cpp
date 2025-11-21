@@ -123,6 +123,10 @@ namespace Framework {
         if (auto* artasset = FACTORY->CreateTemplate(resolveData("artassets.json"))) {
             master_copies["Art_Asset"].reset(artasset); 
         }
+
+        if (auto* artassetForward = FACTORY->CreateTemplate(resolveData("artassetsForward.json"))) {
+            master_copies["Art_Asset_Forward"].reset(artassetForward);
+        }
        
     }
 

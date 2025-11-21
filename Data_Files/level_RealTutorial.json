@@ -8,6 +8,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 4.699999809265137,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 0.09000000357627869
@@ -34,6 +35,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 4.699999809265137,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 0.09000000357627869
@@ -60,6 +62,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.09000000357627869,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 6.710000038146973
@@ -86,6 +89,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.09000000357627869,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 6.710000038146973
@@ -112,6 +116,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.5,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 4.369999885559082
@@ -138,6 +143,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.5,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 4.389999866485596
@@ -164,6 +170,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.2800000011920929,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 4.369999885559082
@@ -190,6 +197,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.28999999165534973,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 4.369999885559082
@@ -216,6 +224,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.5,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 4.369999885559082
@@ -242,6 +251,7 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.5,
+            "layer": 0,
             "r": 1.0,
             "visible": false,
             "w": 4.369999885559082
@@ -283,14 +293,15 @@
             "b": 1.0,
             "g": 1.0,
             "h": 0.25,
+            "layer": 0,
             "r": 1.0,
             "visible": true,
-            "w": -0.25
+            "w": 0.25
           },
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
-            "velocity_x": -1.401298464324817e-45,
-            "velocity_y": 1.401298464324817e-45,
+            "velocity_x": -3.4611067112736536e-23,
+            "velocity_y": -1.401298464324817e-45,
             "width": 0.10000000149011612
           },
           "SpriteComponent": {
@@ -298,8 +309,8 @@
           },
           "TransformComponent": {
             "rot": 0.0,
-            "x": -2.2576024532318115,
-            "y": -0.18456296622753143
+            "x": -0.6481453776359558,
+            "y": 0.12326690554618835
           }
         },
         "layer": "Default",
@@ -312,10 +323,10 @@
             "b": 1.0,
             "g": 1.0,
             "h": 1.5,
+            "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 3.0,
-            "layer": -5
+            "w": 3.0
           },
           "SpriteComponent": {
             "texture_key": "Textures/Environment/lvl 1_Hawker/Floor.png"
@@ -336,10 +347,10 @@
             "b": 1.0,
             "g": 1.0,
             "h": 1.5,
+            "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 3.0,
-            "layer": -5
+            "w": 3.0
           },
           "SpriteComponent": {
             "texture_key": "Textures/Environment/lvl 1_Hawker/Floor.png"
@@ -360,10 +371,10 @@
             "b": 1.0,
             "g": 1.0,
             "h": 1.5,
+            "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 3.0,
-            "layer": -5
+            "w": 3.0
           },
           "SpriteComponent": {
             "texture_key": "Textures/Environment/lvl 1_Hawker/Floor.png"
@@ -384,10 +395,10 @@
             "b": 1.0,
             "g": 1.0,
             "h": 1.5,
+            "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 3.0,
-            "layer": -5
+            "w": 3.0
           },
           "SpriteComponent": {
             "texture_key": "Textures/Environment/lvl 1_Hawker/Floor.png"
@@ -408,10 +419,10 @@
             "b": 1.0,
             "g": 1.0,
             "h": 1.5,
+            "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 3.0,
-            "layer": -5
+            "w": 3.0
           },
           "SpriteComponent": {
             "texture_key": "Textures/Environment/lvl 1_Hawker/Floor.png"
@@ -432,10 +443,10 @@
             "b": 1.0,
             "g": 1.0,
             "h": 1.5,
+            "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 3.0,
-            "layer": -5
+            "w": 3.0
           },
           "SpriteComponent": {
             "texture_key": "Textures/Environment/lvl 1_Hawker/Floor.png"
@@ -448,6 +459,30 @@
         },
         "layer": "Default",
         "name": "Art_Asset"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "g": 1.0,
+            "h": 1.5,
+            "layer": -3,
+            "r": 1.0,
+            "visible": true,
+            "w": 1.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Textures/Environment/lvl 1_Hawker/Gate.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "x": -0.7140624523162842,
+            "y": 0.8567707538604736
+          }
+        },
+        "layer": "Default",
+        "name": "Art_Asset_Forward"
       }
     ],
     "name": "level_RealTutorial"
