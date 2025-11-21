@@ -1540,9 +1540,9 @@ namespace Framework {
                 std::unordered_map<unsigned, std::vector<gfx::Graphics::SpriteInstance>> spriteBatches;
                 spriteBatches.reserve(64);
 
-                const auto& animState = logic.Animation();
-                const int animCols = std::max(1, CurrentColumns());
-                const int animRows = std::max(1, CurrentRows());
+                //const auto& animState = logic.Animation();
+                //const int animCols = std::max(1, CurrentColumns());
+                //const int animRows = std::max(1, CurrentRows());
 
                 // Pass 1: Sprites (instanced)
                 for (unsigned id : sortedIds)
