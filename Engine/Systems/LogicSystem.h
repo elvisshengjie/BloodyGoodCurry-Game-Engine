@@ -120,6 +120,8 @@ namespace Framework {
         std::string GetName() override { return "LogicSystem"; }
 
     private:
+
+        std::filesystem::path resolveData(std::string_view name) const;
         // Extended to support combo attacks.
         enum class AnimState { Idle, Run, Attack1, Attack2, Attack3 };
 

@@ -28,6 +28,7 @@
 *********************************************************************************************/
 
 #include "Systems/LogicSystem.h"
+#include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"      // for ScreenToWorld / camera-based world mapping
 #include "Debug/Selection.h"
 #include <cctype>
@@ -435,6 +436,11 @@ namespace Framework {
         return true;
     }
 
+    std::filesystem::path LogicSystem::resolveData(std::string_view name) const
+    {
+        return Framework::ResolveDataPath(std::filesystem::path(name));
+    }
+
     /*****************************************************************************************
       \brief Initialize the game logic systems and world.
              - Sets up crash logging (file + logcat mirror).
@@ -477,15 +483,17 @@ namespace Framework {
         FACTORY = factory.get();
         LoadPrefabs();
 
-        auto playerPrefab = std::string("../../Data_Files/player.json");
+ 
+
+        auto playerPrefab = resolveData("player.json");
         std::cout << "[Prefab] Player path = " << std::filesystem::absolute(playerPrefab)
             << "  exists=" << std::filesystem::exists(playerPrefab) << "\n";
 
-        levelObjects = factory->CreateLevel("../../Data_Files/level.json");
+        levelObjects = factory->CreateLevel(resolveData("level.json").string());
 
         RefreshLevelReferences();
 
-        WindowConfig cfg = LoadWindowConfig("../../Data_Files/window.json");
+        WindowConfig cfg = LoadWindowConfig(resolveData("window.json").string());
         screenW = cfg.width;
         screenH = cfg.height;
 
@@ -922,7 +930,8 @@ namespace Framework {
 
         std::filesystem::path levelPath = factory->LastLevelPath();
         if (levelPath.empty())
-            levelPath = "../../Data_Files/level.json";
+            levelPath = resolveData("level.json");
+
 
         for (auto const& [id, obj] : factory->Objects())
         {
