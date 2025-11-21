@@ -326,7 +326,8 @@ namespace Framework {
                {"g", rc.g},
                {"b", rc.b},
                {"a", rc.a},
-               {"visible", rc.visible}
+               {"visible", rc.visible},
+               {"layer", rc.layer}
             };
             if (!rc.texture_key.empty())
                 out["texture_key"] = rc.texture_key;
