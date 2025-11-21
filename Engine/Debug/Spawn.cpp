@@ -331,6 +331,24 @@ namespace mygame {
             }
             return result;
         }
+
+        /*************************************************************************************
+         \brief  Destroy an object while recording the deletion for undo.
+         \param  obj Pointer to the object to delete (ignored if null).
+       *************************************************************************************/
+        void DestroyWithUndo(GOC* obj)
+        {
+            if (!obj)
+                return;
+            mygame::editor::RecordObjectDeleted(*obj);
+            // Prefer the factory's destroy path so deferred cleanup stays consistent with
+             // editor expectations (ID recycling, selection clearing, etc.). Fallback to
+             // the object's own destroy in case the factory isn't available (defensive).
+            if (Framework::FACTORY)
+                Framework::FACTORY->Destroy(obj);
+            else
+                obj->Destroy();
+        }
     } // namespace
 
        /*************************************************************************************
@@ -481,6 +499,10 @@ namespace mygame {
 
         // Assign layer on creation
         obj->SetLayerName(gActiveLayer);
+
+
+        // Track the creation so the editor undo stack can remove it if requested.
+        mygame::editor::RecordObjectCreated(*obj);
     }
 
     /*************************************************************************************
@@ -1125,7 +1147,7 @@ namespace mygame {
                 else {
                     auto toKill = CollectNonMasterObjects();
                     for (auto* obj : toKill)
-                        obj->Destroy();
+                        DestroyWithUndo(obj);
                     FACTORY->Update(0.0f);
 
                     FACTORY->CreateLevel(levelPath.string());
@@ -1208,14 +1230,14 @@ namespace mygame {
                 [](GOC* obj) { return obj->GetObjectName() != gSelectedPrefabToClear; }),
                 toKill.end());
 
-            for (auto* o : toKill) o->Destroy();
+            for (auto* o : toKill) DestroyWithUndo(o);
             FACTORY->Update(0.0f);
         }
 
         ImGui::SameLine();
         if (ImGui::Button("Clear All (keep masters)")) {
             auto toKill = CollectNonMasterObjects();
-            for (auto* o : toKill) o->Destroy();
+            for (auto* o : toKill) DestroyWithUndo(o);
             FACTORY->Update(0.0f);
             mygame::ClearSelection();
         }
