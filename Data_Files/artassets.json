@@ -6,13 +6,17 @@
         "y": 0.0,
         "rot": 0.0
       },
+      "SpriteComponent": {
+        "texture_key": "art_asset_placeholder"
+      },
       "RenderComponent": {
         "w": 0.5,
         "h": 0.5,
         "r": 0.95,
         "g": 0.75,
         "b": 0.25,
-        "a": 1.0
+        "a": 1.0,
+        "layer": -5
       }
     }
   }

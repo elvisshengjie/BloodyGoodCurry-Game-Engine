@@ -2,7 +2,7 @@
   "GameObject":{
   "Components": {
   "TransformComponent": { "x": -0.5, "y": -0.5, "rot": 0.0 },
-      "RenderComponent": { "w": 0.25, "h": 0.25, "r": 1, "g": 1, "b": 1, "a": 1 },
+      "RenderComponent": { "w": 0.25, "h": 0.25, "r": 1, "g": 1, "b": 1, "a": 1, "layer": 10 },
       "SpriteComponent": { "texture_key": "player" },
       "RigidBodyComponent": { "velocity_x": 0.0, "velocity_y": 0.0, "width": 0.1, "height": 0.21 },
       "PlayerComponent": {},
