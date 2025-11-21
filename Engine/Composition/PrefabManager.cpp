@@ -120,7 +120,7 @@ namespace Framework {
             master_copies["Hawker_Gate"].reset(gate);
         }
 
-        if (auto* artasset = FACTORY->CreateTemplate("../../Data_Files/artassets.json")) {
+        if (auto* artasset = FACTORY->CreateTemplate(resolveData("artassets.json"))) {
             master_copies["Art_Asset"].reset(artasset); 
         }
        
