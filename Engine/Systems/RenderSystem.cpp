@@ -1354,6 +1354,14 @@ namespace Framework {
         }
 
         assetsRoot = FindAssetsRoot();
+        if (assetsRoot.empty())
+        {
+            std::error_code ec;
+            auto cwdAssets = std::filesystem::current_path(ec) / "assets";
+            if (!ec && std::filesystem::exists(cwdAssets, ec) && std::filesystem::is_directory(cwdAssets, ec))
+                assetsRoot = std::filesystem::weakly_canonical(cwdAssets, ec);
+        }
+
         if (!assetsRoot.empty())
         {
             assetBrowser.Initialize(assetsRoot);
