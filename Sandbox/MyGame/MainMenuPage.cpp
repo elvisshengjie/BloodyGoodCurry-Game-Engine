@@ -147,11 +147,11 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
         if (render->IsTextReadyHint()) {
             render->GetTextHint().RenderText("HOW TO PLAY", textX, textY, textScale, textColor);
             textY -= lineHeight;
-            render->GetTextHint().RenderText("- Move with WASD or Arrow Keys", textX, textY, textScale, textColor);
+            render->GetTextHint().RenderText("- Move with WASD Keys", textX, textY, textScale, textColor);
             textY -= lineHeight;
-            render->GetTextHint().RenderText("- Left Click to interact with menus", textX, textY, textScale, textColor);
+            render->GetTextHint().RenderText("- Left Click for melee attack", textX, textY, textScale, textColor);
             textY -= lineHeight;
-            render->GetTextHint().RenderText("- Watch for objectives shown on screen", textX, textY, textScale, textColor);
+            render->GetTextHint().RenderText("- Right Click for range attack", textX, textY, textScale, textColor);
             textY -= lineHeight;
             render->GetTextHint().RenderText("- Pause anytime to adjust settings", textX, textY, textScale, textColor);
         }
