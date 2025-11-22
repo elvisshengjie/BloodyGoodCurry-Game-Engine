@@ -56,6 +56,10 @@ namespace Framework {
         if (auto* e = FACTORY->CreateTemplate(resolveData("enemy.json")))
             master_copies["Enemy"].reset(e);
 
+        if (auto* e2 = FACTORY->CreateTemplate(resolveData("enemy2.json")))
+            master_copies["Enemy2"].reset(e2);
+
+
         if (auto* p = FACTORY->CreateTemplate(resolveData("player.json"))) {
             master_copies["Player"].reset(p);
         }

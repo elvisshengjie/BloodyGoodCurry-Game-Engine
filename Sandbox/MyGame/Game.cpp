@@ -223,13 +223,7 @@ namespace mygame {
 
     void EditorStopSimulation()
     {
-        if (!gLogicSystem)
-        {
-            editorSimulationRunning = false;
-            return;
-        }
 
-        gLogicSystem->ReloadLevel();
         editorSimulationRunning = false;
     }
 
