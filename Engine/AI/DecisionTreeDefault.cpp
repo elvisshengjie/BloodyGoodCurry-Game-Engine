@@ -454,6 +454,19 @@ namespace Framework
         if (!enemyDecisionTree)
             return;
 
+        // If the enemy is dead, avoid running the decision tree so death animations are not overridden.
+        if (auto* health = enemy->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
+        {
+            if (health->enemyHealth <= 0)
+            {
+                if (auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent))
+                {
+                    rb->velX = 0.0f;
+                    rb->velY = 0.0f;
+                }
+                return;
+            }
+        }
         // Lazy initialization of the decision tree
         if (!enemyDecisionTree->tree)
         {
