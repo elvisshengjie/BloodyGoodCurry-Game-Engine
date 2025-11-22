@@ -1,7 +1,5 @@
 /*********************************************************************************************
  \file      UndoStack.cpp
- \par       SofaSpuds
- \author    ChatGPT (OpenAI)
  \brief     Implementation of the editor undo system.
 *********************************************************************************************/
 
@@ -72,6 +70,8 @@ namespace mygame
                     {
                         rc->w = state.width;
                         rc->h = state.height;
+                        // NEW: Restore Color
+                        rc->r = state.r; rc->g = state.g; rc->b = state.b; rc->a = state.a;
                     }
                 }
 
@@ -81,6 +81,8 @@ namespace mygame
                         Framework::ComponentTypeId::CT_CircleRenderComponent))
                     {
                         cc->radius = state.radius;
+                        // NEW: Restore Color
+                        cc->r = state.r; cc->g = state.g; cc->b = state.b; cc->a = state.a;
                     }
                 }
             }
@@ -105,6 +107,8 @@ namespace mygame
                 state.hasRect = true;
                 state.width = rc->w;
                 state.height = rc->h;
+                // NEW: Capture Color
+                state.r = rc->r; state.g = rc->g; state.b = rc->b; state.a = rc->a;
             }
 
             if (auto* cc = object.GetComponentType<Framework::CircleRenderComponent>(
@@ -112,6 +116,8 @@ namespace mygame
             {
                 state.hasCircle = true;
                 state.radius = cc->radius;
+                // NEW: Capture Color (Circle takes precedence if both exist)
+                state.r = cc->r; state.g = cc->g; state.b = cc->b; state.a = cc->a;
             }
 
             return state;
@@ -152,6 +158,10 @@ namespace mygame
             action.kind = UndoKind::Deleted;
             action.objectId = object.GetId();
             action.snapshot = Framework::FACTORY->SnapshotGameObject(object);
+
+            // NEW: Manually capture the exact state (pos, size, color) right now
+            action.before = CaptureTransformSnapshot(object);
+
             PushAction(std::move(action));
         }
 
@@ -171,7 +181,6 @@ namespace mygame
             {
             case UndoKind::Transform:
             {
-                // Undo a transform: restore the "before" transform state
                 Framework::GOC* obj =
                     Framework::FACTORY->GetObjectWithId(action.objectId);
                 if (obj)
@@ -184,7 +193,6 @@ namespace mygame
 
             case UndoKind::Created:
             {
-                // Undo a creation: destroy the object we created.
                 Framework::GOC* obj =
                     Framework::FACTORY->GetObjectWithId(action.objectId);
                 if (obj)
@@ -207,7 +215,13 @@ namespace mygame
                     if (restored)
                     {
                         mygame::SetSelectedObjectId(restored->GetId());
+
+                        // NEW: Force-apply the state we captured (Pos, Size, Color)
+                        // This overwrites any default values the Prefab might have loaded with.
+                        ApplyTransformSnapshot(*restored, action.before);
+
                         undoApplied = true;
+                        requiresFactorySweep = true;
                     }
                 }
                 break;
@@ -217,13 +231,10 @@ namespace mygame
             if (!undoApplied)
                 return false;
 
-            // Only drop the action if it actually did something.
             gUndoStack.pop_back();
 
             if (requiresFactorySweep)
             {
-                // Clean up any deferred-destroyed objects immediately so IDs/layers
-                // stay consistent with the editor view.
                 Framework::FACTORY->Update(0.0f);
             }
 
