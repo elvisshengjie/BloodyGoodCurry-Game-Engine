@@ -77,25 +77,25 @@ void MainMenuPage::Init(int screenW, int screenH)
     // --- Buttons ---
     const std::string startBtnPath =
         Framework::ResolveAssetPath("Textures/UI/Start Menu/Button_Start.PNG").string();
-    startBtnIdleTex = resolveTexture({ "menu_start_btn", "start_btn", "start" },
+    startBtnIdleTex = resolveTexture({ "menu_start_btn_startmenu", "menu_start_btn", "start_btn", "start" },
         startBtnPath.c_str());
     startBtnHoverTex = startBtnIdleTex;
 
     const std::string optionsBtnPath =
         Framework::ResolveAssetPath("Textures/UI/Start Menu/Button_Options.PNG").string();
-    optionsBtnIdleTex = resolveTexture({ "menu_options_btn", "options_btn", "options" },
+    optionsBtnIdleTex = resolveTexture({ "menu_options_btn_startmenu", "menu_options_btn", "options_btn", "options" },
         optionsBtnPath.c_str());
     optionsBtnHoverTex = optionsBtnIdleTex;
 
     const std::string howToBtnPath =
         Framework::ResolveAssetPath("Textures/UI/Start Menu/Button_How To Play.png").string();
-    howToBtnIdleTex = resolveTexture({ "menu_howto_btn", "howto_btn", "how_to_play" },
+    howToBtnIdleTex = resolveTexture({ "menu_howto_btn_startmenu", "menu_howto_btn", "howto_btn", "how_to_play" },
         howToBtnPath.c_str());
     howToBtnHoverTex = howToBtnIdleTex;
 
     const std::string exitBtnPath =
         Framework::ResolveAssetPath("Textures/UI/Start Menu/Button_Quit.PNG").string();
-    exitBtnIdleTex = resolveTexture({ "menu_exit_btn", "exit_btn", "exit" },
+    exitBtnIdleTex = resolveTexture({ "menu_exit_btn_startmenu", "menu_exit_btn", "exit_btn", "exit" },
         exitBtnPath.c_str());
     exitBtnHoverTex = exitBtnIdleTex;
 
