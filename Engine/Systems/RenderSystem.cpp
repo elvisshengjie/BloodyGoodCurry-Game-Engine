@@ -60,6 +60,7 @@
 #include "Debug/AudioImGui.h"
 #include "Debug/UndoStack.h"
 #include "Debug/Inspector.h"
+#include "Debug/EditorGizmo.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
 #include <glm/gtc/matrix_transform.hpp>
@@ -494,25 +495,39 @@ namespace Framework {
             // Keep state accurate so the next editor activation treats F as a fresh press.
             editorFrameHeld = glfwGetKey(native, GLFW_KEY_F) == GLFW_PRESS;
         }
-        if (showEditor && mygame::HasSelectedObject())
+        if (showEditor)
         {
-            if (handleToggle(GLFW_KEY_DELETE, deleteKeyHeld) && !io.WantCaptureKeyboard)
+            if (handleToggle(GLFW_KEY_T, translateKeyHeld) && !io.WantCaptureKeyboard)
+                editor::SetCurrentTransformMode(editor::EditorTransformMode::Translate);
+            if (handleToggle(GLFW_KEY_R, rotateKeyHeld) && !io.WantCaptureKeyboard)
+                editor::SetCurrentTransformMode(editor::EditorTransformMode::Rotate);
+            if (handleToggle(GLFW_KEY_S, scaleKeyHeld) && !io.WantCaptureKeyboard)
+                editor::SetCurrentTransformMode(editor::EditorTransformMode::Scale);
+
+            if (mygame::HasSelectedObject())
             {
-                Framework::GOCId selectedId = mygame::GetSelectedObjectId();
-                if (FACTORY)
+                if (handleToggle(GLFW_KEY_DELETE, deleteKeyHeld) && !io.WantCaptureKeyboard)
                 {
-                    if (auto* selected = FACTORY->GetObjectWithId(selectedId))
+                    Framework::GOCId selectedId = mygame::GetSelectedObjectId();
+                    if (FACTORY)
                     {
-                        mygame::editor::RecordObjectDeleted(*selected);
-                        FACTORY->Destroy(selected);
+                        if (auto* selected = FACTORY->GetObjectWithId(selectedId))
+                        {
+                            mygame::editor::RecordObjectDeleted(*selected);
+                            FACTORY->Destroy(selected);
+                        }
                     }
+                    mygame::ClearSelection();
                 }
-                mygame::ClearSelection();
+                
             }
         }
         else
         {
             deleteKeyHeld = glfwGetKey(native, GLFW_KEY_DELETE) == GLFW_PRESS;
+            translateKeyHeld = glfwGetKey(native, GLFW_KEY_T) == GLFW_PRESS;
+            rotateKeyHeld = glfwGetKey(native, GLFW_KEY_R) == GLFW_PRESS;
+            scaleKeyHeld = glfwGetKey(native, GLFW_KEY_S) == GLFW_PRESS;
         }
     }
 
@@ -536,6 +551,16 @@ namespace Framework {
             draggingSelection = false;
             return;
         }
+#if defined(_DEBUG) || defined(EDITOR)
+        
+        if (Framework::editor::IsGizmoActive())
+        {
+            leftMouseDownPrev = glfwGetMouseButton(window->raw(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+            draggingSelection = false;
+            return;
+        }
+#endif
+
         GLFWwindow* native = window->raw();
         if (!native)
         {
@@ -880,13 +905,14 @@ namespace Framework {
         if (auto* circle = obj->GetComponentType<Framework::CircleRenderComponent>(
             Framework::ComponentTypeId::CT_CircleRenderComponent))
         {
-            extent = std::max(extent, circle->radius);
+            const float scaledRadius = circle->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+            extent = std::max(extent, scaledRadius);
         }
 
         if (auto* rect = obj->GetComponentType<Framework::RenderComponent>(
             Framework::ComponentTypeId::CT_RenderComponent))
         {
-            extent = std::max(extent, std::max(rect->w, rect->h) * 0.5f);
+            extent = std::max(extent, std::max(std::fabs(rect->w * tr->scaleX), std::fabs(rect->h * tr->scaleY)) * 0.5f);
         }
 
         const float padding = 0.35f;
@@ -931,19 +957,19 @@ namespace Framework {
             if (auto* circle = obj->GetComponentType<Framework::CircleRenderComponent>(
                 Framework::ComponentTypeId::CT_CircleRenderComponent))
             {
-                const float radius = circle->radius;
+                const float radius = circle->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
                 if (radius > 0.0f)
                     contains = (distanceSq <= radius * radius);
             }
             else
             {
-                float width = 1.0f;
-                float height = 1.0f;
+                float width = std::max(1.0f, std::fabs(tr->scaleX));
+                float height = std::max(1.0f, std::fabs(tr->scaleY));
                 if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                     Framework::ComponentTypeId::CT_RenderComponent))
                 {
-                    width = rc->w;
-                    height = rc->h;
+                    width = rc->w * tr->scaleX;
+                    height = rc->h * tr->scaleY;
                 }
                 else if (!obj->GetComponentType<Framework::SpriteComponent>(
                     Framework::ComponentTypeId::CT_SpriteComponent))
@@ -1485,10 +1511,14 @@ namespace Framework {
             gfx::Graphics::resetViewProjection();
 
             const bool usingEditorCamera = ShouldUseEditorCamera();
+            glm::mat4 activeView(1.0f);
+            glm::mat4 activeProj(1.0f);
 
             if (usingEditorCamera)
             {
-                gfx::Graphics::setViewProjection(editorCamera.ViewMatrix(), editorCamera.ProjectionMatrix());
+                activeView = editorCamera.ViewMatrix();
+                activeProj = editorCamera.ProjectionMatrix();
+                gfx::Graphics::setViewProjection(activeView, activeProj);
             }
             else if (cameraEnabled)
             {
@@ -1507,7 +1537,9 @@ namespace Framework {
                 }
 
                 // Submit this frame's View and Projection so picking uses the latest VP.
-                gfx::Graphics::setViewProjection(camera.ViewMatrix(), camera.ProjectionMatrix());
+                activeView = camera.ViewMatrix();
+                activeProj = camera.ProjectionMatrix();
+                gfx::Graphics::setViewProjection(activeView, activeProj);
             }
 
             // Now handle picking with the correct (current) camera matrices.
@@ -1695,7 +1727,7 @@ namespace Framework {
                         glm::mat4 model(1.0f);
                         model = glm::translate(model, glm::vec3(tr->x, tr->y, 0.0f));
                         model = glm::rotate(model, tr->rot, glm::vec3(0, 0, 1));
-                        model = glm::scale(model, glm::vec3(sx, sy, 1.0f));
+                        model = glm::scale(model, glm::vec3(sx * tr->scaleX, sy * tr->scaleY, 1.0f));
                         instance.model = model;
                         instance.tint = glm::vec4(r, g, b, a);
                         instance.uv = uvRect;
@@ -1779,17 +1811,18 @@ namespace Framework {
                         rectTex = Resource_Manager::getTexture(rc->texture_key);
                         rc->texture_id = rectTex;
                     }
-
+                    const float scaledW = rc->w * tr->scaleX;
+                    const float scaledH = rc->h * tr->scaleY;
                     if (rectTex)
                     {
                         gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
-                            rc->w, rc->h,
+                            scaledW, scaledH,
                             rc->r, rc->g, rc->b, rc->a);
                     }
                     else
                     {
                         gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
-                            rc->w, rc->h,
+                            scaledW, scaledH,
                             rc->r, rc->g, rc->b, rc->a);
                     }
                 }
@@ -1808,7 +1841,8 @@ namespace Framework {
                         Framework::ComponentTypeId::CT_CircleRenderComponent);
                     if (!tr || !cc) continue;
 
-                    gfx::Graphics::renderCircle(tr->x, tr->y, cc->radius, cc->r, cc->g, cc->b, cc->a);
+                    const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                    gfx::Graphics::renderCircle(tr->x, tr->y, scaledRadius, cc->r, cc->g, cc->b, cc->a);
                 }
 
                 // Pass 4: Hover/Selection highlight outlines (editor)
@@ -1845,8 +1879,8 @@ namespace Framework {
                             if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
                                 Framework::ComponentTypeId::CT_RenderComponent))
                             {
-                                float w = std::abs(rc->w);
-                                float h = std::abs(rc->h);
+                                float w = std::abs(rc->w * tr->scaleX);
+                                float h = std::abs(rc->h * tr->scaleY);
                                 if (w <= 0.f) w = 1.f;
                                 if (h <= 0.f) h = 1.f;
                                 drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
@@ -1855,12 +1889,15 @@ namespace Framework {
                                 Framework::ComponentTypeId::CT_SpriteComponent))
                             {
                                 // Sprites use RenderComponent for size in this engine; if missing, give a safe default box
-                                drawOutline(tr->x, tr->y, tr->rot, 1.f, 1.f, isSelected);
+                                const float w = std::max(0.1f, std::fabs(tr->scaleX));
+                                const float h = std::max(0.1f, std::fabs(tr->scaleY));
+                                drawOutline(tr->x, tr->y, tr->rot, w, h, isSelected);
                             }
                             else if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
                                 Framework::ComponentTypeId::CT_CircleRenderComponent))
                             {
-                                const float d = std::max(0.1f, cc->radius * 2.f);
+                                const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                                const float d = std::max(0.1f, scaledRadius * 2.f);
                                 drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
                             }
                         }
@@ -1905,6 +1942,19 @@ namespace Framework {
                             }
                         }
                     }
+                }
+            }
+            if (showEditor)
+            {
+                if (const ImGuiViewport* mainViewport = ImGui::GetMainViewport())
+                {
+                    editor::ViewportRect gizmoRect{};
+                    gizmoRect.x = mainViewport->WorkPos.x + static_cast<float>(gameViewport.x);
+                    gizmoRect.y = mainViewport->WorkPos.y + (mainViewport->WorkSize.y - static_cast<float>(gameViewport.y + gameViewport.height));
+                    gizmoRect.width = static_cast<float>(gameViewport.width);
+                    gizmoRect.height = static_cast<float>(gameViewport.height);
+
+                    editor::RenderTransformGizmoForSelection(activeView, activeProj, gizmoRect);
                 }
             }
 
