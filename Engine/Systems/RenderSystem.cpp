@@ -993,6 +993,31 @@ namespace Framework {
         if (fullWidth <= 0 || fullHeight <= 0)
             return;
 
+
+        // When in fullscreen with the editor hidden, use the entire window for the game.
+        if (window->IsFullscreen() && !showEditor)
+        {
+            gameViewport = { 0, 0, fullWidth, fullHeight };
+
+            screenW = gameViewport.width;
+            screenH = gameViewport.height;
+
+            if (textReadyTitle) textTitle.setViewport(screenW, screenH);
+            if (textReadyHint)  textHint.setViewport(screenW, screenH);
+
+            if (gameViewport.width > 0 && gameViewport.height > 0)
+            {
+                camera.SetViewportSize(gameViewport.width, gameViewport.height);
+                editorCamera.SetViewportSize(gameViewport.width, gameViewport.height);
+            }
+
+            camera.SetViewHeight(cameraViewHeight);
+            editorCamera.SetViewHeight(editorCameraViewHeight);
+
+            glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
+            return;
+        }
+
         const float minSplit = 0.3f;
         const float maxSplit = 0.7f;
         editorSplitRatio = std::clamp(editorSplitRatio, minSplit, maxSplit);
@@ -1392,7 +1417,15 @@ namespace Framework {
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);
     }
-
+    /*************************************************************************************
+   \brief  Handle fullscreen/editor shortcut keys when only menu UI is active.
+   \note   Provides F11 support for main/pause menus that bypass RenderSystem::draw().
+    *************************************************************************************/
+    void RenderSystem::HandleMenuShortcuts()
+    {
+        HandleShortcuts();
+        UpdateGameViewport();
+    }
     /*************************************************************************************
       \brief  Prepare GL state for drawing the main menu pages (screen-space).
       \note   Uses full-window viewport and identity VP so UI is not camera-affected.
