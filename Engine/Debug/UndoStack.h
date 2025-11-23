@@ -6,14 +6,15 @@
 #pragma once
 
 #include <cstddef>
-#include "Factory/Factory.h"   // brings in Framework::GOC, Framework::GOCId, Framework::json
+#include <string> // Required for textureKey
+#include "Factory/Factory.h"
 
 namespace mygame
 {
     namespace editor
     {
         /**
-         * \brief Minimal snapshot of an object's spatial data used for cheap transform undo.
+         * \brief Minimal snapshot of an object's spatial/visual data used for cheap transform undo.
          */
         struct TransformSnapshot
         {
@@ -29,52 +30,27 @@ namespace mygame
             bool  hasCircle = false;
             float radius = 0.0f;
 
-            // NEW: Add color storage to restore visual state
+            // Visual State: Color (for Render/Circle)
             float r = 1.0f;
             float g = 1.0f;
             float b = 1.0f;
             float a = 1.0f;
+
+            // Visual State: Texture (for Sprite/Render)
+            std::string textureKey; // <--- ADDED
+
+            // Visual State: Animation
+            bool hasAnim = false;
+            int  animIndex = -1; // -1 means no active animation <--- ADDED
         };
 
-        /**
-         * \brief Capture the current transform/render/circle data from an object.
-         */
         TransformSnapshot CaptureTransformSnapshot(const Framework::GOC& object);
-
-        /**
-         * \brief Record a before/after transform change into the undo stack.
-         */
-        void RecordTransformChange(const Framework::GOC& object,
-            const TransformSnapshot& before);
-
-        /**
-         * \brief Record that an object was created (so undo will delete it).
-         */
+        void RecordTransformChange(const Framework::GOC& object, const TransformSnapshot& before);
         void RecordObjectCreated(const Framework::GOC& object);
-
-        /**
-         * \brief Record that an object is about to be deleted (so undo will resurrect it).
-         */
         void RecordObjectDeleted(const Framework::GOC& object);
-
-        /**
-         * \brief Undo the most recent recorded editor action.
-         */
         bool UndoLastAction();
-
-        /**
-         * \brief Query if there is at least one undoable action.
-         */
         bool CanUndo();
-
-        /**
-         * \brief Current number of stored undo steps.
-         */
         std::size_t StackDepth();
-
-        /**
-         * \brief Maximum number of undo steps retained.
-         */
         std::size_t StackCapacity();
     }
 }
