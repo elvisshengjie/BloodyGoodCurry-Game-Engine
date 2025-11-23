@@ -48,7 +48,16 @@
       },
       {
         "Components": {
-          "AudioComponent": {},
+         "AudioComponent":{
+            "sounds": 
+            {
+              "footsteps": { "id": "footsteps", "loop": true },
+              "Slash1": { "id": "Slash1", "loop": false },
+              "GrappleShoot1": { "id": "GrappleShoot1", "loop": false }
+            },
+            "volume": 1.0,
+            "playing": 0
+          },
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
             "height": 0.15000000596046448,
@@ -269,7 +278,7 @@
                 },
                 "currentFrame": 0,
                 "name": "slashattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/SlashAttack_Sprite.png",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
                 "textureKey": "water_slashattack"
               },
               {
@@ -381,7 +390,7 @@
                 },
                 "currentFrame": 0,
                 "name": "slashattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/SlashAttack_Sprite.png",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
                 "textureKey": "water_slashattack"
               },
               {
