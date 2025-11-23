@@ -405,7 +405,7 @@ namespace Framework
                             dy /= len;
                         }
 
-                        const float knockStrength = 5.0f;
+                        const float knockStrength = 3.0f;
                         targetRb->velX += dx * knockStrength;
                         targetRb->velY += dy * knockStrength * 0.4f;
                         targetRb->knockbackTime = 0.2f;
