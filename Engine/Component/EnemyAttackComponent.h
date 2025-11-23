@@ -143,7 +143,7 @@ namespace Framework
                 hitbox->active = true;
                 hitbox->spawnX = tr->x;
                 hitbox->spawnY = tr->y;
-                hitbox->duration = 0.15f;
+                hitbox->duration = 0.92f;
                 std::cout << "Enemy attacked! HitBox active at ("
                     << hitbox->spawnX << ", " << hitbox->spawnY << ")\n";
             }
@@ -155,7 +155,7 @@ namespace Framework
                 if (hitbox->duration <= 0.0f)
                 {
                     hitbox->DeactivateHurtBox();
-                    hitbox->duration = 0.1f;
+                    hitbox->duration = 0.92f;
                 }
             }
         }

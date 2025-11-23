@@ -347,7 +347,6 @@ namespace Framework
                     float spawnX = tr->x + (direction * hbWidth * 0.25f);
                     float spawnY = tr->y; // centered vertically
 
-                    attack->hitbox->duration = baseDuration;
 
                     logic->hitBoxSystem->SpawnHitBox(
                         enemy,
