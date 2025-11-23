@@ -383,6 +383,7 @@ namespace Framework
                     if (health)
                     {
                         health->TakeDamage(static_cast<int>(HB->damage));
+                        validTargetHit = true;
                     }
                 }
 
@@ -405,8 +406,9 @@ namespace Framework
                         }
 
                         const float knockStrength = 5.0f;
-                        targetRb->velX = dx * knockStrength;
-                        targetRb->velY = dy * knockStrength * 0.4f;
+                        targetRb->velX += dx * knockStrength;
+                        targetRb->velY += dy * knockStrength * 0.4f;
+                        targetRb->knockbackTime = 0.2f;
                     }
 
                     // Trigger knockback animation on the enemy if it exists.
