@@ -993,9 +993,10 @@ namespace Framework {
         if (fullWidth <= 0 || fullHeight <= 0)
             return;
 
-
-        // When in fullscreen with the editor hidden, use the entire window for the game.
-        if (window->IsFullscreen() && !showEditor)
+        // When the editor is hidden (e.g., main menu or play mode), use the full window
+           // regardless of fullscreen/windowed state. This keeps UI hit-tests aligned with
+           // rendered buttons even when the viewport would otherwise be letterboxed.
+        if (!showEditor)
         {
             gameViewport = { 0, 0, fullWidth, fullHeight };
 
