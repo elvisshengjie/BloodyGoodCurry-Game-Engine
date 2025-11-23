@@ -1265,7 +1265,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Bucket.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bucket.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1289,7 +1289,7 @@
             "w": -0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Bucket.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bucket.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1313,7 +1313,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_01.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_01.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1337,7 +1337,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1361,7 +1361,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Bin.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bin.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1385,7 +1385,7 @@
             "w": 0.699999988079071
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1409,7 +1409,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_01.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_01.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1433,7 +1433,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1457,7 +1457,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1481,7 +1481,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_01.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_01.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1505,7 +1505,7 @@
             "w": -0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Bin.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bin.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1529,7 +1529,7 @@
             "w": -0.699999988079071
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1549,7 +1549,7 @@
             "h": 0.5,
             "layer": 0,
             "r": 1.0,
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Tray_Return.png",
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Tray_Return.png",
             "visible": true,
             "w": 0.5
           },
@@ -1577,7 +1577,7 @@
             "h": 0.5,
             "layer": 0,
             "r": 1.0,
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Tray_Return.png",
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Tray_Return.png",
             "visible": true,
             "w": 0.5
           },
