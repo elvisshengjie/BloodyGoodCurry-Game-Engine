@@ -1647,7 +1647,16 @@
       },
       {
         "Components": {
-          "AudioComponent": {},
+          "AudioComponent": {
+            "sounds": 
+            {
+              "footsteps": { "id": "footsteps", "loop": true },
+              "Slash1": { "id": "Slash1", "loop": false },
+              "GrappleShoot1": { "id": "GrappleShoot1", "loop": false }
+            },
+            "volume": 1.0,
+            "playing": 0
+            },
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
             "height": 0.15000000596046448,
