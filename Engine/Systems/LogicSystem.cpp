@@ -339,6 +339,8 @@ namespace Framework {
         if (!IsAlive(collisionTarget))
             collisionTarget = nullptr;
 
+        gateController.SetPlayer(player);
+
         auto nameEqualsIgnoreCase = [](const std::string& lhs, std::string_view rhs)
             {
                 if (lhs.size() != rhs.size())
@@ -364,6 +366,8 @@ namespace Framework {
                 }
             }
         }
+
+        gateController.RefreshGateReference(levelObjects);
 
         if (player && !captured)
         {
@@ -481,6 +485,7 @@ namespace Framework {
 
         RegisterComponent(AudioComponent);
         FACTORY = factory.get();
+        gateController.SetFactory(factory.get());
         LoadPrefabs();
 
  
@@ -931,6 +936,13 @@ namespace Framework {
             // Finally, advance the main character animation (idle/run/attack combo)
             UpdateAnimation(dt, wantRun);
 
+            gateController.UpdateGateUnlockState();
+            if (gateController.ShouldTransitionOnPlayerContact(pendingLevelTransition))
+            {
+                pendingLevelTransition = true;
+                LoadLevelAndResetState(resolveData("RealLevel1.json"));
+            }
+
             // Collision debug info (player vs a target rect)
             collisionInfo.playerValid = false;
             collisionInfo.targetValid = false;
@@ -956,19 +968,12 @@ namespace Framework {
             }, "LogicSystem::Update");
     }
 
-    /*****************************************************************************************
-      \brief Reload the current level (or a default one) and reset cached state.
-             - Destroys all live objects, recreates the level, clears cached pointers/state,
-               then refreshes references and caches player size again.
-    *****************************************************************************************/
-    void LogicSystem::ReloadLevel()
+ 
+    void LogicSystem::LoadLevelAndResetState(const std::filesystem::path& levelPath)
     {
         if (!factory)
             return;
 
-        std::filesystem::path levelPath = factory->LastLevelPath();
-        if (levelPath.empty())
-            levelPath = resolveData("level.json");
 
 
         for (auto const& [id, obj] : factory->Objects())
@@ -984,6 +989,7 @@ namespace Framework {
         player = nullptr;
         collisionTarget = nullptr;
         scaleStates.clear();
+        pendingLevelTransition = false;
         captured = false;
         rectScale = 1.f;
         rectBaseW = 0.5f;
@@ -995,9 +1001,28 @@ namespace Framework {
         comboStep = 0;
         animInfo = AnimationInfo{};
         collisionInfo = CollisionInfo{};
+        gateController.Reset();
+        gateController.SetPlayer(nullptr);
 
         RefreshLevelReferences();
         CachePlayerSize();
+    }
+
+    /*****************************************************************************************
+   \brief Reload the current level (or a default one) and reset cached state.
+          - Destroys all live objects, recreates the level, clears cached pointers/state,
+            then refreshes references and caches player size again.
+ *****************************************************************************************/
+    void LogicSystem::ReloadLevel()
+    {
+        if (!factory)
+            return;
+
+        std::filesystem::path levelPath = factory->LastLevelPath();
+        if (levelPath.empty())
+            levelPath = resolveData("level.json");
+
+        LoadLevelAndResetState(levelPath);
     }
 
     /*****************************************************************************************
@@ -1010,6 +1035,8 @@ namespace Framework {
         levelObjects.clear();
         collisionTarget = nullptr;
         player = nullptr;
+        gateController.Reset();
+        gateController.SetFactory(nullptr);
 
         if (factory) {
             factory->Shutdown();

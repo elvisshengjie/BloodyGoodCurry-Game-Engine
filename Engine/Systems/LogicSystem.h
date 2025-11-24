@@ -31,6 +31,7 @@
 #include "Component/EnemyTypeComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include <Serialization/JsonSerialization.h>
+#include "Logic/GateController.h"
 #include "InputSystem.h"
 #include "HitBoxSystem.h"
 #include "Config/WindowConfig.h"
@@ -158,6 +159,7 @@ namespace Framework {
         bool  IsAlive(GOC* obj) const;
         void  CachePlayerSize();
         void  RefreshLevelReferences();
+        void  LoadLevelAndResetState(const std::filesystem::path& levelPath);
         void  UpdateAnimation(float dt, bool wantRun);
 
         gfx::Window* window;
@@ -168,6 +170,7 @@ namespace Framework {
 
         GOC* player{ nullptr };
         GOC* collisionTarget{ nullptr };
+        GateController gateController;
 
         float rectScale{ 1.f };
         float rectBaseW{ 0.5f };
@@ -192,6 +195,7 @@ namespace Framework {
 
         bool                         captured{ false };
         bool                         crashTestLatched{ false };
+        bool                         pendingLevelTransition{ false };
         std::unique_ptr<CrashLogger> crashLogger;
 
         std::unordered_map<GOCId, ScaleState> scaleStates;
