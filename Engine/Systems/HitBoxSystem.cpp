@@ -386,6 +386,15 @@ namespace Framework
                             if (HB->damage > 0.0f)
                                 SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
                         }
+                        validTargetHit = true;
+                    }
+                    else if (health)
+                    {
+                        // Fall back to allowing hits on enemies without an EnemyTypeComponent.
+                        // This ensures VFX still plays for generic enemies.
+                        health->TakeDamage(static_cast<int>(HB->damage));
+                        if (HB->damage > 0.0f)
+                            SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
 
                         validTargetHit = true;
                     }
