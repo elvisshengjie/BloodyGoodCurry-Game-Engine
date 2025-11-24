@@ -3,7 +3,7 @@
  \brief     Implementation of the editor undo system.
 *********************************************************************************************/
 
-
+#include "Debug/UndoStack.h"
 #include <vector>
 #include <algorithm>
 
@@ -19,7 +19,7 @@
 #include "Resource_Manager/Resource_Manager.h"
 #include "Factory/Factory.h"
 #include "Debug/Selection.h"
-#include "Debug/UndoStack.h"
+
 namespace mygame
 {
     namespace editor
@@ -93,21 +93,20 @@ namespace mygame
                     if (auto* tr = object.GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent))
                     {
-                        // --- MAKE SURE THIS LINE IS HERE ---
-                        tr->x = state.x;
-                        tr->y = state.y;
-                        tr->rot = state.rot; // <--- CRITICAL: Restores rotation
-                        tr->scaleX = state.scaleX;
-                        tr->scaleY = state.scaleY;
-                        // -----------------------------------
+                        tr->x = state.x; tr->y = state.y; tr->rot = state.rot;
+                        tr->scaleX = state.scaleX; tr->scaleY = state.scaleY;
 
-                        // Physics Fix (Ensures object stops moving after undo)
+                     
+                        // Your RigidBodyComponent uses velX/velY, not a vector or pos struct.
                         if (auto* rb = object.GetComponentType<Framework::RigidBodyComponent>(
                             Framework::ComponentTypeId::CT_RigidBodyComponent))
                         {
+
+                            // Stop the object from moving so it stays at the undone position
                             rb->velX = 0.0f;
                             rb->velY = 0.0f;
                         }
+                        // -----------------------------
                     }
                 }
 
