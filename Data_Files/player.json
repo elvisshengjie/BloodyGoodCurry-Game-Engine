@@ -115,7 +115,7 @@
             "config": {
               "columns": 4,
               "endFrame": 3,
-              "fps": 10.0,
+              "fps": 5.0,
               "loop": false,
               "rows": 1,
               "startFrame": 0,
