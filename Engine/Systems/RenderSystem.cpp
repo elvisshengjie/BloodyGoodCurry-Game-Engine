@@ -380,6 +380,9 @@ namespace Framework {
             return attackTex[1] ? attackTex[1] : idleTex;
         case Mode::Attack3:
             return attackTex[2] ? attackTex[2] : idleTex;
+        case Mode::Knockback:
+        case Mode::Death:
+            return idleTex ? idleTex : playerTex;
         case Mode::Idle:
         default:
             return idleTex ? idleTex : playerTex;

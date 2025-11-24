@@ -67,11 +67,13 @@ namespace Framework {
     {
         switch (state)
         {
-        case AnimState::Idle:    return idleConfig;
-        case AnimState::Run:     return runConfig;
-        case AnimState::Attack1: return attackConfigs[0];
-        case AnimState::Attack2: return attackConfigs[1];
-        case AnimState::Attack3: return attackConfigs[2];
+        case AnimState::Idle:      return idleConfig;
+        case AnimState::Run:       return runConfig;
+        case AnimState::Attack1:   return attackConfigs[0];
+        case AnimState::Attack2:   return attackConfigs[1];
+        case AnimState::Attack3:   return attackConfigs[2];
+        case AnimState::Knockback: return knockbackConfig;
+        case AnimState::Death:     return deathConfig;
         }
         // Fallback
         return idleConfig;
@@ -148,10 +150,12 @@ namespace Framework {
     {
         switch (state)
         {
-        case AnimState::Run:     return AnimationInfo::Mode::Run;
-        case AnimState::Attack1: return AnimationInfo::Mode::Attack1;
-        case AnimState::Attack2: return AnimationInfo::Mode::Attack2;
-        case AnimState::Attack3: return AnimationInfo::Mode::Attack3;
+        case AnimState::Run:       return AnimationInfo::Mode::Run;
+        case AnimState::Attack1:   return AnimationInfo::Mode::Attack1;
+        case AnimState::Attack2:   return AnimationInfo::Mode::Attack2;
+        case AnimState::Attack3:   return AnimationInfo::Mode::Attack3;
+        case AnimState::Knockback: return AnimationInfo::Mode::Knockback;
+        case AnimState::Death:     return AnimationInfo::Mode::Death;
         case AnimState::Idle:
         default:                 return AnimationInfo::Mode::Idle;
         }
@@ -161,10 +165,12 @@ namespace Framework {
     {
         switch (state)
         {
-        case AnimState::Run:     return "run";
-        case AnimState::Attack1: return "attack1";
-        case AnimState::Attack2: return "attack2";
-        case AnimState::Attack3: return "attack3";
+        case AnimState::Run:       return "run";
+        case AnimState::Attack1:   return "attack1";
+        case AnimState::Attack2:   return "attack2";
+        case AnimState::Attack3:   return "attack3";
+        case AnimState::Knockback: return "knockback";
+        case AnimState::Death:     return "death";
         case AnimState::Idle:
         default:                 return "idle";
         }
@@ -384,8 +390,28 @@ namespace Framework {
         {
             animComp = player->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
         }
+        auto* rb = IsAlive(player)
+            ? player->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent)
+            : nullptr;
+        auto* health = IsAlive(player)
+            ? player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent)
+            : nullptr;
+
+        if (rb && rb->knockbackTime > 0.0f)
+            rb->knockbackTime = std::max(0.0f, rb->knockbackTime - dt);
+
+        const bool playerDead = health && health->playerHealth <= 0;
+
+        if (playerDead)
+        {
+            SetAnimState(AnimState::Death);
+        }
+        else if (rb && rb->knockbackTime > 0.0f)
+        {
+            SetAnimState(AnimState::Knockback);
+        }
         // If we are in an attack animation, let it run to completion.
-        if (IsAttackState(animState))
+        else if (IsAttackState(animState))
         {
             attackTimer -= dt;
             if (attackTimer <= 0.f)
