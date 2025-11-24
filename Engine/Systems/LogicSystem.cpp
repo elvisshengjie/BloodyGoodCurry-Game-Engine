@@ -40,6 +40,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <Debug/UndoStack.h>
 
 namespace Framework {
 
@@ -769,13 +770,56 @@ namespace Framework {
             }
 
             // Rotation controls (Q/E), clamped to [-pi, +pi], R to reset.
-            if (targetTr)
+
+            if (targetTr && targetId != 0)
             {
-                if (input.IsKeyPressed(GLFW_KEY_Q)) targetTr->rot += rotSpeed * dt * accel;
-                if (input.IsKeyPressed(GLFW_KEY_E)) targetTr->rot -= rotSpeed * dt * accel;
+                // Static state to track dragging/holding
+                static bool isRotating = false;
+                static mygame::editor::TransformSnapshot rotationSnapshot;
+
+                // Check Start of Rotation (Capture State)
+                bool qPressed = input.IsKeyPressed(GLFW_KEY_Q);
+                bool ePressed = input.IsKeyPressed(GLFW_KEY_E);
+
+                if (!isRotating && (qPressed || ePressed))
+                {
+                    if (auto* obj = factory->GetObjectWithId(targetId))
+                    {
+                        rotationSnapshot = mygame::editor::CaptureTransformSnapshot(*obj);
+                        isRotating = true;
+                    }
+                }
+
+                // Apply Rotation Smoothly using IsKeyHeld (fixes lag)
+                bool qHeld = input.IsKeyHeld(GLFW_KEY_Q);
+                bool eHeld = input.IsKeyHeld(GLFW_KEY_E);
+
+                if (qHeld) targetTr->rot += rotSpeed * dt * accel;
+                if (eHeld) targetTr->rot -= rotSpeed * dt * accel;
+
+                // Clamp rotation to keep values sane
                 if (targetTr->rot > 3.14159265f)  targetTr->rot -= 6.28318530f;
                 if (targetTr->rot < -3.14159265f) targetTr->rot += 6.28318530f;
-                if (input.IsKeyPressed(GLFW_KEY_R)) targetTr->rot = 0.f;
+                // Check End of Rotation (Record Undo)
+                if (isRotating && !qHeld && !eHeld)
+                {
+                    if (auto* obj = factory->GetObjectWithId(targetId))
+                    {
+                        mygame::editor::RecordTransformChange(*obj, rotationSnapshot);
+                    }
+                    isRotating = false;
+                }
+
+                // Reset Rotation (R Key) - Now supports Undo!
+                if (input.IsKeyPressed(GLFW_KEY_R))
+                {
+                    if (auto* obj = factory->GetObjectWithId(targetId))
+                    {
+                        auto before = mygame::editor::CaptureTransformSnapshot(*obj);
+                        targetTr->rot = 0.f;
+                        mygame::editor::RecordTransformChange(*obj, before);
+                    }
+                }
             }
 
             // Scaling controls (Z/X), clamped; R resets scale and size. Works for selected object or player.

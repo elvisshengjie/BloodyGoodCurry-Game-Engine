@@ -93,11 +93,15 @@ namespace mygame
                     if (auto* tr = object.GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent))
                     {
-                        tr->x = state.x; tr->y = state.y; tr->rot = state.rot;
-                        tr->scaleX = state.scaleX; tr->scaleY = state.scaleY;
+                        // --- MAKE SURE THIS LINE IS HERE ---
+                        tr->x = state.x;
+                        tr->y = state.y;
+                        tr->rot = state.rot; 
+                        tr->scaleX = state.scaleX;
+                        tr->scaleY = state.scaleY;
+                        // -----------------------------------
 
-                     
-                        // Your RigidBodyComponent uses velX/velY, not a vector or pos struct.
+                        // Physics Fix (Ensures object stops moving after undo)
                         if (auto* rb = object.GetComponentType<Framework::RigidBodyComponent>(
                             Framework::ComponentTypeId::CT_RigidBodyComponent))
                         {
