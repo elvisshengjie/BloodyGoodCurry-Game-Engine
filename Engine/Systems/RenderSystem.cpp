@@ -480,9 +480,21 @@ namespace Framework {
 
         if (handleToggle(GLFW_KEY_F11, fullscreenToggleHeld))
         {
-            window->ToggleFullscreen();
-            screenW = window->Width();
-            screenH = window->Height();
+            // Only allow real OS fullscreen when the editor is hidden.
+            if (!showEditor)
+            {
+                window->ToggleFullscreen();
+                screenW = window->Width();
+                screenH = window->Height();
+            }
+            else
+            {
+                // Optional: instead of OS fullscreen, just maximize the game area
+                // inside the editor when F11 is pressed.
+                gameViewportFullWidth = true;
+                gameViewportFullHeight = true;
+                heightRatio = 1.0f;
+            }
         }
         if (ShouldUseEditorCamera())
         {
