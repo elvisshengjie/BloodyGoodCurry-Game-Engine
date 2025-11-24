@@ -387,6 +387,8 @@ namespace Framework
                         obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
                     if (health)
                     {
+                        if (health->isInvulnerable)
+                            continue;
                         health->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
                     }
