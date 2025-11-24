@@ -355,6 +355,12 @@ namespace Framework
                 {
                     auto* typeComp =
                         obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
+                    auto* health =
+                        obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+                    
+                    if (health && health->enemyHealth <= 0)
+                        continue;
+
                     if (typeComp)
                     {
                         bool validHit =
@@ -366,8 +372,7 @@ namespace Framework
                         if (!validHit)
                             continue;
 
-                        if (auto* health =
-                            obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
+                        if (health)
                         {
                             health->TakeDamage(static_cast<int>(HB->damage));
                         }
@@ -414,8 +419,7 @@ namespace Framework
                     // Trigger knockback animation on the enemy if it exists.
                     PlayAnimationIfAvailable(obj, "knockback");
                 }
-
-                hit = true;
+                if (validTargetHit) { hit = true; }
                 break;
             }
 
