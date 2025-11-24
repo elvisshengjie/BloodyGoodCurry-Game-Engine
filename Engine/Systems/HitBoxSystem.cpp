@@ -28,11 +28,13 @@
 #include "LogicSystem.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
+#include "Systems/VfxHelpers.h"
 
 #include <iostream>
 #include <cctype>
 #include <string_view>
 #include <cmath>
+#include <glm/vec2.hpp>
 
 namespace Framework
 {
@@ -381,6 +383,8 @@ namespace Framework
                         if (health)
                         {
                             health->TakeDamage(static_cast<int>(HB->damage));
+                            if (HB->damage > 0.0f)
+                                SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
                         }
 
                         validTargetHit = true;
