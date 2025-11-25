@@ -2011,6 +2011,8 @@
           "SpriteComponent": {
             "texture_key": "idle_sheet"
           },
+          "PlayerHUDComponent": {
+    },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
