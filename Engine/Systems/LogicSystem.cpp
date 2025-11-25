@@ -579,8 +579,12 @@ namespace Framework {
             Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png").string()
         );
         Resource_Manager::load(
+            "fire_attack",
+            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Fire Attack_Sprite.png").string()
+        );
+        Resource_Manager::load(
             "fire_projectile",
-            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Fire Projectile_Sprite.png").string()
+            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png").string()
         );
         Resource_Manager::load(
             "fire_knockback",
