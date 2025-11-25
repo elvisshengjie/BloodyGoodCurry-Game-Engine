@@ -513,6 +513,7 @@ namespace Framework {
         RegisterComponent(EnemyTypeComponent);
         RegisterComponent(AudioComponent);
         RegisterComponent(ZoomTriggerComponent);
+        RegisterComponent(PlayerHUDComponent);
         FACTORY = factory.get();
         gateController.SetFactory(factory.get());
         LoadPrefabs();
