@@ -1848,22 +1848,10 @@
       {
         "Components": {
           "AudioComponent": {
-            "sounds": {
-              "GrappleShoot1": {
-                "id": "GrappleShoot1",
-                "loop": false
-              },
-              "Slash1": {
-                "id": "Slash1",
-                "loop": false
-              },
-              "footsteps": {
-                "id": "footsteps",
-                "loop": true
-              }
-            },
-            "volume": 1.0
-          },
+              "entityType": "player",
+              "volume": 1.0
+          }
+          ,
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
             "height": 0.15000000596046448,
@@ -3489,6 +3477,11 @@
             "y": -1.1532058715820313
           }
           },
+          "AudioComponent": 
+          {
+          "entityType": "enemy",
+          "volume": 1.0
+          },
         "layer": "Default",
         "name": "Enemy"
       },
@@ -3602,6 +3595,11 @@
             "x": 1.3736717700958252,
             "y": 0.025438368320465088
           }
+        },
+        "AudioComponent": 
+        {
+          "entityType": "enemy",
+          "volume": 1.0
         },
         "layer": "Default",
         "name": "Enemy"
@@ -3717,6 +3715,11 @@
             "y": 0.025438368320465088
           }
         },
+         "AudioComponent": 
+        {
+          "entityType": "enemy",
+          "volume": 1.0
+        },
         "layer": "Default",
         "name": "FireEnemy"
       },
@@ -3831,6 +3834,11 @@
             "y": -1.1108088493347168
           }
         },
+        "AudioComponent": 
+        {
+          "entityType": "enemy",
+          "volume": 1.0
+        },
         "layer": "Default",
         "name": "FireEnemy"
       },
@@ -3944,6 +3952,11 @@
             "x": 1.9757132530212402,
             "y": 0.0
           }
+        },
+        "AudioComponent": 
+        {
+          "entityType": "enemy",
+          "volume": 1.0
         },
         "layer": "Default",
         "name": "FireEnemy"

@@ -1,4 +1,4 @@
-#include "audioSystem.h"
+﻿#include "audioSystem.h"
 #include "Core/PathUtils.h"
 #include "RenderSystem.h"
 #include <iostream>
@@ -38,22 +38,42 @@ namespace Framework {
     *****************************************************************************************/
     void AudioSystem::Initialize()
     {
-        // Initialize audio engine
+        // 1. Start audio engine
         if (!SoundManager::getInstance().initialize())
         {
-            std::cerr << "[AudioSystem] Failed to initialize SoundManager!" << std::endl; return;
+            std::cerr << "[AudioSystem] Failed to initialize SoundManager!\n";
+            return;
         }
-        
-        // Load all sounds (previously in AudioImGui)
-        Resource_Manager::loadAll(Framework::ResolveAssetPath("Audio").string());
 
-        // Set default master volume
+        // 2. Load all audio files under /Assets/Audio
+        const std::string audioPath = Framework::ResolveAssetPath("Audio").string();
+        Resource_Manager::loadAll(audioPath);
+
+        // 3. Set global master volume
         SoundManager::getInstance().setMasterVolume(0.7f);
-        std::cout << "[AudioSystem] Audio system initialized successfully.\n";
-        // Initialize ImGui for audio panel
-        SoundManager::getInstance().playSound("SoundTrackloop", true);
+
+        // 4. Initialize all AudioComponents (this is the part you asked for)
+        for (auto& [id, gocPtr] : FACTORY->Objects())
+        {
+            if (!gocPtr) continue;
+
+            GOC* goc = gocPtr.get();
+            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+
+            if (audio)
+                audio->initialize();   // <--- ⭐ IMPORTANT ⭐
+        }
+
+        // 5. Optional: Begin music loop
+        if (SoundManager::getInstance().isSoundLoaded("SoundTrackloop"))
+            SoundManager::getInstance().playSound("SoundTrackloop", true);
+
+        // 6. Debug UI
         AudioImGui::Initialize(*window);
+
+        std::cout << "[AudioSystem] Initialized successfully.\n";
     }
+
     /*****************************************************************************************
      \brief
         Updates the audio system per frame.

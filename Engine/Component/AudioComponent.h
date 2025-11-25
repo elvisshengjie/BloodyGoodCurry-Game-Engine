@@ -27,24 +27,23 @@ namespace Framework
         
         void initialize() override
         {
-            // If sounds are empty, auto-populate based on entity type
-            if (sounds.empty())
-            {
-                if (entityType == "player")
-                {
-                    sounds["footsteps"] = { "footsteps.wav", true };
-                    sounds["Slash1"] = { "Slash1.wav", false };
-                    sounds["GrappleShoot1"] = { "GrappleShoot1.wav", false };
-                }
-                else if (entityType == "enemy")
-                {
-                    sounds["GhostSounds"] = { "GhostSounds.wav", false };
-                }
+            sounds.clear();
+            playing.clear();
 
-                // Initialize playing map
-                for (auto& [action, info] : sounds)
-                    playing[action] = false;
+            if (entityType == "player")
+            {
+                sounds["footsteps"] = { "footsteps", true };
+                sounds["Slash1"] = { "Slash1", false };
+                sounds["GrappleShoot1"] = { "GrappleShoot1", false };
             }
+            else if (entityType == "enemy")
+            {
+                sounds["GhostSounds"] = { "GhostSounds", false };
+            }
+
+            // Build playing map
+            for (auto& [action, info] : sounds)
+                playing[action] = false;
         }
     
         void Play(const std::string& action)
@@ -74,6 +73,9 @@ namespace Framework
 
         void Serialize(ISerializer& s) override
         {
+            if (s.HasKey("entityType"))
+                StreamRead(s, "entityType", entityType);
+
             if (s.EnterObject("sounds"))
             {
                 for (auto& [action, info] : sounds)
@@ -89,8 +91,11 @@ namespace Framework
                 }
                 s.ExitObject();
             }
-            if (s.HasKey("volume")) StreamRead(s, "volume", volume);
+
+            if (s.HasKey("volume"))
+                StreamRead(s, "volume", volume);
         }
+
 
         std::unique_ptr<GameComponent> Clone() const override
         {
