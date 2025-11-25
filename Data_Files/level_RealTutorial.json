@@ -1104,8 +1104,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.2912499904632568,
-            "y": -2.440624713897705
+            "x": 0.38499999046325684,
+            "y": -2.549999952316284
           }
         },
         "layer": "Default",
@@ -1895,7 +1895,7 @@
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 1,
+            "activeAnimation": 0,
             "animations": [
               {
                 "config": {
