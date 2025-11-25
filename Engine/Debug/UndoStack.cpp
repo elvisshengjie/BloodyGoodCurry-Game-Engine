@@ -1,6 +1,11 @@
 /*********************************************************************************************
  \file      UndoStack.cpp
+  \par       SofaSpuds
+ \author    erika.ishii
  \brief     Implementation of the editor undo system.
+   \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 
 #include "Debug/UndoStack.h"
