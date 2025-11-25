@@ -1622,21 +1622,8 @@
       {
         "Components": {
           "AudioComponent": {
-            "sounds": {
-              "GrappleShoot1": {
-                "id": "GrappleShoot1",
-                "loop": false
-              },
-              "Slash1": {
-                "id": "Slash1",
-                "loop": false
-              },
-              "footsteps": {
-                "id": "footsteps",
-                "loop": true
-              }
-            },
-            "volume": 1.0
+              "entityType": "player",
+              "volume": 1.0
           },
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
@@ -3231,8 +3218,12 @@
             "scale_y": 1.0,
             "x": 0.503333330154419,
             "y": -0.05173689126968384
+          },
+          "AudioComponent": {
+              "entityType": "enemy",
+              "volume": 1.0
           }
-        },
+          },
         "layer": "Default",
         "name": "Enemy"
       },
