@@ -330,7 +330,7 @@ namespace Framework
 
                         // Player is alive; clear any stale death timers / flags.
                         deathTimers.erase(id);
-                        playerHealth->isDead = false;
+                        
                     }
 
                     // Keep tracking this ID.
