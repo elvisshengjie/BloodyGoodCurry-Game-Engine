@@ -412,7 +412,7 @@ namespace Framework
                                     enemy,
                                     spawnX, spawnY,
                                     dirX, dirY,
-                                    0.7f,       // Projectile speed 
+                                    0.1f,       // Projectile speed 
                                     0.3f, 0.15f, // Size
                                     static_cast<float>(attack->damage),
                                     5.0f,        // Duration
@@ -507,7 +507,7 @@ namespace Framework
 
                 // Refresh "seen player" state based on proximity
                 // Reduced detection radius so enemies don't aggro from across the arena
-                if (IsPlayerNear(enemy, 1.5f))
+                if (IsPlayerNear(enemy, 0.1f))
                 {
                     ai->hasSeenPlayer = true;
                     ai->chaseTimer = 0.0f;
