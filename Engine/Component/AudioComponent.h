@@ -30,6 +30,7 @@ namespace Framework
             sounds.clear();
             playing.clear();
 
+
             if (entityType == "player")
             {
                 sounds["footsteps"] = { "footsteps", true };
@@ -51,8 +52,6 @@ namespace Framework
             auto it = sounds.find(action);
             if (it != sounds.end() && SoundManager::getInstance().isSoundLoaded(it->second.id))
             {SoundManager::getInstance().playSound(it->second.id, volume, 1.0f, it->second.loop); playing[action] = true;}
-            else
-            {std::cout << "[AudioComponent] ERROR: Action '" << action<< "' not found in sounds map!\n";}
         }
         
         void Stop(const std::string& action)
