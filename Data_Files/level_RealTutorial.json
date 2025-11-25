@@ -584,7 +584,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 4,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -642,7 +642,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -700,7 +700,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 5,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -758,7 +758,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -816,7 +816,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 4,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -874,7 +874,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -932,7 +932,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -990,7 +990,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1048,7 +1048,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1106,7 +1106,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1164,7 +1164,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1222,7 +1222,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 5,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1808,7 +1808,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 4,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1866,7 +1866,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 4,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1924,7 +1924,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1982,7 +1982,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 4,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -2040,7 +2040,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -2098,7 +2098,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 4,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -2833,576 +2833,6 @@
       },
       {
         "Components": {
-          "EnemyAttackComponent": {
-            "attack_speed": 1.2000000476837158,
-            "damage": 1
-          },
-          "EnemyComponent": {},
-          "EnemyDecisionTreeComponent": {},
-          "EnemyHealthComponent": {
-            "enemyHealth": 2,
-            "enemyMaxhealth": 2
-          },
-          "EnemyTypeComponent": {
-            "type": "physical"
-          },
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 0,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.10000000149011612,
-            "velocity_x": -5.469721449634928e-28,
-            "velocity_y": -1.2507201874109564e-27,
-            "width": 0.10000000149011612
-          },
-          "SpriteAnimationComponent": {
-            "activeAnimation": 1,
-            "animations": [
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 3,
-                "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
-                "textureKey": "water_idle"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 4,
-                "name": "slashattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
-                "textureKey": "water_slashattack"
-              },
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 0,
-                "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
-                "textureKey": "water_knockback"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 8.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 0,
-                "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
-                "textureKey": "water_death"
-              }
-            ],
-            "fps": 6.0,
-            "frames": [],
-            "loop": true,
-            "play": true
-          },
-          "SpriteComponent": {
-            "texture_key": "water_slashattack"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.4787912368774414,
-            "y": -0.434517502784729
-          }
-        },
-        "layer": "Default",
-        "name": "Enemy"
-      },
-      {
-        "Components": {
-          "EnemyAttackComponent": {
-            "attack_speed": 1.2000000476837158,
-            "damage": 1
-          },
-          "EnemyComponent": {},
-          "EnemyDecisionTreeComponent": {},
-          "EnemyHealthComponent": {
-            "enemyHealth": 1,
-            "enemyMaxhealth": 2
-          },
-          "EnemyTypeComponent": {
-            "type": "physical"
-          },
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 0,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.10000000149011612,
-            "velocity_x": -5.487822302217251e-28,
-            "velocity_y": -1.2499278598318355e-27,
-            "width": 0.10000000149011612
-          },
-          "SpriteAnimationComponent": {
-            "activeAnimation": 1,
-            "animations": [
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 3,
-                "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
-                "textureKey": "water_idle"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 3,
-                "name": "slashattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
-                "textureKey": "water_slashattack"
-              },
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 4,
-                "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
-                "textureKey": "water_knockback"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 8.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 0,
-                "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
-                "textureKey": "water_death"
-              }
-            ],
-            "fps": 6.0,
-            "frames": [],
-            "loop": true,
-            "play": true
-          },
-          "SpriteComponent": {
-            "texture_key": "water_slashattack"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.47870928049087524,
-            "y": -0.4346567988395691
-          }
-        },
-        "layer": "Default",
-        "name": "Enemy"
-      },
-      {
-        "Components": {
-          "EnemyAttackComponent": {
-            "attack_speed": 1.2000000476837158,
-            "damage": 1
-          },
-          "EnemyComponent": {},
-          "EnemyDecisionTreeComponent": {},
-          "EnemyHealthComponent": {
-            "enemyHealth": 2,
-            "enemyMaxhealth": 2
-          },
-          "EnemyTypeComponent": {
-            "type": "physical"
-          },
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 0,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.10000000149011612,
-            "velocity_x": -5.3662696411896815e-28,
-            "velocity_y": -1.2551868041379793e-27,
-            "width": 0.10000000149011612
-          },
-          "SpriteAnimationComponent": {
-            "activeAnimation": 0,
-            "animations": [
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 0,
-                "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
-                "textureKey": "water_idle"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 10,
-                "name": "slashattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
-                "textureKey": "water_slashattack"
-              },
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 0,
-                "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
-                "textureKey": "water_knockback"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 8.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 0,
-                "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
-                "textureKey": "water_death"
-              }
-            ],
-            "fps": 6.0,
-            "frames": [],
-            "loop": true,
-            "play": true
-          },
-          "SpriteComponent": {
-            "texture_key": "water_idle"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.479586124420166,
-            "y": -0.43447697162628174
-          }
-        },
-        "layer": "Default",
-        "name": "Enemy"
-      },
-      {
-        "Components": {
-          "EnemyAttackComponent": {
-            "attack_speed": 1.2000000476837158,
-            "damage": 1
-          },
-          "EnemyComponent": {},
-          "EnemyDecisionTreeComponent": {},
-          "EnemyHealthComponent": {
-            "enemyHealth": 2,
-            "enemyMaxhealth": 2
-          },
-          "EnemyTypeComponent": {
-            "type": "physical"
-          },
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 0,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.10000000149011612,
-            "velocity_x": -5.440004350593033e-28,
-            "velocity_y": -1.2520128715896292e-27,
-            "width": 0.10000000149011612
-          },
-          "SpriteAnimationComponent": {
-            "activeAnimation": 1,
-            "animations": [
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 3,
-                "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
-                "textureKey": "water_idle"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 3,
-                "name": "slashattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
-                "textureKey": "water_slashattack"
-              },
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 0,
-                "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
-                "textureKey": "water_knockback"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 8.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 0,
-                "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
-                "textureKey": "water_death"
-              }
-            ],
-            "fps": 6.0,
-            "frames": [],
-            "loop": true,
-            "play": true
-          },
-          "SpriteComponent": {
-            "texture_key": "water_slashattack"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.47915005683898926,
-            "y": -0.4348047971725464
-          }
-        },
-        "layer": "Default",
-        "name": "Enemy"
-      },
-      {
-        "Components": {
-          "EnemyAttackComponent": {
-            "attack_speed": 0.6000000238418579,
-            "damage": 1
-          },
-          "EnemyComponent": {},
-          "EnemyDecisionTreeComponent": {},
-          "EnemyHealthComponent": {
-            "enemyHealth": 2,
-            "enemyMaxhealth": 2
-          },
-          "EnemyTypeComponent": {
-            "type": "ranged"
-          },
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 0,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.10000000149011612,
-            "velocity_x": 0.0,
-            "velocity_y": -0.0,
-            "width": 0.10000000149011612
-          },
-          "SpriteAnimationComponent": {
-            "activeAnimation": 1,
-            "animations": [
-              {
-                "config": {
-                  "columns": 6,
-                  "endFrame": 5,
-                  "fps": 10.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 6
-                },
-                "currentFrame": 1,
-                "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
-                "textureKey": "fire_idle"
-              },
-              {
-                "config": {
-                  "columns": 5,
-                  "endFrame": 4,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 5
-                },
-                "currentFrame": 1,
-                "name": "rangeattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png",
-                "textureKey": "fire_projectile"
-              },
-              {
-                "config": {
-                  "columns": 8,
-                  "endFrame": 7,
-                  "fps": 10.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 8
-                },
-                "currentFrame": 0,
-                "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png",
-                "textureKey": "fire_knockback"
-              },
-              {
-                "config": {
-                  "columns": 14,
-                  "endFrame": 13,
-                  "fps": 8.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 14
-                },
-                "currentFrame": 0,
-                "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Death_Sprite.png",
-                "textureKey": "fire_death"
-              }
-            ],
-            "fps": 6.0,
-            "frames": [],
-            "loop": true,
-            "play": true
-          },
-          "SpriteComponent": {
-            "texture_key": "fire_projectile"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -3.0129802227020264,
-            "y": 0.0648072212934494
-          }
-        },
-        "layer": "Default",
-        "name": "FireEnemy"
-      },
-      {
-        "Components": {
           "AudioComponent": {
             "sounds": {
               "GrappleShoot1": {
@@ -3432,7 +2862,7 @@
           "PlayerComponent": {},
           "PlayerHUDComponent": {},
           "PlayerHealthComponent": {
-            "playerHealth": 4,
+            "playerHealth": 5,
             "playerMaxhealth": 5
           },
           "RenderComponent": {
@@ -3447,8 +2877,8 @@
           },
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
-            "velocity_x": -9.42872290016401e-16,
-            "velocity_y": -1.0913573774283167e-15,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
@@ -3464,7 +2894,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 3,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -3539,7 +2969,7 @@
                   "startFrame": 0,
                   "totalFrames": 4
                 },
-                "currentFrame": 1,
+                "currentFrame": 0,
                 "name": "knockback",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Knockback_Sprite.png",
                 "textureKey": "knockback_sheet"
@@ -3568,17 +2998,472 @@
           "SpriteComponent": {
             "texture_key": "idle_sheet"
           },
-        
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.5190529227256775,
-            "y": -0.5220535397529602
+            "x": -0.5,
+            "y": -0.5
           }
         },
         "layer": "Default",
         "name": "Player"
+      },
+      {
+        "Components": {
+          "EnemyAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 2,
+            "enemyMaxhealth": 2
+          },
+          "EnemyTypeComponent": {
+            "type": "physical"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "water_idle"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "slashattack",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+                "textureKey": "water_slashattack"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "water_knockback"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "water_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "water_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.292725086212158,
+            "y": 0.006359726190567017
+          }
+        },
+        "layer": "Default",
+        "name": "Enemy"
+      },
+      {
+        "Components": {
+          "EnemyAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 2,
+            "enemyMaxhealth": 2
+          },
+          "EnemyTypeComponent": {
+            "type": "physical"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "water_idle"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "slashattack",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+                "textureKey": "water_slashattack"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "water_knockback"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "water_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "water_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.8776233196258545,
+            "y": -1.1701648235321045
+          }
+        },
+        "layer": "Default",
+        "name": "Enemy"
+      },
+      {
+        "Components": {
+          "EnemyAttackComponent": {
+            "attack_speed": 0.6000000238418579,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 2,
+            "enemyMaxhealth": 2
+          },
+          "EnemyTypeComponent": {
+            "type": "ranged"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 6,
+                  "endFrame": 5,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 6
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "fire_idle"
+              },
+              {
+                "config": {
+                  "columns": 15,
+                  "endFrame": 14,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 15
+                },
+                "currentFrame": 0,
+                "name": "rangeattack",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Fire Attack_Sprite.png",
+                "textureKey": "fire_attack"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "fire_knockback"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "fire_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "fire_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7267205715179443,
+            "y": -1.2019627094268799
+          }
+        },
+        "layer": "Default",
+        "name": "FireEnemy"
+      },
+      {
+        "Components": {
+          "EnemyAttackComponent": {
+            "attack_speed": 0.6000000238418579,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 2,
+            "enemyMaxhealth": 2
+          },
+          "EnemyTypeComponent": {
+            "type": "ranged"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 6,
+                  "endFrame": 5,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 6
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "fire_idle"
+              },
+              {
+                "config": {
+                  "columns": 15,
+                  "endFrame": 14,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 15
+                },
+                "currentFrame": 0,
+                "name": "rangeattack",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Fire Attack_Sprite.png",
+                "textureKey": "fire_attack"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "fire_knockback"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "fire_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "fire_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0429725646972656,
+            "y": 0.006359487771987915
+          }
+        },
+        "layer": "Default",
+        "name": "FireEnemy"
       }
     ],
     "name": "level_RealTutorial"
