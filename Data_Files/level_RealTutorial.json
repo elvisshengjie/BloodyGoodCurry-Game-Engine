@@ -1848,22 +1848,10 @@
       {
         "Components": {
           "AudioComponent": {
-            "sounds": {
-              "GrappleShoot1": {
-                "id": "GrappleShoot1",
-                "loop": false
-              },
-              "Slash1": {
-                "id": "Slash1",
-                "loop": false
-              },
-              "footsteps": {
-                "id": "footsteps",
-                "loop": false
-              }
-            },
-            "volume": 1.0
-          },
+              "entityType": "player",
+              "volume": 1.0
+          }
+          ,
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
             "height": 0.15000000596046448,
@@ -3489,8 +3477,13 @@
             "scale_y": 1.0,
             "x": -3.586810350418091,
             "y": -1.1532058715820313
+          },
+          "AudioComponent": 
+          {
+          "entityType": "enemy",
+          "volume": 1.0
           }
-        },
+          },
         "layer": "Default",
         "name": "Enemy"
       },
@@ -3603,6 +3596,11 @@
             "scale_y": 1.0,
             "x": 1.3736717700958252,
             "y": 0.025438368320465088
+          },
+          "AudioComponent": 
+          {
+            "entityType": "enemy",
+            "volume": 1.0
           }
         },
         "layer": "Default",
@@ -3717,6 +3715,11 @@
             "scale_y": 1.0,
             "x": -3.6631250381469727,
             "y": 0.025438368320465088
+          },
+          "AudioComponent": 
+          {
+            "entityType": "enemy",
+            "volume": 1.0
           }
         },
         "layer": "Default",
@@ -3831,8 +3834,14 @@
             "scale_y": 1.0,
             "x": 2.2046585083007813,
             "y": -1.1108088493347168
+          },
+          "AudioComponent": 
+          {
+            "entityType": "enemy",
+            "volume": 1.0
           }
         },
+
         "layer": "Default",
         "name": "FireEnemy"
       },
@@ -3945,8 +3954,14 @@
             "scale_y": 1.0,
             "x": 1.9757132530212402,
             "y": 0.0
+          },
+          "AudioComponent": 
+          {
+          "entityType": "enemy",
+          "volume": 1.0
           }
         },
+
         "layer": "Default",
         "name": "FireEnemy"
       }

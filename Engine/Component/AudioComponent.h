@@ -21,27 +21,37 @@ namespace Framework
         std::unordered_map<std::string, SoundInfo> sounds;
         std::unordered_map<std::string, bool> playing;
         float volume{ 1.0f }; 
-        
-        
-        AudioComponent()
-        {
-            sounds["footsteps"] = { "", false };
-            sounds["Slash1"] = { "", false };
-            sounds["GrappleShoot1"] = { "", false };
-            playing["footsteps"] = false;
-            playing["Slash1"] = false;
-            playing["GrappleShoot1"] = false;
-        };
+        std::string entityType;
 
-        void initialize() override {}
+        AudioComponent() = default;
+        
+        void initialize() override
+        {
+            sounds.clear();
+            playing.clear();
+
+
+            if (entityType == "player")
+            {
+                sounds["footsteps"] = { "footsteps", true };
+                sounds["Slash1"] = { "Slash1", false };
+                sounds["GrappleShoot1"] = { "GrappleShoot1", false };
+            }
+            else if (entityType == "enemy")
+            {
+                sounds["GhostSounds"] = { "GhostSounds", false };
+            }
+
+            // Build playing map
+            for (auto& [action, info] : sounds)
+                playing[action] = false;
+        }
     
         void Play(const std::string& action)
         {
             auto it = sounds.find(action);
             if (it != sounds.end() && SoundManager::getInstance().isSoundLoaded(it->second.id))
             {SoundManager::getInstance().playSound(it->second.id, volume, 1.0f, it->second.loop); playing[action] = true;}
-            else
-            {std::cout << "[AudioComponent] ERROR: Action '" << action<< "' not found in sounds map!\n";}
         }
         
         void Stop(const std::string& action)
@@ -62,6 +72,9 @@ namespace Framework
 
         void Serialize(ISerializer& s) override
         {
+            if (s.HasKey("entityType"))
+                StreamRead(s, "entityType", entityType);
+
             if (s.EnterObject("sounds"))
             {
                 for (auto& [action, info] : sounds)
@@ -77,8 +90,11 @@ namespace Framework
                 }
                 s.ExitObject();
             }
-            if (s.HasKey("volume")) StreamRead(s, "volume", volume);
+
+            if (s.HasKey("volume"))
+                StreamRead(s, "volume", volume);
         }
+
 
         std::unique_ptr<GameComponent> Clone() const override
         {
