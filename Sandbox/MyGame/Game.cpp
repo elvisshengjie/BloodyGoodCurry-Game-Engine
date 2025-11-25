@@ -77,6 +77,7 @@ namespace mygame {
     void update(float dt)
     {
         TryGuard::Run([&] {
+            const bool editorMode = Framework::RenderSystem::IsEditorVisible();
             const bool systemsUpdating = (currentState == GameState::PLAYING && editorSimulationRunning);
             if (!systemsUpdating && gInputSystem) {
                 gInputSystem->Update(dt);
@@ -113,7 +114,7 @@ namespace mygame {
                 }
                 // When simulation is not running we already refreshed input above.
                 handlePerfToggle();
-                if (gInputSystem &&
+                if (gInputSystem && !editorMode &&
                     (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY)))
                 {
                     pauseMenu.ResetLatches();
@@ -122,6 +123,11 @@ namespace mygame {
                 break;
 
             case GameState::PAUSED:
+                if (editorMode)
+                {
+                    currentState = GameState::PLAYING;
+                    break;
+                }
                 pauseMenu.Update(gInputSystem);
                 handlePerfToggle();
                 if (pauseMenu.ConsumeResume() ||
@@ -142,9 +148,15 @@ namespace mygame {
                     break;
                 }
 
-                if (pauseMenu.ConsumeQuit())
+                if (pauseMenu.ConsumeExitConfirmed())
                 {
                     currentState = GameState::EXIT;
+                    break;
+                }
+
+                if (pauseMenu.ConsumeQuitRequest())
+                {
+                    pauseMenu.ShowExitPopup();
                 }
                 break;
 
