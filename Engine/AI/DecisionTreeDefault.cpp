@@ -179,7 +179,6 @@ namespace Framework
             return nullptr;
 
         const GOCId enemyID = enemy->GetId();
-
         // ---------------------------------------------------------------------
         // Patrol leaf: simple left-right patrol with pause when turning around.
         // ---------------------------------------------------------------------
@@ -196,6 +195,7 @@ namespace Framework
                 auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
                 auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+                auto* audio = enemy->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
 
                 if (rb && tr && ai)
                 {
@@ -208,6 +208,8 @@ namespace Framework
                     {
                         ai->pauseTimer -= dt;
                         rb->velX = 0.0f;
+                        if (audio && audio->playing["GhostSounds"])
+                            audio->Stop("GhostSounds");
                         return;
                     }
 
@@ -275,6 +277,17 @@ namespace Framework
                         ai->dir = -1.0f;
                         ai->pauseTimer = pauseDuration;
                     }
+                    if (audio)
+                    {
+                        float speed = std::sqrt(rb->velX * rb->velX + rb->velY * rb->velY);
+                        const float moveThreshold = 0.01f; // tiny sliding is ignored
+
+                        if (speed > moveThreshold && !audio->playing["GhostSounds"])
+                            audio->Play("GhostSounds"); // true = loop
+                        else if (speed <= moveThreshold && audio->playing["GhostSounds"])
+                            audio->Stop("GhostSounds");
+                    }
+
 
                     // Optional: ensure a patrol/idle animation when not attacking
                     PlayAnimationIfAvailable(enemy, "idle");
@@ -307,7 +320,7 @@ namespace Framework
                     return;
 
                 GOC* player = nullptr;
-                ai->chaseSpeed = 0.1f;
+                ai->chaseSpeed = 0.05f;
 
                 auto& objects = FACTORY->Objects();
                 for (auto& kv : objects)
@@ -392,17 +405,17 @@ namespace Framework
                                 float dirY = dy / norm;
 
                                 // Spawn offset
-                                float spawnX = tr->x + dirX * 0.5f;
-                                float spawnY = tr->y + dirY * 0.5f;
+                                float spawnX = tr->x;
+                                float spawnY = tr->y;
 
                                 logic->hitBoxSystem->SpawnProjectile(
                                     enemy,
                                     spawnX, spawnY,
                                     dirX, dirY,
-                                    4.0f,        // Projectile speed
-                                    0.3f, 0.15f, // Size
+                                    0.15f,        // Projectile speed
+                                    0.1f, 0.1f, // Size
                                     static_cast<float>(attack->damage),
-                                    2.0f,        // Duration
+                                    5.0f,        // Duration
                                     HitBoxComponent::Team::Enemy
                                 );
 
@@ -494,7 +507,7 @@ namespace Framework
 
                 // Refresh "seen player" state based on proximity
                 // Increased detection radius slightly to allow ranged enemies to spot player sooner
-                if (IsPlayerNear(enemy, 3.5f))
+                if (IsPlayerNear(enemy, 0.15f))
                 {
                     ai->hasSeenPlayer = true;
                     ai->chaseTimer = 0.0f;
