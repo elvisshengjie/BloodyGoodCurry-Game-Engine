@@ -355,8 +355,8 @@ namespace Framework
                 // Determine behavior based on Type (melee vs ranged)
                 bool isRanged = (typeComp && typeComp->Etype == EnemyTypeComponent::EnemyType::ranged);
 
-                // Movement Logic: Ranged stops further away
-                float stopDistance = isRanged ? 3.0f : 0.1f;
+                // Keep ranged enemies a bit closer so they don't aggro from too far away
+                float stopDistance = isRanged ? 1.0f : 0.1f;
 
                 // Smoothly move towards the player
                 if (distance > stopDistance)
@@ -384,8 +384,8 @@ namespace Framework
 
                 if (attack->attack_timer >= attack->attack_speed)
                 {
-                    // Check range before attacking
-                    bool canAttack = isRanged ? (distance < 6.0f) : (distance < 0.8f);
+                    // Check range before attacking. Ranged enemies should only fire when much closer.
+                    bool canAttack = isRanged ? (distance < 3.5f) : (distance < 0.8f);
 
                     if (canAttack)
                     {
@@ -412,8 +412,8 @@ namespace Framework
                                     enemy,
                                     spawnX, spawnY,
                                     dirX, dirY,
-                                    0.15f,        // Projectile speed
-                                    0.1f, 0.1f, // Size
+                                    0.7f,       // Projectile speed 
+                                    0.3f, 0.15f, // Size
                                     static_cast<float>(attack->damage),
                                     5.0f,        // Duration
                                     HitBoxComponent::Team::Enemy
@@ -506,8 +506,8 @@ namespace Framework
                     return false;
 
                 // Refresh "seen player" state based on proximity
-                // Increased detection radius slightly to allow ranged enemies to spot player sooner
-                if (IsPlayerNear(enemy, 0.15f))
+                // Reduced detection radius so enemies don't aggro from across the arena
+                if (IsPlayerNear(enemy, 1.5f))
                 {
                     ai->hasSeenPlayer = true;
                     ai->chaseTimer = 0.0f;
