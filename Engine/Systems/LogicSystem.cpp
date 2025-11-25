@@ -576,23 +576,19 @@ namespace Framework {
         // ---------------------------------------------------------------------
         Resource_Manager::load(
             "fire_idle",
-            Framework::ResolveAssetPath("Textures/FireEnemy/Idle_Sprite.png").string()
-        );
-        Resource_Manager::load(
-            "fire_attack",
-            Framework::ResolveAssetPath("Textures/FireEnemy/Fire Attack_Sprite.jpg").string()
-        );
-        Resource_Manager::load(
-            "fire_knockback",
-            Framework::ResolveAssetPath("Textures/FireEnemy/Knockback_Sprite.jpg").string()
-        );
-        Resource_Manager::load(
-            "fire_death",
-            Framework::ResolveAssetPath("Textures/FireEnemy/Death_Sprite.jpg").string()
+            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png").string()
         );
         Resource_Manager::load(
             "fire_projectile",
-            Framework::ResolveAssetPath("Textures/FireEnemy/Fire Projectile_Sprite.png").string()
+            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Fire Projectile_Sprite.png").string()
+        );
+        Resource_Manager::load(
+            "fire_knockback",
+            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png").string()
+        );
+        Resource_Manager::load(
+            "fire_death",
+            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Death_Sprite.png").string()
         );
 
         std::cout << "\n=== Controls ===\n"
