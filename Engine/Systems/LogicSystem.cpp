@@ -510,8 +510,8 @@ namespace Framework {
         RegisterComponent(EnemyDecisionTreeComponent);
         RegisterComponent(EnemyHealthComponent);
         RegisterComponent(EnemyTypeComponent);
-
         RegisterComponent(AudioComponent);
+        RegisterComponent(ZoomTriggerComponent);
         FACTORY = factory.get();
         gateController.SetFactory(factory.get());
         LoadPrefabs();

@@ -130,6 +130,9 @@ namespace Framework {
             float& worldX, float& worldY,
             bool& insideViewport) const;
 
+        // Set gameplay camera view height (bigger -> zoom out, smaller -> zoom in)
+        void SetCameraViewHeight(float viewHeight);
+
     private:
         // --- Filesystem / asset resolution ------------------------------------------------
         std::string           FindRoboto() const;

@@ -138,6 +138,10 @@ namespace Framework {
         if (auto* artassetFrontOfPlayer = FACTORY->CreateTemplate(resolveData("artassetsFrontOfPlayer.json"))) {
             master_copies["Art_Asset_Front_Of_Player"].reset(artassetFrontOfPlayer);
         }
+        if (auto* zoomObject = FACTORY->CreateTemplate(resolveData("zoomObject.json"))) {
+            master_copies["zoom_Object"].reset(zoomObject);
+        }
+
     }
 
     /*************************************************************************************

@@ -200,6 +200,14 @@ namespace Framework {
         editorCamera.SetViewHeight(editorCameraViewHeight);
     }
 
+    void RenderSystem::SetCameraViewHeight(float viewHeight)
+    {
+        // Clamp to same range as editor slider
+        cameraViewHeight = std::clamp(viewHeight, 0.4f, 2.5f);
+
+        // Only affect the gameplay camera – editor camera keeps its own view height.
+        camera.SetViewHeight(cameraViewHeight);
+    }
     
     /*************************************************************************************
       \brief  Probe for a Roboto font file in common asset locations.
