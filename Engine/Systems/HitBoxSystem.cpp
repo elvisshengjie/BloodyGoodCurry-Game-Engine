@@ -349,7 +349,23 @@ namespace Framework
                 }
                 else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
-                    if (enemyHealth->enemyHealth > 0)
+                    if (enemyHealth->enemyHealth <= 0) continue;
+                    auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
+                    bool canHit = false;
+                    if (typeComp)
+                    {
+                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::physical && HB->team == HitBoxComponent::Team::Player)
+                            canHit = true;
+                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged && HB->team == HitBoxComponent::Team::Thrown)
+                            canHit = true;
+                    }
+                    else
+                    {
+                        
+                        canHit = true;
+                    }
+
+                    if (canHit)
                     {
                         enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
