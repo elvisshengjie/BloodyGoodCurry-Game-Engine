@@ -22,6 +22,7 @@
 #include <chrono>
 #include <MainMenuPage.hpp>
 #include <PauseMenuPage.hpp>
+#include <DefeatScreenPage.hpp>
 
 namespace mygame {
 
@@ -38,12 +39,13 @@ namespace mygame {
         Framework::AiSystem* gAiSystem = nullptr;
         Framework::HealthSystem* gHealthSystem = nullptr;
 
-        enum class GameState { MAIN_MENU, PLAYING, PAUSED, EXIT };
+        enum class GameState { MAIN_MENU, PLAYING, PAUSED, DEFEAT, EXIT };
         GameState currentState = GameState::MAIN_MENU;
         bool editorSimulationRunning = false;
 
         MainMenuPage mainMenu;
         PauseMenuPage pauseMenu;
+        DefeatScreenPage defeatScreen;
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
@@ -69,6 +71,7 @@ namespace mygame {
 
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+        defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         currentState = GameState::MAIN_MENU;
 
         editorSimulationRunning = false;
@@ -100,6 +103,8 @@ namespace mygame {
                     currentState = GameState::PLAYING;
                     editorSimulationRunning = true;
                     pauseMenu.ResetLatches();
+                    if (gHealthSystem)
+                        gHealthSystem->ClearPlayerDeathFlag();
                 }
                 if (mainMenu.ConsumeExit())
                 {
@@ -114,6 +119,15 @@ namespace mygame {
                 }
                 // When simulation is not running we already refreshed input above.
                 handlePerfToggle();
+                if (!editorMode && gHealthSystem && gHealthSystem->HasPlayerDied())
+                {
+                    defeatScreen.ResetLatches();
+                    if (gRenderSystem)
+                        defeatScreen.SyncLayout(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+                    editorSimulationRunning = false;
+                    currentState = GameState::DEFEAT;
+                    break;
+                }
                 if (gInputSystem && !editorMode &&
                     (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY)))
                 {
@@ -143,6 +157,9 @@ namespace mygame {
                     {
                         gLogicSystem->ReloadLevel();
                     }
+                    if (gHealthSystem)
+                        gHealthSystem->ClearPlayerDeathFlag();
+
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
                     break;
@@ -159,6 +176,24 @@ namespace mygame {
                     pauseMenu.ShowExitPopup();
                 }
                 break;
+
+            case GameState::DEFEAT:
+                defeatScreen.Update(gInputSystem);
+                handlePerfToggle();
+                if (defeatScreen.ConsumeTryAgain())
+                {
+                    if (gLogicSystem)
+                    {
+                        gLogicSystem->ReloadLevel();
+                    }
+                    if (gHealthSystem)
+                        gHealthSystem->ClearPlayerDeathFlag();
+
+                    editorSimulationRunning = true;
+                    currentState = GameState::PLAYING;
+                }
+                break;
+
 
             case GameState::EXIT:
                 if (gInputSystem) {
@@ -197,6 +232,17 @@ namespace mygame {
                     gRenderSystem->EndMenuFrame();
                 }
                 break;
+
+            case GameState::DEFEAT:
+                gSystems.DrawAll();
+                if (gRenderSystem)
+                {
+                    gRenderSystem->BeginMenuFrame();
+                    defeatScreen.Draw(gRenderSystem);
+                    gRenderSystem->EndMenuFrame();
+                }
+                break;
+
 
             case GameState::EXIT:
                 break;

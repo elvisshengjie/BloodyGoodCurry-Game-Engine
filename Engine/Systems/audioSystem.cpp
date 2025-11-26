@@ -71,7 +71,13 @@ namespace Framework {
     void AudioSystem::Update(float dt)
     {
         (void)dt;
-
+    // In editor-only builds or during shutdown the LogicSystem may not have
+    // initialized the global factory yet. Guard against that scenario so we
+    // do not dereference a null FACTORY pointer (was causing access
+    // violations when the audio system continued updating after the factory
+    // was torn down).
+        if (!FACTORY)
+            return;
         // Iterate all game objects in the factory
         for (auto& [id, gocPtr] : FACTORY->Objects())
         {
