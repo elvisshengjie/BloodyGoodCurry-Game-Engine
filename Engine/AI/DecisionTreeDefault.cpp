@@ -507,7 +507,7 @@ namespace Framework
 
                 // Refresh "seen player" state based on proximity
                 // Reduced detection radius so enemies don't aggro from across the arena
-                if (IsPlayerNear(enemy, 0.1f))
+                if (IsPlayerNear(enemy, 0.2f))
                 {
                     ai->hasSeenPlayer = true;
                     ai->chaseTimer = 0.0f;
