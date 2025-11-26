@@ -57,6 +57,7 @@
 #include <limits>
 #include <unordered_set>
 #include <unordered_map>
+#include <iostream>
 #include "Debug/AudioImGui.h"
 #include "Debug/UndoStack.h"
 #include "Debug/Inspector.h"
@@ -1555,6 +1556,13 @@ namespace Framework {
         TryGuard::Run([&] {
             HandleShortcuts();
             UpdateGameViewport();
+
+            if (!FACTORY)
+            {
+                std::cerr << "[RenderSystem] FACTORY is null; skipping draw to avoid crash.\n";
+                return;
+            }
+
 
             // === Update camera BEFORE picking and rendering ===
             gfx::Graphics::resetViewProjection();

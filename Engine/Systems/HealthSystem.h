@@ -77,11 +77,20 @@ namespace Framework {
         std::string GetName() override { return "HealthSystem"; }
         void RefreshTrackedObjects();
 
+        // Expose player death state so the game loop can react (e.g., show defeat screen).
+        bool HasPlayerDied() const { return playerDied; }
+
+        // Clear latched death state when restarting / reloading a level.
+        void ClearPlayerDeathFlag() { playerDied = false; }
+
+
     private:
         gfx::Window* window;          // Non-owning window handle used by the system.
         std::vector<GOCId> gameObjectIds;
         std::unordered_map<GOCId, float> deathTimers;
         float lastDt = 0.0f;
+
+        bool playerDied = false;      // Latched when the player hits 0 health.
     };
 
 } // namespace Framework

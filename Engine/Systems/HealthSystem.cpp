@@ -210,6 +210,7 @@ namespace Framework
         // Track by ID instead of raw pointers to avoid dangling references.
         gameObjectIds.clear();
         deathTimers.clear();
+        playerDied = false;
 
         RefreshTrackedObjects();
     }
@@ -321,6 +322,8 @@ namespace Framework
                         if (playerHealth->playerHealth <= 0)
                         {
                             float& timer = deathTimers[id];
+
+                            playerDied = true;
                             
                             if (!playerHealth->deathSoundPlayed && audio)
                             {
@@ -403,6 +406,7 @@ namespace Framework
     {
         gameObjectIds.clear();
         deathTimers.clear();
+        playerDied = false;
     }
 
 } // namespace Framework

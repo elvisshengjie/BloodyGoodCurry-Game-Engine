@@ -489,7 +489,9 @@ namespace Framework {
             std::string("ENGINE/CRASH"));
         g_crashLogger = crashLogger.get();
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
+#ifndef NDEBUG
         std::cout << "[CrashLog] Press F9 to force a crash-test (logs to file + logcat).\n";
+#endif
         std::cout << "[CrashLog] Android builds mirror to ENGINE/CRASH in logcat.\n";
 
         InstallTerminateHandler();
@@ -602,7 +604,9 @@ namespace Framework {
             << "Left Mouse: Melee combo (3-hit)\n"
             << "Right Mouse: Throw projectile\n"
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
+#ifndef NDEBUG
             << "F9: Trigger crash logging test (SIGABRT)\n"
+#endif
             << "=======================================\n";
     }
 
@@ -614,6 +618,7 @@ namespace Framework {
     void LogicSystem::Update(float dt)
     {
         TryGuard::Run([&] {
+#ifndef NDEBUG
             bool triggerCrash = input.IsKeyPressed(GLFW_KEY_F9);
             if (triggerCrash && !crashTestLatched) {
                 crashTestLatched = true;
@@ -627,7 +632,7 @@ namespace Framework {
             else if (!triggerCrash) {
                 crashTestLatched = false;
             }
-
+#endif
             if (factory)
                 factory->Update(dt);
 
