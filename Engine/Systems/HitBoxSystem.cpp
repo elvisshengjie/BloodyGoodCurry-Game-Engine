@@ -326,117 +326,63 @@ namespace Framework
             // Scan all level objects to find valid targets.
             for (auto* obj : logic.LevelObjects())
             {
-                if (!obj || obj == it->owner)
+                if (!obj || obj == attacker)
                     continue;
-
-                // Determine if player or enemy
-                bool isPlayerTarget =
-                    obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
-                bool isEnemyTarget =
-                    obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent) != nullptr;
-
-                // Prevent friendly fire
-                if ((HB->team == HitBoxComponent::Team::Player && isPlayerTarget) ||
-                    (HB->team == HitBoxComponent::Team::Enemy && isEnemyTarget))
-                    continue;
-
-                // Build AABB for collision check
                 auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
                 if (!(tr && rb))
                     continue;
-
                 AABB targetAABB(tr->x, tr->y, rb->width, rb->height);
                 if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB))
                     continue;
 
                 bool validTargetHit = false;
 
-                // Enemy hit logic, including type filtering.
-                if (isEnemyTarget)
+                if (auto* playerHealth = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
                 {
 
-                    auto* typeComp =
-                        obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
-                    auto* health =
-                        obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
-                    
-                    if (health && health->enemyHealth <= 0)
-                        continue;
-
-                    if (typeComp)
+                    if (!playerHealth->isInvulnerable)
                     {
-                        std::cout << "EnemyType at runtime: "
-                            << (typeComp->Etype == EnemyTypeComponent::EnemyType::physical ? "physical" : "ranged")
-                            << "\n";
-
-
-                        bool validHit =
-                            (typeComp->Etype == EnemyTypeComponent::EnemyType::physical &&
-                                HB->team == HitBoxComponent::Team::Player) ||
-                            (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged &&
-                                HB->team == HitBoxComponent::Team::Thrown);
-
-                        if (!validHit)
-                            continue;
-
-                        if (health)
-                        {
-                            health->TakeDamage(static_cast<int>(HB->damage));
-                            if (HB->damage > 0.0f)
-                                SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
-                        }
-                        validTargetHit = true;
-                    }
-                    else if (health)
-                    {
-                        // Fall back to allowing hits on enemies without an EnemyTypeComponent.
-                        // This ensures VFX still plays for generic enemies.
-                        health->TakeDamage(static_cast<int>(HB->damage));
-                        if (HB->damage > 0.0f)
-                            SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
-
+                        playerHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
                     }
                 }
-                // Player hit logic.
-                else if (isPlayerTarget)
+                else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
-                    auto* health =
-                        obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
-                    if (health)
+                    if (enemyHealth->enemyHealth > 0)
                     {
-                        if (health->isInvulnerable)
-                            continue;
-                        health->TakeDamage(static_cast<int>(HB->damage));
+                        enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
+                        SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
                     }
                 }
-
-                // Apply knockback and “knockback” animation on valid enemy hits.
-                auto* attackerTr = attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-                auto* targetRb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+                else { validTargetHit = true; }
+                  
 
                 if (validTargetHit)
                 {
-                    if (attackerTr && targetRb)
+                    bool isPlayer = obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
+                    bool isEnemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent) != nullptr;
+                    if ((isPlayer || isEnemy))
                     {
-                        float dx = tr->x - attackerTr->x;
-                        float dy = tr->y - attackerTr->y;
-                        float len = std::sqrt(dx * dx + dy * dy);
-
-                        if (len > 0.001f)
+                        auto* attackerTr = attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                        if (attackerTr && tr && rb)
                         {
-                            dx /= len;
-                            dy /= len;
+                            float dx = tr->x - attackerTr->x;
+                            float dy = tr->y - attackerTr->y;
+                            float len = std::sqrt(dx * dx + dy * dy);
+
+                            if (len > 0.001f)
+                            {
+                                dx /= len;
+                                dy /= len;
+                            }
+                            const float knockStrength = 1.5f;
+                            rb->velX += dx * knockStrength;
+                            rb->velY += dy * knockStrength * 0.4f;
+                            rb->knockbackTime = 0.2f;
                         }
-
-                        const float knockStrength = 1.5f;
-                        targetRb->velX += dx * knockStrength;
-                        targetRb->velY += dy * knockStrength * 0.4f;
-                        targetRb->knockbackTime = 0.2f;
                     }
-
                     // Trigger knockback animation on the enemy if it exists.
                     PlayAnimationIfAvailable(obj, "knockback");
                 }
