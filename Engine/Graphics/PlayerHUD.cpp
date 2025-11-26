@@ -216,9 +216,13 @@ namespace Framework
 
         if (texSplash)
             Graphics::renderSpriteUI(texSplash, startX, startY, splashW, splashH, 1, 1, 1, 1, screenW, screenH);
+        // Compute health percentage
+        float healthPercent = 0.0f;
+        if (health && health->playerMaxhealth > 0)
+            healthPercent = (static_cast<float>(displayedHealth) / health->playerMaxhealth) * 100.0f;
 
-        // Facial expression (happy if health >= 60)
-        unsigned faceTex = (displayedHealth >= 60) ? texFaceHappy : texFaceUpset;
+        // Choose face based on percentage
+        unsigned faceTex = (healthPercent >= 50.0f) ? texFaceHappy : texFaceUpset;
 
         float faceSize = 110.0f;
         float faceX = startX + 10.0f;
