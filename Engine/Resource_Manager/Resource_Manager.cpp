@@ -154,6 +154,12 @@ void Resource_Manager::unloadAll(Resource_Type type)
         Resources res = it->second;
         bool matchType = (type == Resource_Type::All || res.type == type);
         if (matchType) {
+            // Release GL textures before erasing graphics resources from the map to
+        // prevent leak reports when running with CRT leak detection on Windows.
+            if (res.type == Resource_Type::Graphics && res.handle != 0)
+            {
+                gfx::Graphics::destroyTexture(res.handle);
+            }
             std::cout << "[Resource_Manager] Removing resource: " << it->first << std::endl;
             it = resources_map.erase(it); // erase and move forward
         }
