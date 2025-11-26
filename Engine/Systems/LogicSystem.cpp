@@ -26,7 +26,7 @@
               manipulates components (Transform/Render/RigidBody) but does not own them.
 ©2025 DigiPen Institute of Technology Singapore. All rights reserved.
 *********************************************************************************************/
-
+#include "Common/CRTDebug.h"
 #include "Systems/LogicSystem.h"
 #include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"      // for ScreenToWorld / camera-based world mapping
@@ -43,6 +43,12 @@
 #include <filesystem>
 #include <iostream>
 #include <Debug/UndoStack.h>
+
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 
 namespace Framework {
 
@@ -982,7 +988,7 @@ namespace Framework {
                 player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
 
             // Velocity intent set on RigidBody; an external system integrates it.
-            if (rb && tr && !playerHealth->isDead)
+            if (rb && tr && playerHealth &&!playerHealth->isDead)
             {
                 if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f);
                 if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f);
@@ -1010,7 +1016,7 @@ namespace Framework {
             }
 
             // Handle attack input: spawn through PlayerAttackComponent only (single source of truth).
-            if (!playerHealth->isDead && input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
+            if (playerHealth && !playerHealth->isDead && input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
             {
                 // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
                 if (aimDirX != 0.0f || aimDirY != 0.0f)
@@ -1037,7 +1043,7 @@ namespace Framework {
                 }
 
             }
-            else if (!playerHealth->isDead && input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && attack && tr && rc)
+            else if (playerHealth && !playerHealth->isDead && input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && attack && tr && rc)
             {
                 // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
                 if (aimDirX != 0.0f || aimDirY != 0.0f)

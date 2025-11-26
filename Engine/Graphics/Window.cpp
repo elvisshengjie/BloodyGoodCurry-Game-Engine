@@ -16,6 +16,7 @@
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
+
 #include "Graphics/Window.hpp"
 
 // Keep GL/GLFW only in the .cpp to avoid polluting headers.
@@ -24,7 +25,11 @@
 #include "../Sandbox/MyGame/Game.hpp"
 #include <iostream>
 #include <stdexcept>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace {
 
     // Prefer constexpr over macros (resolves your VCR101 suggestion)

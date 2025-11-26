@@ -15,6 +15,7 @@
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
+
 #include "PathUtils.h"
 
 #if defined(_WIN32)
@@ -36,7 +37,11 @@
 #include <iostream>
 #include <unordered_set>
 #include <vector>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace Framework
 {
     namespace
