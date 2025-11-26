@@ -52,19 +52,6 @@ namespace Framework {
         // 3. Set global master volume
         SoundManager::getInstance().setMasterVolume(0.7f);
 
-        // 4. Initialize all AudioComponents (this is the part you asked for)
-        for (auto& [id, gocPtr] : FACTORY->Objects())
-        {
-            if (!gocPtr) continue;
-
-            GOC* goc = gocPtr.get();
-            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
-
-            if (audio)
-                audio->initialize();   // <--- ⭐ IMPORTANT ⭐
-        }
-
-        // 5. Optional: Begin music loop
         if (SoundManager::getInstance().isSoundLoaded("SoundTrackloop"))
             SoundManager::getInstance().playSound("SoundTrackloop", true);
 

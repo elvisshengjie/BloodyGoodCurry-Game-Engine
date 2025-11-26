@@ -3481,7 +3481,7 @@
           "AudioComponent": 
           {
           "entityType": "enemy",
-          "volume": 1.0
+          "volume": 0.2
           }
           },
         "layer": "Default",
@@ -3719,7 +3719,7 @@
           "AudioComponent": 
           {
             "entityType": "enemy",
-            "volume": 1.0
+            "volume": 0.2
           }
         },
         "layer": "Default",
@@ -3838,7 +3838,7 @@
           "AudioComponent": 
           {
             "entityType": "enemy",
-            "volume": 1.0
+            "volume": 0.2
           }
         },
 
@@ -3958,7 +3958,7 @@
           "AudioComponent": 
           {
           "entityType": "enemy",
-          "volume": 1.0
+          "volume": 0.2
           }
         },
 

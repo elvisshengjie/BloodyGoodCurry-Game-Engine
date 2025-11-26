@@ -296,6 +296,9 @@ namespace Framework
                         goc->GetComponentType<PlayerHealthComponent>(
                             ComponentTypeId::CT_PlayerHealthComponent))
                     {
+                        auto* audio = goc->GetComponentType<AudioComponent>(
+                            ComponentTypeId::CT_AudioComponent);
+
                         constexpr std::string_view deathAnimName = "death";
                         auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                             ComponentTypeId::CT_SpriteAnimationComponent);
@@ -307,6 +310,7 @@ namespace Framework
                                 playerHealth->invulnTime -= dt;
                                 if (playerHealth->invulnTime <= 0.0f)
                                 {
+                                    audio->TriggerSound("PlayerHit");
                                     playerHealth->invulnTime = 0.0f;
                                     playerHealth->isInvulnerable = false;
                                     std::cout << "[PlayerHealthComponent] Invulnerability ended.\n";
@@ -317,11 +321,17 @@ namespace Framework
                         if (playerHealth->playerHealth <= 0)
                         {
                             float& timer = deathTimers[id];
-
+                            
+                            if (!playerHealth->deathSoundPlayed && audio)
+                            {
+                                audio->TriggerSound("PlayerDead");
+                                playerHealth->deathSoundPlayed = true;
+                                std::cout << "[DEBUG] PlayerDead triggered\n";
+                            }
                             if (!playerHealth->isDead)
                             {
+                                audio->TriggerSound("PlayerDead");
                                 playerHealth->isDead = true;
-
                                 PlayAnimationIfAvailable(goc, deathAnimName);
                                 timer = std::max(AnimationDuration(anim, deathAnimName), 0.2f);
                             }

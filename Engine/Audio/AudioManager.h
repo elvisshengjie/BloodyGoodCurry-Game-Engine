@@ -19,11 +19,6 @@
 #include <vector>
 #include "fmod.h"
 
-// Forward declarations for FMOD
-struct FMOD_SYSTEM;
-struct FMOD_SOUND;
-struct FMOD_CHANNEL;
-
 /*********************************************************************************************
   \class AudioManager
   \brief Manages the initialization, loading, playback, and cleanup of audio using FMOD.

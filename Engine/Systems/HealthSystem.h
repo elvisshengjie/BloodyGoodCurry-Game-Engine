@@ -37,6 +37,7 @@
 #include "Component/EnemyTypeComponent.h"
 #include "Graphics/PlayerHUD.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
+
 // Enemy Components
 #include "../Component/RenderComponent.h"
 #include "../Component/SpriteComponent.h"
@@ -47,6 +48,8 @@
 #include "../Component/EnemyHealthComponent.h"
 #include "../Component/EnemyTypeComponent.h"
 #include "../Component/SpriteAnimationComponent.h"
+
+#include "Component/AudioComponent.h"
 #include <unordered_map>
 
 
