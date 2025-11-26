@@ -493,7 +493,15 @@ namespace mygame {
 
         // For new objects: full application (including transform offsets)
         ApplySpawnSettingsToObject(*obj, s, index, /*applyTransformAndLayer*/ true);
-
+        
+   
+       // Set entityType BEFORE initializing
+        if (auto* audio = obj->GetComponentType<Framework::AudioComponent>(ComponentTypeId::CT_AudioComponent)) {
+            if (!s.entityType.empty())
+                audio->entityType = s.entityType;  // <-- MUST set first
+            audio->initialize();                  // <-- THEN initialize
+        }
+        
         // Assign layer on creation
         obj->SetLayerName(gActiveLayer);
 

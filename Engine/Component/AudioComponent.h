@@ -107,6 +107,7 @@ namespace Framework
             // Build playing map
             for (auto& [action, info] : sounds)
                 playing[action] = false;
+            std::cout << "[AudioComponent] initialize called, entityType='" << entityType << "'\n";
         }
         /*************************************************************************************
           \brief Plays a sound associated with the given action key.

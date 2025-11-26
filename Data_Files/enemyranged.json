@@ -91,6 +91,10 @@
 
       "EnemyTypeComponent": {
         "type": "ranged"
+      },
+      "AudioComponent": {
+        "entityType": "enemy",
+        "volume": 0.2
       }
     }
   }
