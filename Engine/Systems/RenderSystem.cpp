@@ -1193,7 +1193,8 @@ namespace Framework {
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+            ImGuiWindowFlags_NoBackground;
+
 
         ImGui::Begin("EditorDockHost", nullptr, flags);
         ImGuiID dockspaceId = ImGui::GetID("EditorDockspace");
