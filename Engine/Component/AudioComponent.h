@@ -101,7 +101,7 @@ namespace Framework
             }
             else if (entityType == "enemy")
             {
-                sounds["GhostSounds"] = { "GhostSounds", false };
+                //sounds["GhostSounds"] = { "GhostSounds", false };
             }
 
             // Build playing map
