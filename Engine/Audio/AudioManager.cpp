@@ -88,6 +88,8 @@ void AudioManager::update()
     if (m_system) 
     {
         pruneStoppedChannels();
+        float deltaTime = 0.016f;
+        updateFades(deltaTime);
         FMOD_System_Update(m_system);
     }
 }
@@ -481,6 +483,73 @@ void AudioManager::checkFMODError(FMOD_RESULT result, const std::string& operati
     if (result != FMOD_OK) 
     {
         std::cerr << "FMOD Error during '" << operation << "': " << FMOD_ErrorString(result) << " (code " << result << ")" << std::endl;
+    }
+}
+/*****************************************************************************************
+ \brief Fades in all currently playing instances of a sound over a specified duration.
+ \param name         The identifier of the sound to fade in.
+ \param duration     Duration of the fade in seconds.
+ \param targetVolume The final volume level after the fade (default is 1.0f).
+*****************************************************************************************/
+void AudioManager::fadeInSound(const std::string& name, float duration, float targetVolume)
+{
+    auto it = m_channels.find(name);
+    if (it == m_channels.end()) return;
+
+    for (auto* channel : it->second)
+    {
+        if (!channel) continue;
+        FMOD_Channel_SetVolume(channel, 0.0f);
+        m_fades.push_back({ channel, 0.0f, targetVolume, duration, 0.0f });
+    }
+}
+/*****************************************************************************************
+ \brief Fades out all currently playing instances of a sound over a specified duration.
+        Stops the sound once the fade is complete.
+ \param name     The identifier of the sound to fade out.
+ \param duration Duration of the fade in seconds.
+*****************************************************************************************/
+void AudioManager::fadeOutSound(const std::string& name, float duration)
+{
+    auto it = m_channels.find(name);
+    if (it == m_channels.end()) return;
+
+    for (auto* channel : it->second)
+    {
+        if (!channel) continue;
+        float currentVol = 1.0f;
+        FMOD_Channel_GetVolume(channel, &currentVol);
+        m_fades.push_back({ channel, currentVol, 0.0f, duration, 0.0f });
+    }
+}
+/*****************************************************************************************
+ \brief Updates all active fades. Should be called every frame.
+ \param deltaTime Time elapsed since the last update (in seconds).
+*****************************************************************************************/
+void AudioManager::updateFades(float deltaTime)
+{
+    for (auto it = m_fades.begin(); it != m_fades.end();)
+    {
+        it->elapsed += deltaTime;
+        float t = it->elapsed / it->duration;
+        if (t > 1.0f) t = 1.0f;
+
+        float volume = it->startVolume + t * (it->endVolume - it->startVolume);
+        if (it->channel)
+            FMOD_Channel_SetVolume(it->channel, volume);
+
+        if (t >= 1.0f)
+        {
+            // If fade out, stop channel
+            if (it->endVolume == 0.0f && it->channel)
+                FMOD_Channel_Stop(it->channel);
+
+            it = m_fades.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
 }
 

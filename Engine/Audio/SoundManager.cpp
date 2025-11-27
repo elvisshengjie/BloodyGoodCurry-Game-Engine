@@ -263,7 +263,27 @@ bool SoundManager::isSoundPlaying(const std::string& name) const
     
     return m_audioManager->isSoundPlaying(name);
 }
-
+/*****************************************************************************************
+ \brief Fades in a currently playing sound over a specified duration.
+ \param name         The identifier of the sound to fade in.
+ \param duration     Duration of the fade in seconds.
+ \param targetVolume The final volume level after the fade (default is 1.0f).
+*****************************************************************************************/
+void SoundManager::fadeInMusic(const std::string& name, float duration, float targetVolume)
+{
+    if (m_audioManager)
+        m_audioManager->fadeInSound(name, duration, targetVolume); // call AudioManager
+}
+/*****************************************************************************************
+ \brief Fades out a currently playing sound over a specified duration and stops it at the end.
+ \param name     The identifier of the sound to fade out.
+ \param duration Duration of the fade in seconds.
+*****************************************************************************************/
+void SoundManager::fadeOutMusic(const std::string& name, float duration)
+{
+    if (m_audioManager)
+        m_audioManager->fadeOutSound(name, duration); // call AudioManager
+}
 /*****************************************************************************************
  \brief Retrieves a list of all loaded sounds.
  \return A vector containing the identifiers of loaded sounds.

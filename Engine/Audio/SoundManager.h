@@ -49,6 +49,8 @@ public:
     void setSoundLoop(const std::string& name, bool loop);
     bool isSoundLoaded(const std::string& name) const;
     bool isSoundPlaying(const std::string& name) const;
+    void fadeInMusic(const std::string& name, float duration, float targetVolume = 1.0f);
+    void fadeOutMusic(const std::string& name, float duration);
     std::vector<std::string> getLoadedSounds() const;
 
 private:
