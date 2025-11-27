@@ -35,6 +35,14 @@
 namespace mygame {
 
     namespace {
+        //Audio booleans
+        bool mainMenuBGMPlaying = false;
+        const char* MAIN_MENU_BGM = "MenuMusic";
+        bool gameplayBGMPlaying = false;
+        const char* GAMEPLAY_BGM = "BGM";
+        float bgmFadeTimer = 0.0f;
+        constexpr float kBGMFadeDuration = 1.5f;
+
         using clock = std::chrono::high_resolution_clock;
 
         Framework::SystemManager gSystems;
@@ -111,8 +119,20 @@ namespace mygame {
             case GameState::MAIN_MENU:
                 mainMenu.Update(gInputSystem);
                 handlePerfToggle();
+                if (!mainMenuBGMPlaying && SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM)) {
+                    SoundManager::getInstance().playSound(MAIN_MENU_BGM, true); // loop = true
+                    SoundManager::getInstance().setSoundVolume(MAIN_MENU_BGM, 0.3f);
+                    mainMenuBGMPlaying = true;
+                    gameplayBGMPlaying = false;
+                }
                 if (mainMenu.ConsumeStart())
                 {
+                    SoundManager::getInstance().fadeOutMusic(MAIN_MENU_BGM, kBGMFadeDuration);
+                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    {
+                        SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
+                        gameplayBGMPlaying = true;
+                    }
                     currentState = GameState::TRANSITIONING;
                     transitionTimer = kStartTransitionDuration;
                     editorSimulationRunning = false;

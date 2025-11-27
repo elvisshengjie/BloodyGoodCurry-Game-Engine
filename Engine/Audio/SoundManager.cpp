@@ -80,7 +80,7 @@ void SoundManager::shutdown()
 /*****************************************************************************************
  \brief Update the AudioManager. This is called once per frame.
 *****************************************************************************************/
-void SoundManager::update()
+void SoundManager::update(float dt)
 {
     std::shared_ptr<AudioManager> local;
     {
@@ -90,7 +90,7 @@ void SoundManager::update()
 
     if (local)
     {
-        local->update();
+        local->update(dt);
     }
 }
 

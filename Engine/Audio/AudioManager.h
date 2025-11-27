@@ -42,7 +42,7 @@ class AudioManager
     ~AudioManager();
     bool initialize();
     void shutdown();
-    void update();
+    void update(float dt);
     bool loadSound(const std::string& name, const std::string& filePath, bool loop = false);
     void unloadSound(const std::string& name);
     void unloadAllSounds();

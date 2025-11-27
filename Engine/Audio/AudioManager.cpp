@@ -83,12 +83,11 @@ void AudioManager::shutdown()
  \brief Updates the FMOD system. 
         This is called once per frame in the main game loop.
 *****************************************************************************************/
-void AudioManager::update() 
+void AudioManager::update(float deltaTime)
 {
     if (m_system) 
     {
         pruneStoppedChannels();
-        float deltaTime = 0.016f;
         updateFades(deltaTime);
         FMOD_System_Update(m_system);
     }
