@@ -1872,7 +1872,7 @@
                 "loop": false
               }
             },
-            "volume": 1.0
+            "volume": 0.1
           },
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
@@ -3363,8 +3363,12 @@
         "Components": {
           "AudioComponent": {
             "entityType": "enemy",
-            "sounds": {},
-            "volume": 0.20000000298023224
+            "sounds": 
+            {
+              "id":"GhostSounds",
+              "loop": "false"
+            },
+            "volume": 0.0
           },
           "EnemyAttackComponent": {
             "attack_speed": 1.2000000476837158,
@@ -3482,8 +3486,12 @@
         "Components": {
           "AudioComponent": {
             "entityType": "enemy",
-            "sounds": {},
-            "volume": 1.0
+            "sounds": 
+            {
+              "id":"GhostSounds",
+              "loop": "false"
+            },
+            "volume": 0.0
           },
           "EnemyAttackComponent": {
             "attack_speed": 1.2000000476837158,
@@ -3599,10 +3607,14 @@
       },
       {
         "Components": {
-          "AudioComponent": {
-            "entityType": "enemy",
-            "sounds": {},
-            "volume": 0.20000000298023224
+         "AudioComponent": {
+          "entityType": "enemy",
+            "sounds": 
+            {
+              "id":"GhostSounds",
+              "loop": "false"
+            },
+            "volume": 0.0
           },
           "EnemyAttackComponent": {
             "attack_speed": 0.6000000238418579,
@@ -3718,10 +3730,14 @@
       },
       {
         "Components": {
-          "AudioComponent": {
-            "entityType": "enemy",
-            "sounds": {},
-            "volume": 0.20000000298023224
+         "AudioComponent": {
+          "entityType": "enemy",
+            "sounds": 
+            {
+              "id":"GhostSounds",
+              "loop": "false"
+            },
+            "volume": 0.0
           },
           "EnemyAttackComponent": {
             "attack_speed": 0.6000000238418579,
@@ -3837,10 +3853,14 @@
       },
       {
         "Components": {
-          "AudioComponent": {
-            "entityType": "enemy",
-            "sounds": {},
-            "volume": 0.20000000298023224
+       "AudioComponent": {
+          "entityType": "enemy",
+            "sounds": 
+            {
+              "id":"GhostSounds",
+              "loop": "false"
+            },
+            "volume": 0.0
           },
           "EnemyAttackComponent": {
             "attack_speed": 0.6000000238418579,
