@@ -1174,38 +1174,39 @@ namespace Framework {
     {
         if (!showEditor)
             return;
+
         ImGuiIO& io = ImGui::GetIO();
         if (!(io.ConfigFlags & ImGuiConfigFlags_DockingEnable))
             return;
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-        const float editorWidth = viewport->WorkSize.x - static_cast<float>(gameViewport.width);
-        if (editorWidth <= 1.0f || viewport->WorkSize.y <= 1.0f)
-            return;
-
-        const ImVec2 editorPos(viewport->WorkPos.x + static_cast<float>(gameViewport.width),
-            viewport->WorkPos.y);
-        const ImVec2 editorSize(editorWidth, viewport->WorkSize.y);
-
-        ImGui::SetNextWindowPos(editorPos, ImGuiCond_Always);
-        ImGui::SetNextWindowSize(editorSize, ImGuiCond_Always);
+        // Make the dock host cover the entire work area
+        ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
         ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoBringToFrontOnFocus |
+            ImGuiWindowFlags_NoNavFocus |
             ImGuiWindowFlags_NoBackground;
 
-
         ImGui::Begin("EditorDockHost", nullptr, flags);
+
         ImGuiID dockspaceId = ImGui::GetID("EditorDockspace");
-        ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode |
-            ImGuiDockNodeFlags_NoDockingInCentralNode;
+        ImGuiDockNodeFlags dockFlags =
+            ImGuiDockNodeFlags_PassthruCentralNode |        // game shows through
+            ImGuiDockNodeFlags_NoDockingInCentralNode;      // nothing docks over the center
+
         ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockFlags);
+
         ImGui::End();
 
         ImGui::PopStyleVar(2);
@@ -1227,8 +1228,7 @@ namespace Framework {
         ImGui::SetNextWindowBgAlpha(0.35f);
 
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
-            ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav ;
         if (!showEditor)
         {
 

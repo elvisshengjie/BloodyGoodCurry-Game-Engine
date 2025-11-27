@@ -243,7 +243,7 @@ namespace Framework
         // 3. APPLY SCALE TO VARIABLES
         // Multiply all your hardcoded positions and sizes by scaleFactor
 
-        float startX = 40.0f * scaleFactor;
+        float startX = 20.0f * scaleFactor;
         float startY = static_cast<float>(screenH) - (150.0f * scaleFactor); // Offset scaled from bottom
         float splashW = 250.0f * scaleFactor;
         float splashH = 120.0f * scaleFactor;
@@ -262,7 +262,7 @@ namespace Framework
             healthPercent = (static_cast<float>(displayedHealth) / health->playerMaxhealth) * 100.0f;
         unsigned faceTex = (healthPercent >= 50.0f) ? texFaceHappy : texFaceUpset;
 
-        float faceW = 100.0f * scaleFactor;  // Adjust this for Width
+        float faceW = 110.0f * scaleFactor;  // Adjust this for Width
         float faceH = 100.0f * scaleFactor;  // Adjust this for Height (try 110.0f or 120.0f if it looks short)
 
         float faceX = startX + (10.0f * scaleFactor);
@@ -273,9 +273,9 @@ namespace Framework
 
 
         // Bottle scaling
-        float bottleW = 35.0f * scaleFactor;
+        float bottleW = 45.0f * scaleFactor;
         float bottleH = 70.0f * scaleFactor;
-        float bottleSpacing = 0.8f * scaleFactor;
+        float bottleSpacing = -10.0f * scaleFactor;
        
         float bottleStartX = faceX + faceW - (10.0f * scaleFactor) ;
         float bottleY = faceY + (5.0f * scaleFactor);
@@ -297,7 +297,13 @@ namespace Framework
 
             // Only debug the 3rd bottle (index 2) which seems to be the broken one
             bool debugThisBottle = (i == 2);
+            float yPos = bottleY;
 
+            //  If it's the 3rd, 4th, or 5th bottle (index 2+), move it down.
+            if (i >= 2)
+            {
+                yPos -= (5.0f * scaleFactor); // Change 15.0f to adjust how far down it goes
+            }
             // CASE A: ANIMATION
             if (b.breakAnimTimer > 0.0f)
             {
@@ -308,7 +314,7 @@ namespace Framework
                 frame = std::clamp(frame, 0, BREAK_FRAMES - 1);
 
                 if (texBottleBreak)
-                    Graphics::renderSpriteFrame(texBottleBreak, xPos + bottleW / 2, bottleY + bottleH / 2, 0.0f, bottleW, bottleH, frame, 3, 1);
+                    Graphics::renderSpriteFrame(texBottleBreak, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, frame, 3, 1);
             }
             // CASE B: BROKEN (STATIC)
             else if (b.isBroken)
@@ -318,7 +324,7 @@ namespace Framework
                 if (texBottleBroken != 0)
                 {
                     // Normal Draw
-                    Graphics::renderSpriteFrame(texBottleBroken, xPos + bottleW / 2, bottleY + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
+                    Graphics::renderSpriteFrame(texBottleBroken, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
                 }
                 else
                 {
@@ -326,7 +332,7 @@ namespace Framework
                     // (Assuming you have a function to draw a simple rect, or re-use another texture with color mod)
                     // If not, we will use the Full Bottle but Tint it RED to prove logic works.
                     if (texBottleFull)
-                        Graphics::renderSpriteFrame(texBottleFull, xPos + bottleW / 2, bottleY + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1, 1.0f, 0.0f, 1.0f, 1.0f); // Magenta Tint
+                        Graphics::renderSpriteFrame(texBottleFull, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1, 1.0f, 0.0f, 1.0f, 1.0f); // Magenta Tint
                 }
             }
             // CASE C: HEALTHY
@@ -334,7 +340,7 @@ namespace Framework
             {
                 // if (debugThisBottle) std::cout << "[HUD] Bottle 2 is HEALTHY.\n";
                 if (texBottleFull)
-                    Graphics::renderSpriteFrame(texBottleFull, xPos + bottleW / 2, bottleY + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
+                    Graphics::renderSpriteFrame(texBottleFull, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
             }
         }
 
