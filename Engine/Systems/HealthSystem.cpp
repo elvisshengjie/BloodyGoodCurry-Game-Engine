@@ -221,6 +221,7 @@ namespace Framework
 
     void HealthSystem::Update(float dt)
     {
+        lastDt = dt;
         RefreshTrackedObjects();
         gameObjectIds.erase(
             std::remove_if(

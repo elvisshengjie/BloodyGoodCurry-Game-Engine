@@ -54,14 +54,8 @@ namespace Framework {
         // 2. Load all audio files under /Assets/Audio
         const std::string audioPath = Framework::ResolveAssetPath("Audio").string();
         Resource_Manager::loadAll(audioPath);
-
-        // 3. Set global master volume
-        SoundManager::getInstance().setMasterVolume(0.7f);
-
-        if (SoundManager::getInstance().isSoundLoaded("SoundTrackloop")) 
-            SoundManager::getInstance().playSound("SoundTrackloop", true);
-
-        // 6. Debug UI
+        
+        // 3. Debug UI
         AudioImGui::Initialize(*window);
 
         std::cout << "[AudioSystem] Initialized successfully.\n";
