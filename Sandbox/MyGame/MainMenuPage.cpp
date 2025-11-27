@@ -52,7 +52,7 @@ namespace {
         std::vector<MenuButtonJson> buttons;
     };
 
-    // --- How To Popup Structs (Existing) ---
+
     struct HowToRowJson {
         TextureField icon;
         TextureField label;
@@ -139,9 +139,23 @@ namespace {
         config.background = MakeTextureField("howto_note_bg", "Textures/UI/How To Play/Note.png");
         config.header = MakeTextureField("howto_header", "Textures/UI/How To Play/How To Play.png");
         config.close = MakeTextureField("menu_popup_close", "Textures/UI/How To Play/XButton.png");
+        config.rows = {
+            { MakeTextureField("howto_wasd_icon", "Textures/UI/How To Play/WASD_Sprite.png"),
+                MakeTextureField("howto_wasd_label", "Textures/UI/How To Play/WASD to move.png"),
+                 0, 8.0f, 0.9f, 2.6f },
+            { MakeTextureField("howto_esc_icon", "Textures/UI/How To Play/ESC_Sprite.png"),
+                MakeTextureField("howto_esc_label", "Textures/UI/How To Play/Esc to pause.png"),
+                0, 8.0f, 1.8f, 3.1f },
+            { MakeTextureField("howto_melee_icon", "Textures/UI/How To Play/Left_Mouse_Sprite.png"),
+                MakeTextureField("howto_melee_label", "Textures/UI/How To Play/For melee attack.png"),
+                0, 8.0f, 0.72f, 3.1f },
+            { MakeTextureField("howto_range_icon", "Textures/UI/How To Play/Right_Mouse_Sprite.png"),
+                MakeTextureField("howto_range_label", "Textures/UI/How To Play/For Range attack.png"),
+                0, 8.0f, 0.72f, 3.1f },
+        };
         config.headerOffsetX = 0.0f;
         config.headerOffsetY = 0.0f;
-       
+
         return config;
     }
     ExitPopupJson DefaultExitPopupConfig()
@@ -385,6 +399,7 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
         }
         return fallback;
         };
+
     // Popup Overlay
     if (showExitPopup && render)
     {
@@ -412,6 +427,9 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
     }
     else if (showOptionsPopup && render)
     {
+        // ---------------------------------------------------------
+        // OPTIONS POPUP: Background Only (No Header)
+        // ---------------------------------------------------------
         const float overlayAlpha = 0.65f;
         gfx::Graphics::renderRectangleUI(0.f, 0.f, static_cast<float>(sw), static_cast<float>(sh), 0.f, 0.f, 0.f, overlayAlpha, sw, sh);
 
@@ -421,15 +439,6 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
         else {
             gfx::Graphics::renderRectangleUI(optionsPopup.x, optionsPopup.y, optionsPopup.w, optionsPopup.h, 0.1f, 0.08f, 0.05f, 0.95f, sw, sh);
         }
-
-        if (optionsHeaderTex) {
-            gfx::Graphics::renderSpriteUI(optionsHeaderTex, optionsHeader.x, optionsHeader.y, optionsHeader.w, optionsHeader.h, 1.f, 1.f, 1.f, 1.f, sw, sh);
-        }
-        else if (render && render->IsTextReadyTitle()) {
-            render->GetTextTitle().RenderText("Options", optionsHeader.x + optionsHeader.w * 0.15f, optionsHeader.y + optionsHeader.h * 0.24f, 1.0f, glm::vec3(0.80f, 0.62f, 0.28f));
-        }
-
-       
     }
     else if (showHowToPopup && render) {
         const float overlayAlpha = 0.65f;
@@ -440,24 +449,32 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
             gfx::Graphics::renderSpriteUI(noteBackgroundTex, howToPopup.x, howToPopup.y, howToPopup.w, howToPopup.h, 1.f, 1.f, 1.f, 1.f, sw, sh);
         }
         else {
-            // Fallback rect if texture missing
             gfx::Graphics::renderRectangleUI(howToPopup.x, howToPopup.y, howToPopup.w, howToPopup.h, 0.1f, 0.08f, 0.05f, 0.95f, sw, sh);
         }
 
-        // Header
-
+        // --- HEADER ---
         const float headerPadY = howToPopup.h * 0.07f;
         const float headerHeight = howToPopup.h * 0.16f;
         const float headerAspect = textureAspect(howToHeaderTex, 2.6f);
         const float headerWidth = headerHeight * headerAspect;
-        const float headerX = howToPopup.x + (howToPopup.w - headerWidth) * 0.5f + howToHeaderOffsetX;
-        const float headerY = howToPopup.y + howToPopup.h - headerHeight - headerPadY + howToHeaderOffsetY;
+
+        // Offset Calculation
+        const float offsetScale = howToPopup.w / (1280.0f * 0.58f);
+        const float scaledOffsetX = howToHeaderOffsetX * offsetScale;
+        const float scaledOffsetY = howToHeaderOffsetY * offsetScale;
+
+        // Apply extra adjustments to move Header LEFT (-X) and UP (+Y)
+        const float extraMoveLeft = 30.0f * offsetScale;
+        const float extraMoveUp = 25.0f * offsetScale;
+
+        const float headerX = howToPopup.x + (howToPopup.w - headerWidth) * 0.5f + scaledOffsetX - extraMoveLeft;
+        const float headerY = howToPopup.y + howToPopup.h - headerHeight - headerPadY + scaledOffsetY + extraMoveUp;
 
         if (howToHeaderTex) {
             gfx::Graphics::renderSpriteUI(howToHeaderTex, headerX, headerY, headerWidth, headerHeight, 1.f, 1.f, 1.f, 1.f, sw, sh);
         }
 
-        // Content Rows
+        // --- CONTENT ROWS ---
         const float contentTop = headerY - howToPopup.h * 0.04f;
         const float contentBottom = howToPopup.y + howToPopup.h * 0.08f;
         const float availableHeight = std::max(0.1f, contentTop - contentBottom);
@@ -466,19 +483,23 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
 
         const float iconHeightBase = rowHeight * 0.78f;
         const float labelHeightBase = rowHeight * 0.58f;
-        const float leftPad = howToPopup.w * 0.16f;
+        const float leftPad = howToPopup.w * 0.20f;
         const float rightPad = howToPopup.w * 0.14f;
         const float labelX = howToPopup.x + leftPad;
         const float iconAnchorX = howToPopup.x + howToPopup.w - rightPad;
 
-        // UI Projection for content
         const glm::mat4 uiOrtho = glm::ortho(0.0f, static_cast<float>(sw), 0.0f, static_cast<float>(sh), -1.0f, 1.0f);
         gfx::Graphics::setViewProjection(glm::mat4(1.0f), uiOrtho);
 
         for (size_t i = 0; i < howToRows.size(); ++i) {
-            const float sizeScale = (i < 2) ? 0.94f : 1.0f;
-            const float iconHeight = iconHeightBase * sizeScale;
-            const float labelHeight = labelHeightBase * sizeScale;
+            // FIX: Increased Icon scale to 1.15f (Bigger)
+            // Kept Label scale at 0.55f (Small text)
+            const float iconScale = (i < 2) ? 1.15f : 1.0f;
+            const float labelScale = (i < 2) ? 0.55f : 1.0f;
+
+            const float iconHeight = iconHeightBase * iconScale;
+            const float labelHeight = labelHeightBase * labelScale;
+
             const float rowBaseY = contentTop - rowHeight * (static_cast<float>(i) + 1.f);
             const float iconY = rowBaseY + (rowHeight - iconHeight) * 0.5f;
             const float labelY = rowBaseY + (rowHeight - labelHeight) * 0.5f;
@@ -492,7 +513,9 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
                 const float iconAspect = textureAspect(howToRows[i].iconTex, howToRows[i].iconAspectFallback) *
                     (static_cast<float>(rows) / static_cast<float>(cols));
                 const float iconW = iconHeight * iconAspect;
-                const float iconX = iconAnchorX - iconW - ((i < 2) ? howToPopup.w * 0.01f : 0.0f);
+
+                const float iconNudgeLeft = (i < 2) ? howToPopup.w * 0.12f : 0.0f;
+                const float iconX = iconAnchorX - iconW - iconNudgeLeft;
 
                 const float fps = howToRows[i].fps > 0.0f ? howToRows[i].fps : 8.0f;
                 const int frameIndex = (frames > 1) ? (static_cast<int>(iconAnimTime * fps) % frames) : 0;
@@ -532,14 +555,19 @@ void MainMenuPage::SyncLayout(int screenW, int screenH)
 
     const float baseW = 1280.f;
     const float baseH = 720.f;
-    const float scaleX = sw / baseW;
-    const float scaleY = sh / baseH;
+    const float scaleX = static_cast<float>(sw) / baseW;
+    const float scaleY = static_cast<float>(sh) / baseH;
+
+    // Use uniform scale for buttons to prevent stretching in fullscreen
+    const float uniformScale = std::min(scaleX, scaleY);
 
     // --- Dynamic Layout ---
     const auto& l = g_MenuConfig.layout;
-    const float btnW = l.btnW * scaleX * l.scale;
-    const float btnH = l.btnH * scaleY * l.scale;
-    const float vSpace = l.spacing * scaleY;
+
+    // Apply uniform scaling to buttons
+    const float btnW = l.btnW * uniformScale * l.scale;
+    const float btnH = l.btnH * uniformScale * l.scale;
+    const float vSpace = l.spacing * uniformScale;
 
     size_t count = g_MenuConfig.buttons.size();
     const float blockHeight = (btnH * count) + (vSpace * (count - 1));
@@ -745,7 +773,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             showOptionsPopup = false;
             iconAnimTime = 0.0f;
             iconTimerInitialized = false;
-            // IMPORTANT: Rebuild GUI to include Close button
+
             BuildGui();
             };
 
