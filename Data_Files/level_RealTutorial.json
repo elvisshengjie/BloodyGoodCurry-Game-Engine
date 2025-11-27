@@ -1849,6 +1849,7 @@
       {
         "Components": {
           "AudioComponent": {
+            "entityType": "player",
             "sounds": {
               "GrappleShoot1": {
                 "id": "GrappleShoot1",
@@ -3361,6 +3362,7 @@
       {
         "Components": {
           "AudioComponent": {
+            "entityType": "enemy",
             "sounds": {},
             "volume": 0.20000000298023224
           },
@@ -3479,6 +3481,7 @@
       {
         "Components": {
           "AudioComponent": {
+            "entityType": "enemy",
             "sounds": {},
             "volume": 1.0
           },
@@ -3597,6 +3600,7 @@
       {
         "Components": {
           "AudioComponent": {
+            "entityType": "enemy",
             "sounds": {},
             "volume": 0.20000000298023224
           },
@@ -3715,6 +3719,7 @@
       {
         "Components": {
           "AudioComponent": {
+            "entityType": "enemy",
             "sounds": {},
             "volume": 0.20000000298023224
           },
@@ -3833,6 +3838,7 @@
       {
         "Components": {
           "AudioComponent": {
+            "entityType": "enemy",
             "sounds": {},
             "volume": 0.20000000298023224
           },

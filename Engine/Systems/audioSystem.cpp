@@ -59,7 +59,7 @@ namespace Framework {
         SoundManager::getInstance().setMasterVolume(0.7f);
 
         if (SoundManager::getInstance().isSoundLoaded("SoundTrackloop"))
-            SoundManager::getInstance().playSound("SoundTrackloop", true);
+            SoundManager::getInstance().playSound("SoundTrackloop", 0.7f, 1.0f, true);
 
         // 6. Debug UI
         AudioImGui::Initialize(*window);
