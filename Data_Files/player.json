@@ -156,7 +156,7 @@
       },
       "AudioComponent": {
         "entityType": "player",
-        "volume": 0.2
+        "volume": 1.0
       }
     }
   }

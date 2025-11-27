@@ -204,9 +204,14 @@ namespace Framework
                 }
                 s.ExitObject();
             }
-
             if (s.HasKey("volume"))
                 StreamRead(s, "volume", volume);
+            if (!entityType.empty() && !initialized)
+            {
+                std::cout << "[AudioComponent] Auto-initializing after Serialize with entityType: "
+                    << entityType << "\n";
+                ensureInitialized(true);
+            }
         }
         /*************************************************************************************
           \brief Clones this AudioComponent and its internal data.
@@ -216,9 +221,14 @@ namespace Framework
         std::unique_ptr<GameComponent> Clone() const override
         {
             auto copy = std::make_unique<AudioComponent>();
+            copy->entityType = entityType;
             copy->sounds = sounds;
             copy->volume = volume;
             copy->playing = playing;
+            if (!copy->entityType.empty())
+            {
+                copy->ensureInitialized(true);  // Force init
+            }
             return copy;
         }
         /*************************************************************************************
