@@ -21,6 +21,7 @@
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
+
 #include "DecisionTreeDefault.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/EnemyTypeComponent.h"
@@ -29,7 +30,11 @@
 #include <cctype>
 #include <string_view>
 #include <cmath>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace Framework
 {
     namespace

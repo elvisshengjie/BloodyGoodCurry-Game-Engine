@@ -4,6 +4,7 @@
  \author    All TEAM MEMBERS
  \brief     Game lifecycle management + Main Menu transition (GUISystem-backed)
 *********************************************************************************************/
+
 #include "Graphics/Window.hpp"
 #include "Systems/SystemManager.h"
 #include "Systems/InputSystem.h"
@@ -23,6 +24,12 @@
 #include <MainMenuPage.hpp>
 #include <PauseMenuPage.hpp>
 #include <DefeatScreenPage.hpp>
+
+#include "Common/CRTDebug.h"   
+
+#ifdef _DEBUG
+#define new DBG_NEW       
+#endif
 
 namespace mygame {
 

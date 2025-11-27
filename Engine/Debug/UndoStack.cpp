@@ -24,7 +24,11 @@
 #include "Resource_Manager/Resource_Manager.h"
 #include "Factory/Factory.h"
 #include "Debug/Selection.h"
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace mygame
 {
     namespace editor

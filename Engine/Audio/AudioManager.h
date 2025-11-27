@@ -56,4 +56,5 @@ class AudioManager
     std::unordered_map<std::string, std::vector<FMOD_CHANNEL*>> m_channels;///Map of channels for each sound.
     std::string getFullPath(const std::string& fileName) const;
     void checkFMODError(FMOD_RESULT result, const std::string& operation) const;
+    void pruneStoppedChannels();
 };
