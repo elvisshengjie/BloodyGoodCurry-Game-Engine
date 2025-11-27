@@ -56,18 +56,18 @@ namespace mygame {
         gInputSystem = gSystems.RegisterSystem<Framework::InputSystem>(win);
         gLogicSystem = gSystems.RegisterSystem<Framework::LogicSystem>(win, *gInputSystem);
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
-        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win,*gLogicSystem);
+        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win, *gLogicSystem);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
         gHealthSystem = gSystems.RegisterSystem<Framework::HealthSystem>(win);
-     
-      
+
+
         //(void)gPhysicsSystem;
         //(void)gAudioSystem;
         //(void)gRenderSystem;
 
         gSystems.IntializeAll();
-        
+
 
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
@@ -147,6 +147,10 @@ namespace mygame {
                 if (pauseMenu.ConsumeResume() ||
                     (gInputSystem && (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY))))
                 {
+                    // [UPDATED LOGIC] Resume based on previous state if possible, 
+                    // or default to PLAYING. If we came from DEFEAT, going back to PLAYING
+                    // might be weird if the player is still dead, but typically "Resume" means "Back to Game".
+                    // If the player is dead, the next frame's check in PLAYING will send them back to DEFEAT screen.
                     currentState = GameState::PLAYING;
                     break;
                 }
@@ -180,6 +184,16 @@ namespace mygame {
             case GameState::DEFEAT:
                 defeatScreen.Update(gInputSystem);
                 handlePerfToggle();
+
+                // [ADDED] Check for Pause input to go to Pause Menu
+                if (gInputSystem && !editorMode &&
+                    (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY)))
+                {
+                    pauseMenu.ResetLatches();
+                    currentState = GameState::PAUSED;
+                    break;
+                }
+
                 if (defeatScreen.ConsumeTryAgain())
                 {
                     if (gLogicSystem)
