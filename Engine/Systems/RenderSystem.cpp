@@ -68,7 +68,11 @@
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "../../Sandbox/MyGame/Game.hpp"
 #include "Component/HitBoxComponent.h"
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace Framework {
 
     RenderSystem* RenderSystem::sInstance = nullptr;
@@ -2128,7 +2132,13 @@ namespace Framework {
     *************************************************************************************/
     void RenderSystem::Shutdown()
     {
-        ImGui::SaveIniSettingsToDisk(imguiLayoutPath.c_str());
+        // Skip ImGui teardown if the context was never created (early failures)
+      // to avoid dereferencing a null ImGui state pointer on shutdown.
+        if (ImGui::GetCurrentContext())
+        {
+            ImGui::SaveIniSettingsToDisk(imguiLayoutPath.c_str());
+        }
+
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), nullptr);
 
