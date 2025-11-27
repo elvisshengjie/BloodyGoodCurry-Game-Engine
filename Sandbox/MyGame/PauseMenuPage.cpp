@@ -634,7 +634,7 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
 
     note = { (static_cast<float>(sw) - noteW) * 0.5f, (static_cast<float>(sh) - noteH) * 0.5f, noteW, noteH };
 
-    const float paddingX = note.w * 0.18f;
+   
     const float topPad = note.h * 0.20f;
     int headerWpx = 0, headerHpx = 0;
     const float defaultHeaderAspect = 2.7f;
