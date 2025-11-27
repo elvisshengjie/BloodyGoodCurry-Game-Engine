@@ -503,7 +503,7 @@ namespace Framework {
             }
 
             // On mouse release: if we started an undo, finalize it.
-            if (!mouseDown && gHasPendingUndo)
+            if (mouseReleased && gHasPendingUndo)
             {
                 if (FACTORY && gUndoObjectId != 0)
                 {
@@ -512,6 +512,13 @@ namespace Framework {
                         mygame::editor::RecordTransformChange(*target, gUndoStart);
                     }
                 }
+                gHasPendingUndo = false;
+                gUndoObjectId = 0;
+            }
+            else if (!mouseDown && gHasPendingUndo)
+            {
+                // Mouse was released outside of ImGui's knowledge; drop the pending undo
+                // so we don't accidentally record a stale transform later.
                 gHasPendingUndo = false;
                 gUndoObjectId = 0;
             }
