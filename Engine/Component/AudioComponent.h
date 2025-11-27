@@ -65,11 +65,37 @@ namespace Framework
         float volume{ 1.0f }; 
         std::string entityType;
         
-        void ensureInitialized()
-        {
-            if (initialized || entityType.empty())
-                return;
+        /*************************************************************************************
+          \brief Ensures that the AudioComponent is initialized.
 
+          \details
+              This function checks whether the AudioComponent has been initialized and
+              whether the entityType has been set. If the component is not yet initialized
+              and the entityType is valid, it calls initialize() to register the correct
+              sounds for this entity. This guarantees that all sound mappings are ready
+              for playback.
+
+              In the context of prefabs, this can be called after cloning to ensure that
+              the AudioComponent correctly registers sounds even if the prefab was partially
+              initialized or serialized previously.
+
+          \param force Optional boolean flag (default = false). If true, forces re-initialization
+                       even if the component was already initialized. Useful for prefab cloning
+                       scenarios.
+
+          \note If entityType is empty, initialization is skipped and a warning is logged.
+        *************************************************************************************/
+        void ensureInitialized(bool force = false)
+        {
+            if (!force && initialized && !entityType.empty())
+                return;
+            if (entityType.empty()) {
+                std::cerr << "[AudioComponent] Warning: entityType not set, cannot initialize.\n";
+                return;
+            }
+            initialized = false; // reset just in case
+            sounds.clear();
+            playing.clear();
             initialize();
             initialized = true;
         }
@@ -101,7 +127,7 @@ namespace Framework
             }
             else if (entityType == "enemy")
             {
-                //sounds["GhostSounds"] = { "GhostSounds", false };
+                sounds["GhostSounds"] = { "GhostSounds", false };
             }
 
             // Build playing map
