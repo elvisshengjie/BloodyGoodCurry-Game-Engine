@@ -1872,7 +1872,7 @@
                 "loop": false
               }
             },
-            "volume": 0.1
+            "volume": 0.5
           },
           "HitBoxComponent": {
             "duration": 0.15000000596046448,

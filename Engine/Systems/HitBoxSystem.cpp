@@ -344,13 +344,29 @@ namespace Framework
 
                 if (auto* playerHealth = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
                 {
-
                     if (!playerHealth->isInvulnerable)
                     {
                         playerHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
+
+                        // Immediately play audio after taking damage
+                        if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                        {
+                            if (!playerHealth->isDead) // still alive
+                            {
+                                audio->TriggerSound("PlayerHit");
+                                std::cout << "[Audio] PlayerHit triggered immediately\n";
+                            }
+                            else if (!playerHealth->deathSoundPlayed) // died this hit
+                            {
+                                audio->TriggerSound("PlayerDead");
+                                playerHealth->deathSoundPlayed = true;
+                                std::cout << "[Audio] PlayerDead triggered immediately\n";
+                            }
+                        }
                     }
                 }
+
                 else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
                     if (enemyHealth->enemyHealth <= 0) continue;

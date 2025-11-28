@@ -316,7 +316,6 @@ namespace Framework
                                 playerHealth->invulnTime -= dt;
                                 if (playerHealth->invulnTime <= 0.0f)
                                 {
-                                    audio->TriggerSound("PlayerHit");
                                     playerHealth->invulnTime = 0.0f;
                                     playerHealth->isInvulnerable = false;
                                     std::cout << "[PlayerHealthComponent] Invulnerability ended.\n";

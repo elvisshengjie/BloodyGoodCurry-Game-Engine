@@ -88,7 +88,10 @@ namespace Framework {
                 if (ph->playerHealth <= 0)
                 {
                     if (auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                    {
                         audio->Stop("footsteps");
+                        continue;
+                    }  
                 }
             }
             // Get Rigidbody and Audio components
