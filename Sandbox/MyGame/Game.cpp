@@ -42,8 +42,10 @@ namespace mygame {
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
         const char* DEFEAT = "Defeat";
+        const char* BOILING = "Boiling";
         bool defeatBGMPlaying = false;
         bool defeatSoundStarted = false;
+        bool boilingStarted = false;
         float bgmFadeTimer = 0.0f;
         constexpr float kBGMFadeDuration = 1.5f;
 
@@ -259,6 +261,12 @@ namespace mygame {
                     SoundManager::getInstance().playSound(DEFEAT, false); // one-shot
                     SoundManager::getInstance().setSoundVolume(DEFEAT, 0.5f);
                     defeatSoundStarted = true;
+                }
+                if (!boilingStarted && SoundManager::getInstance().isSoundLoaded(BOILING))
+                {
+                    SoundManager::getInstance().playSound(BOILING, false, 1.0f); // start silent
+                    SoundManager::getInstance().fadeInMusic(BOILING, 0.7f, 1.0f); // fade in to 0.5 volume over 2 seconds
+                    boilingStarted = true;
                 }
                 if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
