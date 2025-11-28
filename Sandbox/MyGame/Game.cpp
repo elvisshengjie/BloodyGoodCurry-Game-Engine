@@ -210,6 +210,18 @@ namespace mygame {
 
                 if (pauseMenu.ConsumeMainMenu())
                 {
+                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    {
+                        SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
+                        gameplayBGMPlaying = false;
+                    }
+                    if (SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM))
+                    {
+                        SoundManager::getInstance().playSound(MAIN_MENU_BGM, true); // loop
+                        SoundManager::getInstance().setSoundVolume(MAIN_MENU_BGM, 0.0f);
+                        SoundManager::getInstance().fadeInMusic(MAIN_MENU_BGM, kBGMFadeDuration, 0.4f);
+                        mainMenuBGMPlaying = true;
+                    }
                     if (gLogicSystem)
                     {
                         gLogicSystem->ReloadLevel();
