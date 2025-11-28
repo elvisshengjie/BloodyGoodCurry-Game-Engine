@@ -60,7 +60,7 @@ Gizmos
 R- Rotate
 T - Translation
 S - Scale
-
+Control Z undo
 Editor & Viewport
 
 F10: Toggle Editor panels (dockspace & tools).
