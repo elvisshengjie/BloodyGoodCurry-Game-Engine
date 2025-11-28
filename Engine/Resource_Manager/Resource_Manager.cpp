@@ -1,11 +1,23 @@
 /*********************************************************************************************
  \file      Resource_Manager.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 60%
+            yimo.kong (yimo.kong@digipen.edu) - Author, 40%
+ \brief     Implements the Resource_Manager class, responsible for loading, tracking, and
+            unloading game resources such as textures and sounds.
 
- \brief     Implementation of the Resource_Manager class, providing functions to load, track,
-            and unload game resources such as textures, sounds, fonts, and graphics. Includes
-            helper methods for file extension handling and resource type validation.
+ \details
+            The Resource_Manager provides a central registry for engine assets and handles:
+            - File extension parsing and normalization to identify resource types.
+            - Loading individual resources by logical ID and file path.
+            - Bulk loading of all supported resources from a directory tree.
+            - Integration with gfx::Graphics for texture creation, destruction, and cleanup.
+            - Integration with SoundManager for audio loading and shutdown.
+            - Safe unloading routines that release GPU and audio resources and help avoid
+              leaks when using CRT debug allocation tracking on Windows.
+
+            Resources are stored in an internal map keyed by string IDs, allowing systems
+            such as rendering and audio to query handles without duplicating load logic.
 
  \copyright
             All content © 2025 DigiPen Institute of Technology Singapore.
@@ -16,38 +28,49 @@
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
 #ifdef _DEBUG
-#define new DBG_NEW       // <- redefine new AFTER all includes
+#define new DBG_NEW            // <- redefine new AFTER all includes
 #endif
+
 /*****************************************************************************************
-     \brief Get the file extension from a path string.
-    \param path  Path to the file.
-    \return File extension string (e.g., "png", "wav").
+ \brief  Get the file extension from a path string.
+ \param  path  Path to the file.
+ \return File extension string (e.g., "png", "wav") without the leading dot, in lowercase.
 *****************************************************************************************/
 inline std::string Resource_Manager::GetExtension(const std::string& path)
 {
     std::string ext = std::filesystem::path(path).extension().string();
-    if (!ext.empty() && ext[0]=='.'){ext.erase(0,1);}
+    if (!ext.empty() && ext[0] == '.') {
+        ext.erase(0, 1);
+    }
     std::transform(ext.begin(), ext.end(), ext.begin(),
         [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     return ext;
 }
+
 /*****************************************************************************************
-     \brief Check if a given file extension corresponds to a texture type.
-    \param ext  File extension string.
-    \return true if it is a texture, false otherwise.
+ \brief  Check if a given file extension corresponds to a texture type.
+ \param  ext  File extension string (lowercase, without leading dot).
+ \return true if it is a supported texture extension, false otherwise.
 *****************************************************************************************/
-bool Resource_Manager::isTexture(const std::string& ext){return (ext == "png"||ext == "jpg");}
+bool Resource_Manager::isTexture(const std::string& ext)
+{
+    return (ext == "png" || ext == "jpg");
+}
+
 /*****************************************************************************************
-     \brief Check if a given file extension corresponds to a sound type.
-    \param ext  File extension string.
-    \return true if it is a sound, false otherwise.
+ \brief  Check if a given file extension corresponds to a sound type.
+ \param  ext  File extension string (lowercase, without leading dot).
+ \return true if it is a supported sound extension, false otherwise.
 *****************************************************************************************/
 bool Resource_Manager::isSound(const std::string& ext)
-{return ext == "mp3"|| ext == "wav";}
+{
+    return (ext == "mp3" || ext == "wav");
+}
+
 /*****************************************************************************************
-     \brief Retrieve the handle of a texture resource by its unique key.
-    \param key  Resource identifier.
-    \return Handle of the texture, or 0 if not found.
+ \brief  Retrieve the handle of a texture resource by its unique key.
+ \param  key  Resource identifier.
+ \return Handle of the texture, or 0 if not found or not a graphics resource.
 *****************************************************************************************/
 unsigned int Resource_Manager::getTexture(const std::string& key)
 {
@@ -58,21 +81,24 @@ unsigned int Resource_Manager::getTexture(const std::string& key)
     return 0; // Not found
 }
 
-
 namespace fs = std::filesystem;
+
 /*****************************************************************************************
-     \brief Load a single resource by name and path.
-    \param name  Unique identifier for the resource.
-    \param path  Path to the resource file.
-    \param loop  Optional flag for sound looping (default false).
-    \return true if the resource was successfully loaded, false otherwise.
+ \brief  Load a single resource by ID and path.
+ \param  id    Unique identifier for the resource in the internal map.
+ \param  path  Path to the resource file on disk.
+ \return true if the resource was successfully loaded, false otherwise.
 *****************************************************************************************/
 bool Resource_Manager::load(const std::string& id, const std::string& path)
 {
     fs::path filePath(path);
-    if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
-    {std::cerr << "[Resource_Manager] File not found: " << path << std::endl; return false;}
+    if (!fs::exists(filePath) || !fs::is_regular_file(filePath)) {
+        std::cerr << "[Resource_Manager] File not found: " << path << std::endl;
+        return false;
+    }
+
     std::string ext = GetExtension(path);
+
     if (isTexture(ext))
     {
         unsigned int texID = gfx::Graphics::loadTexture(path.c_str());
@@ -88,7 +114,7 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
         bool success = SoundManager::getInstance().loadSound(id, path);
         if (success)
         {
-            resources_map[id] = { id, Resource_Type::Sound ,0 };
+            resources_map[id] = { id, Resource_Type::Sound, 0 };
             return true;
         }
         else
@@ -98,39 +124,50 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
             return false;
         }
     }
-    else 
+    else
     {
         std::cerr << "[Resource_Manager] Unsupported file type: " << path << std::endl;
-        if (path.find("Audio") != std::string::npos) { Framework::AudioImGui::ShowUnsupportedAudioPopup(path); }
+        if (path.find("Audio") != std::string::npos) {
+            Framework::AudioImGui::ShowUnsupportedAudioPopup(path);
+        }
         return false;
     }
 }
+
 /*****************************************************************************************
-     \brief Load all resources from a specified directory.
-    \param directory  Path to the directory containing resource files.
+ \brief  Load all supported resources from a specified directory (recursively).
+ \param  directory  Path to the directory containing resource files.
 *****************************************************************************************/
 void Resource_Manager::loadAll(const std::string& directory)
 {
     for (auto& entry : fs::recursive_directory_iterator(directory))
     {
-        if (!entry.is_regular_file()) continue;
+        if (!entry.is_regular_file())
+            continue;
 
         fs::path path = entry.path();
         std::string ext = GetExtension(path.string());
-        std::string stem = path.stem().string();      // filename without extension
+        std::string stem = path.stem().string(); // filename without extension
+
+        // Use the portion before the first '-', '_' or '.' as the logical ID.
         size_t pos = stem.find_first_of("-_.");
         std::string id = (pos == std::string::npos) ? stem : stem.substr(0, pos);
-        if (!load(id, path.string())) {}
-        else 
+
+        if (!load(id, path.string()))
+        {
+            // Failed loads are already logged inside load().
+        }
+        else
         {
             std::cout << "[Resource_Manager] Loaded: "
                 << id << " from " << path.string() << "\n";
-        }        
+        }
     }
 }
+
 /*****************************************************************************************
-     \brief Unload all resources of a specified type.
-    \param type  Resource type to unload (Texture, Font, Graphics, Sound, or All).
+ \brief  Unload resources of a specified type and clean up associated subsystems.
+ \param  type  Resource type to unload (Graphics, Sound, or All).
 *****************************************************************************************/
 void Resource_Manager::unloadAll(Resource_Type type)
 {
@@ -139,43 +176,45 @@ void Resource_Manager::unloadAll(Resource_Type type)
             : (type == Resource_Type::Sound ? "Sound" : "Graphics"))
         << std::endl;
 
-    // If type is Sound or All, ensure SoundManager unloads all sounds first
-    if (type == Resource_Type::Sound) {
+    // If type is Sound, ensure SoundManager unloads all sounds first.
+    if (type == Resource_Type::Sound)
+    {
         std::cout << "[Resource_Manager] Stopping and unloading all sounds..." << std::endl;
         SoundManager::getInstance().shutdown();
         std::cout << "[Resource_Manager] All sounds unloaded." << std::endl;
     }
 
-    // If type is Graphics or All, call Graphics cleanup
-    if (type == Resource_Type::Graphics) {
+    // If type is Graphics, call Graphics cleanup.
+    if (type == Resource_Type::Graphics)
+    {
         std::cout << "[Resource_Manager] Cleaning up graphics..." << std::endl;
         gfx::Graphics::cleanup();
         std::cout << "[Resource_Manager] Graphics cleanup complete." << std::endl;
     }
 
-    // Iterate resources map and remove entries of the requested type
-    for (auto it = resources_map.begin(); it != resources_map.end(); ) 
+    // Iterate resources map and remove entries of the requested type.
+    for (auto it = resources_map.begin(); it != resources_map.end(); )
     {
         Resources res = it->second;
         bool matchType = (type == Resource_Type::All || res.type == type);
-        if (matchType) {
+
+        if (matchType)
+        {
             // Release GL textures before erasing graphics resources from the map to
-        // prevent leak reports when running with CRT leak detection on Windows.
+            // prevent leak reports when running with CRT leak detection on Windows.
             if (res.type == Resource_Type::Graphics && res.handle != 0)
             {
                 gfx::Graphics::destroyTexture(res.handle);
             }
+
             std::cout << "[Resource_Manager] Removing resource: " << it->first << std::endl;
             it = resources_map.erase(it); // erase and move forward
         }
-        else {++it;}
+        else
+        {
+            ++it;
+        }
     }
+
     std::cout << "[Resource_Manager] UnloadAll finished." << std::endl;
 }
-
-
-
-
-
-    
-

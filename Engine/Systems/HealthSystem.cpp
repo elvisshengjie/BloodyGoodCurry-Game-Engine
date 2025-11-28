@@ -1,7 +1,8 @@
 /*********************************************************************************************
  \file      HealthSystem.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 80%
+ \author    jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 60%
+            yimo.kong (yimo.kong@digipen.edu) - Author, 20%
             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - co Author, 20% (Draw)
  \brief     Implements the HealthSystem responsible for managing player and enemy health,
             handling death timers, triggering death animations, and destroying objects at
@@ -16,7 +17,7 @@
             - Provides draw() support for player HUD through PlayerHUDComponent.
             - Fully integrates with SpriteAnimationComponent for frame-based animation logic.
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content ?2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
