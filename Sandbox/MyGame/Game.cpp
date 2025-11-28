@@ -41,6 +41,11 @@ namespace mygame {
         const char* START_BUTTTON = "MenuGameStart";
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
+        const char* DEFEAT = "Defeat";
+        const char* BOILING = "Boiling";
+        bool defeatBGMPlaying = false;
+        bool defeatSoundStarted = false;
+        bool boilingStarted = false;
         float bgmFadeTimer = 0.0f;
         constexpr float kBGMFadeDuration = 1.5f;
 
@@ -210,6 +215,18 @@ namespace mygame {
 
                 if (pauseMenu.ConsumeMainMenu())
                 {
+                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    {
+                        SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
+                        gameplayBGMPlaying = false;
+                    }
+                    if (SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM))
+                    {
+                        SoundManager::getInstance().playSound(MAIN_MENU_BGM, true); // loop
+                        SoundManager::getInstance().setSoundVolume(MAIN_MENU_BGM, 0.0f);
+                        SoundManager::getInstance().fadeInMusic(MAIN_MENU_BGM, kBGMFadeDuration, 0.4f);
+                        mainMenuBGMPlaying = true;
+                    }
                     if (gLogicSystem)
                     {
                         gLogicSystem->ReloadLevel();
@@ -239,6 +256,24 @@ namespace mygame {
                 defeatScreen.Update(gInputSystem);
                 handlePerfToggle();
 
+                if (!defeatSoundStarted && SoundManager::getInstance().isSoundLoaded(DEFEAT))
+                {
+                    SoundManager::getInstance().playSound(DEFEAT, false); // one-shot
+                    SoundManager::getInstance().setSoundVolume(DEFEAT, 0.5f);
+                    defeatSoundStarted = true;
+                }
+                if (!boilingStarted && SoundManager::getInstance().isSoundLoaded(BOILING))
+                {
+                    SoundManager::getInstance().playSound(BOILING, false, 1.0f); // start silent
+                    SoundManager::getInstance().fadeInMusic(BOILING, 0.7f, 1.0f); // fade in to 0.5 volume over 2 seconds
+                    boilingStarted = true;
+                }
+                if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                {
+                    SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
+                    gameplayBGMPlaying = false;
+                }
+
                 // [ADDED] Check for Pause input to go to Pause Menu
                 if (gInputSystem && !editorMode &&
                     (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY)))
@@ -250,6 +285,20 @@ namespace mygame {
 
                 if (defeatScreen.ConsumeTryAgain())
                 {
+                    if (SoundManager::getInstance().isSoundLoaded(DEFEAT)&& SoundManager::getInstance().isSoundLoaded(BOILING))
+                    {
+                        SoundManager::getInstance().stopSound(DEFEAT);
+                        SoundManager::getInstance().stopSound(BOILING);
+                    }
+                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    {
+                        SoundManager::getInstance().playSound(GAMEPLAY_BGM, true);
+                        SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f);
+                        SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
+                        gameplayBGMPlaying = true;
+                    }
+
+                    defeatSoundStarted = false;
                     if (gLogicSystem)
                     {
                         gLogicSystem->ReloadLevel();

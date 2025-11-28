@@ -20,6 +20,9 @@
             All rights reserved.
 *********************************************************************************************/
 #pragma once
+
+#if SOFASPUDS_ENABLE_EDITOR
+
 #include "../Audio/SoundManager.h"
 #include "../Resource_Manager/Resource_Manager.h"
 #include "imgui.h"
@@ -29,7 +32,8 @@
 #include <vector>
 #include <string>
 #include <filesystem>
-namespace Framework 
+
+namespace Framework
 {
     /*********************************************************************************************
      \class AudioImGui
@@ -74,8 +78,7 @@ namespace Framework
         static std::string s_unsupportedFile;   // filename or message
         static std::filesystem::path s_assetsRoot; // resolved assets root for drag-drop imports
         static std::string s_importStatus;         // latest status message for drag-drop
-
-
-
     };
 }
+
+#endif // SOFASPUDS_ENABLE_EDITOR

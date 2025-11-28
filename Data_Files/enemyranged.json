@@ -92,9 +92,24 @@
       "EnemyTypeComponent": {
         "type": "ranged"
       },
-      "AudioComponent": {
-        "entityType": "enemy",
-        "volume": 1.0
+      "AudioComponent": 
+      {
+        "entityType": "enemy_fire",
+        "sounds": {
+          "Attack": {
+            "id": "FireGhostProjectile1",
+            "loop": false
+          },
+          "Hit": {
+            "id": "FireGhostHurt",
+            "loop": false
+          },
+          "Death": {
+            "id": "FireGhostDeath",
+            "loop": false
+          }
+        },
+        "volume": 0.4
       }
     }
   }

@@ -35,8 +35,9 @@
 
 #include <array>
 #include <memory>
+#if SOFASPUDS_ENABLE_EDITOR
 #include "Debug/AudioImGui.h"
-
+#endif
 namespace Framework {
 	class AudioImGui;
     /*****************************************************************************************

@@ -93,7 +93,9 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
         }
         else
         {
+#if SOFASPUDS_ENABLE_EDITOR
             Framework::AudioImGui::ShowUnsupportedAudioPopup(path);
+#endif
             std::cerr << "[Resource_Manager] Failed to load audio: " << path << std::endl;
             return false;
         }
@@ -101,7 +103,9 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
     else 
     {
         std::cerr << "[Resource_Manager] Unsupported file type: " << path << std::endl;
+#if SOFASPUDS_ENABLE_EDITOR
         if (path.find("Audio") != std::string::npos) { Framework::AudioImGui::ShowUnsupportedAudioPopup(path); }
+#endif
         return false;
     }
 }
@@ -172,10 +176,3 @@ void Resource_Manager::unloadAll(Resource_Type type)
     }
     std::cout << "[Resource_Manager] UnloadAll finished." << std::endl;
 }
-
-
-
-
-
-    
-

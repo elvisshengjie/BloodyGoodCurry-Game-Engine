@@ -123,9 +123,17 @@ namespace Framework
                 sounds["PlayerHit"] = { "PlayerHit", false };
                 sounds["PlayerDead"] = { "PlayerDead", false };
             }
-            else if (entityType == "enemy")
+            else if (entityType == "enemy_fire")
             {
-               sounds["GhostSounds"] = { "GhostSounds", false };
+                sounds["Attack"] = { "FireGhostProjectile1", false };
+                sounds["Hit"] = { "FireGhostHurt", false };
+                sounds["Death"] = { "FireGhostDeath", false };
+            }
+            else if (entityType == "enemy_water")
+            {
+                sounds["Attack"] = { "WaterGhostAttack", false };
+                sounds["Hit"] = { "WaterGhostHurt", false };
+                sounds["Death"] = { "WaterGhostDeath", false };
             }
 
             // Build playing map

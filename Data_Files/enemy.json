@@ -93,8 +93,22 @@
         "type": "physical"
       },
       "AudioComponent": {
-        "entityType": "enemy",
-        "volume": 1.0
+        "entityType": "enemy_water",
+        "sounds": {
+          "Attack": {
+            "id": "WaterGhostAttack",
+            "loop": false
+          },
+          "Hit": {
+            "id": "WaterGhostHurt",
+            "loop": false
+          },
+          "Death": {
+            "id": "WaterGhostDeath",
+            "loop": false
+          }
+        },
+        "volume": 0.4
       }
     }
   }

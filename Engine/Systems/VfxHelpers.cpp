@@ -16,7 +16,10 @@
                animation at a given world position.
             Designed to keep gameplay/attack code clean by hiding the boilerplate
             VFX setup behind simple functions.
- ?2025 DigiPen Institute of Technology Singapore. All rights reserved.
+ 
+ \copyright
+            All content ? 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 
 #include "Systems/VfxHelpers.h"
