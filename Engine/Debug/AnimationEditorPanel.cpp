@@ -1,5 +1,6 @@
-
 #include "Debug/AnimationEditorPanel.h"
+
+#if SOFASPUDS_ENABLE_EDITOR
 
 #include <algorithm>
 #include <array>
@@ -172,3 +173,6 @@ namespace mygame
         ImGui::End();
     }
 }
+
+#endif // SOFASPUDS_ENABLE_EDITOR
+

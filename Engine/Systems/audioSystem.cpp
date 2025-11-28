@@ -1,7 +1,7 @@
-﻿
-#include "audioSystem.h"
+﻿#include "audioSystem.h"
 #include "Core/PathUtils.h"
 #include "RenderSystem.h"
+#include "Resource_Manager/Resource_Manager.h"
 #include <iostream>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
@@ -30,7 +30,7 @@ namespace Framework {
 
      \param window
         Reference to the graphics window for ImGui context.
-    *****************************************************************************************/
+     *****************************************************************************************/
     AudioSystem::AudioSystem(gfx::Window& window) :window(&window) {}
     /*****************************************************************************************
      \brief
@@ -41,7 +41,7 @@ namespace Framework {
         - Loads all audio assets from the assets directory.
         - Sets the default master volume.
         - Initializes the ImGui audio debug panel via AudioImGui.
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::Initialize()
     {
         // 1. Start audio engine
@@ -54,9 +54,10 @@ namespace Framework {
         // 2. Load all audio files under /Assets/Audio
         const std::string audioPath = Framework::ResolveAssetPath("Audio").string();
         Resource_Manager::loadAll(audioPath);
-        
+#if SOFASPUDS_ENABLE_EDITOR
         // 3. Debug UI
         AudioImGui::Initialize(*window);
+#endif
 
         std::cout << "[AudioSystem] Initialized successfully.\n";
     }
@@ -67,15 +68,15 @@ namespace Framework {
 
      \param dt
         Delta time since the last frame (currently unused, reserved for future logic).
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::Update(float dt)
     {
         (void)dt;
-    // In editor-only builds or during shutdown the LogicSystem may not have
-    // initialized the global factory yet. Guard against that scenario so we
-    // do not dereference a null FACTORY pointer (was causing access
-    // violations when the audio system continued updating after the factory
-    // was torn down).
+        // In editor-only builds or during shutdown the LogicSystem may not have
+        // initialized the global factory yet. Guard against that scenario so we
+        // do not dereference a null FACTORY pointer (was causing access
+        // violations when the audio system continued updating after the factory
+        // was torn down).
         if (!FACTORY)
             return;
         // Iterate all game objects in the factory
@@ -100,21 +101,27 @@ namespace Framework {
             bool isMoving = (std::fabs(rb->velX) > moveThreshold ||
                 std::fabs(rb->velY) > moveThreshold);
             if (isMoving)
-            {if (!audio->playing["footsteps"])audio->Play("footsteps");}
+            {
+                if (!audio->playing["footsteps"])audio->Play("footsteps");
+            }
             else
-            {if (audio->playing["footsteps"])  audio->Stop("footsteps");}
+            {
+                if (audio->playing["footsteps"])  audio->Stop("footsteps");
+            }
         }
     }
 
     /*****************************************************************************************
      \brief
         Draws the ImGui-based audio debug panel.
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::draw() {
+#if SOFASPUDS_ENABLE_EDITOR
         if (!RenderSystem::IsEditorVisible())
             return;
 
         AudioImGui::Render();
+#endif
     };
     /*****************************************************************************************
      \brief
@@ -124,15 +131,19 @@ namespace Framework {
         - Unloads all loaded sounds from SoundManager.
         - Shuts down the AudioImGui debug interface.
         - Prints a confirmation message to the console.
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::Shutdown()
     {
         // Unload all sounds
         SoundManager::getInstance().unloadAllSounds();
         // Fully tear down the audio backend to release FMOD allocations
         SoundManager::getInstance().shutdown();
+        // Clear cached sound entries so CRT leak checks do not flag leftover map nodes
+        Resource_Manager::unloadAll(Resource_Manager::Sound);
         // Shutdown the audio ImGui UI
+#if SOFASPUDS_ENABLE_EDITOR
         AudioImGui::Shutdown();
+#endif
         std::cout << "[AudioSystem] Audio system shutdown completed.\n";
     }
-};
+}

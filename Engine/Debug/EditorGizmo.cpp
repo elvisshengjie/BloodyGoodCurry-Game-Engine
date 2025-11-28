@@ -22,6 +22,8 @@
 
 #include "EditorGizmo.h"
 
+#if SOFASPUDS_ENABLE_EDITOR
+
 #include "Component/TransformComponent.h"
 #include "Debug/Selection.h"
 #include "Factory/Factory.h"
@@ -623,3 +625,5 @@ namespace Framework {
 
     } // namespace editor
 } // namespace Framework
+
+#endif // SOFASPUDS_ENABLE_EDITOR

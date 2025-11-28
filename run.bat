@@ -1,13 +1,17 @@
 @echo off
+setlocal
 
-REM CHECK IF 'build' FOLDER EXISTS; CREATE IF IT DOES NOT
-if not exist build (
-    mkdir build
+REM OPTIONAL: Nuke build_game to reset all cached options
+if exist build_game (
+    echo Removing build_game to reset CMake options...
+    rmdir /S /Q build_game
 )
 
-REM BUILDING DEBUG
-pushd build
-cmake ..
+mkdir build_game
+
+pushd build_game
+cmake -DSOFASPUDS_ENABLE_EDITOR=ON ..
 popd
 
+endlocal
 pause

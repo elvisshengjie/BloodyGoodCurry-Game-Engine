@@ -28,6 +28,8 @@
             All rights reserved.
 *********************************************************************************************/
 
+#if SOFASPUDS_ENABLE_EDITOR
+
 #include "Debug/Spawn.h"
 #include "Core/PathUtils.h"
 #include "Selection.h"
@@ -488,7 +490,7 @@ namespace mygame {
         }
         // NOTE: layer is *not* changed here. For new spawns we still set layer in SpawnOnePrefab().
     }
- 
+
     /*************************************************************************************
      \brief  Helper to spawn a single prefab and apply current SpawnSettings.
      \param  prefab Name of the prefab to clone (must exist in master_copies).
@@ -502,8 +504,8 @@ namespace mygame {
 
         // For new objects: full application (including transform offsets)
         ApplySpawnSettingsToObject(*obj, s, index, /*applyTransformAndLayer*/ true);
-                
-       // Assign layer on creation
+
+        // Assign layer on creation
         obj->SetLayerName(gActiveLayer);
 
 
@@ -916,7 +918,7 @@ namespace mygame {
             ImGui::DragFloat("h", &gS.h, 0.005f, 0.01f, 1.0f);
             if (disableSizeControls) ImGui::EndDisabled();
             //Visibility controls-
-                ImGui::SeparatorText("Visibility");
+            ImGui::SeparatorText("Visibility");
             if (ImGui::Checkbox("Override prefab visibility", &gS.overridePrefabVisible)) {
                 if (!gS.overridePrefabVisible && masterRender) {
                     // When turning override OFF, reset to prefab's visibility
@@ -1256,3 +1258,5 @@ namespace mygame {
         ImGui::End();
     }
 } // namespace mygame
+
+#endif // SOFASPUDS_ENABLE_EDITOR

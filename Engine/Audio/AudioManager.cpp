@@ -52,8 +52,15 @@ bool AudioManager::initialize()
     result = FMOD_System_Init(m_system, 32, FMOD_INIT_NORMAL, nullptr);
     if (result != FMOD_OK) 
     {
-    std::cerr << "Failed to initialize FMOD system: " << FMOD_ErrorString(result) << std::endl;
-    return false;
+        std::cerr << "Failed to initialize FMOD system: " << FMOD_ErrorString(result) << std::endl;
+
+        // Clean up the partially created system to avoid leaking the FMOD state
+        if (m_system)
+        {
+            FMOD_System_Release(m_system);
+            m_system = nullptr;
+        }
+        return false;
     }
 
     std::cout << "AudioManager initialized successfully" << std::endl;

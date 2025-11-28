@@ -8,6 +8,8 @@
             All rights reserved.
 *********************************************************************************************/
 
+#if SOFASPUDS_ENABLE_EDITOR
+
 #include "Debug/UndoStack.h"
 #include <vector>
 #include <algorithm>
@@ -29,6 +31,7 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
+
 namespace mygame
 {
     namespace editor
@@ -105,7 +108,7 @@ namespace mygame
                         // --- MAKE SURE THIS LINE IS HERE ---
                         tr->x = state.x;
                         tr->y = state.y;
-                        tr->rot = state.rot; 
+                        tr->rot = state.rot;
                         tr->scaleX = state.scaleX;
                         tr->scaleY = state.scaleY;
                         // -----------------------------------
@@ -379,3 +382,5 @@ namespace mygame
         void ShutdownUndoSystem() { gUndoStack.clear(); }
     }
 }
+
+#endif // SOFASPUDS_ENABLE_EDITOR
