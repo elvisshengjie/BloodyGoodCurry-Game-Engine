@@ -285,9 +285,10 @@ namespace mygame {
 
                 if (defeatScreen.ConsumeTryAgain())
                 {
-                    if (SoundManager::getInstance().isSoundLoaded(DEFEAT))
+                    if (SoundManager::getInstance().isSoundLoaded(DEFEAT)&& SoundManager::getInstance().isSoundLoaded(BOILING))
                     {
                         SoundManager::getInstance().stopSound(DEFEAT);
+                        SoundManager::getInstance().stopSound(BOILING);
                     }
                     if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                     {
