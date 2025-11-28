@@ -4,12 +4,12 @@
  \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
  \brief     Lightweight 2D physics step: AABB moves/collisions + enemy hitbox damage.
  \details   Updates Transform by RigidBody velocity (dt) with axis-separated AABB tests
-            against same-layer “rect” walls, then checks active EnemyAttack hitboxes
+            against same-layer “rect?walls, then checks active EnemyAttack hitboxes
             against player AABBs to apply damage (via PlayerHealthComponent) and
             deactivate the hitbox after a successful hit. Includes simple layer filtering
             and case-insensitive wall name checks; printing to stdout for quick debugging.
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            All content ?025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cctype>
 #include <string>
+#include <cmath>
 
 #include "Component/ZoomTriggerComponent.h"
 #include "RenderSystem.h"
@@ -85,14 +86,16 @@ namespace Framework {
             // Integrate proposed new position
             float newX = tr->x + rb->velX * dt;
             float newY = tr->y + rb->velY * dt;
-
-            // Build trial AABBs for axis-separated collision checks
-            AABB playerBoxX(newX, tr->y, rb->width, rb->height);
-            AABB playerBoxY(tr->x, newY, rb->width, rb->height);
+            // Sweep volumes prevent tunnelling when velocity * dt exceeds wall thickness.
+                        // Center is midpoint of start/end; width/height span covers full travel distance.
+            AABB playerBoxX((tr->x + newX) * 0.5f, tr->y,
+                std::fabs(newX - tr->x) + rb->width, rb->height);
+            AABB playerBoxY(tr->x, (tr->y + newY) * 0.5f,
+                rb->width, std::fabs(newY - tr->y) + rb->height);
 
             const std::string& objectLayer = obj->GetLayerName();
 
-            // Sweep all objects on the same layer, checking only “rect” walls
+            // Sweep all objects on the same layer, checking only “rect?walls
             for (auto& [otherId, otherObj] : objects)
             {
                 if (!otherObj || otherObj == obj)
