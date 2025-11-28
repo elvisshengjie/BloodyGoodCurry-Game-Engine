@@ -250,16 +250,17 @@ namespace Framework
                             // Default death animation name; can be extended per-enemy type if
                             // future enemies need unique death clips (e.g., "water_death").
                             constexpr std::string_view deathAnimName = "death";
-
                             float& timer = deathTimers[id];
                             auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                                 ComponentTypeId::CT_SpriteAnimationComponent);
+                            auto* audio = goc->GetComponentType<AudioComponent>(
+                                ComponentTypeId::CT_AudioComponent);
 
                             // First frame after "death" ¨C trigger death animation and compute duration.
                             if (timer <= 0.0f)
                             {
                                 PlayAnimationIfAvailable(goc, deathAnimName);
-
+                                if (audio) { audio->Play("Death");}
                                 // Use animation length if available; otherwise fall back to a minimum.
                                 timer = std::max(AnimationDuration(anim, deathAnimName), 0.2f);
                             }

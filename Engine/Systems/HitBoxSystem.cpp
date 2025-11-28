@@ -371,6 +371,7 @@ namespace Framework
                 {
                     if (enemyHealth->enemyHealth <= 0) continue;
                     auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
+                    auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
                     bool canHit = false;
                     if (typeComp)
                     {
@@ -390,6 +391,10 @@ namespace Framework
                         enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
                         SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
+                        if (audio && enemyHealth->enemyHealth > 0)
+                        {
+                            audio->Play("Hit");
+                        }
                     }
                 }
                 else { validTargetHit = true; }
