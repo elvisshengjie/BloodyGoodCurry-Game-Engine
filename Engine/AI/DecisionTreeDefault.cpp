@@ -1,7 +1,8 @@
 /*********************************************************************************************
  \file      DecisionTreeDefault.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 80%
+            yimo kong (yimo.kong@digipen.edu)      - Author, 20%
 
  \brief     Implementation of default decision tree behavior for enemy AI. Defines helper
             functions that manage proximity checks, tree creation, and periodic updates
