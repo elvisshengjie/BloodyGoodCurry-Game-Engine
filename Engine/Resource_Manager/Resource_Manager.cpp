@@ -26,7 +26,7 @@
 inline std::string Resource_Manager::GetExtension(const std::string& path)
 {
     std::string ext = std::filesystem::path(path).extension().string();
-    if (!ext.empty() && ext[0] == '.') { ext.erase(0, 1); }
+    if (!ext.empty() && ext[0]=='.'){ext.erase(0,1);}
     std::transform(ext.begin(), ext.end(), ext.begin(),
         [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     return ext;
@@ -36,16 +36,14 @@ inline std::string Resource_Manager::GetExtension(const std::string& path)
     \param ext  File extension string.
     \return true if it is a texture, false otherwise.
 *****************************************************************************************/
-bool Resource_Manager::isTexture(const std::string& ext) { return (ext == "png" || ext == "jpg"); }
+bool Resource_Manager::isTexture(const std::string& ext){return (ext == "png"||ext == "jpg");}
 /*****************************************************************************************
      \brief Check if a given file extension corresponds to a sound type.
     \param ext  File extension string.
     \return true if it is a sound, false otherwise.
 *****************************************************************************************/
 bool Resource_Manager::isSound(const std::string& ext)
-{
-    return ext == "mp3" || ext == "wav";
-}
+{return ext == "mp3"|| ext == "wav";}
 /*****************************************************************************************
      \brief Retrieve the handle of a texture resource by its unique key.
     \param key  Resource identifier.
@@ -73,9 +71,7 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
 {
     fs::path filePath(path);
     if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
-    {
-        std::cerr << "[Resource_Manager] File not found: " << path << std::endl; return false;
-    }
+    {std::cerr << "[Resource_Manager] File not found: " << path << std::endl; return false;}
     std::string ext = GetExtension(path);
     if (isTexture(ext))
     {
@@ -104,7 +100,7 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
             return false;
         }
     }
-    else
+    else 
     {
         std::cerr << "[Resource_Manager] Unsupported file type: " << path << std::endl;
 #if SOFASPUDS_ENABLE_EDITOR
@@ -129,11 +125,11 @@ void Resource_Manager::loadAll(const std::string& directory)
         size_t pos = stem.find_first_of("-_.");
         std::string id = (pos == std::string::npos) ? stem : stem.substr(0, pos);
         if (!load(id, path.string())) {}
-        else
+        else 
         {
             std::cout << "[Resource_Manager] Loaded: "
                 << id << " from " << path.string() << "\n";
-        }
+        }        
     }
 }
 /*****************************************************************************************
@@ -162,7 +158,7 @@ void Resource_Manager::unloadAll(Resource_Type type)
     }
 
     // Iterate resources map and remove entries of the requested type
-    for (auto it = resources_map.begin(); it != resources_map.end(); )
+    for (auto it = resources_map.begin(); it != resources_map.end(); ) 
     {
         Resources res = it->second;
         bool matchType = (type == Resource_Type::All || res.type == type);
@@ -176,7 +172,7 @@ void Resource_Manager::unloadAll(Resource_Type type)
             std::cout << "[Resource_Manager] Removing resource: " << it->first << std::endl;
             it = resources_map.erase(it); // erase and move forward
         }
-        else { ++it; }
+        else {++it;}
     }
     std::cout << "[Resource_Manager] UnloadAll finished." << std::endl;
 }
