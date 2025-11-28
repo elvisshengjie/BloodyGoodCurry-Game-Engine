@@ -1,8 +1,9 @@
 /*********************************************************************************************
  \file      HealthSystem.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Secondary Author, 80%
-            elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - co Author, 20% (Draw)
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 40%
+            yimo.kong (yimo.kong@digipen.edu) - Secondary Author, 40%
+            elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Secondary Author, 20% (Draw)
  \brief     Implements the HealthSystem responsible for managing player and enemy health,
             handling death timers, triggering death animations, and destroying objects at
             the correct time.
@@ -16,7 +17,7 @@
             - Provides draw() support for player HUD through PlayerHUDComponent.
             - Fully integrates with SpriteAnimationComponent for frame-based animation logic.
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content ï¿½ 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -256,7 +257,7 @@ namespace Framework
                             auto* audio = goc->GetComponentType<AudioComponent>(
                                 ComponentTypeId::CT_AudioComponent);
 
-                            // First frame after "death" ¨C trigger death animation and compute duration.
+                            // First frame after "death" ï¿½C trigger death animation and compute duration.
                             if (timer <= 0.0f)
                             {
                                 PlayAnimationIfAvailable(goc, deathAnimName);
