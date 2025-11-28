@@ -100,7 +100,7 @@
             "loop": false
           },
           "Hit": {
-            "id": "WaterGhostExplosion",
+            "id": "WaterGhostHurt",
             "loop": false
           },
           "Death": {

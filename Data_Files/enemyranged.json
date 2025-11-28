@@ -101,7 +101,7 @@
             "loop": false
           },
           "Hit": {
-            "id": "FireGhostExplosion",
+            "id": "FireGhostHurt",
             "loop": false
           },
           "Death": {

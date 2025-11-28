@@ -41,6 +41,9 @@ namespace mygame {
         const char* START_BUTTTON = "MenuGameStart";
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
+        const char* DEFEAT = "Defeat";
+        bool defeatBGMPlaying = false;
+        bool defeatSoundStarted = false;
         float bgmFadeTimer = 0.0f;
         constexpr float kBGMFadeDuration = 1.5f;
 
@@ -251,6 +254,18 @@ namespace mygame {
                 defeatScreen.Update(gInputSystem);
                 handlePerfToggle();
 
+                if (!defeatSoundStarted && SoundManager::getInstance().isSoundLoaded(DEFEAT))
+                {
+                    SoundManager::getInstance().playSound(DEFEAT, false); // one-shot
+                    SoundManager::getInstance().setSoundVolume(DEFEAT, 1.0f);
+                    defeatSoundStarted = true;
+                }
+                if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                {
+                    SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
+                    gameplayBGMPlaying = false;
+                }
+
                 // [ADDED] Check for Pause input to go to Pause Menu
                 if (gInputSystem && !editorMode &&
                     (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY)))
@@ -262,6 +277,19 @@ namespace mygame {
 
                 if (defeatScreen.ConsumeTryAgain())
                 {
+                    if (SoundManager::getInstance().isSoundLoaded(DEFEAT))
+                    {
+                        SoundManager::getInstance().stopSound(DEFEAT);
+                    }
+                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    {
+                        SoundManager::getInstance().playSound(GAMEPLAY_BGM, true);
+                        SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f);
+                        SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
+                        gameplayBGMPlaying = true;
+                    }
+
+                    defeatSoundStarted = false;
                     if (gLogicSystem)
                     {
                         gLogicSystem->ReloadLevel();

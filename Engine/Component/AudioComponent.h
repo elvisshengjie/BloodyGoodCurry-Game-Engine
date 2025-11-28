@@ -126,13 +126,13 @@ namespace Framework
             else if (entityType == "enemy_fire")
             {
                 sounds["Attack"] = { "FireGhostProjectile1", false };
-                sounds["Hit"] = { "FireGhostExplosion", false };
+                sounds["Hit"] = { "FireGhostHurt", false };
                 sounds["Death"] = { "FireGhostDeath", false };
             }
             else if (entityType == "enemy_water")
             {
                 sounds["Attack"] = { "WaterGhostAttack", false };
-                sounds["Hit"] = { "WaterGhostExplosion", false };
+                sounds["Hit"] = { "WaterGhostHurt", false };
                 sounds["Death"] = { "WaterGhostDeath", false };
             }
 
