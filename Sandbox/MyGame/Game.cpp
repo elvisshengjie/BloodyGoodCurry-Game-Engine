@@ -257,7 +257,7 @@ namespace mygame {
                 if (!defeatSoundStarted && SoundManager::getInstance().isSoundLoaded(DEFEAT))
                 {
                     SoundManager::getInstance().playSound(DEFEAT, false); // one-shot
-                    SoundManager::getInstance().setSoundVolume(DEFEAT, 1.0f);
+                    SoundManager::getInstance().setSoundVolume(DEFEAT, 0.5f);
                     defeatSoundStarted = true;
                 }
                 if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
