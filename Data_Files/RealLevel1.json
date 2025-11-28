@@ -189,12 +189,12 @@
             "h": 2.0,
             "layer": -5,
             "r": 1.0,
-            "texture_key": "Textures/Environment/lvl 2_ Living + Kitchen/00_Living+Kitchen_concept.png",
+            "texture_key": "assets/Textures/Environment/lvl 2_Living+Kitchen/00_Living+Kitchen_concept.png",
             "visible": true,
             "w": 2.0
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 2_ Living + Kitchen/00_Living+Kitchen_concept.png"
+            "texture_key": "assets/Textures/Environment/lvl 2_Living+Kitchen/00_Living+Kitchen_concept.png"
           },
           "TransformComponent": {
             "rot": 0.0,
