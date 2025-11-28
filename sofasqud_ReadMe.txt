@@ -53,15 +53,22 @@ Tay Wanxuan (Artist/ Audio Lead)
 Movement & Combat
 
 W/A/S/D: Move (intent goes into the rigid body; actual motion handled by physics).
-Left Mouse Button: Spawn a short-lived attack hitbox towards the cursor 
-   Q / E: Rotate
-   Z / X: Scale down/up with clamping
+Left Mouse Button: physical attack 
+Right Mouse Button: range attack
+
+Gizmos
+R- Rotate
+T - Translation
+S - Scale
 
 Editor & Viewport
 
 F10: Toggle Editor panels (dockspace & tools).
 F11: Toggle fullscreen/windowed mode.
+F1 Performance window
 F (Editor camera): Frame current selection.
+f9 crash game (debugging)
+Delete Delete the selected object
 
 Using the In-Game Editor (real time)
 
@@ -86,6 +93,11 @@ JSON Editor (Level/Data)
 
 Load and edit JSON files from your data folder; 
 includes a selectable file list and dirty/modified state.
+
+properties editor 
+
+edit the object compoenent
+
 
 You can also toggle Editor Enabled (F10) via the on-screen Viewport Controls
 Crash logging test:

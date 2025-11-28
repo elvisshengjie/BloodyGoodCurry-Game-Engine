@@ -39,6 +39,9 @@ CMake is required to generate Visual Studio solutions.
    start giraphics..sln
    ```
 
+Or Can use the clean.bat file then run the run.bat file for editor Mode
+run run_game.bat for non editor mode in release mode 
+
 3. PROJECT SETTINGS (DEBUG VS RELEASE)
 --------------------------------------
 Once the solution is open in Visual Studio, you can toggle between configurations using the dropdown menu in the top toolbar.
