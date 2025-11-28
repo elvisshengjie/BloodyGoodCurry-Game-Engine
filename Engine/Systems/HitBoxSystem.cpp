@@ -344,17 +344,34 @@ namespace Framework
 
                 if (auto* playerHealth = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
                 {
-
                     if (!playerHealth->isInvulnerable)
                     {
                         playerHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
+
+                        // Immediately play audio after taking damage
+                        if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                        {
+                            if (!playerHealth->isDead) // still alive
+                            {
+                                audio->TriggerSound("PlayerHit");
+                                std::cout << "[Audio] PlayerHit triggered immediately\n";
+                            }
+                            else if (!playerHealth->deathSoundPlayed) // died this hit
+                            {
+                                audio->TriggerSound("PlayerDead");
+                                playerHealth->deathSoundPlayed = true;
+                                std::cout << "[Audio] PlayerDead triggered immediately\n";
+                            }
+                        }
                     }
                 }
+
                 else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
                     if (enemyHealth->enemyHealth <= 0) continue;
                     auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
+                    auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
                     bool canHit = false;
                     if (typeComp)
                     {
@@ -374,6 +391,10 @@ namespace Framework
                         enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
                         SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
+                        if (audio && enemyHealth->enemyHealth > 0)
+                        {
+                            audio->Play("Hit");
+                        }
                     }
                 }
                 else { validTargetHit = true; }
