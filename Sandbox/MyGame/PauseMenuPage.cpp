@@ -3,6 +3,15 @@
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     In-game pause menu: parchment overlay with stylized buttons.
+ \details   the pause overlay drawn over gameplay and its popups:
+            - Main note: parchment background with "Paused" header and core buttons.
+            - Buttons: Resume / Options / How To Play / Main Menu plus an X close box.
+            - How To Play: animated icon+label rows driven by JSON (frame count, fps, aspects).
+            - Options: simple audio mute toggle popup sharing the same parchment.
+            - Exit popup: "Are you sure?" confirmation when returning to main menu.
+            - JSON config: howto_popup.json / exit_popup.json override default texture keys/paths.
+            - Layout: computes note/popup rectangles, buttons, and header offsets on resize.
+            - GUI wiring: integrates with the lightweight GUI helper to dispatch button callbacks.
 *********************************************************************************************/
 
 #include "PauseMenuPage.hpp"
@@ -20,11 +29,12 @@
 #include <initializer_list>
 #include <string>
 #include <vector>
-#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+#include "Common/CRTDebug.h"   
 
 #ifdef _DEBUG
-#define new DBG_NEW        // <- redefine new AFTER all includes
+#define new DBG_NEW        
 #endif
+
 using namespace mygame;
 
 namespace {
@@ -53,6 +63,7 @@ namespace {
         float headerOffsetY = 0.0f;
         std::vector<HowToRowJson> rows;
     };
+
     struct ExitPopupJson {
         TextureField background;
         TextureField title;
@@ -61,11 +72,23 @@ namespace {
         TextureField yes;
         TextureField no;
     };
+
+    /*************************************************************************************
+      \brief  Helper to construct a TextureField from key/path.
+      \param  key   Resource_Manager lookup key.
+      \param  path  Relative texture path under assets/.
+    *************************************************************************************/
     TextureField MakeTextureField(const std::string& key, const std::string& path)
     {
         return TextureField{ key, path };
     }
 
+    /*************************************************************************************
+      \brief  Build default "How To Play" popup config when JSON is missing or partial.
+      \details Supplies parchment background, header, X close button, and 4 default rows:
+               WASD / ESC / LMB / RMB, each with sprite and text texture hints.
+               Frame counts are allowed to be auto-derived from sprite strips.
+    *************************************************************************************/
     HowToPopupJson DefaultHowToPopupConfig()
     {
         HowToPopupJson config{};
@@ -93,6 +116,10 @@ namespace {
         return config;
     }
 
+    /*************************************************************************************
+      \brief  Build default exit-confirmation popup config when JSON is missing or partial.
+      \details Uses the same note parchment plus Exit/Are you sure?/Yes/No/X textures.
+    *************************************************************************************/
     ExitPopupJson DefaultExitPopupConfig()
     {
         ExitPopupJson config{};
@@ -105,6 +132,12 @@ namespace {
         return config;
     }
 
+    /*************************************************************************************
+      \brief  Read a TextureField override from a JSON object.
+      \param  obj  JSON object with optional "key" and "path" fields.
+      \param  out  TextureField to write into.
+      \return True if either key or path was present in the JSON.
+    *************************************************************************************/
     bool PopulateTextureField(const nlohmann::json& obj, TextureField& out)
     {
         if (obj.contains("key")) out.key = obj["key"].get<std::string>();
@@ -112,6 +145,12 @@ namespace {
         return obj.contains("key") || obj.contains("path");
     }
 
+    /*************************************************************************************
+      \brief  Load how-to popup config from JSON, falling back to defaults when missing.
+      \details Probes a small list of candidate paths (Data_Files, resolved data root).
+               If howToPopup exists, overrides background/header/close, header offsets,
+               and per-row icon/label/animation/aspect data.
+    *************************************************************************************/
     HowToPopupJson LoadHowToPopupConfig()
     {
         HowToPopupJson config = DefaultHowToPopupConfig();
@@ -184,6 +223,12 @@ namespace {
 
         return config;
     }
+
+    /*************************************************************************************
+      \brief  Load exit popup config from JSON, falling back to defaults when missing.
+      \details Probes a small set of candidate JSON paths under data/assets/Data_Files.
+               On success overrides the parchment, title, prompt, X, Yes, and No textures.
+    *************************************************************************************/
     ExitPopupJson LoadExitPopupConfig()
     {
         ExitPopupJson config = DefaultExitPopupConfig();
@@ -230,7 +275,16 @@ namespace {
         return config;
     }
 
-    // Resolve a texture by trying cached keys, loading via Resource_Manager, then falling back.
+    /*************************************************************************************
+      \brief  Resolve a texture by trying a list of cache keys and a fallback path.
+      \param  keys  Preferred Resource_Manager keys to probe in order.
+      \param  path  Disk path used if keys are not already loaded.
+      \return GL texture handle (non-zero) or a direct load from gfx::Graphics as last resort.
+      \details Attempts:
+               1) Resource_Manager::getTexture for each key.
+               2) Resource_Manager::load on the first key and path.
+               3) gfx::Graphics::loadTexture(path) if still missing.
+    *************************************************************************************/
     unsigned ResolveTexture(const std::initializer_list<std::string>& keys, const std::string& path)
     {
         for (const auto& key : keys) {
@@ -250,6 +304,13 @@ namespace {
     }
 }
 
+/*************************************************************************************
+  \brief  Initialize textures, layout, and popup state for the pause menu.
+  \param  screenW  Initial screen width in pixels.
+  \param  screenH  Initial screen height in pixels.
+  \details Loads how-to/exit popup JSON, resolves all parchment/button textures, builds
+           per-row animation config, resets timers, and computes the initial layout.
+*************************************************************************************/
 void PauseMenuPage::Init(int screenW, int screenH)
 {
     const HowToPopupJson popupConfig = LoadHowToPopupConfig();
@@ -340,6 +401,10 @@ void PauseMenuPage::Init(int screenW, int screenH)
     ResetLatches();
 }
 
+/*************************************************************************************
+  \brief  Advance icon animation timer when How To popup is visible and update GUI.
+  \param  input  Pointer to engine input system used by the GUI helper.
+*************************************************************************************/
 void PauseMenuPage::Update(Framework::InputSystem* input)
 {
     const auto now = std::chrono::steady_clock::now();
@@ -360,13 +425,22 @@ void PauseMenuPage::Update(Framework::InputSystem* input)
     gui.Update(input);
 }
 
+/*************************************************************************************
+  \brief  Render the semi-opaque overlay, active popup, and GUI buttons.
+  \param  render  RenderSystem pointer used to query screen size and text readiness.
+  \details Always draws a dark full-screen fade, then one of:
+           - Exit popup parchment with title/prompt and buttons.
+           - Options popup parchment only (header drawn inside Draw()).
+           - How To Play parchment + header + animated icon/label rows.
+           - Base pause parchment with header and buttons when no popup is open.
+*************************************************************************************/
 void PauseMenuPage::Draw(Framework::RenderSystem* render)
 {
     const int screenW = render ? render->ScreenWidth() : sw;
     const int screenH = render ? render->ScreenHeight() : sh;
     SyncLayout(screenW, screenH);
 
-    // Dark Overlay
+    // Dark Overlay (matches MainMenu alpha)
     gfx::Graphics::renderRectangleUI(0.f, 0.f, static_cast<float>(screenW), static_cast<float>(screenH),
         0.f, 0.f, 0.f, 0.65f, screenW, screenH);
 
@@ -393,9 +467,7 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
     }
     else if (showOptionsPopup && render)
     {
-        // ---------------------------------------------------------
         // OPTIONS POPUP: Background Only (No Header)
-        // ---------------------------------------------------------
         if (howToNoteTex) {
             gfx::Graphics::renderSpriteUI(howToNoteTex, optionsPopup.x, optionsPopup.y,
                 optionsPopup.w, optionsPopup.h,
@@ -418,7 +490,7 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
             return fallback;
             };
 
-        // Note Background
+        // Note Background (same parchment as MainMenu)
         if (howToNoteTex) {
             gfx::Graphics::renderSpriteUI(howToNoteTex, howToPopup.x, howToPopup.y,
                 howToPopup.w, howToPopup.h,
@@ -432,19 +504,18 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
                 sw, sh);
         }
 
-        // --- HEADER ---
+        // --- HEADER (mirrors MainMenuPage) ---
         const float headerPadY = howToPopup.h * 0.07f;
         const float headerHeight = howToPopup.h * 0.16f;
         const float headerAspect = textureAspect(howToHeaderTex, 2.6f);
         const float headerWidth = headerHeight * headerAspect;
 
-        // Offset Calculation (Matches MainMenuPage)
+        // Offset Calculation (same scaling logic as MainMenu)
         const float offsetScale = howToPopup.w / (1280.0f * 0.58f);
         const float scaledOffsetX = howToHeaderOffsetX * offsetScale;
         const float scaledOffsetY = howToHeaderOffsetY * offsetScale;
 
-        // Apply extra adjustments (Move LEFT and UP)
-        // Values synchronized with MainMenuPage (Left: 30, Up: 25)
+        // Extra adjustments to move header LEFT and UP (synchronized with MainMenu)
         const float extraMoveLeft = 30.0f * offsetScale;
         const float extraMoveUp = 25.0f * offsetScale;
 
@@ -458,7 +529,7 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
                 sw, sh);
         }
 
-        // --- CONTENT ROWS ---
+        // --- CONTENT ROWS (mirrors MainMenuPage layout) ---
         const float contentTop = headerY - howToPopup.h * 0.04f;
         const float contentBottom = howToPopup.y + howToPopup.h * 0.08f;
         const float availableHeight = std::max(0.1f, contentTop - contentBottom);
@@ -467,17 +538,15 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
 
         const float iconHeightBase = rowHeight * 0.78f;
         const float labelHeightBase = rowHeight * 0.58f;
-        const float leftPad = howToPopup.w * 0.20f;
+        const float baseLeftPad = howToPopup.w * 0.20f;   // base position for labels
         const float rightPad = howToPopup.w * 0.14f;
-        const float labelX = howToPopup.x + leftPad;
         const float iconAnchorX = howToPopup.x + howToPopup.w - rightPad;
 
         const glm::mat4 uiOrtho = glm::ortho(0.0f, static_cast<float>(sw), 0.0f, static_cast<float>(sh), -1.0f, 1.0f);
         gfx::Graphics::setViewProjection(glm::mat4(1.0f), uiOrtho);
 
         for (size_t i = 0; i < howToRows.size(); ++i) {
-            // Logic synchronized with MainMenuPage
-            // Icons bigger (1.15f) for first two, Text smaller (0.55f) for first two
+            // Icons bigger for first two, labels slightly smaller for first two (same as MainMenu)
             const float iconScale = (i < 2) ? 1.15f : 1.0f;
             const float labelScale = (i < 2) ? 0.55f : 1.0f;
 
@@ -486,7 +555,15 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
 
             const float rowBaseY = contentTop - rowHeight * (static_cast<float>(i) + 1.f);
             const float iconY = rowBaseY + (rowHeight - iconHeight) * 0.5f;
-            const float labelY = rowBaseY + (rowHeight - labelHeight) * 0.5f;
+            float labelY = rowBaseY + (rowHeight - labelHeight) * 0.5f;
+
+            // Per-row label vertical tweaks (copied from MainMenu)
+            float labelOffsetY = 0.0f;
+            if (i == 0)       labelOffsetY = -howToPopup.h * -0.05f;
+            else if (i == 1)  labelOffsetY = -howToPopup.h * -0.075f;
+            else if (i == 2)  labelOffsetY = -howToPopup.h * -0.08f;
+            else if (i == 3)  labelOffsetY = -howToPopup.h * -0.04f;
+            labelY += labelOffsetY;
 
             // Icon
             if (howToRows[i].iconTex) {
@@ -494,13 +571,22 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
                 const int cols = std::max(1, howToRows[i].cols);
                 const int rows = std::max(1, howToRows[i].rows);
 
-                const float iconAspect = textureAspect(howToRows[i].iconTex, howToRows[i].iconAspectFallback) *
+                const float iconAspectVal = textureAspect(howToRows[i].iconTex, howToRows[i].iconAspectFallback) *
                     (static_cast<float>(rows) / static_cast<float>(cols));
-                const float iconW = iconHeight * iconAspect;
+                const float iconW = iconHeight * iconAspectVal;
 
-                // Nudge WASD/Esc Left (Matches MainMenuPage logic)
+                // Nudge WASD/ESC left (same as MainMenu)
                 const float iconNudgeLeft = (i < 2) ? howToPopup.w * 0.12f : 0.0f;
                 const float iconX = iconAnchorX - iconW - iconNudgeLeft;
+
+                // Per-row icon vertical tweaks (copied from MainMenu)
+                float iconOffsetY = 0.0f;
+                if (i == 0)      iconOffsetY = howToPopup.h * 0.08f;
+                else if (i == 1) iconOffsetY = howToPopup.h * 0.08f;
+                else if (i == 2) iconOffsetY = howToPopup.h * 0.08f;
+                else if (i == 3) iconOffsetY = howToPopup.h * 0.04f;
+
+                float finalIconY = iconY + iconOffsetY;
 
                 const float fps = howToRows[i].fps > 0.0f ? howToRows[i].fps : 8.0f;
                 const int frameIndex = (frames > 1)
@@ -508,17 +594,35 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
                     : 0;
 
                 gfx::Graphics::renderSpriteFrame(howToRows[i].iconTex,
-                    iconX + iconW * 0.5f, iconY + iconHeight * 0.5f,
+                    iconX + iconW * 0.5f, finalIconY + iconHeight * 0.5f,
                     0.f, iconW, iconHeight,
                     frameIndex, cols, rows,
                     1.f, 1.f, 1.f, 1.f);
             }
+
+            // Label
             if (howToRows[i].labelTex) {
-                const float labelAspect = textureAspect(howToRows[i].labelTex, howToRows[i].labelAspectFallback);
-                const float labelW = labelHeight * labelAspect;
-                gfx::Graphics::renderSpriteUI(howToRows[i].labelTex, labelX, labelY, labelW, labelHeight, 1.f, 1.f, 1.f, 1.f, sw, sh);
+                float labelOffsetX = 0.0f;
+                if (i == 0)       labelOffsetX = howToPopup.w * 0.00f;
+                else if (i == 1)  labelOffsetX = howToPopup.w * 0.02f;
+                else if (i == 2)  labelOffsetX = howToPopup.w * 0.04f;
+                else if (i == 3)  labelOffsetX = howToPopup.w * 0.04f;
+
+                const float labelX = howToPopup.x + baseLeftPad + labelOffsetX;
+
+                const float labelAspectVal = textureAspect(howToRows[i].labelTex, howToRows[i].labelAspectFallback);
+                const float labelW = labelHeight * labelAspectVal;
+
+                gfx::Graphics::renderSpriteUI(
+                    howToRows[i].labelTex,
+                    labelX, labelY,
+                    labelW, labelHeight,
+                    1.f, 1.f, 1.f, 1.f,
+                    sw, sh
+                );
             }
         }
+
         gfx::Graphics::resetViewProjection();
     }
     else {
@@ -544,6 +648,10 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
     gui.Draw(render);
 }
 
+/*************************************************************************************
+  \brief  Consume the "Resume" latch, if set.
+  \return True if a resume click was recorded this frame.
+*************************************************************************************/
 bool PauseMenuPage::ConsumeResume()
 {
     if (!resumeLatched) return false;
@@ -551,6 +659,10 @@ bool PauseMenuPage::ConsumeResume()
     return true;
 }
 
+/*************************************************************************************
+  \brief  Consume the "Main Menu" latch, if set.
+  \return True if the Main Menu button was clicked since last check.
+*************************************************************************************/
 bool PauseMenuPage::ConsumeMainMenu()
 {
     if (!mainMenuLatched) return false;
@@ -558,6 +670,10 @@ bool PauseMenuPage::ConsumeMainMenu()
     return true;
 }
 
+/*************************************************************************************
+  \brief  Consume the "Options" latch, if set.
+  \return True if the Options button was clicked since last check.
+*************************************************************************************/
 bool PauseMenuPage::ConsumeOptions()
 {
     if (!optionsLatched) return false;
@@ -565,6 +681,10 @@ bool PauseMenuPage::ConsumeOptions()
     return true;
 }
 
+/*************************************************************************************
+  \brief  Consume the "How To Play" latch, if set.
+  \return True if the How To Play button was clicked since last check.
+*************************************************************************************/
 bool PauseMenuPage::ConsumeHowToPlay()
 {
     if (!howToLatched) return false;
@@ -572,6 +692,10 @@ bool PauseMenuPage::ConsumeHowToPlay()
     return true;
 }
 
+/*************************************************************************************
+  \brief  Consume the quit-request latch (request to show exit popup).
+  \return True if a quit request was recorded since last check.
+*************************************************************************************/
 bool PauseMenuPage::ConsumeQuitRequest()
 {
     if (!quitRequestedLatched) return false;
@@ -579,6 +703,10 @@ bool PauseMenuPage::ConsumeQuitRequest()
     return true;
 }
 
+/*************************************************************************************
+  \brief  Consume the exit-confirmed latch.
+  \return True if "Yes" was pressed in the exit popup since last check.
+*************************************************************************************/
 bool PauseMenuPage::ConsumeExitConfirmed()
 {
     if (!exitConfirmedLatched) return false;
@@ -586,6 +714,11 @@ bool PauseMenuPage::ConsumeExitConfirmed()
     return true;
 }
 
+/*************************************************************************************
+  \brief  Clear all button latches and popup visibility flags.
+  \details Also resets animation timers and marks the layout as dirty so that the next
+           SyncLayout() call recomputes rectangles for the current screen size.
+*************************************************************************************/
 void PauseMenuPage::ResetLatches()
 {
     resumeLatched = false;
@@ -600,6 +733,12 @@ void PauseMenuPage::ResetLatches()
     iconTimerInitialized = false;
     layoutDirty = true;
 }
+
+/*************************************************************************************
+  \brief  Activate the exit confirmation popup.
+  \details Clears quit/confirm latches, hides other popups, and rebuilds the GUI so
+           that only Yes/No/X buttons are active.
+*************************************************************************************/
 void PauseMenuPage::ShowExitPopup()
 {
     quitRequestedLatched = false;
@@ -609,9 +748,18 @@ void PauseMenuPage::ShowExitPopup()
     showOptionsPopup = false;
     BuildGui();
 }
+
+/*************************************************************************************
+  \brief  Compute rectangles for parchment, headers, popups, and buttons.
+  \param  screenW  Current screen width in pixels.
+  \param  screenH  Current screen height in pixels.
+  \details Uses texture aspect ratios where available; clamps note/popup height to avoid
+           oversizing; positions buttons in a vertical stack and centers popups. Also
+           updates options/exit popup controls and triggers a GUI rebuild.
+*************************************************************************************/
 void PauseMenuPage::SyncLayout(int screenW, int screenH)
 {
-    const bool sizeChanged = screenW != sw || screenH != sh;
+    const bool sizeChanged = (screenW != sw) || (screenH != sh);
     if (!layoutDirty && !sizeChanged)
         return;
 
@@ -634,16 +782,14 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
 
     note = { (static_cast<float>(sw) - noteW) * 0.5f, (static_cast<float>(sh) - noteH) * 0.5f, noteW, noteH };
 
-   
     const float topPad = note.h * 0.20f;
     int headerWpx = 0, headerHpx = 0;
     const float defaultHeaderAspect = 2.7f;
     const float headerAspect = (headerTex && gfx::Graphics::getTextureSize(headerTex, headerWpx, headerHpx) && headerHpx > 0)
         ? static_cast<float>(headerWpx) / static_cast<float>(headerHpx)
         : defaultHeaderAspect;
-    float headerW = note.w * 0.55f; // FIX: 0.55f (Bigger)
+    float headerW = note.w * 0.55f;
     float headerH = headerW / headerAspect;
-
 
     header = { note.x + (note.w - headerW) * 0.5f - (headerW * 0.23f),
                note.y + note.h - headerH * 1.0f,
@@ -658,23 +804,50 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
         ? static_cast<float>(buttonWpx) / static_cast<float>(buttonHpx)
         : defaultButtonAspect;
 
-    // UPDATED: Make buttons smaller (40%) and center them
-    const float btnW = note.w * 0.40f; // Was 0.54f
+    // Buttons smaller and centered
+    const float btnW = note.w * 0.40f;
     const float btnH = btnW / buttonAspect;
     const float spacing = btnH * 0.28f;
 
-    const float moveLeftAmount = note.w * 0.04f; // Move left by 5% of note width
-    const float moveDownAmount = note.h * 0.08f; // Move down by 8% of note height
+    const float moveLeftAmount = note.w * 0.04f;
+    const float moveDownAmount = note.h * 0.08f;
 
     const float firstBtnY = note.y + note.h - topPad - btnH - moveDownAmount;
-
-    // Calculate centered X position relative to note, then subtract to move left
     const float btnX = note.x + (note.w - btnW) * 0.5f - moveLeftAmount;
 
-    resumeBtn = { btnX, firstBtnY, btnW, btnH };
-    optionsBtn = { btnX, resumeBtn.y - spacing - btnH, btnW, btnH };
-    howToBtn = { btnX, optionsBtn.y - spacing - btnH, btnW, btnH };
-    quitBtn = { btnX, howToBtn.y - spacing - btnH, btnW, btnH };
+    // scale nudges with note height
+    const float resumeNudge = note.h * 0.03f;
+    const float optionsNudge = 0.0f;
+    const float howToNudge = -note.h * 0.03f;
+    const float quitNudge = -note.h * 0.06f;
+
+    // Resume
+    resumeBtn = {
+        btnX,
+        firstBtnY + resumeNudge,
+        btnW, btnH
+    };
+
+    // Options
+    optionsBtn = {
+        btnX,
+        firstBtnY - (spacing + btnH) + optionsNudge,
+        btnW, btnH
+    };
+
+    // How To Play
+    howToBtn = {
+        btnX,
+        firstBtnY - 2.f * (spacing + btnH) + howToNudge,
+        btnW, btnH
+    };
+
+    // Main Menu
+    quitBtn = {
+        btnX,
+        firstBtnY - 3.f * (spacing + btnH) + quitNudge,
+        btnW, btnH
+    };
 
     const float defaultPopupAspect = 0.75f;
     int popupW = 0, popupH = 0;
@@ -772,8 +945,17 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
         exitNoW, exitBtnH };
 
     BuildGui();
+    layoutDirty = false;
 }
 
+/*************************************************************************************
+  \brief  Populate the GUI helper with buttons for the current popup/mode.
+  \details Only one of exit/options/how-to or the base pause menu is active at a time:
+           - Exit popup: Yes/No/X buttons.
+           - Options popup: mute toggle and X close.
+           - How To: X close only (content is purely visual).
+           - Base pause: Resume / Options / How To Play / Main Menu / X to resume.
+*************************************************************************************/
 void PauseMenuPage::BuildGui()
 {
     gui.Clear();
@@ -783,7 +965,6 @@ void PauseMenuPage::BuildGui()
             exitPopupYesTex, exitPopupYesTex,
             [this]() {
                 exitConfirmedLatched = true;
-
             });
 
         gui.AddButton(exitNoBtn.x, exitNoBtn.y, exitNoBtn.w, exitNoBtn.h, "NO",
@@ -857,7 +1038,6 @@ void PauseMenuPage::BuildGui()
                 layoutDirty = true;
                 BuildGui();
             });
-
 
         gui.AddButton(quitBtn.x, quitBtn.y, quitBtn.w, quitBtn.h, "Main Menu",
             mainMenuTex, mainMenuTex,
