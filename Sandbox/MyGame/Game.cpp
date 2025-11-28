@@ -127,7 +127,7 @@ namespace mygame {
                 mainMenu.Update(gInputSystem);
                 handlePerfToggle();
                 if (!mainMenuBGMPlaying && SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM)) {
-                    SoundManager::getInstance().playSound(MAIN_MENU_BGM, true); // loop = true
+                    SoundManager::getInstance().playSound(MAIN_MENU_BGM, 1.0f, 1.0f, true);
                     SoundManager::getInstance().setSoundVolume(MAIN_MENU_BGM, 0.0f);
                     SoundManager::getInstance().fadeInMusic(MAIN_MENU_BGM, kBGMFadeDuration, 0.3f);
                     mainMenuBGMPlaying = true;
@@ -171,7 +171,7 @@ namespace mygame {
 
                 if (!gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
-                    SoundManager::getInstance().playSound(GAMEPLAY_BGM, true); // loop = true
+                    SoundManager::getInstance().playSound(GAMEPLAY_BGM, 1.0f, 1.0f, true);
                     SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f); // start silent
                     SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f); // fade to 0.4
                     gameplayBGMPlaying = true;
