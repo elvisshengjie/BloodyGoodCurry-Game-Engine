@@ -113,7 +113,10 @@ To read the object component values
 Important!
 
 Use the clean.bat file then run the run.bat file for editor Mode (Offline)
+Go to build_game 
 Use the clean.bat file run run_game.bat for non editor mode in release mode (Offline)
+
+Run game in admin once to able to play 
 
 You can also toggle Editor Enabled (F10) via the on-screen Viewport Controls
 Crash logging test:

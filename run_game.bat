@@ -5,6 +5,11 @@ echo === Cleaning build_game (editor OFF) ===
 if exist build_game (
     rmdir /S /Q build_game
 )
+Nuke build to reset all cached options
+if exist build (
+    echo Removing build to reset CMake options...
+    rmdir /S /Q build
+)
 
 mkdir build_game
 
