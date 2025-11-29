@@ -68,12 +68,15 @@ F11: Toggle fullscreen/windowed mode.
 F1 Performance window
 F (Editor camera): Frame current selection.
 f9 crash game (debugging)
-Delete Delete the selected object
+Delete by pressing on keyboard Delete the selected object
+control Z to undo button
 
 Using the In-Game Editor (real time)
 
 Open the editor: press F10. Panels appear on the right (dockspace). 
 Viewport Controls: small floating helper to toggle editor/viewport sizing, and play/stop sim.
+
+
 
 
 Hierarchy Panel
@@ -96,8 +99,21 @@ includes a selectable file list and dirty/modified state.
 
 properties editor 
 
-edit the object compoenent
+select and edit the object components
 
+animation editor 
+
+To edit the spritesheet and change the settings of the object
+
+inspector window
+
+To read the object component values
+
+
+Important!
+
+Use the clean.bat file then run the run.bat file for editor Mode (Offline)
+Use the clean.bat file run run_game.bat for non editor mode in release mode (Offline)
 
 You can also toggle Editor Enabled (F10) via the on-screen Viewport Controls
 Crash logging test:
