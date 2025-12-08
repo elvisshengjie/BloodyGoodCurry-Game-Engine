@@ -1,7 +1,7 @@
 ﻿/*********************************************************************************************
  \file      SpriteAnimationComponent.h
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 60%
+ \author     Ho Jun (h.jun@digipen.edu) - Primary Author, 100% - Primary Author, 60%
             yimo.kong ( yimo.kong@digipen.edu) - Author, 40%
 
  \brief     Declares the SpriteAnimationComponent responsible for 2D sprite-based animation.

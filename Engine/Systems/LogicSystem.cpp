@@ -460,7 +460,8 @@ namespace Framework {
     *****************************************************************************************/
     void LogicSystem::Initialize()
     {
-        crashLogger = std::make_unique<CrashLogger>(std::string("../../logs"),
+        auto crashLogDir = Framework::GetUserDocumentsDir() / "BloodyGoodCurry" / "logs";
+        crashLogger = std::make_unique<CrashLogger>(crashLogDir.string(),
             std::string("crash.log"),
             std::string("ENGINE/CRASH"));
         g_crashLogger = crashLogger.get();
