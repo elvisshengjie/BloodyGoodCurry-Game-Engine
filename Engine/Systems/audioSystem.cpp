@@ -84,35 +84,80 @@ namespace Framework {
         {
             if (!gocPtr) continue;
             GOC* goc = gocPtr.get();
-            if (auto* ph = goc->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
-            {
-                if (ph->playerHealth <= 0)
-                {
-                    if (auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
-                    {
-                        audio->Stop("footsteps");
-                        continue;
-                    }  
-                }
-            }
-            // Get Rigidbody and Audio components
-            auto* rb = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
-            if (!rb || !audio) continue;
-            // Footsteps audio
-            const float moveThreshold = 0.01f; // tweak as needed
-            bool isMoving = (std::fabs(rb->velX) > moveThreshold ||
-                std::fabs(rb->velY) > moveThreshold);
-            if (isMoving)
+
+            if (!audio) continue;
+
+            if (audio->entityType == "player")
             {
-                if (!audio->playing["footsteps"])audio->Play("footsteps");
+                HandlePlayerFootsteps(goc);
             }
+
+            // other audio logic (enemy sounds, attacks, etc.)
+        }
+
+    }
+    std::string AudioSystem::GetRandomFootsteps(const std::vector<std::string>& footstepClips)
+    {
+        if (footstepClips.empty()) return "";
+        int index = rand() % footstepClips.size();
+        return footstepClips[index];
+    }
+
+    void AudioSystem::HandlePlayerFootsteps(GOC* player)
+    {
+        if (!player) return;
+
+        auto* audio = player->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+        auto* rb = player->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+        auto* health = player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
+
+        if (!audio || !rb) return;
+
+        // Stop if dead
+        if (health && health->playerHealth <= 0)
+        {
+            if (audio->isFootstepPlaying)
+            {
+                audio->Stop(audio->currentFootstep);
+                audio->isFootstepPlaying = false;
+            }
+            return;
+        }
+
+        // Check movement
+        const float moveThreshold = 0.01f;
+        bool moving = (fabs(rb->velX) > moveThreshold || fabs(rb->velY) > moveThreshold);
+
+        if (!moving)
+        {
+            if (audio->isFootstepPlaying)
+            {
+                audio->Stop(audio->currentFootstep);
+                audio->isFootstepPlaying = false;
+            }
+            return;
+        }
+
+        // Wait for previous step to finish
+        if (audio->isFootstepPlaying)
+        {
+            if (!SoundManager::getInstance().isSoundPlaying(audio->currentFootstep))
+                audio->isFootstepPlaying = false;
             else
-            {
-                if (audio->playing["footsteps"])  audio->Stop("footsteps");
-            }
+                return; // still playing → do not start new
+        }
+
+        // Pick a random footstep and play it
+        audio->currentFootstep = GetRandomFootsteps(audio->footstepClips);
+        if (!audio->currentFootstep.empty())
+        {
+            audio->Play(audio->currentFootstep);
+            audio->isFootstepPlaying = true;
         }
     }
+
+
 
     /*****************************************************************************************
      \brief

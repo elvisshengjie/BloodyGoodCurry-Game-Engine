@@ -36,16 +36,23 @@ namespace mygame {
 
     namespace {
         //Audio booleans
+        //Main Menu Sounds
         bool mainMenuBGMPlaying = false;
         const char* MAIN_MENU_BGM = "MenuMusic";
         const char* START_BUTTTON = "MenuGameStart";
+        // BGM Sounds
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
+        //Exit Sound
+        bool quitButtonPlayed = false;
+        const char* QUIT_BUTTON = "Quit";
+        //Defeat Sounds
         const char* DEFEAT = "Defeat";
         const char* BOILING = "Boiling";
         bool defeatBGMPlaying = false;
         bool defeatSoundStarted = false;
         bool boilingStarted = false;
+        //Timer
         float bgmFadeTimer = 0.0f;
         constexpr float kBGMFadeDuration = 1.5f;
 
@@ -241,7 +248,6 @@ namespace mygame {
 
                 if (pauseMenu.ConsumeExitConfirmed())
                 {
-
                     currentState = GameState::EXIT;
                     break;
                 }
@@ -312,7 +318,8 @@ namespace mygame {
                 break;
 
 
-            case GameState::EXIT:
+                case GameState::EXIT:
+       
                 if (gInputSystem) {
                     if (auto* w = gInputSystem->Window()) w->close();
                 }

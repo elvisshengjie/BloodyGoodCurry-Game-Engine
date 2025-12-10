@@ -62,6 +62,10 @@ namespace Framework
         bool initialized = false;
         std::unordered_map<std::string, SoundInfo> sounds;
         std::unordered_map<std::string, bool> playing;
+        //Footsteps
+        std::vector<std::string> footstepClips;
+        std::string currentFootstep;
+        bool isFootstepPlaying = false;
         float volume{ 1.0f }; 
         std::string entityType;
         
@@ -115,9 +119,16 @@ namespace Framework
         {
             sounds.clear();
             playing.clear();
+            footstepClips.clear();
             if (entityType == "player")
             {
-                sounds["footsteps"] = { "footsteps", true };
+                for (int i = 1; i <= 12; i++)
+                {
+                    std::string clip = "ConcreteFootsteps" + std::to_string(i);
+                    sounds[clip] = { clip, false };
+                    playing[clip] = false;
+                    footstepClips.push_back(clip);
+                }
                 sounds["Slash1"] = { "Slash1", false };
                 sounds["GrappleShoot1"] = { "GrappleShoot1", false };
                 sounds["PlayerHit"] = { "PlayerHit", false };
@@ -141,6 +152,9 @@ namespace Framework
                 playing[action] = false;
             std::cout << "[AudioComponent] initialize called, entityType='" << entityType << "'\n";
         }
+
+ 
+
         /*************************************************************************************
           \brief Plays a sound associated with the given action key.
 

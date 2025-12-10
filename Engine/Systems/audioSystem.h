@@ -52,6 +52,9 @@ namespace Framework {
     *****************************************************************************************/
 	class AudioSystem :public Framework::ISystem {
 	public:
+        bool footstepPlaying = false;           
+        std::string currentFootstep;           
+
 		explicit AudioSystem(gfx::Window& window);
 
 		void Initialize() override;
@@ -61,6 +64,9 @@ namespace Framework {
 		void draw();
 
 		void Shutdown() override;
+        //Helper for footsteps
+        std::string GetRandomFootsteps(const std::vector<std::string>& footstepClips);
+        void HandlePlayerFootsteps(GOC* player);
 
 		std::string GetName() override{ return "AudioSystem"; }
 
