@@ -66,6 +66,13 @@ namespace Framework
         std::vector<std::string> footstepClips;
         std::string currentFootstep;
         bool isFootstepPlaying = false;
+        //Slashes Sound
+        std::vector<std::string> slashClips;//Slashing Enemy
+        std::vector<std::string> punchClips;//Slashing Air
+        std::vector<std::string> ineffectiveClips;//Ineffective Slashes
+        //Grapple
+        std::vector<std::string> grappleClips;
+
         float volume{ 1.0f }; 
         std::string entityType;
         
@@ -129,8 +136,31 @@ namespace Framework
                     playing[clip] = false;
                     footstepClips.push_back(clip);
                 }
-                sounds["Slash1"] = { "Slash1", false };
-                sounds["GrappleShoot1"] = { "GrappleShoot1", false };
+                //Slashes on Enemy
+                for (int i = 1; i <= 3; i++)
+                {
+                    sounds["Slash" + std::to_string(i)] = { "Slash" + std::to_string(i), false };
+                    slashClips.push_back("Slash" + std::to_string(i));
+                }
+                //Slashes in Air
+                for (int i = 1; i <= 4; i++)
+                {
+                    sounds["Punch" + std::to_string(i)] = { "Punch" + std::to_string(i), false };
+                    punchClips.push_back("Punch" + std::to_string(i));
+                }
+                
+                //Ineffective Slashes
+                for (int i = 1; i <= 3; i++)
+                {
+                    sounds["Ineffective Boink" + std::to_string(i)] = { "Ineffective Boink" + std::to_string(i), false };
+                    ineffectiveClips.push_back("Ineffective Boink" + std::to_string(i));
+                }
+
+                for (int i = 1; i <= 4; i++)
+                {
+                    sounds["GrappleShoot" + std::to_string(i)] = { "GrappleShoot" + std::to_string(i), false };
+                    grappleClips.push_back("GrappleShoot" + std::to_string(i));
+                }
                 sounds["PlayerHit"] = { "PlayerHit", false };
                 sounds["PlayerDead"] = { "PlayerDead", false };
             }
@@ -191,12 +221,28 @@ namespace Framework
           \details
               Useful for one-shot events such as effects, hits, UI sounds, or ambient cues.
         *************************************************************************************/
-        void TriggerSound(const std::string& action)
+        void TriggerSound(const std::string& name)
         {
             ensureInitialized();
-            auto it = sounds.find(action);
-            if (it != sounds.end()) { SoundManager::getInstance().playSound(it->second.id, volume, 1.f, it->second.loop);}
+            std::string clipToPlay = name;
+            if (name == "Slash") // Enemy hit
+                clipToPlay = GetRandomFrom(slashClips);
+            else if (name == "Punch") // Air hit
+                clipToPlay = GetRandomFrom(punchClips);
+            else if (name == "Ineffective") // Ineffective swing
+                clipToPlay = GetRandomFrom(ineffectiveClips);
+            else if (name == "GrappleShoot")
+                clipToPlay = GetRandomFrom(grappleClips);
+            Play(clipToPlay);
         }
+
+        std::string GetRandomFrom(const std::vector<std::string>& list)
+        {
+            if (list.empty()) return "";
+            int index = rand() % list.size();
+            return list[index];
+        }
+
         /*************************************************************************************
           \brief Serializes sound configuration and volume settings.
 

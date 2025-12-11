@@ -97,11 +97,11 @@ namespace Framework {
         }
 
     }
-    std::string AudioSystem::GetRandomFootsteps(const std::vector<std::string>& footstepClips)
+
+    std::string AudioSystem::GetRandomClip(const std::vector<std::string>& clips)
     {
-        if (footstepClips.empty()) return "";
-        int index = rand() % footstepClips.size();
-        return footstepClips[index];
+        if (clips.empty()) return "";
+        return clips[rand() % clips.size()];
     }
 
     void AudioSystem::HandlePlayerFootsteps(GOC* player)
@@ -149,7 +149,7 @@ namespace Framework {
         }
 
         // Pick a random footstep and play it
-        audio->currentFootstep = GetRandomFootsteps(audio->footstepClips);
+        audio->currentFootstep = GetRandomClip(audio->footstepClips);
         if (!audio->currentFootstep.empty())
         {
             audio->Play(audio->currentFootstep);

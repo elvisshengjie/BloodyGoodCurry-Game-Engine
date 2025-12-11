@@ -318,30 +318,25 @@ namespace Framework
                 it->hitbox->spawnY += it->velY * dt;
             }
 
-            AABB hitboxAABB(
-                it->hitbox->spawnX,
-                it->hitbox->spawnY,
-                it->hitbox->width,
-                it->hitbox->height
-            );
+            AABB hitboxAABB(HB->spawnX, HB->spawnY, HB->width, HB->height);
 
-            bool hit = false;
+            bool hitAnything = false;
+            bool hitEnemy = false;
+            bool ineffectiveHit = false;
 
-            // Scan all level objects to find valid targets.
             for (auto* obj : logic.LevelObjects())
             {
-                if (!obj || obj == attacker)
-                    continue;
+                if (!obj || obj == attacker) continue;
                 auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-                if (!(tr && rb))
-                    continue;
+                if (!(tr && rb)) continue;
+
                 AABB targetAABB(tr->x, tr->y, rb->width, rb->height);
-                if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB))
-                    continue;
+                if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB)) continue;
 
                 bool validTargetHit = false;
 
+                // Player hit logic
                 if (auto* playerHealth = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
                 {
                     if (!playerHealth->isInvulnerable)
@@ -349,31 +344,24 @@ namespace Framework
                         playerHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
 
-                        // Immediately play audio after taking damage
                         if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
                         {
-                            if (!playerHealth->isDead) // still alive
-                            {
+                            if (!playerHealth->isDead)
                                 audio->TriggerSound("PlayerHit");
-                                std::cout << "[Audio] PlayerHit triggered immediately\n";
-                            }
-                            else if (!playerHealth->deathSoundPlayed) // died this hit
+                            else if (!playerHealth->deathSoundPlayed)
                             {
                                 audio->TriggerSound("PlayerDead");
                                 playerHealth->deathSoundPlayed = true;
-                                std::cout << "[Audio] PlayerDead triggered immediately\n";
                             }
                         }
                     }
                 }
-
+                // Enemy hit logic
                 else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
-                    if (enemyHealth->enemyHealth <= 0) continue;
-                    auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
-                    auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
                     bool canHit = false;
-                    if (typeComp)
+
+                    if (auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent))
                     {
                         if (typeComp->Etype == EnemyTypeComponent::EnemyType::physical && HB->team == HitBoxComponent::Team::Player)
                             canHit = true;
@@ -382,24 +370,29 @@ namespace Framework
                     }
                     else
                     {
-                        
                         canHit = true;
                     }
+
+                    if (enemyHealth->enemyHealth <= 0) canHit = false;
 
                     if (canHit)
                     {
                         enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
+                        hitEnemy = true;
                         SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
-                        if (audio && enemyHealth->enemyHealth > 0)
-                        {
-                            audio->Play("Hit");
-                        }
+                    }
+                    else
+                    {
+                        ineffectiveHit = true;
                     }
                 }
-                else { validTargetHit = true; }
-                  
+                else
+                {
+                    validTargetHit = true; // Non-damaging hit (neutral objects)
+                }
 
+                // Apply knockback if valid hit
                 if (validTargetHit)
                 {
                     bool isPlayer = obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
@@ -407,40 +400,50 @@ namespace Framework
                     if ((isPlayer || isEnemy))
                     {
                         auto* attackerTr = attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-                        if (attackerTr && tr && rb)
+                        if (attackerTr)
                         {
                             float dx = tr->x - attackerTr->x;
                             float dy = tr->y - attackerTr->y;
                             float len = std::sqrt(dx * dx + dy * dy);
+                            if (len > 0.001f) { dx /= len; dy /= len; }
 
-                            if (len > 0.001f)
-                            {
-                                dx /= len;
-                                dy /= len;
-                            }
                             const float knockStrength = 1.5f;
                             rb->velX += dx * knockStrength;
                             rb->velY += dy * knockStrength * 0.4f;
                             rb->knockbackTime = 0.2f;
                         }
+
+                        PlayAnimationIfAvailable(obj, "knockback");
                     }
-                    // Trigger knockback animation on the enemy if it exists.
-                    PlayAnimationIfAvailable(obj, "knockback");
                 }
-                if (validTargetHit) { hit = true; }
-                break;
+
+                if (validTargetHit) hitAnything = true;
+                break; // Only first collision per hitbox
             }
 
-            // Remove immediately if hit or expired; otherwise keep ticking.
-            if (hit || it->timer <= 0.0f)
+            // Play air swing or ineffective sound if no enemy hit
+            if (!HB->soundTriggered && HB->team == HitBoxComponent::Team::Player)
             {
+                if (auto* audio = attacker->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                {
+                    if (hitEnemy)
+                        audio->TriggerSound("Slash");
+                    if (ineffectiveHit)
+                        audio->TriggerSound("Ineffective"); // Blocked or no effect
+                    if (!hitAnything)
+                        audio->TriggerSound("Punch");       // Missed swing
+
+                }
+                HB->soundTriggered = true;
+            }
+
+            // Remove hitbox if hit or expired
+            if (hitAnything || it->timer <= 0.0f)
                 it = activeHitBoxes.erase(it);
-            }
             else
-            {
                 ++it;
-            }
         }
     }
+
 
 } // namespace Framework

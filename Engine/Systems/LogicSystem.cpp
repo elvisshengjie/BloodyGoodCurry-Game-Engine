@@ -838,8 +838,6 @@ namespace Framework {
                         HitBoxComponent::Team::Player);
 
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
-                    audio->TriggerSound("Slash1");
-
                     // Start / advance melee combo animation (Attack1,2,3 cycling)
                     BeginComboAttack();
                 }
@@ -866,7 +864,7 @@ namespace Framework {
                         1.0f, 5.f, HitBoxComponent::Team::Thrown);
 
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
-                    audio->TriggerSound("GrappleShoot1");
+                    audio->TriggerSound("GrappleShoot");
                 }
             }
 

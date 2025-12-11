@@ -65,7 +65,7 @@ namespace Framework {
 
 		void Shutdown() override;
         //Helper for footsteps
-        std::string GetRandomFootsteps(const std::vector<std::string>& footstepClips);
+        std::string GetRandomClip(const std::vector<std::string>& footstepClips);
         void HandlePlayerFootsteps(GOC* player);
 
 		std::string GetName() override{ return "AudioSystem"; }
