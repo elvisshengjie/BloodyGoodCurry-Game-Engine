@@ -261,7 +261,13 @@ namespace Framework
                             if (timer <= 0.0f)
                             {
                                 PlayAnimationIfAvailable(goc, deathAnimName);
-                                if (audio) { audio->Play("Death");}
+                                if (audio)
+                                {
+                                    if (audio->entityType == "enemy_fire")
+                                        audio->Play("FireGhostExplosion");  // the death clip
+                                    else if (audio->entityType == "enemy_water")
+                                        audio->Play("WaterGhostExplosion"); // the death clip
+                                }
                                 // Use animation length if available; otherwise fall back to a minimum.
                                 timer = std::max(AnimationDuration(anim, deathAnimName), 0.2f);
                             }

@@ -381,8 +381,10 @@ namespace Framework
                         validTargetHit = true;
                         hitEnemy = true;
                         SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
+                        if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                        {audio->TriggerSound("EnemyHit");}
                     }
-                    else
+                    else if (enemyHealth->enemyHealth > 0)
                     {
                         ineffectiveHit = true;
                     }

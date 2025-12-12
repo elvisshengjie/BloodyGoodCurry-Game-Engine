@@ -412,7 +412,7 @@ namespace Framework
                                 );
                                 if (audio)
                                 {
-                                    audio->Play("Attack");
+                                    audio->TriggerSound("EnemyAttack");
                                 }
                                 PlayAnimationIfAvailable(enemy, "rangeattack", true);
                                 attack->attack_timer = -3.0f;
@@ -444,7 +444,7 @@ namespace Framework
                                 );
                                 if (audio)
                                 {
-                                    audio->Play("Attack");
+                                    audio->TriggerSound("EnemyAttack");
                                 }
 
                                 // Play attack animation when slashing

@@ -3406,18 +3406,19 @@
           "AudioComponent": {
             "entityType": "enemy_fire",
             "sounds": {
-              "Attack": {
-                "id": "FireGhostProjectile1",
-                "loop": false
-              },
-              "Death": {
-                "id": "FireGhostDeath",
-                "loop": false
-              },
-              "Hit": {
-                "id": "FireGhostHurt",
-                "loop": false
-              }
+              "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
+              "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },
+              
+              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
+              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
+              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
+              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
+              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
+              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
+              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
+              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
+
+              "FireGhostExplosion": { "id": "FireGhostExplosion", "loop": false }
             },
             "volume": 0.4000000059604645
           },
@@ -3538,18 +3539,19 @@
           "AudioComponent": {
             "entityType": "enemy_fire",
             "sounds": {
-              "Attack": {
-                "id": "FireGhostProjectile1",
-                "loop": false
-              },
-              "Death": {
-                "id": "FireGhostDeath",
-                "loop": false
-              },
-              "Hit": {
-                "id": "FireGhostHurt",
-                "loop": false
-              }
+              "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
+              "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },
+              
+              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
+              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
+              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
+              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
+              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
+              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
+              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
+              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
+
+              "FireGhostExplosion": { "id": "FireGhostExplosion", "loop": false }
             },
             "volume": 0.4000000059604645
           },
@@ -3670,18 +3672,19 @@
           "AudioComponent": {
             "entityType": "enemy_fire",
             "sounds": {
-              "Attack": {
-                "id": "FireGhostProjectile1",
-                "loop": false
-              },
-              "Death": {
-                "id": "FireGhostDeath",
-                "loop": false
-              },
-              "Hit": {
-                "id": "FireGhostHurt",
-                "loop": false
-              }
+              "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
+              "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },
+              
+              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
+              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
+              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
+              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
+              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
+              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
+              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
+              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
+
+              "FireGhostExplosion": { "id": "FireGhostExplosion", "loop": false }
             },
             "volume": 0.4000000059604645
           },
@@ -3802,18 +3805,16 @@
           "AudioComponent": {
             "entityType": "enemy_water",
             "sounds": {
-              "Attack": {
-                "id": "WaterGhostAttack",
-                "loop": false
-              },
-              "Death": {
-                "id": "WaterGhostDeath",
-                "loop": false
-              },
-              "Hit": {
-                "id": "WaterGhostHurt",
-                "loop": false
-              }
+              "WaterGhostAttack": { "id": "WaterGhostAttack", "loop": false },
+              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
+              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
+              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
+              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
+              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
+              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
+              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
+              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
+              "WaterGhostExplosion1": { "id": "WaterGhostExplosion1", "loop": false }
             },
             "volume": 0.4000000059604645
           },
@@ -3934,18 +3935,16 @@
           "AudioComponent": {
             "entityType": "enemy_water",
             "sounds": {
-              "Attack": {
-                "id": "WaterGhostAttack",
-                "loop": false
-              },
-              "Death": {
-                "id": "WaterGhostDeath",
-                "loop": false
-              },
-              "Hit": {
-                "id": "WaterGhostHurt",
-                "loop": false
-              }
+              "WaterGhostAttack": { "id": "WaterGhostAttack", "loop": false },
+              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
+              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
+              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
+              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
+              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
+              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
+              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
+              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
+              "WaterGhostExplosion1": { "id": "WaterGhostExplosion1", "loop": false }
             },
             "volume": 0.4000000059604645
           },

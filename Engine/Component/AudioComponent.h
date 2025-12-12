@@ -72,6 +72,10 @@ namespace Framework
         std::vector<std::string> ineffectiveClips;//Ineffective Slashes
         //Grapple
         std::vector<std::string> grappleClips;
+        //Enemy Sounds
+        std::vector<std::string> attackClips;
+        std::vector<std::string> hurtClips;
+        std::vector<std::string> deathClips;
 
         float volume{ 1.0f }; 
         std::string entityType;
@@ -166,15 +170,43 @@ namespace Framework
             }
             else if (entityType == "enemy_fire")
             {
-                sounds["Attack"] = { "FireGhostProjectile1", false };
-                sounds["Hit"] = { "FireGhostHurt", false };
-                sounds["Death"] = { "FireGhostDeath", false };
+                // Projectile variants
+                for (int i = 1; i <= 2; i++)
+                {
+                    std::string id = "FireGhostProjectile" + std::to_string(i);
+                    sounds[id] = { id, false };
+                    attackClips.push_back(id);
+                }
+
+                // Hurt variants
+                for (int i = 1; i <= 8; i++)
+                {
+                    std::string id = "GhostHurt" + std::to_string(i);
+                    sounds[id] = { id, false };
+                    hurtClips.push_back(id);
+                }
+
+                sounds["FireGhostExplosion"] = { "FireGhostExplosion", false };
+                deathClips.push_back("FireGhostExplosion");
             }
             else if (entityType == "enemy_water")
             {
-                sounds["Attack"] = { "WaterGhostAttack", false };
-                sounds["Hit"] = { "WaterGhostHurt", false };
-                sounds["Death"] = { "WaterGhostDeath", false };
+                // Water ghost attack (1 only)
+                std::string atk = "WaterGhostAttack";
+                sounds[atk] = { atk, false };
+                attackClips.push_back(atk);
+
+                // Shared GhostHurt1–8
+                for (int i = 1; i <= 8; i++)
+                {
+                    std::string id = "GhostHurt" + std::to_string(i);
+                    sounds[id] = { id, false };
+                    hurtClips.push_back(id);
+                }
+
+                // Water ghost death — only 1 clip
+                sounds["WaterGhostExplosion"] = { "WaterGhostExplosion", false };
+                deathClips.push_back("WaterGhostExplosion");
             }
 
             // Build playing map
@@ -225,14 +257,24 @@ namespace Framework
         {
             ensureInitialized();
             std::string clipToPlay = name;
-            if (name == "Slash") // Enemy hit
+
+            if (name == "Slash")
                 clipToPlay = GetRandomFrom(slashClips);
-            else if (name == "Punch") // Air hit
+            else if (name == "Punch")
                 clipToPlay = GetRandomFrom(punchClips);
-            else if (name == "Ineffective") // Ineffective swing
+            else if (name == "Ineffective")
                 clipToPlay = GetRandomFrom(ineffectiveClips);
             else if (name == "GrappleShoot")
                 clipToPlay = GetRandomFrom(grappleClips);
+
+            // Enemy groups
+            else if (name == "EnemyAttack")
+                clipToPlay = GetRandomFrom(attackClips);
+            else if (name == "EnemyHit")
+                clipToPlay = GetRandomFrom(hurtClips);
+            else if (name == "EnemyDeath")
+                clipToPlay = GetRandomFrom(deathClips);
+
             Play(clipToPlay);
         }
 
