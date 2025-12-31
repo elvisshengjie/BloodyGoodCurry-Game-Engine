@@ -410,9 +410,9 @@ namespace Framework
                             if (len > 0.001f) { dx /= len; dy /= len; }
 
                             const float knockStrength = 1.5f;
-                            rb->velX += dx * knockStrength;
-                            rb->velY += dy * knockStrength * 0.4f;
-                            rb->knockbackTime = 0.2f;
+                            rb->knockVelX = dx * knockStrength;
+                            rb->knockVelY = dy * knockStrength * 0.4f;
+                            rb->knockbackTime = 0.25f;
                         }
 
                         PlayAnimationIfAvailable(obj, "knockback");

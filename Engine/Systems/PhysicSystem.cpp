@@ -1,10 +1,10 @@
-/*********************************************************************************************
+﻿/*********************************************************************************************
  \file      PhysicSystem.cpp
  \par       SofaSpuds
  \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
  \brief     Lightweight 2D physics step: AABB moves/collisions + enemy hitbox damage.
  \details   Updates Transform by RigidBody velocity (dt) with axis-separated AABB tests
-            against same-layer �rect?walls, then checks active EnemyAttack hitboxes
+            against same-layer “rect?walls, then checks active EnemyAttack hitboxes
             against player AABBs to apply damage (via PlayerHealthComponent) and
             deactivate the hitbox after a successful hit. Includes simple layer filtering
             and case-insensitive wall name checks; printing to stdout for quick debugging.
@@ -82,10 +82,19 @@ namespace Framework {
             auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
             if (!rb || !tr)
                 continue;
+            //Knockback
+            float totalVelX = rb->velX;
+            float totalVelY = rb->velY;
 
+            if (rb->knockbackTime > 0.0f)
+            {
+                totalVelX += rb->knockVelX;
+                totalVelY += rb->knockVelY;
+            }
             // Integrate proposed new position
-            float newX = tr->x + rb->velX * dt;
-            float newY = tr->y + rb->velY * dt;
+            float newX = tr->x + totalVelX * dt;
+            float newY = tr->y + totalVelY * dt;
+
             // Sweep volumes prevent tunnelling when velocity * dt exceeds wall thickness.
                         // Center is midpoint of start/end; width/height span covers full travel distance.
             AABB playerBoxX((tr->x + newX) * 0.5f, tr->y,
@@ -95,7 +104,7 @@ namespace Framework {
 
             const std::string& objectLayer = obj->GetLayerName();
 
-            // Sweep all objects on the same layer, checking only �rect?walls
+            // Sweep all objects on the same layer, checking only “rect?walls
             for (auto& [otherId, otherObj] : objects)
             {
                 if (!otherObj || otherObj == obj)
@@ -158,15 +167,39 @@ namespace Framework {
 
                 // Resolve X then Y independently
                 if (Collision::CheckCollisionRectToRect(playerBoxX, wallBox))
+                {
                     newX = tr->x;
+                    rb->velX = 0.0f;
+                    rb->knockVelX = 0.0f;   // ← cancel knockback on X
+                }
 
                 if (Collision::CheckCollisionRectToRect(playerBoxY, wallBox))
+                {
                     newY = tr->y;
-            }
+                    rb->velY = 0.0f;
+                    rb->knockVelY = 0.0f;   // ← cancel knockback on Y
+                }
+                
 
+            }
             // Commit final position
             tr->x = newX;
             tr->y = newY;
+            //Knockback Decay
+            if (rb->knockbackTime > 0.0f)
+            {
+                rb->knockbackTime -= dt;
+
+                // Optional damping for nicer feel
+                rb->knockVelX *= 0.95f;
+                rb->knockVelY *= 0.95f;
+
+                if (rb->knockbackTime <= 0.0f)
+                {
+                    rb->knockVelX = 0.0f;
+                    rb->knockVelY = 0.0f;
+                }
+            }
         }
     }
 
