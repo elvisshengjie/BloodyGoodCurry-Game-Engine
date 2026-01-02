@@ -82,15 +82,20 @@ namespace Framework {
             auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
             if (!rb || !tr)
                 continue;
-            //Knockback
+            // ------------------------------
+            // START OF KNOCKBACK APPLICATION 
+            // ------------------------------
             float totalVelX = rb->velX;
             float totalVelY = rb->velY;
-
             if (rb->knockbackTime > 0.0f)
             {
                 totalVelX += rb->knockVelX;
                 totalVelY += rb->knockVelY;
             }
+            // ------------------------------
+            // END OF KNOCKBACK APPLICATION
+            // ------------------------------
+            
             // Integrate proposed new position
             float newX = tr->x + totalVelX * dt;
             float newY = tr->y + totalVelY * dt;
@@ -164,7 +169,6 @@ namespace Framework {
                     continue;
 
                 AABB wallBox(trO->x, trO->y, rbO->width, rbO->height);
-
                 // Resolve X then Y independently
                 if (Collision::CheckCollisionRectToRect(playerBoxX, wallBox))
                 {
@@ -185,7 +189,10 @@ namespace Framework {
             // Commit final position
             tr->x = newX;
             tr->y = newY;
-            //Knockback Decay
+
+            // ------------------------------
+            // KNOCKBACK DECAY
+            // ------------------------------
             if (rb->knockbackTime > 0.0f)
             {
                 rb->knockbackTime -= dt;
