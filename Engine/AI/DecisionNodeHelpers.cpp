@@ -1,4 +1,7 @@
 #include "DecisionNodeHelpers.h"
+#ifdef _DEBUG
+#define new DBG_NEW       
+#endif
 namespace Framework
 {
 	float GetAnimationDuration(GOC* goc, const std::string& name)
