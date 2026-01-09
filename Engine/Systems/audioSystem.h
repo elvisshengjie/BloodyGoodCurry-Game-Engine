@@ -38,8 +38,10 @@
 #if SOFASPUDS_ENABLE_EDITOR
 #include "Debug/AudioImGui.h"
 #endif
+#include "../Composition/Composition.h"
 namespace Framework {
 	class AudioImGui;
+
     /*****************************************************************************************
      \class AudioSystem
      \brief

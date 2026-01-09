@@ -31,6 +31,7 @@
 #include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"      // for ScreenToWorld / camera-based world mapping
 #include "Debug/Selection.h"
+#include "Debug/Spawn.h"
 #include "Systems/VfxHelpers.h"
 #include "Resource_Asset_Manager/Resource_Manager.h"
 
@@ -492,6 +493,7 @@ namespace Framework {
         RegisterComponent(EnemyTypeComponent);
         RegisterComponent(AudioComponent);
         RegisterComponent(ZoomTriggerComponent);
+        RegisterComponent(GateTargetComponent);
         RegisterComponent(PlayerHUDComponent);
         FACTORY = factory.get();
         gateController.SetFactory(factory.get());
@@ -500,8 +502,18 @@ namespace Framework {
         auto playerPrefab = resolveData("player.json");
         std::cout << "[Prefab] Player path = " << std::filesystem::absolute(playerPrefab)
             << "  exists=" << std::filesystem::exists(playerPrefab) << "\n";
+        std::filesystem::path startLevelPath = resolveData("level_RealTutorial.json");
 
-        levelObjects = factory->CreateLevel(resolveData("level_RealTutorial.json").string());
+#if SOFASPUDS_ENABLE_EDITOR
+        const std::string& startLevelName = mygame::SelectedStartLevel();
+        if (!startLevelName.empty())
+        {
+            std::filesystem::path requestedPath(startLevelName);
+            startLevelPath = requestedPath.is_absolute() ? requestedPath : resolveData(startLevelName);
+        }
+#endif
+
+        levelObjects = factory->CreateLevel(startLevelPath.string());
 
         const bool hasAnimatedStore = std::any_of(levelObjects.begin(), levelObjects.end(), [](Framework::GOC* obj) {
             if (!obj)
@@ -884,10 +896,16 @@ namespace Framework {
             UpdateAnimation(dt, wantRun);
 
             gateController.UpdateGateUnlockState();
-            if (gateController.ShouldTransitionOnPlayerContact(pendingLevelTransition))
+            std::string targetLevel;
+            if (gateController.ShouldTransitionOnPlayerContact(pendingLevelTransition, targetLevel))
             {
                 pendingLevelTransition = true;
-                LoadLevelAndResetState(resolveData("RealLevel1.json"));
+                std::filesystem::path targetPath(targetLevel);
+                if (!targetPath.is_absolute())
+                {
+                    targetPath = resolveData(targetLevel);
+                }
+                LoadLevelAndResetState(targetPath);
             }
 
             // Collision debug info (player vs a target rect)

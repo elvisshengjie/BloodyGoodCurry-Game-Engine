@@ -74,6 +74,7 @@
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
+#include "Component/GateTargetComponent.h"
 #include "Ai/DecisionTreeDefault.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
@@ -118,6 +119,19 @@ namespace mygame {
     static std::vector<std::string> gLevelFiles;
     /// Selected index into the level list.
     static int gSelectedLevelIndex = 0;
+
+    //Gate and start level
+    /// Selected index for start level choice.
+    static int gStartLevelIndex = 0;
+    /// Selected index for gate target level choice.
+    static int gGateTargetLevelIndex = 0;
+    /// Selected start level filename.
+    static std::string gStartLevelSelection = "level_RealTutorial.json";
+    /// Selected gate target level filename.
+    static std::string gGateTargetLevelSelection = "RealLevel1.json";
+    /// If true, assign selected gate target level to newly spawned gates.
+    static bool gApplyGateTargetOnSpawn = true;
+
     /// Input buffer for “Level Name”.
     static char gLevelNameBuffer[128] = "level";
     /// Transient status line (text + isError flag) for level operations.
@@ -260,6 +274,20 @@ namespace mygame {
             std::sort(gLevelFiles.begin(), gLevelFiles.end());
             if (gSelectedLevelIndex >= static_cast<int>(gLevelFiles.size()))
                 gSelectedLevelIndex = gLevelFiles.empty() ? 0 : static_cast<int>(gLevelFiles.size() - 1);
+
+            auto findIndex = [](const std::vector<std::string>& list, const std::string& value) {
+                auto it = std::find(list.begin(), list.end(), value);
+                if (it == list.end())
+                    return 0;
+                return static_cast<int>(std::distance(list.begin(), it));
+                };
+
+            if (!gLevelFiles.empty()) {
+                gStartLevelIndex = findIndex(gLevelFiles, gStartLevelSelection);
+                gGateTargetLevelIndex = findIndex(gLevelFiles, gGateTargetLevelSelection);
+                gStartLevelSelection = gLevelFiles[gStartLevelIndex];
+                gGateTargetLevelSelection = gLevelFiles[gGateTargetLevelIndex];
+            }
         }
 
         /*************************************************************************************
@@ -488,6 +516,14 @@ namespace mygame {
                 audio->entityType = s.entityType;
             audio->ensureInitialized(true);
         }
+
+        if (applyTransformAndLayer && gApplyGateTargetOnSpawn) {
+            if (auto* gateTarget = obj.GetComponentType<GateTargetComponent>(
+                ComponentTypeId::CT_GateTargetComponent)) {
+                if (!gGateTargetLevelSelection.empty())
+                    gateTarget->levelPath = gGateTargetLevelSelection;
+            }
+        }
         // NOTE: layer is *not* changed here. For new spawns we still set layer in SpawnOnePrefab().
     }
 
@@ -655,6 +691,14 @@ namespace mygame {
         return NormalizeLayerUi(layerName) == NormalizeLayerUi(gActiveLayer);
     }
 
+    /*************************************************************************************
+      \brief Returns the currently selected start level filename (from the debug UI).
+      \return Level filename (may be empty if no level files are available).
+    *************************************************************************************/
+    const std::string& SelectedStartLevel() {
+        return gStartLevelSelection;
+    }
+
     //=====================================================================================
     // Panel-local UI state
     //=====================================================================================
@@ -812,6 +856,8 @@ namespace mygame {
             (master->GetComponentType<PlayerAttackComponent>(ComponentTypeId::CT_PlayerAttackComponent) != nullptr);
         const bool hasPlayerHealth =
             (master->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent) != nullptr);
+        const bool hasGateTarget =
+            (master->GetComponentType<GateTargetComponent>(ComponentTypeId::CT_GateTargetComponent) != nullptr);
 
         // One-time sync from master to panel when prefab changes
         if (gPendingPrefabSizeSync) {
@@ -1127,6 +1173,43 @@ namespace mygame {
                 }
                 ImGui::EndCombo();
             }
+            //Select level to start
+            const char* startPreview = gStartLevelSelection.c_str();
+            if (ImGui::BeginCombo("Start Level", startPreview)) {
+                for (size_t i = 0; i < gLevelFiles.size(); ++i) {
+                    bool selected = (static_cast<int>(i) == gStartLevelIndex);
+                    if (ImGui::Selectable(gLevelFiles[i].c_str(), selected)) {
+                        gStartLevelIndex = static_cast<int>(i);
+                        gStartLevelSelection = gLevelFiles[gStartLevelIndex];
+                    }
+                    if (selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            //Select gate 
+            if (hasGateTarget) {
+                ImGui::SeparatorText("Gate Settings");
+
+                const char* gateTargetPreview = gGateTargetLevelSelection.c_str();
+                if (ImGui::BeginCombo("Gate Target Level", gateTargetPreview)) {
+                    for (size_t i = 0; i < gLevelFiles.size(); ++i) {
+                        bool selected = (static_cast<int>(i) == gGateTargetLevelIndex);
+                        if (ImGui::Selectable(gLevelFiles[i].c_str(), selected)) {
+                            gGateTargetLevelIndex = static_cast<int>(i);
+                            gGateTargetLevelSelection = gLevelFiles[gGateTargetLevelIndex];
+                        }
+                        if (selected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+
+                ImGui::Checkbox("Apply gate target on spawn", &gApplyGateTargetOnSpawn);
+            }
+
+
 
             // Show the layer names found in the selected level for quick verification
             const std::string& selectedLevel = gLevelFiles[gSelectedLevelIndex];

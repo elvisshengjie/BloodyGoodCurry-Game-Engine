@@ -585,7 +585,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -1814,75 +1814,121 @@
       },
       {
         "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "g": 1.0,
-            "h": 1.100000023841858,
-            "layer": 0,
-            "r": 1.0,
-            "texture_key": "hawker_gate",
-            "texture_path": "../../assets/Textures/Environment/lvl 1_Hawker/Gate.png",
-            "visible": true,
-            "w": 1.2999999523162842
-          },
-          "RigidBodyComponent": {
-            "height": 0.10000000149011612,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Gate.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.7026041150093079,
-            "y": 0.8652083277702332
-          }
-        },
-        "layer": "Default",
-        "name": "Hawker_Gate"
-      },
-      {
-        "Components": {
           "AudioComponent": {
             "entityType": "player",
             "sounds": {
-              "GrappleShoot1": {"id": "GrappleShoot1","loop": false},
-              "GrappleShoot2": {"id": "GrappleShoot2","loop": false},
-              "GrappleShoot3": {"id": "GrappleShoot3","loop": false},
-              "GrappleShoot4": {"id": "GrappleShoot4","loop": false},
-              
-              "Slash1": {"id": "Slash1","loop": false},
-              "Slash2": {"id": "Slash2","loop": false},
-              "Slash3": {"id": "Slash3","loop": false},
-              "Punch1": {"id": "Punch1","loop": false},
-              "Punch2": {"id": "Punch2","loop": false},
-              "Punch3": {"id": "Punch3","loop": false},
-              "Punch4": {"id": "Punch4","loop": false},
-              "IneffectiveBoink1": {"id": "Ineffective Boink1","loop": false},
-              "IneffectiveBoink2": {"id": "Ineffective Boink2","loop": false},
-              "IneffectiveBoink3": {"id": "Ineffective Boink3","loop": false},
-              
-              "PlayerDead": {"id": "PlayerDead","loop": false},
-              "PlayerHit": {"id": "PlayerHit","loop": false},
-
-
-              "ConcreteFootsteps1": { "id": "ConcreteFootsteps1", "loop": false },
-              "ConcreteFootsteps2": { "id": "ConcreteFootsteps2", "loop": false },
-              "ConcreteFootsteps3": { "id": "ConcreteFootsteps3", "loop": false },
-              "ConcreteFootsteps4": { "id": "ConcreteFootsteps4", "loop": false },
-              "ConcreteFootsteps5": { "id": "ConcreteFootsteps5", "loop": false },
-              "ConcreteFootsteps6": { "id": "ConcreteFootsteps6", "loop": false },
-              "ConcreteFootsteps7": { "id": "ConcreteFootsteps7", "loop": false },
-              "ConcreteFootsteps8": { "id": "ConcreteFootsteps8", "loop": false },
-              "ConcreteFootsteps9": { "id": "ConcreteFootsteps9", "loop": false },
-              "ConcreteFootsteps10": { "id": "ConcreteFootsteps10", "loop": false },
-              "ConcreteFootsteps11": { "id": "ConcreteFootsteps11", "loop": false },
-              "ConcreteFootsteps12": { "id": "ConcreteFootsteps12", "loop": false }
+              "ConcreteFootsteps1": {
+                "id": "ConcreteFootsteps1",
+                "loop": false
+              },
+              "ConcreteFootsteps10": {
+                "id": "ConcreteFootsteps10",
+                "loop": false
+              },
+              "ConcreteFootsteps11": {
+                "id": "ConcreteFootsteps11",
+                "loop": false
+              },
+              "ConcreteFootsteps12": {
+                "id": "ConcreteFootsteps12",
+                "loop": false
+              },
+              "ConcreteFootsteps2": {
+                "id": "ConcreteFootsteps2",
+                "loop": false
+              },
+              "ConcreteFootsteps3": {
+                "id": "ConcreteFootsteps3",
+                "loop": false
+              },
+              "ConcreteFootsteps4": {
+                "id": "ConcreteFootsteps4",
+                "loop": false
+              },
+              "ConcreteFootsteps5": {
+                "id": "ConcreteFootsteps5",
+                "loop": false
+              },
+              "ConcreteFootsteps6": {
+                "id": "ConcreteFootsteps6",
+                "loop": false
+              },
+              "ConcreteFootsteps7": {
+                "id": "ConcreteFootsteps7",
+                "loop": false
+              },
+              "ConcreteFootsteps8": {
+                "id": "ConcreteFootsteps8",
+                "loop": false
+              },
+              "ConcreteFootsteps9": {
+                "id": "ConcreteFootsteps9",
+                "loop": false
+              },
+              "GrappleShoot1": {
+                "id": "GrappleShoot1",
+                "loop": false
+              },
+              "GrappleShoot2": {
+                "id": "GrappleShoot2",
+                "loop": false
+              },
+              "GrappleShoot3": {
+                "id": "GrappleShoot3",
+                "loop": false
+              },
+              "GrappleShoot4": {
+                "id": "GrappleShoot4",
+                "loop": false
+              },
+              "Ineffective Boink1": {
+                "id": "Ineffective Boink1",
+                "loop": false
+              },
+              "Ineffective Boink2": {
+                "id": "Ineffective Boink2",
+                "loop": false
+              },
+              "Ineffective Boink3": {
+                "id": "Ineffective Boink3",
+                "loop": false
+              },
+              "PlayerDead": {
+                "id": "PlayerDead",
+                "loop": false
+              },
+              "PlayerHit": {
+                "id": "PlayerHit",
+                "loop": false
+              },
+              "Punch1": {
+                "id": "Punch1",
+                "loop": false
+              },
+              "Punch2": {
+                "id": "Punch2",
+                "loop": false
+              },
+              "Punch3": {
+                "id": "Punch3",
+                "loop": false
+              },
+              "Punch4": {
+                "id": "Punch4",
+                "loop": false
+              },
+              "Slash1": {
+                "id": "Slash1",
+                "loop": false
+              },
+              "Slash2": {
+                "id": "Slash2",
+                "loop": false
+              },
+              "Slash3": {
+                "id": "Slash3",
+                "loop": false
+              }
             },
             "volume": 1.0
           },
@@ -1909,12 +1955,12 @@
             "layer": 1,
             "r": 1.0,
             "visible": true,
-            "w": -0.20000000298023224
+            "w": 0.20000000298023224
           },
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
-            "velocity_x": 1.401298464324817e-45,
-            "velocity_y": -1.401298464324817e-45,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
@@ -1930,7 +1976,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -2584,7 +2630,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.7500203847885132,
+            "x": 0.7536529302597046,
             "y": -0.5370000004768372
           }
         },
@@ -3406,19 +3452,50 @@
           "AudioComponent": {
             "entityType": "enemy_fire",
             "sounds": {
-              "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
-              "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },
-              
-              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
-              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
-              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
-              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
-              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
-              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
-              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
-              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
-
-              "FireGhostExplosion": { "id": "FireGhostExplosion", "loop": false }
+              "FireGhostExplosion": {
+                "id": "FireGhostExplosion",
+                "loop": false
+              },
+              "FireGhostProjectile1": {
+                "id": "FireGhostProjectile1",
+                "loop": false
+              },
+              "FireGhostProjectile2": {
+                "id": "FireGhostProjectile2",
+                "loop": false
+              },
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false
+              }
             },
             "volume": 0.4000000059604645
           },
@@ -3447,7 +3524,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 10.0,
+            "velocity_x": 0.20000000298023224,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3464,7 +3541,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3527,7 +3604,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.2595398426055908,
+            "x": -0.4200000762939453,
             "y": 0.037759244441986084
           }
         },
@@ -3539,19 +3616,50 @@
           "AudioComponent": {
             "entityType": "enemy_fire",
             "sounds": {
-              "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
-              "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },
-              
-              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
-              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
-              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
-              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
-              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
-              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
-              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
-              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
-
-              "FireGhostExplosion": { "id": "FireGhostExplosion", "loop": false }
+              "FireGhostExplosion": {
+                "id": "FireGhostExplosion",
+                "loop": false
+              },
+              "FireGhostProjectile1": {
+                "id": "FireGhostProjectile1",
+                "loop": false
+              },
+              "FireGhostProjectile2": {
+                "id": "FireGhostProjectile2",
+                "loop": false
+              },
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false
+              }
             },
             "volume": 0.4000000059604645
           },
@@ -3580,7 +3688,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 10.0,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3597,7 +3705,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3660,7 +3768,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.2508290410041809,
+            "x": 0.503333330154419,
             "y": 0.02157670259475708
           }
         },
@@ -3672,19 +3780,50 @@
           "AudioComponent": {
             "entityType": "enemy_fire",
             "sounds": {
-              "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
-              "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },
-              
-              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
-              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
-              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
-              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
-              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
-              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
-              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
-              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
-
-              "FireGhostExplosion": { "id": "FireGhostExplosion", "loop": false }
+              "FireGhostExplosion": {
+                "id": "FireGhostExplosion",
+                "loop": false
+              },
+              "FireGhostProjectile1": {
+                "id": "FireGhostProjectile1",
+                "loop": false
+              },
+              "FireGhostProjectile2": {
+                "id": "FireGhostProjectile2",
+                "loop": false
+              },
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false
+              }
             },
             "volume": 0.4000000059604645
           },
@@ -3713,7 +3852,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 10.0,
+            "velocity_x": 0.20000000298023224,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3730,7 +3869,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3793,7 +3932,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.2811166048049927,
+            "x": -0.4200000762939453,
             "y": -1.076137900352478
           }
         },
@@ -3805,16 +3944,46 @@
           "AudioComponent": {
             "entityType": "enemy_water",
             "sounds": {
-              "WaterGhostAttack": { "id": "WaterGhostAttack", "loop": false },
-              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
-              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
-              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
-              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
-              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
-              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
-              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
-              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
-              "WaterGhostExplosion1": { "id": "WaterGhostExplosion1", "loop": false }
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false
+              },
+              "WaterGhostAttack": {
+                "id": "WaterGhostAttack",
+                "loop": false
+              },
+              "WaterGhostExplosion": {
+                "id": "WaterGhostExplosion",
+                "loop": false
+              }
             },
             "volume": 0.4000000059604645
           },
@@ -3843,7 +4012,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 10.0,
+            "velocity_x": -0.20000000298023224,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3860,7 +4029,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 0,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3923,7 +4092,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.8064292073249817,
+            "x": 0.4266667366027832,
             "y": -0.013485431671142578
           }
         },
@@ -3935,16 +4104,46 @@
           "AudioComponent": {
             "entityType": "enemy_water",
             "sounds": {
-              "WaterGhostAttack": { "id": "WaterGhostAttack", "loop": false },
-              "GhostHurt1": { "id": "GhostHurt1", "loop": false },
-              "GhostHurt2": { "id": "GhostHurt2", "loop": false },
-              "GhostHurt3": { "id": "GhostHurt3", "loop": false },
-              "GhostHurt4": { "id": "GhostHurt4", "loop": false },
-              "GhostHurt5": { "id": "GhostHurt5", "loop": false },
-              "GhostHurt6": { "id": "GhostHurt6", "loop": false },
-              "GhostHurt7": { "id": "GhostHurt7", "loop": false },
-              "GhostHurt8": { "id": "GhostHurt8", "loop": false },
-              "WaterGhostExplosion1": { "id": "WaterGhostExplosion1", "loop": false }
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false
+              },
+              "WaterGhostAttack": {
+                "id": "WaterGhostAttack",
+                "loop": false
+              },
+              "WaterGhostExplosion": {
+                "id": "WaterGhostExplosion",
+                "loop": false
+              }
             },
             "volume": 0.4000000059604645
           },
@@ -3973,7 +4172,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 10.0,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3990,7 +4189,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 0,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -4053,12 +4252,49 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.33174169063568115,
+            "x": 0.503333330154419,
             "y": -1.0977145433425903
           }
         },
         "layer": "Default",
         "name": "Enemy"
+      },
+      {
+        "Components": {
+          "GateTargetComponent": {
+            "level_path": "RealLevel1.json"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "g": 1.0,
+            "h": 1.100000023841858,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "hawker_gate",
+            "texture_path": "../../assets/Textures/Environment/lvl 1_Hawker/Gate.png",
+            "visible": true,
+            "w": 1.2999999523162842
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Gate.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.698845386505127,
+            "y": 0.8658650517463684
+          }
+        },
+        "layer": "Default",
+        "name": "Hawker_Gate"
       }
     ],
     "name": "level_RealTutorial"

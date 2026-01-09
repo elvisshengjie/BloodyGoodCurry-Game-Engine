@@ -124,5 +124,6 @@ namespace mygame {
     const std::string& ActiveLayerName();
     bool IsLayerIsolationEnabled();
     bool ShouldRenderLayer(const std::string& layerName);
+    const std::string& SelectedStartLevel();
 
 } // namespace mygame
