@@ -102,184 +102,184 @@ namespace Framework
         }
     }
 
-    static void MeleeAttack(GOC* enemy, float dt, LogicSystem* logic)
-    {
-        if (!enemy || !logic) return;
+    //static void MeleeAttack(GOC* enemy, float dt, LogicSystem* logic)
+    //{
+    //    if (!enemy || !logic) return;
 
-        auto* attack = enemy->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
-        auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-        auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-        auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
-        auto* typeComp = enemy->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
-        auto* audio = enemy->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+    //    auto* attack = enemy->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
+    //    auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+    //    auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+    //    auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+    //    auto* typeComp = enemy->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
+    //    auto* audio = enemy->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
 
-        if (!attack || !rb || !tr || !ai)
-            return;
+    //    if (!attack || !rb || !tr || !ai)
+    //        return;
 
-        GOC* player = nullptr;
-        for (auto& kv : FACTORY->Objects())
-        {
-            GOC* goc = kv.second.get();
-            if (!goc) continue;
-            if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent)) { player = goc; break; }
-        }
-        if (!player) return;
+    //    GOC* player = nullptr;
+    //    for (auto& kv : FACTORY->Objects())
+    //    {
+    //        GOC* goc = kv.second.get();
+    //        if (!goc) continue;
+    //        if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent)) { player = goc; break; }
+    //    }
+    //    if (!player) return;
 
-        auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-        if (!trPlayer) return;
+    //    auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+    //    if (!trPlayer) return;
 
-        float dx = trPlayer->x - tr->x;
-        float dy = trPlayer->y - tr->y;
-        float distance = std::sqrt(dx * dx + dy * dy);
+    //    float dx = trPlayer->x - tr->x;
+    //    float dy = trPlayer->y - tr->y;
+    //    float distance = std::sqrt(dx * dx + dy * dy);
 
-        ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
+    //    ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
 
-        attack->attack_timer += dt;
+    //    attack->attack_timer += dt;
 
-        if (!typeComp || typeComp->Etype != EnemyTypeComponent::EnemyType::ranged)
-        {
-            if (attack->attack_timer >= attack->attack_speed && distance < 0.8f && !attack->hitbox->active)
-            {
-                attack->attack_timer = 0.0f;
-                attack->hitbox->active = true;
+    //    if (!typeComp || typeComp->Etype != EnemyTypeComponent::EnemyType::ranged)
+    //    {
+    //        if (attack->attack_timer >= attack->attack_speed && distance < 0.8f && !attack->hitbox->active)
+    //        {
+    //            attack->attack_timer = 0.0f;
+    //            attack->hitbox->active = true;
 
-                float direction = (ai->facing == Facing::LEFT) ? -1.0f : 1.0f;
-                float hbWidth = rb->width * 1.2f;
-                float hbHeight = rb->height * 0.8f;
+    //            float direction = (ai->facing == Facing::LEFT) ? -1.0f : 1.0f;
+    //            float hbWidth = rb->width * 1.2f;
+    //            float hbHeight = rb->height * 0.8f;
 
-                float spawnX = tr->x + direction * hbWidth * 0.25f;
-                float spawnY = tr->y;
+    //            float spawnX = tr->x + direction * hbWidth * 0.25f;
+    //            float spawnY = tr->y;
 
-                attack->hitbox->duration = GetAnimationDuration(enemy, "slashattack");
+    //            attack->hitbox->duration = GetAnimationDuration(enemy, "slashattack");
 
-                logic->hitBoxSystem->SpawnHitBox(
-                    enemy, spawnX, spawnY, hbWidth, hbHeight,
-                    static_cast<float>(attack->damage),
-                    attack->hitbox->duration,
-                    HitBoxComponent::Team::Enemy
-                );
+    //            logic->hitBoxSystem->SpawnHitBox(
+    //                enemy, spawnX, spawnY, hbWidth, hbHeight,
+    //                static_cast<float>(attack->damage),
+    //                attack->hitbox->duration,
+    //                HitBoxComponent::Team::Enemy
+    //            );
 
-                if (audio) audio->TriggerSound("EnemyAttack");
-                PlayAnimationIfAvailable(enemy, "slashattack", true);
-            }
+    //            if (audio) audio->TriggerSound("EnemyAttack");
+    //            PlayAnimationIfAvailable(enemy, "slashattack", true);
+    //        }
 
-            if (attack->hitbox->active)
-            {
-                attack->hitboxElapsed += dt;
-                if (attack->hitboxElapsed >= attack->hitbox->duration)
-                {
-                    attack->hitbox->active = false;
-                    attack->hitboxElapsed = 0.0f;
-                }
-            }
-        }
-        else
-        {
-            // ---- Ranged logic ----
-            if (attack->attack_timer >= attack->attack_speed && distance < 3.5f)
-            {
-                attack->attack_timer = -3.0f;
+    //        if (attack->hitbox->active)
+    //        {
+    //            attack->hitboxElapsed += dt;
+    //            if (attack->hitboxElapsed >= attack->hitbox->duration)
+    //            {
+    //                attack->hitbox->active = false;
+    //                attack->hitboxElapsed = 0.0f;
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        // ---- Ranged logic ----
+    //        if (attack->attack_timer >= attack->attack_speed && distance < 3.5f)
+    //        {
+    //            attack->attack_timer = -3.0f;
 
-                float norm = (distance > 0.001f) ? distance : 1.0f;
-                float dirX = dx / norm;
-                float dirY = dy / norm;
+    //            float norm = (distance > 0.001f) ? distance : 1.0f;
+    //            float dirX = dx / norm;
+    //            float dirY = dy / norm;
 
-                logic->hitBoxSystem->SpawnProjectile(
-                    enemy, tr->x, tr->y, dirX, dirY,
-                    0.2f, 0.3f, 0.15f,
-                    static_cast<float>(attack->damage),
-                    3.0f,
-                    HitBoxComponent::Team::Enemy
-                );
+    //            logic->hitBoxSystem->SpawnProjectile(
+    //                enemy, tr->x, tr->y, dirX, dirY,
+    //                0.2f, 0.3f, 0.15f,
+    //                static_cast<float>(attack->damage),
+    //                3.0f,
+    //                HitBoxComponent::Team::Enemy
+    //            );
 
-                if (audio) audio->TriggerSound("EnemyAttack");
-                PlayAnimationIfAvailable(enemy, "rangeattack", true);
-            }
-        }
-    }
+    //            if (audio) audio->TriggerSound("EnemyAttack");
+    //            PlayAnimationIfAvailable(enemy, "rangeattack", true);
+    //        }
+    //    }
+    //}
 
-    void RangedAttack(GOC* enemy, float dt, LogicSystem* logic)
-    {
-        if (!enemy || !logic) return;
+    //void RangedAttack(GOC* enemy, float dt, LogicSystem* logic)
+    //{
+    //    if (!enemy || !logic) return;
 
-        auto* e = static_cast<GOC*>(enemy);
+    //    auto* e = static_cast<GOC*>(enemy);
 
-        auto* attack = e->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
-        auto* rb = e->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-        auto* tr = e->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-        auto* ai = e->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
-        auto* audio = e->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+    //    auto* attack = e->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
+    //    auto* rb = e->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+    //    auto* tr = e->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+    //    auto* ai = e->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+    //    auto* audio = e->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
 
-        if (!attack || !rb || !tr || !ai) return;
-        GOC* player = nullptr;
-        for (auto& kv : FACTORY->Objects())
-        {
-            GOC* goc = kv.second.get();
-            if (!goc) continue;
-            if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent))
-            {
-                player = goc;
-                break;
-            }
-        }
-        if (!player) return;
-        auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-        if (!trPlayer) return;
-        float dx = trPlayer->x - tr->x;
-        float dy = trPlayer->y - tr->y;
-        float distance = std::sqrt(dx * dx + dy * dy);
-        ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
-        const float speed = 1.0f;
-        const float stopDistance = 1.0f;
-        const float accel = 2.0f;
+    //    if (!attack || !rb || !tr || !ai) return;
+    //    GOC* player = nullptr;
+    //    for (auto& kv : FACTORY->Objects())
+    //    {
+    //        GOC* goc = kv.second.get();
+    //        if (!goc) continue;
+    //        if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent))
+    //        {
+    //            player = goc;
+    //            break;
+    //        }
+    //    }
+    //    if (!player) return;
+    //    auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+    //    if (!trPlayer) return;
+    //    float dx = trPlayer->x - tr->x;
+    //    float dy = trPlayer->y - tr->y;
+    //    float distance = std::sqrt(dx * dx + dy * dy);
+    //    ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
+    //    const float speed = 1.0f;
+    //    const float stopDistance = 1.0f;
+    //    const float accel = 2.0f;
 
-        if (distance > stopDistance)
-        {
-            float norm = (distance > 0.001f) ? distance : 1.0f;
-            float targetVX = (dx / norm) * speed;
-            float targetVY = (dy / norm) * speed;
+    //    if (distance > stopDistance)
+    //    {
+    //        float norm = (distance > 0.001f) ? distance : 1.0f;
+    //        float targetVX = (dx / norm) * speed;
+    //        float targetVY = (dy / norm) * speed;
 
-            rb->velX += (targetVX - rb->velX) * std::min(accel * dt, 1.0f);
-            rb->velY += (targetVY - rb->velY) * std::min(accel * dt, 1.0f);
-        }
-        else
-        {
-            rb->velX *= 0.5f;
-            rb->velY *= 0.5f;
-        }
+    //        rb->velX += (targetVX - rb->velX) * std::min(accel * dt, 1.0f);
+    //        rb->velY += (targetVY - rb->velY) * std::min(accel * dt, 1.0f);
+    //    }
+    //    else
+    //    {
+    //        rb->velX *= 0.5f;
+    //        rb->velY *= 0.5f;
+    //    }
 
-        // Update attack timer
-        attack->attack_timer += dt;
+    //    // Update attack timer
+    //    attack->attack_timer += dt;
 
-        if (attack->attack_timer >= attack->attack_speed && distance < 3.5f)
-        {
-            attack->attack_timer = 0.0f;
+    //    if (attack->attack_timer >= attack->attack_speed && distance < 3.5f)
+    //    {
+    //        attack->attack_timer = 0.0f;
 
-            float norm = (distance > 0.001f) ? distance : 1.0f;
-            float dirX = dx / norm;
-            float dirY = dy / norm;
-            float spawnX = tr->x;
-            float spawnY = tr->y;
-            logic->hitBoxSystem->SpawnProjectile(
-                enemy,
-                spawnX, spawnY,
-                dirX, dirY,
-                0.2f, 0.3f, 0.15f,
-                static_cast<float>(attack->damage),
-                3.0f,
-                HitBoxComponent::Team::Enemy
-            );
+    //        float norm = (distance > 0.001f) ? distance : 1.0f;
+    //        float dirX = dx / norm;
+    //        float dirY = dy / norm;
+    //        float spawnX = tr->x;
+    //        float spawnY = tr->y;
+    //        logic->hitBoxSystem->SpawnProjectile(
+    //            enemy,
+    //            spawnX, spawnY,
+    //            dirX, dirY,
+    //            0.2f, 0.3f, 0.15f,
+    //            static_cast<float>(attack->damage),
+    //            3.0f,
+    //            HitBoxComponent::Team::Enemy
+    //        );
 
-            if (audio) audio->TriggerSound("EnemyAttack");
+    //        if (audio) audio->TriggerSound("EnemyAttack");
 
-            PlayAnimationIfAvailable(e, "rangeattack", true);
-        }
-        else if (attack->attack_timer > 0.5f)
-        {
-            // fallback to idle after shooting
-            PlayAnimationIfAvailable(e, "idle");
-        }
-    }
+    //        PlayAnimationIfAvailable(e, "rangeattack", true);
+    //    }
+    //    else if (attack->attack_timer > 0.5f)
+    //    {
+    //        // fallback to idle after shooting
+    //        PlayAnimationIfAvailable(e, "idle");
+    //    }
+    //}
 
 
 }

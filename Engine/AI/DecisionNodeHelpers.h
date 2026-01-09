@@ -21,10 +21,10 @@ namespace Framework
 
 	void PlayAnimationIfAvailable(GOC* goc, std::string_view name, bool forceRestart = false);
 	float GetAnimationDuration(GOC* goc, const std::string& name);
-	bool IsPlayerNear(GOC* enemy, float radius);
+	inline bool IsPlayerNear(GOC* enemy, float radius);
 	void Patrol(void* enemy, float dt);
 	void Idle(void* enemy, float dt);
-	static void MeleeAttack(GOC* enemy, float dt, LogicSystem* logic);
-	static void RangedAttack(GOC* enemy, float dt, LogicSystem* logic);
+	//static void MeleeAttack(GOC* enemy, float dt, LogicSystem* logic);
+	//static void RangedAttack(GOC* enemy, float dt, LogicSystem* logic);
 
 }
