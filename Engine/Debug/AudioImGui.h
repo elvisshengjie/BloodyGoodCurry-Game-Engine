@@ -24,7 +24,7 @@
 #if SOFASPUDS_ENABLE_EDITOR
 
 #include "../Audio/SoundManager.h"
-#include "../Resource_Manager/Resource_Manager.h"
+#include "../Resource_Asset_Manager/Resource_Manager.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"

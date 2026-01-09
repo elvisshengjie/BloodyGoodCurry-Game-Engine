@@ -47,7 +47,7 @@
 #include "Graphics/Camera2D.hpp"
 #include "Graphics/Window.hpp"
 #include "Graphics/GraphicsText.hpp"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 
 #include <array>
 #include <filesystem>

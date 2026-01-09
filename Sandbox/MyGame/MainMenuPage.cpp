@@ -17,7 +17,7 @@
 #include "MainMenuPage.hpp"
 #include "Core/PathUtils.h"
 #include "Graphics/Graphics.hpp"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 #include <algorithm>
 #include "Audio/SoundManager.h"
 #include <glm/vec3.hpp>

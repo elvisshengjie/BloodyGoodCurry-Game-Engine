@@ -1,7 +1,7 @@
 ﻿#include "audioSystem.h"
 #include "Core/PathUtils.h"
 #include "RenderSystem.h"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 #include <iostream>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 

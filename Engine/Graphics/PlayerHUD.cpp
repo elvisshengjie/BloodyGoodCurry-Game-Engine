@@ -21,7 +21,7 @@
 
 #include "Component/PlayerHealthComponent.h"
 #include "Core/PathUtils.h"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 
 #include <algorithm>
 #include <iostream>

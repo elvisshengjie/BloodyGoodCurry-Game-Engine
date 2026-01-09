@@ -31,7 +31,7 @@
 
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 #include "Factory/Factory.h"
 #include "Debug/Selection.h"
 #include "Common/CRTDebug.h"  

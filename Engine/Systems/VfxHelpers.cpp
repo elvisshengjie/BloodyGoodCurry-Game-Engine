@@ -31,7 +31,7 @@
 #include "Common/ComponentTypeID.h"
 #include "Core/PathUtils.h"
 #include "Factory/Factory.h"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 
 #include <string>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW

@@ -32,7 +32,7 @@
 #include "Systems/RenderSystem.h"      // for ScreenToWorld / camera-based world mapping
 #include "Debug/Selection.h"
 #include "Systems/VfxHelpers.h"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 
 #include <cctype>
 #include <string>

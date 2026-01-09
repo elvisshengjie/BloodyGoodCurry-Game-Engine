@@ -62,7 +62,7 @@
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
 #include "Component/SpriteComponent.h"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 
 // Player & Enemy Components
 #include "Component/PlayerComponent.h"
