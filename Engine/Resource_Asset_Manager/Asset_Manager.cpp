@@ -1,5 +1,4 @@
 #include "Asset_Manager.h"
-
 AssetManager::AssetType AssetManager::IdentifyAssetType(const std::filesystem::path& assetPath)
 {
 	std::string ext = assetPath.extension().string();
@@ -33,9 +32,21 @@ bool AssetManager::ImportAsset(const std::filesystem::path& sourceFile)
 bool AssetManager::DeleteAsset(const std::filesystem::path& assetPath) 
 { 
 	if (!std::filesystem::exists(assetPath)) return false;
-	Resource_Manager::unloadAll(Resource_Manager::Graphics);
-	Resource_Manager::unloadAll(Resource_Manager::Sound);
+	std::string id = assetPath.stem().string();
+	Resource_Manager::Unload(id);
 	std::filesystem::remove(assetPath);
+	return true;
+}
+bool AssetManager::CreateEmptyAsset(const std::string& name,const std::string& extension)
+{
+	std::filesystem::path path =std::filesystem::path("assets") / (name + "." + extension);
+	if (std::filesystem::exists(path))return false;
+	std::ofstream file(path);
+	if (!file.is_open())return false;
+if (extension == "vert" || extension == "frag")
+	{file << "// Shader: " << name << "\n";}
+
+	file.close();
 	return true;
 }
 

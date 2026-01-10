@@ -144,6 +144,20 @@ void Resource_Manager::loadAll(const std::string& directory)
         }        
     }
 }
+
+
+void Resource_Manager::Unload(const std::string& id)
+{
+    auto it = resources_map.find(id);
+    if (it == resources_map.end())return;
+    Resources& res = it->second;
+    if (res.type == Resource_Type::Graphics && res.handle != 0)
+    {gfx::Graphics::destroyTexture(res.handle);}
+    else if (res.type == Resource_Type::Sound)
+    {SoundManager::getInstance().unloadSound(id);}
+    resources_map.erase(it);
+}
+
 /*****************************************************************************************
      \brief Unload all resources of a specified type.
     \param type  Resource type to unload (Texture, Font, Graphics, Sound, or All).

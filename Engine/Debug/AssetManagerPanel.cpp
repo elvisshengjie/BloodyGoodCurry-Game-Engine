@@ -1,0 +1,75 @@
+#include "AssetManagerPanel.h"
+#if SOFASPUDS_ENABLE_EDITOR
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
+namespace mygame
+{
+	void DebugAssetMgrPanel::draw()
+	{
+		ImGui::Begin("Debug Asset Manager");
+		static std::vector<AssetManager::Asset> assets;
+		static int selected = -1;
+		if (ImGui::Button("Refresh Assets"))
+		{
+			assets = AssetManager::GetAllAssets();
+			selected = -1;
+		}
+		ImGui::Separator;
+		ImGui::BeginChild("AssetList", ImVec2(0, 200), true);
+		for (int i = 0; i < (int)assets.size(); ++i)
+		{
+			bool isSelected = (selected == i);
+			if (ImGui::Selectable(assets[i].name.c_str(), isSelected))
+				selected = i;
+		}
+		ImGui::EndChild();
+		ImGui::Separator();
+		if (selected >= 0 && selected < (int)assets.size())
+		{
+			const auto& asset = assets[selected];
+			ImGui::Text("Path: %s", asset.path.string().c_str());
+			ImGui::Text("Type: %d", (int)asset.type);
+			if (ImGui::Button("Load Asset")) 
+			{ Resource_Manager::LoadAsset(asset.path);}
+			ImGui::SameLine();
+			if (ImGui::Button("Delete Asset"))
+			{
+				AssetManager::DeleteAsset(asset.path);
+				assets = AssetManager::GetAllAssets();
+				selected = -1;
+			}
+			ImGui::SameLine();
+			if (asset.type == AssetManager::AssetType::Prefab)
+			{
+				if (ImGui::Button("Delete Prefab"))
+				{
+					AssetManager::DeletePrefab(asset.name);
+					assets = AssetManager::GetAllAssets();
+					selected = -1;
+				}
+			}
+		}
+		ImGui::Separator();
+		// --- Create Empty Asset or Prefab ---
+		static char newAssetName[128] = "";
+		ImGui::InputText("Asset Name", newAssetName, sizeof(newAssetName));
+		static int newAssetTypeIndex = 0;
+		const char* assetTypes[] = { "png", "wav", "ttf", "vert", "frag", "json" };
+		ImGui::Combo("Asset Type", &newAssetTypeIndex, assetTypes, IM_ARRAYSIZE(assetTypes));
+		if (ImGui::Button("Create Empty Asset"))
+		{
+			AssetManager::CreateEmptyAsset(newAssetName, assetTypes[newAssetTypeIndex]);
+			assets = AssetManager::GetAllAssets();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Create Prefab"))
+		{
+			AssetManager::CreatePrefab(newAssetName);
+			assets = AssetManager::GetAllAssets();
+		}
+		ImGui::End();
+	}
+}
+#endif
