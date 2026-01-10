@@ -19,6 +19,18 @@
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
 /*****************************************************************************************
+ \brief Load a resource into memory using an asset file path.
+ \param assetPath  Filesystem path to the asset to be loaded.
+ \return true if the resource was successfully loaded, false otherwise.
+*****************************************************************************************/
+bool Resource_Manager::LoadAsset(const std::filesystem::path& assetPath)
+{
+    if (!std::filesystem::exists(assetPath))return false;
+    std::string id = assetPath.stem().string();
+    return load(id, assetPath.string());
+}
+
+/*****************************************************************************************
      \brief Get the file extension from a path string.
     \param path  Path to the file.
     \return File extension string (e.g., "png", "wav").

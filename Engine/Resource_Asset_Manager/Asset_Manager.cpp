@@ -3,20 +3,22 @@
 AssetManager::AssetType AssetManager::IdentifyAssetType(const std::filesystem::path& assetPath)
 {
 	std::string ext = assetPath.extension().string();
+	if (!ext.empty() && ext[0] == '.')
+		ext.erase(0, 1);
 	std::string stem = assetPath.stem().string();
 	if (Resource_Manager::isTexture(ext))
 	{
 		std::filesystem::path animMeta =
-			std::filesystem::path("Data_Files") /
+			assetPath.parent_path() /
 			(stem + ".anim.json");
 		if (std::filesystem::exists(animMeta))
 			return AssetType::SpriteSheet;
 		return AssetType::Texture;
 	}
 	if (Resource_Manager::isSound(ext)) return AssetType::Audio;
-	if (ext == ".ttf" || ext == ".otf") return AssetType::Font;
-	if (ext == ".vert" || ext == ".frag") return AssetType::Shader;
-	if (ext == ".json" &&
+	if (ext == "ttf" || ext == "otf") return AssetType::Font;
+	if (ext == "vert" || ext == "frag") return AssetType::Shader;
+	if (ext == "json" &&
 		assetPath.string().find("Data_Files") != std::string::npos)
 		return AssetType::Prefab;
 	return AssetType::Unknown;
@@ -30,8 +32,9 @@ bool AssetManager::ImportAsset(const std::filesystem::path& sourceFile)
 }
 bool AssetManager::DeleteAsset(const std::filesystem::path& assetPath) 
 { 
-	if (std::filesystem::exists(assetPath)) return false;
-	Resource_Manager::unloadAll(Resource_Manager::All);
+	if (!std::filesystem::exists(assetPath)) return false;
+	Resource_Manager::unloadAll(Resource_Manager::Graphics);
+	Resource_Manager::unloadAll(Resource_Manager::Sound);
 	std::filesystem::remove(assetPath);
 	return true;
 }

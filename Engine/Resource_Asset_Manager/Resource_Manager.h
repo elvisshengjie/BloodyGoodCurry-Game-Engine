@@ -69,6 +69,7 @@ public:
     /// Map storing all loaded resources with unique identifiers
     static inline std::unordered_map<std::string, Resources> resources_map;
     static inline std::string GetExtension(const std::string& path);
+    static bool LoadAsset(const std::filesystem::path& assetPath);
     static bool isTexture(const std::string& ext);
     static bool isSound(const std::string& ext);
     static unsigned int getTexture(const std::string& key);
