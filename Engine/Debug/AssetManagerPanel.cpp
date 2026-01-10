@@ -1,12 +1,17 @@
-#include "AssetManagerPanel.h"
 #if SOFASPUDS_ENABLE_EDITOR
+#include "AssetManagerPanel.h"
+#include "Resource_Asset_Manager/Asset_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
+#include <filesystem>
+#include <vector>
+#include <imgui.h>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
 namespace mygame
 {
-	void DebugAssetMgrPanel::draw()
+	void DrawMyPanel()
 	{
 		ImGui::Begin("Debug Asset Manager");
 		static std::vector<AssetManager::Asset> assets;
