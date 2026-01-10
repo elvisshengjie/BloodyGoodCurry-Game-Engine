@@ -61,6 +61,7 @@
 #include <unordered_map>
 #include <iostream>
 #if SOFASPUDS_ENABLE_EDITOR
+#include "Debug/AssetManagerPanel.h"
 #include "Debug/AudioImGui.h"
 #include "Debug/UndoStack.h"
 #include "Debug/Inspector.h"
@@ -2133,6 +2134,7 @@ namespace Framework {
                 mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);
+                mygame::DrawAssetManagerPanel();
 
                 if (ImGui::Begin("Crash Tests"))
                 {

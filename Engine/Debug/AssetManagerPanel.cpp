@@ -11,7 +11,7 @@
 #endif
 namespace mygame
 {
-	void DrawMyPanel()
+	void DrawAssetManagerPanel()
 	{
 		ImGui::Begin("Debug Asset Manager");
 		static std::vector<AssetManager::Asset> assets;
