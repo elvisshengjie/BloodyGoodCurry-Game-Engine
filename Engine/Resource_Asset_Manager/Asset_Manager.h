@@ -9,7 +9,7 @@ class AssetManager
 {
 	public:
 		enum class AssetType
-		{Texture, SpriteSheet, Audio, Font, Shader, Prefab, Unknown};
+		{Texture, SpriteSheet, Audio, Font, Shader, Prefab,Json,Unknown};
 		struct Asset
 		{std::filesystem::path path; AssetType type; std::string name;};
 		static bool ImportAsset(const std::filesystem::path& sourceFile);

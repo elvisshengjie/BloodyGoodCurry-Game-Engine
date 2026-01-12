@@ -21,14 +21,29 @@ namespace mygame
 			assets = AssetManager::GetAllAssets();
 			selected = -1;
 		}
-		ImGui::Separator;
+		static char searchBuffer[128] = "";
+		ImGui::InputText("Search", searchBuffer, sizeof(searchBuffer));
+
+		ImGui::Separator();
 		ImGui::BeginChild("AssetList", ImVec2(0, 200), true);
+		
 		for (int i = 0; i < (int)assets.size(); ++i)
 		{
+			if (searchBuffer[0] != '\0')
+			{
+				std::string nameLower = assets[i].name;
+				std::string searchLower = searchBuffer;
+				std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+				std::transform(searchLower.begin(), searchLower.end(), searchLower.begin(), ::tolower);
+				if (nameLower.find(searchLower) == std::string::npos)
+					continue;
+			}
+
 			bool isSelected = (selected == i);
 			if (ImGui::Selectable(assets[i].name.c_str(), isSelected))
 				selected = i;
 		}
+
 		ImGui::EndChild();
 		ImGui::Separator();
 		if (selected >= 0 && selected < (int)assets.size())
@@ -66,12 +81,6 @@ namespace mygame
 		if (ImGui::Button("Create Empty Asset"))
 		{
 			AssetManager::CreateEmptyAsset(newAssetName, assetTypes[newAssetTypeIndex]);
-			assets = AssetManager::GetAllAssets();
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Create Prefab"))
-		{
-			AssetManager::CreatePrefab(newAssetName);
 			assets = AssetManager::GetAllAssets();
 		}
 		ImGui::End();
