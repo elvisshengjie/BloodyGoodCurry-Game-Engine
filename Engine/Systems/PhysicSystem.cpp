@@ -67,9 +67,14 @@ namespace Framework {
         auto& objects = FACTORY->Objects();
 
         // --- Kinematic step with AABB collisions against walls on the same layer ----------
+        auto& layers = FACTORY->Layers();
         for (auto& [id, obj] : objects)
         {
             if (!obj)
+                continue;
+
+            const LayerKey objectLayer = layers.LayerKeyFor(obj->GetId());
+            if (!layers.IsLayerEnabled(objectLayer))
                 continue;
 
             // Determine if THIS object is the Player (by name)
@@ -107,14 +112,17 @@ namespace Framework {
             AABB playerBoxY(tr->x, (tr->y + newY) * 0.5f,
                 rb->width, std::fabs(newY - tr->y) + rb->height);
 
-            const std::string& objectLayer = obj->GetLayerName();
+
 
             // Sweep all objects on the same layer, checking only “rect?walls
             for (auto& [otherId, otherObj] : objects)
             {
                 if (!otherObj || otherObj == obj)
                     continue;
-                if (otherObj->GetLayerName() != objectLayer)
+                const LayerKey otherLayer = layers.LayerKeyFor(otherObj->GetId());
+                if (!layers.IsLayerEnabled(otherLayer))
+                    continue;
+                if (!(otherLayer == objectLayer))
                     continue;
 
                 auto* rbO = otherObj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);

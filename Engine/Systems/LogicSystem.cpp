@@ -560,6 +560,14 @@ namespace Framework {
         screenH = cfg.height;
 
         // Build HitBoxSystem after references are valid.
+        if (hitBoxSystem)
+        {
+            hitBoxSystem->Shutdown();
+            delete hitBoxSystem;
+            hitBoxSystem = nullptr;
+        }
+
+        // Build HitBoxSystem after references are valid.
         hitBoxSystem = new HitBoxSystem(*this);
         hitBoxSystem->Initialize();
 

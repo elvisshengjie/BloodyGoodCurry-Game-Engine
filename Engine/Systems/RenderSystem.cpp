@@ -1002,7 +1002,7 @@ namespace Framework {
             Framework::GOC* obj = objPtr.get();
             if (!obj)
                 continue;
-            if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
+            if (!FACTORY->Layers().IsLayerEnabled(obj->GetLayerName()))
                 continue;
 
             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
@@ -1679,20 +1679,21 @@ namespace Framework {
             for (auto& [id, objPtr] : FACTORY->Objects())
                 sortedIds.push_back(id);
 
-            // Sort by RenderComponent::layer
+            auto& layerManager = FACTORY->Layers();
+
+            // Sort by fixed layer groups and sublayers (Background -> Gameplay -> Foreground -> UI).
             std::sort(sortedIds.begin(), sortedIds.end(),
-                [](unsigned a, unsigned b)
+                [&layerManager](unsigned a, unsigned b)
                 {
-                    auto* objA = FACTORY->GetObjectWithId(a);
-                    auto* objB = FACTORY->GetObjectWithId(b);
+                    const LayerKey keyA = layerManager.LayerKeyFor(a);
+                    const LayerKey keyB = layerManager.LayerKeyFor(b);
 
-                    auto* rcA = objA ? objA->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr;
-                    auto* rcB = objB ? objB->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr;
+                    if (keyA.group != keyB.group)
+                        return static_cast<int>(keyA.group) < static_cast<int>(keyB.group);
+                    if (keyA.sublayer != keyB.sublayer)
+                        return keyA.sublayer < keyB.sublayer;
 
-                    int la = rcA ? rcA->layer : 0;
-                    int lb = rcB ? rcB->layer : 0;
-
-                    return la < lb;
+                    return a < b;
                 });
 
 
@@ -1747,8 +1748,24 @@ namespace Framework {
 
             if (FACTORY)
             {
-                std::unordered_map<unsigned, std::vector<gfx::Graphics::SpriteInstance>> spriteBatches;
+                struct SpriteBatch
+                {
+                    unsigned texture = 0;
+                    std::vector<gfx::Graphics::SpriteInstance> instances;
+                };
+
+                std::vector<SpriteBatch> spriteBatches;
                 spriteBatches.reserve(64);
+
+                auto appendSpriteInstance = [&spriteBatches](unsigned tex,
+                    const gfx::Graphics::SpriteInstance& instance)
+                    {
+                        if (spriteBatches.empty() || spriteBatches.back().texture != tex)
+                        {
+                            spriteBatches.push_back(SpriteBatch{ tex, {} });
+                        }
+                        spriteBatches.back().instances.push_back(instance);
+                    };
 
                 //const auto& animState = logic.Animation();
                 //const int animCols = std::max(1, CurrentColumns());
@@ -1760,9 +1777,8 @@ namespace Framework {
                     auto& objPtr = FACTORY->Objects().at(id);
                     GOC* obj = objPtr.get();
                     if (!obj) continue;
-#if SOFASPUDS_ENABLE_EDITOR
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-#endif
+
+                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
 
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
@@ -1822,7 +1838,7 @@ namespace Framework {
                         instance.tint = glm::vec4(r, g, b, a);
                         instance.uv = uvRect;
 
-                        spriteBatches[tex].push_back(instance);
+                        appendSpriteInstance(tex, instance);
                     }
                 }
                 // Render projectiles with the correct sprite sheet (player knives vs fireballs).
@@ -1862,7 +1878,7 @@ namespace Framework {
                             if (!projTex || cols <= 0 || frames <= 0)
                                 continue;
 
-                            auto& batch = spriteBatches[projTex];
+
                             const float invCols = 1.0f / static_cast<float>(cols);
                             const float invRows = 1.0f / static_cast<float>(rows);
 
@@ -1881,15 +1897,15 @@ namespace Framework {
                             const float u = static_cast<float>(frameIdx) * invCols;
                             instance.uv = glm::vec4(u, 0.0f, invCols, invRows);
 
-                            batch.push_back(instance);
+                            appendSpriteInstance(projTex, instance);
                         }
                     }
                 }
 
-                for (auto& [tex, batch] : spriteBatches)
+                for (auto& batch : spriteBatches)
                 {
-                    if (!batch.empty())
-                        gfx::Graphics::renderSpriteBatchInstanced(tex, batch);
+                    if (!batch.instances.empty())
+                        gfx::Graphics::renderSpriteBatchInstanced(batch.texture, batch.instances);
                 }
 
                 // Pass 2: Rectangles (non-sprite quads)
@@ -1898,9 +1914,7 @@ namespace Framework {
                     auto& objPtr = FACTORY->Objects().at(id);
                     GOC* obj = objPtr.get();
                     if (!obj) continue;
-#if SOFASPUDS_ENABLE_EDITOR
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-#endif
+                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
 
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
@@ -1944,9 +1958,7 @@ namespace Framework {
                     auto& objPtr = FACTORY->Objects().at(id);
                     GOC* obj = objPtr.get();
                     if (!obj) continue;
-#if SOFASPUDS_ENABLE_EDITOR
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-#endif
+                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
 
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
@@ -1980,7 +1992,8 @@ namespace Framework {
                             auto& objPtr = FACTORY->Objects().at(id);
                             GOC* obj = objPtr.get();
                             if (!obj) continue;
-                            if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
 
                             const bool isHovered = (id == hoveredId);
                             const bool isSelected = (id == selectedId);
@@ -2019,11 +2032,15 @@ namespace Framework {
 
                     if (showPhysicsHitboxes && logic.hitBoxSystem)
                     {
+
                         for (unsigned id : sortedIds)
                         {
                             auto& objPtr = FACTORY->Objects().at(id);
                             GOC* obj = objPtr.get();
                             if (!obj) continue;
+
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName()))
+                                continue;
 
                             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                                 Framework::ComponentTypeId::CT_TransformComponent);
@@ -2130,6 +2147,7 @@ namespace Framework {
                 jsonEditor.Draw();
                 mygame::DrawHierarchyPanel();
                 mygame::DrawSpawnPanel();
+                mygame::DrawLayerPanel();
                 mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);

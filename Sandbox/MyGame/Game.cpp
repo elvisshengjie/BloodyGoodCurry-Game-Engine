@@ -11,6 +11,7 @@
 #include "Systems/LogicSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
+#include "Factory/Factory.h"
 #include "Systems/audioSystem.h"
 #include "Systems/EnemySystem.h"
 #include "Systems/AiSystem.h"
@@ -430,12 +431,16 @@ namespace mygame {
         editorSimulationRunning = true;
         if (currentState != GameState::PLAYING)
             currentState = GameState::PLAYING;
+        if (Framework::FACTORY)
+            Framework::FACTORY->Layers().LogVisibilitySummary("EditorPlaySimulation");
     }
 
     void EditorStopSimulation()
     {
 
         editorSimulationRunning = false;
+        if (Framework::FACTORY)
+            Framework::FACTORY->Layers().LogVisibilitySummary("EditorStopSimulation");
     }
 
 } // namespace mygame
