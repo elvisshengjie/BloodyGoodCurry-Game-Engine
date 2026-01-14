@@ -1,4 +1,38 @@
 #include "Asset_Manager.h"
+
+std::filesystem::path AssetManager::ProjectRoot()
+{
+	static std::filesystem::path cachedRoot; // Cache it so we only search once
+	static bool initialized = false;
+	if (initialized)
+		return cachedRoot;
+	std::filesystem::path path = std::filesystem::current_path();
+	while (true)
+	{
+		// Skip if we're in a build directory
+		if (path.string().find("\\build\\") != std::string::npos ||
+			path.string().find("/build/") != std::string::npos)
+		{
+			path = path.parent_path();
+			continue;
+		}
+
+		if (std::filesystem::exists(path / "assets") &&
+			std::filesystem::exists(path / "Data_Files"))
+		{
+			// Found the root - change working directory to it
+			std::filesystem::current_path(path);
+			cachedRoot = path;
+			initialized = true;
+			return path;
+		}
+		if (path == path.root_path()) // Reached filesystem root
+			break;
+		path = path.parent_path(); // Move up one directory
+	}
+	// If not found, throw or fallback
+	throw std::runtime_error("Engine root not found! Make sure 'assets' and 'Data_Files' exist.");
+}
 AssetManager::AssetType AssetManager::IdentifyAssetType(const std::filesystem::path& assetPath)
 {
 	std::string ext = assetPath.extension().string();
@@ -28,7 +62,7 @@ AssetManager::AssetType AssetManager::IdentifyAssetType(const std::filesystem::p
 }
 bool AssetManager::ImportAsset(const std::filesystem::path& sourceFile) 
 {
-	std::filesystem::path target = std::filesystem::path("assets") / sourceFile.filename();
+	std::filesystem::path target = ProjectRoot() / "assets" / sourceFile.filename();
 	if (std::filesystem::exists(target)) return false;
 	std::filesystem::copy_file(sourceFile, target, std::filesystem::copy_options::overwrite_existing);
 	return true;
@@ -45,15 +79,15 @@ bool AssetManager::CreateEmptyAsset(const std::string& name,const std::string& e
 {
 	std::filesystem::path basePath;
 	if (extension == "json")
-		basePath = "Data_Files";
+		basePath = ProjectRoot() / "Data_Files";
 	else if (extension == "png")
-		basePath = "assets/Textures";
+		basePath = ProjectRoot() / "assets/Textures";
 	else if (extension == "ttf" || extension == "otf")
-		basePath = "assets/Fonts";
+		basePath = ProjectRoot() / "assets/Textures";
 	else if (extension == "wav" || extension == "mp3")
-		basePath = "assets/Audio";
+		basePath = ProjectRoot() / "assets/Audio"; 
 	else 
-		basePath= "assets/Others";
+		basePath = ProjectRoot() / "assets/Others";
 	std::filesystem::create_directories(basePath);
 	std::filesystem::path path = basePath / (name + "." + extension);
 	if (std::filesystem::exists(path))
@@ -76,11 +110,7 @@ bool AssetManager::CreateEmptyAsset(const std::string& name,const std::string& e
 			0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE,
 			0x42, 0x60, 0x82
 		};
-		std::ofstream file(path, std::ios::binary);
-		if (!file.is_open()) return false;
-		file.write((const char*)pngData, sizeof(pngData));
-		file.close();
-		return true;
+		file.write(reinterpret_cast<const char*>(pngData), sizeof(pngData));
 	}
 	
 	if (extension == "wav")
@@ -93,11 +123,7 @@ bool AssetManager::CreateEmptyAsset(const std::string& name,const std::string& e
 			0x02,0x00, 0x10,0x00, 'd','a','t','a', 0x02,0x00,0x00,0x00,
 			0x00,0x00
 		};
-		std::ofstream file(path, std::ios::binary);
-		if (!file.is_open()) return false;
-		file.write((const char*)wavData, sizeof(wavData));
-		file.close();
-		return true;
+		file.write(reinterpret_cast<const char*>(wavData), sizeof(wavData));
 	}
 
 	if (extension == "vert" || extension == "frag")
@@ -108,14 +134,10 @@ bool AssetManager::CreateEmptyAsset(const std::string& name,const std::string& e
 
 bool AssetManager::CreatePrefab(const std::string& prefabName)
 {
-	std::filesystem::path prefabPath =
-		std::filesystem::path("Data_Files") / (prefabName + ".json");
-	if (std::filesystem::exists(prefabPath))
-		return false;
+	std::filesystem::path prefabPath = ProjectRoot() / "Data_Files" / (prefabName + ".json");
+	if (std::filesystem::exists(prefabPath)) return false;
 	std::ofstream file(prefabPath);
-	if (!file.is_open())
-		return false;
-	return true;
+	return file.is_open();
 }
 bool AssetManager::DeletePrefab(const std::string& prefabName)
 {
@@ -130,7 +152,7 @@ const std::vector<AssetManager::Asset>& AssetManager::GetAllAssets()
 {
 	static std::vector<Asset> allAssets;
 	allAssets.clear();
-	std::filesystem::path assetsRoot("assets");
+	std::filesystem::path assetsRoot = ProjectRoot() / "assets";
 	if (std::filesystem::exists(assetsRoot) && std::filesystem::is_directory(assetsRoot))
 	{
 		for (auto& p : std::filesystem::recursive_directory_iterator(assetsRoot))
@@ -147,7 +169,7 @@ const std::vector<AssetManager::Asset>& AssetManager::GetAllAssets()
 	}
 
 	// Scan Data_Files for prefabs and animations
-	std::filesystem::path dataRoot("Data_Files");
+	std::filesystem::path dataRoot = ProjectRoot() / "Data_Files";
 	if (std::filesystem::exists(dataRoot) && std::filesystem::is_directory(dataRoot))
 	{
 		for (auto& p : std::filesystem::recursive_directory_iterator(dataRoot))

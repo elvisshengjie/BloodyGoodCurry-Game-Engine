@@ -19,6 +19,10 @@ class AssetManager
 		static bool CreatePrefab(const std::string& prefabName);
 		static bool DeletePrefab(const std::string& prefabName);
 		static const std::vector<Asset>& GetAllAssets();
+	private:
+		static std::filesystem::path ProjectRoot();
+
+
 
 
 };
