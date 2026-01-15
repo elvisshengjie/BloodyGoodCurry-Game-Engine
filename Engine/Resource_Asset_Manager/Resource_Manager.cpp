@@ -81,6 +81,12 @@ namespace fs = std::filesystem;
 *****************************************************************************************/
 bool Resource_Manager::load(const std::string& id, const std::string& path)
 {
+    auto existing = resources_map.find(id);
+    if (existing != resources_map.end())
+    {
+        return true;
+    }
+
     fs::path filePath(path);
     if (!fs::exists(filePath) || !fs::is_regular_file(filePath))
     {std::cerr << "[Resource_Manager] File not found: " << path << std::endl; return false;}
