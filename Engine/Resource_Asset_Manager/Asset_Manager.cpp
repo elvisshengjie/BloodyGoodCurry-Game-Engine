@@ -33,6 +33,40 @@ std::filesystem::path AssetManager::ProjectRoot()
 	// If not found, throw or fallback
 	throw std::runtime_error("Engine root not found! Make sure 'assets' and 'Data_Files' exist.");
 }
+
+bool AssetManager::IsValidAssetFile(const std::filesystem::path& path)
+{
+	if (!path.has_extension())
+		return false;
+
+	std::string ext = path.extension().string();
+	if (!ext.empty() && ext[0] == '.')
+		ext.erase(0, 1);
+
+	// Allowed extensions ONLY
+	static const std::unordered_set<std::string> allowedExtensions = {
+		"png", "jpg", "jpeg",
+		"wav", "mp3",
+		"ttf", "otf",
+		"vert", "frag",
+		"json"
+	};
+
+	if (!allowedExtensions.contains(ext))
+		return false;
+
+	// Optional: block known internal/debug files
+	static const std::unordered_set<std::string> blockedNames = {
+		"error", "log", "debug"
+	};
+
+	if (blockedNames.contains(path.stem().string()))
+		return false;
+
+	return true;
+}
+
+
 AssetManager::AssetType AssetManager::IdentifyAssetType(const std::filesystem::path& assetPath)
 {
 	std::string ext = assetPath.extension().string();
@@ -157,14 +191,17 @@ const std::vector<AssetManager::Asset>& AssetManager::GetAllAssets()
 	{
 		for (auto& p : std::filesystem::recursive_directory_iterator(assetsRoot))
 		{
-			if (p.is_regular_file())
-			{
-				Asset a;
-				a.path = p.path();
-				a.name = p.path().stem().string();
-				a.type = IdentifyAssetType(p.path());
-				allAssets.push_back(a);
-			}
+			if (!p.is_regular_file())
+				continue;
+			if (!IsValidAssetFile(p.path()))
+				continue;
+			Asset a;
+			a.path = p.path();
+			a.name = p.path().stem().string();
+			a.type = IdentifyAssetType(p.path());
+			if (a.type == AssetType::Unknown)
+				continue; // extra safety
+			allAssets.push_back(a);
 		}
 	}
 

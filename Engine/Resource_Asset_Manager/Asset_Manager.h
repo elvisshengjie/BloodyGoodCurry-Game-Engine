@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <algorithm>
 #include <iostream>
+#include <unordered_set>
 #include "Resource_Manager.h"
 class AssetManager
 {
@@ -19,6 +20,7 @@ class AssetManager
 		static bool CreatePrefab(const std::string& prefabName);
 		static bool DeletePrefab(const std::string& prefabName);
 		static const std::vector<Asset>& GetAllAssets();
+		static bool IsValidAssetFile(const std::filesystem::path& path);
 	private:
 		static std::filesystem::path ProjectRoot();
 
