@@ -1754,23 +1754,89 @@ namespace Framework {
                     std::vector<gfx::Graphics::SpriteInstance> instances;
                 };
 
-                std::vector<SpriteBatch> spriteBatches;
-                spriteBatches.reserve(64);
+                SpriteBatch spriteBatch;
+                spriteBatch.instances.reserve(64);
 
-                auto appendSpriteInstance = [&spriteBatches](unsigned tex,
-                    const gfx::Graphics::SpriteInstance& instance)
+
+                auto flushSpriteBatch = [&spriteBatch]()
                     {
-                        if (spriteBatches.empty() || spriteBatches.back().texture != tex)
+                        if (spriteBatch.instances.empty())
+                            return;
+                        gfx::Graphics::renderSpriteBatchInstanced(spriteBatch.texture, spriteBatch.instances);
+                        spriteBatch.instances.clear();
+                    };
+
+                auto renderProjectiles = [&]()
+                    {
+                        if (!(knifeTex || fireProjectileTex) || !logic.hitBoxSystem)
+                            return;
+
+                        const auto& activeHits = logic.hitBoxSystem->GetActiveHitBoxes();
+                        if (activeHits.empty())
+                            return;
+
+                        for (const auto& activeHit : activeHits)
                         {
-                            spriteBatches.push_back(SpriteBatch{ tex, {} });
+                            if (!activeHit.hitbox || !activeHit.isProjectile)
+                                continue;
+
+                            const auto* hb = activeHit.hitbox.get();
+
+                            unsigned projTex = 0;
+                            int cols = 0;
+                            int rows = 1;
+                            int frames = 0;
+                            float fps = 12.0f;
+
+                            if (hb->team == HitBoxComponent::Team::Enemy && fireProjectileTex)
+                            {
+                                projTex = fireProjectileTex;
+                                cols = 5;
+                                frames = 5;
+                            }
+                            else if (knifeTex)
+                            {
+                                projTex = knifeTex;
+                                cols = 4;
+                                frames = 4;
+                            }
+
+                            if (!projTex || cols <= 0 || frames <= 0)
+                                continue;
+
+                            const float invCols = 1.0f / static_cast<float>(cols);
+                            const float invRows = 1.0f / static_cast<float>(rows);
+
+                            gfx::Graphics::SpriteInstance instance;
+                            glm::mat4 model(1.0f);
+                            model = glm::translate(model, glm::vec3(hb->spawnX, hb->spawnY, 0.0f));
+                            const float angle = std::atan2(activeHit.velY, activeHit.velX);
+                            model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
+                            model = glm::scale(model, glm::vec3(hb->width, hb->height, 1.0f));
+                            instance.model = model;
+                            instance.tint = glm::vec4(1.0f);
+
+                            const float duration = std::max(0.0001f, hb->duration);
+                            const float elapsed = std::clamp(duration - activeHit.timer, 0.0f, duration);
+                            const int frameIdx = static_cast<int>(elapsed * fps) % frames;
+                            const float u = static_cast<float>(frameIdx) * invCols;
+                            instance.uv = glm::vec4(u, 0.0f, invCols, invRows);
+
+                            if (!spriteBatch.instances.empty() && spriteBatch.texture != projTex)
+                                flushSpriteBatch();
+
+                            if (spriteBatch.instances.empty())
+                                spriteBatch.texture = projTex;
+
+                            spriteBatch.instances.push_back(instance);
                         }
-                        spriteBatches.back().instances.push_back(instance);
+                        flushSpriteBatch();
                     };
 
                 //const auto& animState = logic.Animation();
                 //const int animCols = std::max(1, CurrentColumns());
                 //const int animRows = std::max(1, CurrentRows());
-
+                bool projectilesRendered = false;
                 // Pass 1: Sprites (instanced)
                 for (unsigned id : sortedIds)
                 {
@@ -1778,8 +1844,16 @@ namespace Framework {
                     GOC* obj = objPtr.get();
                     if (!obj) continue;
 
+
                     if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
 
+                    const LayerKey layerKey = layerManager.LayerKeyFor(id);
+                    if (!projectilesRendered && layerKey.group > LayerGroup::Gameplay)
+                    {
+                        flushSpriteBatch();
+                        renderProjectiles();
+                        projectilesRendered = true;
+                    }
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     if (!tr) continue;
@@ -1828,6 +1902,11 @@ namespace Framework {
 
                         if (!tex)
                             continue;
+                        if (!spriteBatch.instances.empty() && spriteBatch.texture != tex)
+                            flushSpriteBatch();
+
+                        if (spriteBatch.instances.empty())
+                            spriteBatch.texture = tex;
 
                         gfx::Graphics::SpriteInstance instance;
                         glm::mat4 model(1.0f);
@@ -1838,136 +1917,59 @@ namespace Framework {
                         instance.tint = glm::vec4(r, g, b, a);
                         instance.uv = uvRect;
 
-                        appendSpriteInstance(tex, instance);
+                        spriteBatch.instances.push_back(instance);
+                        continue;
                     }
-                }
-                // Render projectiles with the correct sprite sheet (player knives vs fireballs).
-                if ((knifeTex || fireProjectileTex) && logic.hitBoxSystem)
-                {
-                    const auto& activeHits = logic.hitBoxSystem->GetActiveHitBoxes();
-                    if (!activeHits.empty())
+                    flushSpriteBatch();
+
+
+                    if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                        Framework::ComponentTypeId::CT_RenderComponent))
                     {
+                        if (!rc->visible || rc->a <= 0.0f)
+                            continue;
 
-
-                        for (const auto& activeHit : activeHits)
+                        if (!obj->GetComponentType<Framework::SpriteComponent>(
+                            Framework::ComponentTypeId::CT_SpriteComponent))
                         {
-                            if (!activeHit.hitbox || !activeHit.isProjectile)
-                                continue;
-
-                            const auto* hb = activeHit.hitbox.get();
-
-                            unsigned projTex = 0;
-                            int cols = 0;
-                            int rows = 1;
-                            int frames = 0;
-                            float fps = 12.0f;
-
-                            if (hb->team == HitBoxComponent::Team::Enemy && fireProjectileTex)
+                            unsigned rectTex = rc->texture_id;
+                            if (!rectTex && !rc->texture_key.empty())
                             {
-                                projTex = fireProjectileTex;
-                                cols = 5;
-                                frames = 5;
+                                rectTex = Resource_Manager::getTexture(rc->texture_key);
+                                rc->texture_id = rectTex;
                             }
-                            else if (knifeTex)
+                            const float scaledW = rc->w * tr->scaleX;
+                            const float scaledH = rc->h * tr->scaleY;
+                            if (rectTex)
                             {
-                                projTex = knifeTex;
-                                cols = 4;
-                                frames = 4;
+                                gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
+                                    scaledW, scaledH,
+                                    rc->r, rc->g, rc->b, rc->a);
+                            }
+                            else
+                            {
+                                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
+                                    scaledW, scaledH,
+                                    rc->r, rc->g, rc->b, rc->a);
                             }
 
-                            if (!projTex || cols <= 0 || frames <= 0)
-                                continue;
 
-
-                            const float invCols = 1.0f / static_cast<float>(cols);
-                            const float invRows = 1.0f / static_cast<float>(rows);
-
-                            gfx::Graphics::SpriteInstance instance;
-                            glm::mat4 model(1.0f);
-                            model = glm::translate(model, glm::vec3(hb->spawnX, hb->spawnY, 0.0f));
-                            const float angle = std::atan2(activeHit.velY, activeHit.velX);
-                            model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
-                            model = glm::scale(model, glm::vec3(hb->width, hb->height, 1.0f));
-                            instance.model = model;
-                            instance.tint = glm::vec4(1.0f);
-
-                            const float duration = std::max(0.0001f, hb->duration);
-                            const float elapsed = std::clamp(duration - activeHit.timer, 0.0f, duration);
-                            const int frameIdx = static_cast<int>(elapsed * fps) % frames;
-                            const float u = static_cast<float>(frameIdx) * invCols;
-                            instance.uv = glm::vec4(u, 0.0f, invCols, invRows);
-
-                            appendSpriteInstance(projTex, instance);
                         }
                     }
-                }
+ 
 
-                for (auto& batch : spriteBatches)
-                {
-                    if (!batch.instances.empty())
-                        gfx::Graphics::renderSpriteBatchInstanced(batch.texture, batch.instances);
-                }
-
-                // Pass 2: Rectangles (non-sprite quads)
-                for (unsigned id : sortedIds)
-                {
-                    auto& objPtr = FACTORY->Objects().at(id);
-                    GOC* obj = objPtr.get();
-                    if (!obj) continue;
-                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
-
-                    auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                        Framework::ComponentTypeId::CT_TransformComponent);
-                    auto* rc = obj->GetComponentType<Framework::RenderComponent>(
-                        Framework::ComponentTypeId::CT_RenderComponent);
-                    if (!tr || !rc) continue;
-
-                    // NEW: skip invisible rect-only renderables
-                    if (!rc->visible || rc->a <= 0.0f)
-                        continue;
-
-                    if (obj->GetComponentType<Framework::SpriteComponent>(
-                        Framework::ComponentTypeId::CT_SpriteComponent))
-                        continue;
-
-                    unsigned rectTex = rc->texture_id;
-                    if (!rectTex && !rc->texture_key.empty())
+                    if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
+                        Framework::ComponentTypeId::CT_CircleRenderComponent))
                     {
-                        rectTex = Resource_Manager::getTexture(rc->texture_key);
-                        rc->texture_id = rectTex;
-                    }
-                    const float scaledW = rc->w * tr->scaleX;
-                    const float scaledH = rc->h * tr->scaleY;
-                    if (rectTex)
-                    {
-                        gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
-                            scaledW, scaledH,
-                            rc->r, rc->g, rc->b, rc->a);
-                    }
-                    else
-                    {
-                        gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
-                            scaledW, scaledH,
-                            rc->r, rc->g, rc->b, rc->a);
+                        const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                        gfx::Graphics::renderCircle(tr->x, tr->y, scaledRadius, cc->r, cc->g, cc->b, cc->a);
                     }
                 }
 
-                // Pass 3: Circles
-                for (unsigned id : sortedIds)
+                flushSpriteBatch();
+                if (!projectilesRendered)
                 {
-                    auto& objPtr = FACTORY->Objects().at(id);
-                    GOC* obj = objPtr.get();
-                    if (!obj) continue;
-                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
-
-                    auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                        Framework::ComponentTypeId::CT_TransformComponent);
-                    auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
-                        Framework::ComponentTypeId::CT_CircleRenderComponent);
-                    if (!tr || !cc) continue;
-
-                    const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
-                    gfx::Graphics::renderCircle(tr->x, tr->y, scaledRadius, cc->r, cc->g, cc->b, cc->a);
+                    renderProjectiles();
                 }
 
                 // Pass 4: Hover/Selection highlight outlines (editor)
