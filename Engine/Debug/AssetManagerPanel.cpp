@@ -1,7 +1,7 @@
 #if SOFASPUDS_ENABLE_EDITOR
-#include "AssetManagerPanel.h"
 #include "Resource_Asset_Manager/Asset_Manager.h"
 #include "Resource_Asset_Manager/Resource_Manager.h"
+#include "JsonEditorPanel.h"
 #include <filesystem>
 #include <vector>
 #include <imgui.h>
@@ -11,7 +11,7 @@
 #endif
 namespace mygame
 {
-	void DrawAssetManagerPanel()
+	void DrawAssetManagerPanel(JsonEditorPanel* jsonPanel)
 	{
 		ImGui::Begin("Debug Asset Manager");
 		static std::vector<AssetManager::Asset> assets;
@@ -74,13 +74,21 @@ namespace mygame
 		ImGui::TextDisabled("Binary assets must be imported externally.");
 		static char newPrefabName[128] = "";
 		ImGui::InputText("Prefab Name", newPrefabName, sizeof(newPrefabName));
-		if (ImGui::Button("Create Prefab"))
+		if (ImGui::Button("Create Enemy Prefab"))
 		{
 			if (strlen(newPrefabName) > 0)
 			{
-				AssetManager::CreateEmptyAsset(newPrefabName, "json");
+				bool success = AssetManager::CreateEmptyAsset(newPrefabName, "json");
 				assets = AssetManager::GetAllAssets();
-				newPrefabName[0] = '\0';
+				if (success)
+				{
+					// Refresh the JSON editor panel using the instance
+					if (jsonPanel)
+						jsonPanel->RefreshFiles();  // <-- call the actual member function
+					newPrefabName[0] = '\0'; // clear input
+				}
+				else
+				{ImGui::TextColored(ImVec4(1, 0, 0, 1),"Failed to create prefab. Name might exist or template missing.");}
 			}
 		}
 		ImGui::End();
