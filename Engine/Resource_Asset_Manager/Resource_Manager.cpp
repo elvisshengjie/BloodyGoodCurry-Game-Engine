@@ -19,6 +19,18 @@
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
 /*****************************************************************************************
+ \brief Load a resource into memory using an asset file path.
+ \param assetPath  Filesystem path to the asset to be loaded.
+ \return true if the resource was successfully loaded, false otherwise.
+*****************************************************************************************/
+bool Resource_Manager::LoadAsset(const std::filesystem::path& assetPath)
+{
+    if (!std::filesystem::exists(assetPath))return false;
+    std::string id = assetPath.stem().string();
+    return load(id, assetPath.string());
+}
+
+/*****************************************************************************************
      \brief Get the file extension from a path string.
     \param path  Path to the file.
     \return File extension string (e.g., "png", "wav").
@@ -138,6 +150,20 @@ void Resource_Manager::loadAll(const std::string& directory)
         }        
     }
 }
+
+
+void Resource_Manager::Unload(const std::string& id)
+{
+    auto it = resources_map.find(id);
+    if (it == resources_map.end())return;
+    Resources& res = it->second;
+    if (res.type == Resource_Type::Graphics && res.handle != 0)
+    {gfx::Graphics::destroyTexture(res.handle);}
+    else if (res.type == Resource_Type::Sound)
+    {SoundManager::getInstance().unloadSound(id);}
+    resources_map.erase(it);
+}
+
 /*****************************************************************************************
      \brief Unload all resources of a specified type.
     \param type  Resource type to unload (Texture, Font, Graphics, Sound, or All).

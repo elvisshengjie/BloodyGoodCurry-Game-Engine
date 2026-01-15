@@ -813,24 +813,37 @@ namespace Framework {
             // Velocity intent set on RigidBody; an external system integrates it.
             if (rb && tr && playerHealth && !playerHealth->isDead)
             {
-                // Stop movement during attacks
-                if (IsAttackState(animState))
+                if (rb->lungeTime > 0.0f)
                 {
-                    rb->velX = 0.0f;
-                    rb->velY = 0.0f;
+                    rb->lungeTime -= dt;
+                    if (rb->lungeTime <= 0.0f)
+                    {
+                        rb->velX = 0.0f;
+                        rb->lungeTime = 0.0f;
+                    }
                 }
                 else
                 {
-                    if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f);
-                    if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f);
-                    if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D))
-                        rb->velX *= rb->dampening;
+                    // Stop movement during attacks
+                    if (IsAttackState(animState))
+                    {
+                        rb->velX = 0.0f;
+                        rb->velY = 0.0f;
+                    }
+                    else
+                    {
+                        if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f);
+                        if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f);
+                        if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D))
+                            rb->velX *= rb->dampening;
 
-                    if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY, 1.f);
-                    if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
-                    if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S))
-                        rb->velY *= rb->dampening;
+                        if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY, 1.f);
+                        if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
+                        if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S))
+                            rb->velY *= rb->dampening;
+                    }
                 }
+   
             }
 
             // Running state if any movement keys are held (arrow keys supported too).
@@ -855,6 +868,10 @@ namespace Framework {
                 // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
                 if (aimDirX != 0.0f || aimDirY != 0.0f)
                 {
+                    // Determine left/right direction
+                    float dirX = (mouseWorldX > tr->x) ? 1.0f : -1.0f;
+                    rb->velX = dirX * 0.1f;        // speed
+                    rb->lungeTime = 0.15f;         // duration
                     auto attackTr = *tr;
                     const float offset = 0.05f;
                     const float halfW = std::abs(rc->w) * 0.5f;
