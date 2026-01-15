@@ -51,37 +51,37 @@ namespace mygame
 			const auto& asset = assets[selected];
 			ImGui::Text("Path: %s", asset.path.string().c_str());
 			ImGui::Text("Type: %d", (int)asset.type);
-			if (ImGui::Button("Load Asset")) 
-			{ Resource_Manager::LoadAsset(asset.path);}
-			ImGui::SameLine();
-			if (ImGui::Button("Delete Asset"))
+			if (ImGui::Button("Load Asset"))
+			{Resource_Manager::LoadAsset(asset.path);}
+			if (asset.type != AssetManager::AssetType::Prefab && asset.type != AssetManager::AssetType::Json)
 			{
-				AssetManager::DeleteAsset(asset.path);
-				assets = AssetManager::GetAllAssets();
-				selected = -1;
-			}
-			ImGui::SameLine();
-			if (asset.type == AssetManager::AssetType::Prefab)
-			{
-				if (ImGui::Button("Delete Prefab"))
+				ImGui::SameLine();
+				if (ImGui::Button("Delete Asset"))
 				{
-					AssetManager::DeletePrefab(asset.name);
+					AssetManager::DeleteAsset(asset.path);
 					assets = AssetManager::GetAllAssets();
 					selected = -1;
 				}
 			}
+			else
+			{
+				ImGui::TextDisabled("JSON assets cannot be deleted here");
+			}
 		}
 		ImGui::Separator();
-		// --- Create Empty Asset or Prefab ---
-		static char newAssetName[128] = "";
-		ImGui::InputText("Asset Name", newAssetName, sizeof(newAssetName));
-		static int newAssetTypeIndex = 0;
-		const char* assetTypes[] = { "png", "wav", "ttf", "vert", "frag", "json" };
-		ImGui::Combo("Asset Type", &newAssetTypeIndex, assetTypes, IM_ARRAYSIZE(assetTypes));
-		if (ImGui::Button("Create Empty Asset"))
+		// ---- Create Prefab (JSON only) ----
+		ImGui::TextDisabled("Only Prefabs (JSON) can be created via the editor.");
+		ImGui::TextDisabled("Binary assets must be imported externally.");
+		static char newPrefabName[128] = "";
+		ImGui::InputText("Prefab Name", newPrefabName, sizeof(newPrefabName));
+		if (ImGui::Button("Create Prefab"))
 		{
-			AssetManager::CreateEmptyAsset(newAssetName, assetTypes[newAssetTypeIndex]);
-			assets = AssetManager::GetAllAssets();
+			if (strlen(newPrefabName) > 0)
+			{
+				AssetManager::CreateEmptyAsset(newPrefabName, "json");
+				assets = AssetManager::GetAllAssets();
+				newPrefabName[0] = '\0';
+			}
 		}
 		ImGui::End();
 	}
