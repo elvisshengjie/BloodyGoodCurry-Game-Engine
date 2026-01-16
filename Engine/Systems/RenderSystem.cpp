@@ -61,6 +61,7 @@
 #include <unordered_map>
 #include <iostream>
 #if SOFASPUDS_ENABLE_EDITOR
+#include "Resource_Asset_Manager/Asset_Manager.h"
 #include "Debug/AssetManagerPanel.h"
 #include "Debug/AudioImGui.h"
 #include "Debug/UndoStack.h"
@@ -1520,7 +1521,7 @@ namespace Framework {
         }
 
 
-        jsonEditor.Initialize(dataFilesRoot);
+        jsonEditor.Initialize(AssetManager::ProjectRoot() / "Data_Files");
 
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);
