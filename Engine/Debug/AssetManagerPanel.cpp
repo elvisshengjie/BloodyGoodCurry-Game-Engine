@@ -82,26 +82,37 @@ namespace mygame
 			}
 		}
 		ImGui::Separator();
-		// JSON Prefab Management Section
 		ImGui::TextDisabled("Only Prefabs (JSON) can be created via the editor.");
 		ImGui::TextDisabled("Binary assets must be imported externally.");
-		static char newPrefabName[128] = "";
-		ImGui::InputText("Prefab Name", newPrefabName, sizeof(newPrefabName));
-		//Create Enemy Prefab
-		if (ImGui::Button("Create Enemy Prefab"))
+		static char prefabName[128] = "";
+		ImGui::InputText("Prefab Name", prefabName, sizeof(prefabName));
+		bool createObject = ImGui::Button("Create Object Prefab");
+		ImGui::SameLine();
+		bool createEnemy = ImGui::Button("Create Enemy Prefab");
+		if ((createObject || createEnemy) && prefabName[0] != '\0')
 		{
-			if (strlen(newPrefabName) > 0)
+			bool success = false;
+			if (createObject)
+			{success = AssetManager::CreateObjectAsset(prefabName, "json");}
+			else if (createEnemy)
+			{success = AssetManager::CreateEnemyAsset(prefabName, "json");}
+
+			if (success)
 			{
-				bool success = AssetManager::CreateEmptyAsset(newPrefabName, "json");
-				newPrefabName[0] = '\0';
+				prefabName[0] = '\0';
+				assets = AssetManager::GetAllAssets();
 				if (jsonPanel)
 					jsonPanel->RefreshFiles();
-				assets=AssetManager::GetAllAssets();
-				if (success)
-				{if (jsonPanel) jsonPanel->RefreshFiles();newPrefabName[0] = '\0';}
-				else {ImGui::TextColored(ImVec4(1, 0, 0, 1),"Failed to create prefab. Name might exist or template missing.");}
+			}
+			else
+			{
+				ImGui::TextColored(
+					ImVec4(1, 0, 0, 1),
+					"Failed to create prefab. Name might exist or template missing."
+				);
 			}
 		}
+
 		ImGui::End();
 	}
 }
