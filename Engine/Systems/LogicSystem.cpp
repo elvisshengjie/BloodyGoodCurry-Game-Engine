@@ -909,7 +909,7 @@ namespace Framework {
                         attackTr.x, attackTr.y,
                         aimDirX, aimDirY,
                         0.3f,
-                        0.2f, 0.2f,
+                        0.1f, 0.1f,
                         1.0f, 5.f, HitBoxComponent::Team::Thrown);
 
                     std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";

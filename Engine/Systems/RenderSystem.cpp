@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      RenderSystem.cpp
  \par       SofaSpuds
  \author    yimo.kong ( yimo.kong@digipen.edu) - Primary Author, 50%
@@ -1814,7 +1814,7 @@ namespace Framework {
                             model = glm::translate(model, glm::vec3(hb->spawnX, hb->spawnY, 0.0f));
                             const float angle = std::atan2(activeHit.velY, activeHit.velX);
                             model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
-                            model = glm::scale(model, glm::vec3(hb->width, hb->height, 1.0f));
+                            model = glm::scale(model, glm::vec3(hb->width+0.15, hb->height+0.15, 1.0f));
                             instance.model = model;
                             instance.tint = glm::vec4(1.0f);
 
