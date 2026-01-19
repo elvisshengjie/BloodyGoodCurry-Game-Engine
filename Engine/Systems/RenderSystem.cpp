@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      RenderSystem.cpp
  \par       SofaSpuds
  \author    yimo.kong ( yimo.kong@digipen.edu) - Primary Author, 50%
@@ -61,6 +61,7 @@
 #include <unordered_map>
 #include <iostream>
 #if SOFASPUDS_ENABLE_EDITOR
+#include "Debug/AssetManagerPanel.h"
 #include "Debug/AudioImGui.h"
 #include "Debug/UndoStack.h"
 #include "Debug/Inspector.h"
@@ -1002,7 +1003,7 @@ namespace Framework {
             Framework::GOC* obj = objPtr.get();
             if (!obj)
                 continue;
-            if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
+            if (!FACTORY->Layers().IsLayerEnabled(obj->GetLayerName()))
                 continue;
 
             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
@@ -1679,20 +1680,21 @@ namespace Framework {
             for (auto& [id, objPtr] : FACTORY->Objects())
                 sortedIds.push_back(id);
 
-            // Sort by RenderComponent::layer
+            auto& layerManager = FACTORY->Layers();
+
+            // Sort by fixed layer groups and sublayers (Background -> Gameplay -> Foreground -> UI).
             std::sort(sortedIds.begin(), sortedIds.end(),
-                [](unsigned a, unsigned b)
+                [&layerManager](unsigned a, unsigned b)
                 {
-                    auto* objA = FACTORY->GetObjectWithId(a);
-                    auto* objB = FACTORY->GetObjectWithId(b);
+                    const LayerKey keyA = layerManager.LayerKeyFor(a);
+                    const LayerKey keyB = layerManager.LayerKeyFor(b);
 
-                    auto* rcA = objA ? objA->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr;
-                    auto* rcB = objB ? objB->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr;
+                    if (keyA.group != keyB.group)
+                        return static_cast<int>(keyA.group) < static_cast<int>(keyB.group);
+                    if (keyA.sublayer != keyB.sublayer)
+                        return keyA.sublayer < keyB.sublayer;
 
-                    int la = rcA ? rcA->layer : 0;
-                    int lb = rcB ? rcB->layer : 0;
-
-                    return la < lb;
+                    return a < b;
                 });
 
 
@@ -1747,23 +1749,112 @@ namespace Framework {
 
             if (FACTORY)
             {
-                std::unordered_map<unsigned, std::vector<gfx::Graphics::SpriteInstance>> spriteBatches;
-                spriteBatches.reserve(64);
+                struct SpriteBatch
+                {
+                    unsigned texture = 0;
+                    std::vector<gfx::Graphics::SpriteInstance> instances;
+                };
+
+                SpriteBatch spriteBatch;
+                spriteBatch.instances.reserve(64);
+
+
+                auto flushSpriteBatch = [&spriteBatch]()
+                    {
+                        if (spriteBatch.instances.empty())
+                            return;
+                        gfx::Graphics::renderSpriteBatchInstanced(spriteBatch.texture, spriteBatch.instances);
+                        spriteBatch.instances.clear();
+                    };
+
+                auto renderProjectiles = [&]()
+                    {
+                        if (!(knifeTex || fireProjectileTex) || !logic.hitBoxSystem)
+                            return;
+
+                        const auto& activeHits = logic.hitBoxSystem->GetActiveHitBoxes();
+                        if (activeHits.empty())
+                            return;
+
+                        for (const auto& activeHit : activeHits)
+                        {
+                            if (!activeHit.hitbox || !activeHit.isProjectile)
+                                continue;
+
+                            const auto* hb = activeHit.hitbox.get();
+
+                            unsigned projTex = 0;
+                            int cols = 0;
+                            int rows = 1;
+                            int frames = 0;
+                            float fps = 12.0f;
+
+                            if (hb->team == HitBoxComponent::Team::Enemy && fireProjectileTex)
+                            {
+                                projTex = fireProjectileTex;
+                                cols = 5;
+                                frames = 5;
+                            }
+                            else if (knifeTex)
+                            {
+                                projTex = knifeTex;
+                                cols = 4;
+                                frames = 4;
+                            }
+
+                            if (!projTex || cols <= 0 || frames <= 0)
+                                continue;
+
+                            const float invCols = 1.0f / static_cast<float>(cols);
+                            const float invRows = 1.0f / static_cast<float>(rows);
+
+                            gfx::Graphics::SpriteInstance instance;
+                            glm::mat4 model(1.0f);
+                            model = glm::translate(model, glm::vec3(hb->spawnX, hb->spawnY, 0.0f));
+                            const float angle = std::atan2(activeHit.velY, activeHit.velX);
+                            model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
+                            model = glm::scale(model, glm::vec3(hb->width, hb->height, 1.0f));
+                            instance.model = model;
+                            instance.tint = glm::vec4(1.0f);
+
+                            const float duration = std::max(0.0001f, hb->duration);
+                            const float elapsed = std::clamp(duration - activeHit.timer, 0.0f, duration);
+                            const int frameIdx = static_cast<int>(elapsed * fps) % frames;
+                            const float u = static_cast<float>(frameIdx) * invCols;
+                            instance.uv = glm::vec4(u, 0.0f, invCols, invRows);
+
+                            if (!spriteBatch.instances.empty() && spriteBatch.texture != projTex)
+                                flushSpriteBatch();
+
+                            if (spriteBatch.instances.empty())
+                                spriteBatch.texture = projTex;
+
+                            spriteBatch.instances.push_back(instance);
+                        }
+                        flushSpriteBatch();
+                    };
 
                 //const auto& animState = logic.Animation();
                 //const int animCols = std::max(1, CurrentColumns());
                 //const int animRows = std::max(1, CurrentRows());
-
+                bool projectilesRendered = false;
                 // Pass 1: Sprites (instanced)
                 for (unsigned id : sortedIds)
                 {
                     auto& objPtr = FACTORY->Objects().at(id);
                     GOC* obj = objPtr.get();
                     if (!obj) continue;
-#if SOFASPUDS_ENABLE_EDITOR
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-#endif
 
+
+                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
+
+                    const LayerKey layerKey = layerManager.LayerKeyFor(id);
+                    if (!projectilesRendered && layerKey.group > LayerGroup::Gameplay)
+                    {
+                        flushSpriteBatch();
+                        renderProjectiles();
+                        projectilesRendered = true;
+                    }
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     if (!tr) continue;
@@ -1812,6 +1903,11 @@ namespace Framework {
 
                         if (!tex)
                             continue;
+                        if (!spriteBatch.instances.empty() && spriteBatch.texture != tex)
+                            flushSpriteBatch();
+
+                        if (spriteBatch.instances.empty())
+                            spriteBatch.texture = tex;
 
                         gfx::Graphics::SpriteInstance instance;
                         glm::mat4 model(1.0f);
@@ -1822,140 +1918,59 @@ namespace Framework {
                         instance.tint = glm::vec4(r, g, b, a);
                         instance.uv = uvRect;
 
-                        spriteBatches[tex].push_back(instance);
+                        spriteBatch.instances.push_back(instance);
+                        continue;
                     }
-                }
-                // Render projectiles with the correct sprite sheet (player knives vs fireballs).
-                if ((knifeTex || fireProjectileTex) && logic.hitBoxSystem)
-                {
-                    const auto& activeHits = logic.hitBoxSystem->GetActiveHitBoxes();
-                    if (!activeHits.empty())
+                    flushSpriteBatch();
+
+
+                    if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                        Framework::ComponentTypeId::CT_RenderComponent))
                     {
+                        if (!rc->visible || rc->a <= 0.0f)
+                            continue;
 
-
-                        for (const auto& activeHit : activeHits)
+                        if (!obj->GetComponentType<Framework::SpriteComponent>(
+                            Framework::ComponentTypeId::CT_SpriteComponent))
                         {
-                            if (!activeHit.hitbox || !activeHit.isProjectile)
-                                continue;
-
-                            const auto* hb = activeHit.hitbox.get();
-
-                            unsigned projTex = 0;
-                            int cols = 0;
-                            int rows = 1;
-                            int frames = 0;
-                            float fps = 12.0f;
-
-                            if (hb->team == HitBoxComponent::Team::Enemy && fireProjectileTex)
+                            unsigned rectTex = rc->texture_id;
+                            if (!rectTex && !rc->texture_key.empty())
                             {
-                                projTex = fireProjectileTex;
-                                cols = 5;
-                                frames = 5;
+                                rectTex = Resource_Manager::getTexture(rc->texture_key);
+                                rc->texture_id = rectTex;
                             }
-                            else if (knifeTex)
+                            const float scaledW = rc->w * tr->scaleX;
+                            const float scaledH = rc->h * tr->scaleY;
+                            if (rectTex)
                             {
-                                projTex = knifeTex;
-                                cols = 4;
-                                frames = 4;
+                                gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
+                                    scaledW, scaledH,
+                                    rc->r, rc->g, rc->b, rc->a);
+                            }
+                            else
+                            {
+                                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
+                                    scaledW, scaledH,
+                                    rc->r, rc->g, rc->b, rc->a);
                             }
 
-                            if (!projTex || cols <= 0 || frames <= 0)
-                                continue;
 
-                            auto& batch = spriteBatches[projTex];
-                            const float invCols = 1.0f / static_cast<float>(cols);
-                            const float invRows = 1.0f / static_cast<float>(rows);
-
-                            gfx::Graphics::SpriteInstance instance;
-                            glm::mat4 model(1.0f);
-                            model = glm::translate(model, glm::vec3(hb->spawnX, hb->spawnY, 0.0f));
-                            const float angle = std::atan2(activeHit.velY, activeHit.velX);
-                            model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
-                            model = glm::scale(model, glm::vec3(hb->width+0.1, hb->height + 0.1, 1.0f));
-                            instance.model = model;
-                            instance.tint = glm::vec4(1.0f);
-
-                            const float duration = std::max(0.0001f, hb->duration);
-                            const float elapsed = std::clamp(duration - activeHit.timer, 0.0f, duration);
-                            const int frameIdx = static_cast<int>(elapsed * fps) % frames;
-                            const float u = static_cast<float>(frameIdx) * invCols;
-                            instance.uv = glm::vec4(u, 0.0f, invCols, invRows);
-
-                            batch.push_back(instance);
                         }
                     }
-                }
+ 
 
-                for (auto& [tex, batch] : spriteBatches)
-                {
-                    if (!batch.empty())
-                        gfx::Graphics::renderSpriteBatchInstanced(tex, batch);
-                }
-
-                // Pass 2: Rectangles (non-sprite quads)
-                for (unsigned id : sortedIds)
-                {
-                    auto& objPtr = FACTORY->Objects().at(id);
-                    GOC* obj = objPtr.get();
-                    if (!obj) continue;
-#if SOFASPUDS_ENABLE_EDITOR
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-#endif
-
-                    auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                        Framework::ComponentTypeId::CT_TransformComponent);
-                    auto* rc = obj->GetComponentType<Framework::RenderComponent>(
-                        Framework::ComponentTypeId::CT_RenderComponent);
-                    if (!tr || !rc) continue;
-
-                    // NEW: skip invisible rect-only renderables
-                    if (!rc->visible || rc->a <= 0.0f)
-                        continue;
-
-                    if (obj->GetComponentType<Framework::SpriteComponent>(
-                        Framework::ComponentTypeId::CT_SpriteComponent))
-                        continue;
-
-                    unsigned rectTex = rc->texture_id;
-                    if (!rectTex && !rc->texture_key.empty())
+                    if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
+                        Framework::ComponentTypeId::CT_CircleRenderComponent))
                     {
-                        rectTex = Resource_Manager::getTexture(rc->texture_key);
-                        rc->texture_id = rectTex;
-                    }
-                    const float scaledW = rc->w * tr->scaleX;
-                    const float scaledH = rc->h * tr->scaleY;
-                    if (rectTex)
-                    {
-                        gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
-                            scaledW, scaledH,
-                            rc->r, rc->g, rc->b, rc->a);
-                    }
-                    else
-                    {
-                        gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
-                            scaledW, scaledH,
-                            rc->r, rc->g, rc->b, rc->a);
+                        const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                        gfx::Graphics::renderCircle(tr->x, tr->y, scaledRadius, cc->r, cc->g, cc->b, cc->a);
                     }
                 }
 
-                // Pass 3: Circles
-                for (unsigned id : sortedIds)
+                flushSpriteBatch();
+                if (!projectilesRendered)
                 {
-                    auto& objPtr = FACTORY->Objects().at(id);
-                    GOC* obj = objPtr.get();
-                    if (!obj) continue;
-#if SOFASPUDS_ENABLE_EDITOR
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-#endif
-
-                    auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                        Framework::ComponentTypeId::CT_TransformComponent);
-                    auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
-                        Framework::ComponentTypeId::CT_CircleRenderComponent);
-                    if (!tr || !cc) continue;
-
-                    const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
-                    gfx::Graphics::renderCircle(tr->x, tr->y, scaledRadius, cc->r, cc->g, cc->b, cc->a);
+                    renderProjectiles();
                 }
 
                 // Pass 4: Hover/Selection highlight outlines (editor)
@@ -1980,7 +1995,8 @@ namespace Framework {
                             auto& objPtr = FACTORY->Objects().at(id);
                             GOC* obj = objPtr.get();
                             if (!obj) continue;
-                            if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
 
                             const bool isHovered = (id == hoveredId);
                             const bool isSelected = (id == selectedId);
@@ -2019,11 +2035,15 @@ namespace Framework {
 
                     if (showPhysicsHitboxes && logic.hitBoxSystem)
                     {
+
                         for (unsigned id : sortedIds)
                         {
                             auto& objPtr = FACTORY->Objects().at(id);
                             GOC* obj = objPtr.get();
                             if (!obj) continue;
+
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName()))
+                                continue;
 
                             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                                 Framework::ComponentTypeId::CT_TransformComponent);
@@ -2130,9 +2150,11 @@ namespace Framework {
                 jsonEditor.Draw();
                 mygame::DrawHierarchyPanel();
                 mygame::DrawSpawnPanel();
+                mygame::DrawLayerPanel();
                 mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);
+                mygame::DrawAssetManagerPanel();
 
                 if (ImGui::Begin("Crash Tests"))
                 {

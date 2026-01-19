@@ -133,7 +133,7 @@ namespace Framework
             footstepClips.clear();
             if (entityType == "player")
             {
-                for (int i = 1; i <= 12; i++)
+                for (int i = 1; i <= 6; i++)
                 {
                     std::string clip = "ConcreteFootsteps" + std::to_string(i);
                     sounds[clip] = { clip, false };

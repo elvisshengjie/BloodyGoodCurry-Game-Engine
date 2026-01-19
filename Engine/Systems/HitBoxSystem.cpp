@@ -29,6 +29,7 @@
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Systems/VfxHelpers.h"
+#include "Factory/Factory.h"
 
 #include <iostream>
 #include <cctype>
@@ -299,6 +300,11 @@ namespace Framework
     *****************************************************************************************/
     void HitBoxSystem::Update(float dt)
     {
+        if (!FACTORY)
+            return;
+
+        auto& layers = FACTORY->Layers();
+
         for (auto it = activeHitBoxes.begin(); it != activeHitBoxes.end();)
         {
             it->timer -= dt;
@@ -310,7 +316,11 @@ namespace Framework
                 it = activeHitBoxes.erase(it);
                 continue;
             }
-
+            if (!layers.IsLayerEnabled(attacker->GetLayerName()))
+            {
+                it = activeHitBoxes.erase(it);
+                continue;
+            }
             // Projectile movement
             if (it->isProjectile || HB->team == HitBoxComponent::Team::Thrown)
             {
@@ -327,6 +337,7 @@ namespace Framework
             for (auto* obj : logic.LevelObjects())
             {
                 if (!obj || obj == attacker) continue;
+                if (!layers.IsLayerEnabled(obj->GetLayerName())) continue;
                 auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
                 if (!(tr && rb)) continue;

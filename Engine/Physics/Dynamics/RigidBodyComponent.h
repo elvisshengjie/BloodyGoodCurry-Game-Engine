@@ -31,6 +31,7 @@ namespace Framework
 		float height = 1.0f;
 		float knockbackTime = 0.0f;
 		float dampening = 0.7f;
+		float lungeTime = 0.0f;
 
 		void initialize() override {}
 		void SendMessage(Message& m) override { (void)m; }

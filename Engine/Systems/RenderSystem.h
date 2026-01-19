@@ -34,6 +34,7 @@
 #include "Debug/ImGuiLayer.h"
 #include "Debug/Perf.h"
 #include "Debug/Spawn.h"
+#include "Debug/LayerPanel.h"
 #include "Debug/Selection.h"
 #include "Debug/HierarchyPanel.h"
 #include "Debug/InspectorPanel.h"
@@ -265,6 +266,7 @@ namespace Framework {
 
         // --- Layout persistence -----------------------------------------------------------
         std::string imguiLayoutPath{};       //!< Optional saved ImGui layout path.
+
     };
 
 } // namespace Framework
