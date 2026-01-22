@@ -38,15 +38,13 @@ namespace Framework
 		  \details Holds ownership of a HitBoxComponent, reference to the owner
 				   object, and a timer controlling hitbox lifetime.
 		*************************************************************************/
-		struct ActiveHitBox
-		{
+		struct ActiveHitBox {
 			std::unique_ptr<HitBoxComponent> hitbox;
-			GameObjectComposition* owner{};
-			float timer{};
+			GOCId ownerId = 0;        // store id, not raw pointer
+			float timer = 0.0f;
 
-			// For projectiles
-			float velX = 0.f;
-			float velY = 0.f;
+			float velX = 0.0f;
+			float velY = 0.0f;
 			bool isProjectile = false;
 		};
 		/*************************************************************************

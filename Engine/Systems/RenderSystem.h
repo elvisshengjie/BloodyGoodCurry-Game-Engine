@@ -127,7 +127,8 @@ namespace Framework {
         int ScreenWidth()  const { return screenW; }
         /// \brief  Back-buffer height in pixels.
         int ScreenHeight() const { return screenH; }
-
+        /// \brief  Get the active game viewport rectangle in window pixel coordinates.
+        bool GetGameViewportRect(int& x, int& y, int& width, int& height) const;
         /// \brief  Convert a screen cursor position to world space using the active camera.
         bool ScreenToWorld(double cursorX, double cursorY,
             float& worldX, float& worldY,

@@ -87,6 +87,15 @@ namespace Framework {
         return sInstance;
     }
 
+    bool RenderSystem::GetGameViewportRect(int& x, int& y, int& width, int& height) const
+    {
+        x = gameViewport.x;
+        y = gameViewport.y;
+        width = gameViewport.width;
+        height = gameViewport.height;
+        return width > 0 && height > 0;
+    }
+
     namespace {
         using clock = std::chrono::high_resolution_clock;
 
@@ -1307,9 +1316,9 @@ namespace Framework {
             const ImVec2 contentPosAbs = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
             const ImVec2 contentSize = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
 
-            // Convert to coords relative to the main viewport's WorkPos (IMPORTANT when docked)
-            const ImVec2 contentPosRel = ImVec2(contentPosAbs.x - vp->WorkPos.x,
-                contentPosAbs.y - vp->WorkPos.y);
+            // Convert to coords relative to the main viewport's origin (framebuffer space).
+            const ImVec2 contentPosRel = ImVec2(contentPosAbs.x - vp->Pos.x,
+                contentPosAbs.y - vp->Pos.y);
 
             imguiViewportRect.x = (int)std::lround(contentPosRel.x);
             imguiViewportRect.y = (int)std::lround(contentPosRel.y);
