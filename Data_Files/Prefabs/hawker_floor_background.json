@@ -12,7 +12,7 @@
         "b": 1.0,
         "a": 1.0,
         "texture_key": "hawker_floor",
-        "texture_path": "../../assets/Textures/Environment/lvl 1_Hawker/Floor.png"
+        "texture_path": "Textures/Environment/lvl 1_Hawker/Floor.png"
       }
     }
   }

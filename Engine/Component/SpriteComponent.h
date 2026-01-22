@@ -13,9 +13,11 @@
 *********************************************************************************************/
 
 #pragma once
+#include <filesystem>
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
 #include "Resource_Asset_Manager/Resource_Manager.h"
+#include "Component/RenderComponent.h"
 
 namespace Framework {
     /*****************************************************************************************
@@ -50,11 +52,24 @@ namespace Framework {
             if (texture_id)
                 return;
 
-            if (path.empty())
-                return;
+            std::string loadPath = path;
+            if (loadPath.empty())
+            {
+                if (auto* owner = GetOwner())
+                {
+                    if (auto* rc = owner->GetComponentType<Framework::RenderComponent>(
+                        ComponentTypeId::CT_RenderComponent))
+                    {
+                        if (!rc->texture_path.empty())
+                            loadPath = rc->texture_path;
+                    }
+                }
+            }
 
-            const auto resolvedPath = Framework::ResolveAssetPath(std::filesystem::path(path));
-            const std::string& pathStr = resolvedPath.empty() ? path : resolvedPath.string();
+            if (loadPath.empty())
+                return;
+            const auto resolvedPath = Framework::ResolveAssetPath(std::filesystem::path(loadPath));
+            const std::string& pathStr = resolvedPath.empty() ? loadPath : resolvedPath.string();
 
             // load file and re-fetch id
             if (Resource_Manager::load(texture_key, pathStr)) {
