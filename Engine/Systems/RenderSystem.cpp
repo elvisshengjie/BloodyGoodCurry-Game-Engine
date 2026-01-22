@@ -627,8 +627,7 @@ namespace Framework {
         }
 
         ImGuiIO& io = ImGui::GetIO();
-        const bool wantCapture = io.WantCaptureMouse;
-
+        const bool wantCapture = io.WantCaptureMouse && !imguiViewportMouseInContent;
         const bool mouseDown = glfwGetMouseButton(native, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
         const bool pressed = mouseDown && !leftMouseDownPrev;
         const bool released = !mouseDown && leftMouseDownPrev;
@@ -894,7 +893,8 @@ namespace Framework {
             editorCameraPanning = false;
         }
 
-        const bool wantCaptureMouse = io.WantCaptureMouse;
+        const bool allowViewportInput = imguiViewportMouseInContent;
+        const bool wantCaptureMouse = io.WantCaptureMouse && !allowViewportInput;
         const bool middleDown = glfwGetMouseButton(native, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS;
 
         if (middleDown && insideViewport && !wantCaptureMouse)
@@ -1112,6 +1112,48 @@ namespace Framework {
             glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
             return;
         }
+#if SOFASPUDS_ENABLE_EDITOR
+        if (imguiViewportValid)
+        {
+            int desiredWidth = std::max(1, imguiViewportRect.width);
+            int desiredHeight = std::max(1, imguiViewportRect.height);
+            desiredWidth = std::clamp(desiredWidth, 1, fullWidth);
+            desiredHeight = std::clamp(desiredHeight, 1, fullHeight);
+
+            const int xOffset = std::clamp(imguiViewportRect.x, 0, std::max(0, fullWidth - desiredWidth));
+            int yOffset = fullHeight - (imguiViewportRect.y + desiredHeight);
+            yOffset = std::clamp(yOffset, 0, std::max(0, fullHeight - desiredHeight));
+
+            if (gameViewport.width != desiredWidth ||
+                gameViewport.height != desiredHeight ||
+                gameViewport.y != yOffset ||
+                gameViewport.x != xOffset)
+            {
+                gameViewport.x = xOffset;
+                gameViewport.y = yOffset;
+                gameViewport.width = desiredWidth;
+                gameViewport.height = desiredHeight;
+
+                screenW = gameViewport.width;
+                screenH = gameViewport.height;
+
+                if (textReadyTitle) textTitle.setViewport(screenW, screenH);
+                if (textReadyHint)  textHint.setViewport(screenW, screenH);
+            }
+
+            if (gameViewport.width > 0 && gameViewport.height > 0)
+            {
+                camera.SetViewportSize(gameViewport.width, gameViewport.height);
+                editorCamera.SetViewportSize(gameViewport.width, gameViewport.height);
+            }
+            camera.SetViewHeight(cameraViewHeight);
+            editorCamera.SetViewHeight(editorCameraViewHeight);
+
+            if (gameViewport.width > 0 && gameViewport.height > 0)
+                glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
+            return;
+        }
+#endif
 
         const float minSplit = 0.3f;
         const float maxSplit = 0.7f;
@@ -1198,45 +1240,95 @@ namespace Framework {
 #if SOFASPUDS_ENABLE_EDITOR
     void RenderSystem::DrawDockspace()
     {
-        if (!showEditor)
-            return;
+        if (!showEditor) return;
 
         ImGuiIO& io = ImGui::GetIO();
-        if (!(io.ConfigFlags & ImGuiConfigFlags_DockingEnable))
-            return;
+        if (!(io.ConfigFlags & ImGuiConfigFlags_DockingEnable)) return;
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-        // Make the dock host cover the entire work area
         ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
         ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
         ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+
+        // IMPORTANT: this is the dock-node background color
+        ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, ImVec4(0, 0, 0, 0));
 
         ImGuiWindowFlags flags =
-            ImGuiWindowFlags_NoTitleBar |
-            ImGuiWindowFlags_NoCollapse |
-            ImGuiWindowFlags_NoResize |
-            ImGuiWindowFlags_NoMove |
-            ImGuiWindowFlags_NoBringToFrontOnFocus |
-            ImGuiWindowFlags_NoNavFocus |
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+            ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
             ImGuiWindowFlags_NoBackground;
 
         ImGui::Begin("EditorDockHost", nullptr, flags);
 
         ImGuiID dockspaceId = ImGui::GetID("EditorDockspace");
-        ImGuiDockNodeFlags dockFlags =
-            ImGuiDockNodeFlags_PassthruCentralNode |        // game shows through
-            ImGuiDockNodeFlags_NoDockingInCentralNode;      // nothing docks over the center
+        ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
 
-        ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockFlags);
+        ImGui::DockSpace(dockspaceId, ImVec2(0, 0), dockFlags);
 
         ImGui::End();
 
+        ImGui::PopStyleColor(2);
         ImGui::PopStyleVar(2);
     }
+
+    /*************************************************************************************
+  \brief  ImGui window that defines the game viewport bounds.
+  \details Uses the window content region to map an OpenGL viewport and allows docking/moving.
+*************************************************************************************/
+    void RenderSystem::DrawGameViewportWindow()
+    {
+        if (!showEditor) { imguiViewportValid = false; imguiViewportMouseInContent = false; return; }
+
+        imguiViewportMouseInContent = false;
+
+        ImGui::SetNextWindowBgAlpha(0.0f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoScrollWithMouse |
+            ImGuiWindowFlags_NoBackground;
+
+        if (ImGui::Begin("Game Viewport", nullptr, flags))
+        {
+            const ImGuiViewport* vp = ImGui::GetMainViewport();
+
+            const ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
+            const ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
+            const ImVec2 windowPos = ImGui::GetWindowPos();
+
+            const ImVec2 contentPosAbs = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
+            const ImVec2 contentSize = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
+
+            // Convert to coords relative to the main viewport's WorkPos (IMPORTANT when docked)
+            const ImVec2 contentPosRel = ImVec2(contentPosAbs.x - vp->WorkPos.x,
+                contentPosAbs.y - vp->WorkPos.y);
+
+            imguiViewportRect.x = (int)std::lround(contentPosRel.x);
+            imguiViewportRect.y = (int)std::lround(contentPosRel.y);
+            imguiViewportRect.width = (int)std::lround(contentSize.x);
+            imguiViewportRect.height = (int)std::lround(contentSize.y);
+
+            imguiViewportValid = imguiViewportRect.width > 0 && imguiViewportRect.height > 0;
+
+            const ImVec2 mousePosAbs = ImGui::GetMousePos();
+            imguiViewportMouseInContent =
+                (mousePosAbs.x >= contentPosAbs.x && mousePosAbs.x <= contentPosAbs.x + contentSize.x &&
+                    mousePosAbs.y >= contentPosAbs.y && mousePosAbs.y <= contentPosAbs.y + contentSize.y);
+        }
+        ImGui::End();
+
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+    }
+
 
     /*************************************************************************************
       \brief  Small always-on-top helper for toggles and camera settings.
@@ -1250,11 +1342,11 @@ namespace Framework {
         pos.x += 12.0f;
         pos.y += 12.0f;
 
-        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(pos, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowBgAlpha(0.35f);
 
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav;
+            ImGuiWindowFlags_NoNav;
         if (!showEditor)
         {
 
@@ -1305,24 +1397,47 @@ namespace Framework {
             // ---- everything below this only shows when editor is ON ----
 
             bool fullWidth = gameViewportFullWidth;
-            if (ImGui::Checkbox("Game Full Width", &fullWidth))
-                gameViewportFullWidth = fullWidth;
-            if (!gameViewportFullWidth)
+            if (!imguiViewportValid)
             {
+                if (ImGui::Checkbox("Game Full Width", &fullWidth))
+                    gameViewportFullWidth = fullWidth;
+                if (!gameViewportFullWidth)
+                {
+                    float splitPercent = editorSplitRatio * 100.0f;
+                    if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                        editorSplitRatio = splitPercent / 100.0f;
+                }
+            }
+            else
+            {
+                ImGui::BeginDisabled();
+                ImGui::Checkbox("Game Full Width", &fullWidth);
                 float splitPercent = editorSplitRatio * 100.0f;
-                if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                    editorSplitRatio = splitPercent / 100.0f;
+                ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp);
+                ImGui::EndDisabled();
+                ImGui::TextDisabled("Viewport size is controlled by the dockable window.");
             }
 
             bool fullHeight = gameViewportFullHeight;
-            if (ImGui::Checkbox("Game Full Height", &fullHeight))
-                gameViewportFullHeight = fullHeight;
+            if (!imguiViewportValid)
+            {
+                if (ImGui::Checkbox("Game Full Height", &fullHeight))
+                    gameViewportFullHeight = fullHeight;
 
-            if (!gameViewportFullHeight) {
+                if (!gameViewportFullHeight) {
+                    float hPercent = heightRatio * 100.0f;
+                    if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                        heightRatio = hPercent / 100.0f;
+                    ImGui::TextDisabled("Viewport is centered vertically");
+                }
+            }
+            else
+            {
+                ImGui::BeginDisabled();
+                ImGui::Checkbox("Game Full Height", &fullHeight);
                 float hPercent = heightRatio * 100.0f;
-                if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                    heightRatio = hPercent / 100.0f;
-                ImGui::TextDisabled("Viewport is centered vertically");
+                ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp);
+                ImGui::EndDisabled();
             }
 
             ImGui::Separator();
@@ -1588,7 +1703,25 @@ namespace Framework {
     {
         TryGuard::Run([&] {
             HandleShortcuts();
+#if SOFASPUDS_ENABLE_EDITOR
+            if (showEditor)
+            {
+                DrawDockspace();
+                DrawGameViewportWindow();
+            }
+            else
+            {
+                imguiViewportValid = false;
+                imguiViewportMouseInContent = false;
+            }
+#endif
             UpdateGameViewport();
+            // Clear only the game viewport area (opaque)
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
+            glClearColor(0.f, 0.f, 0.f, 1.f);          // IMPORTANT: alpha = 1
+            glClear(GL_COLOR_BUFFER_BIT);
+            glDisable(GL_SCISSOR_TEST);
 
             if (!FACTORY)
             {
@@ -2143,7 +2276,7 @@ namespace Framework {
 
             t0 = clock::now();
 #if SOFASPUDS_ENABLE_EDITOR
-            DrawDockspace();
+
             DrawViewportControls();
             if (showEditor)
             {
