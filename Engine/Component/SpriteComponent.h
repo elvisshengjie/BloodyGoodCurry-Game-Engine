@@ -31,7 +31,7 @@ namespace Framework {
     *****************************************************************************************/
     class SpriteComponent : public GameComponent {
     public:
-        //runtime
+        // runtime
         unsigned int texture_id{ 0 };  ///< OpenGL texture ID (assigned at runtime)
 
         std::string texture_key; ///< Unique key used to identify the texture in Resource_Manager
@@ -53,11 +53,13 @@ namespace Framework {
                 return;
 
             std::string loadPath = path;
+
+            // If SpriteComponent::path isn't provided, try to pull from RenderComponent.
             if (loadPath.empty())
             {
-                if (auto* owner = GetOwner())
+                if (auto* pOwner = GetOwner()) // renamed from 'owner' to avoid hiding member
                 {
-                    if (auto* rc = owner->GetComponentType<Framework::RenderComponent>(
+                    if (auto* rc = pOwner->GetComponentType<Framework::RenderComponent>(
                         ComponentTypeId::CT_RenderComponent))
                     {
                         if (!rc->texture_path.empty())
@@ -68,13 +70,15 @@ namespace Framework {
 
             if (loadPath.empty())
                 return;
-            const auto resolvedPath = Framework::ResolveAssetPath(std::filesystem::path(loadPath));
-            const std::string& pathStr = resolvedPath.empty() ? loadPath : resolvedPath.string();
+
+            const auto resolvedPath =
+                Framework::ResolveAssetPath(std::filesystem::path(loadPath));
+            const std::string& pathStr =
+                resolvedPath.empty() ? loadPath : resolvedPath.string();
 
             // load file and re-fetch id
             if (Resource_Manager::load(texture_key, pathStr)) {
                 texture_id = Resource_Manager::getTexture(texture_key);
-          
             }
         }
 
@@ -85,6 +89,8 @@ namespace Framework {
         *************************************************************************************/
         void Serialize(ISerializer& s) override {
             if (s.HasKey("texture_key")) StreamRead(s, "texture_key", texture_key);
+            // (Optional) If you also want to read "texture_path" into SpriteComponent::path:
+            // if (s.HasKey("texture_path")) StreamRead(s, "texture_path", path);
         }
 
         /*************************************************************************************
