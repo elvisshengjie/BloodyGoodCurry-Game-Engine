@@ -166,7 +166,7 @@ namespace Framework
         float width, float height,
         float damage,
         float duration,
-        HitBoxComponent::Team team)
+        HitBoxComponent::Team team, float soundDelay)
     {
         if (!attacker)
             return;
@@ -180,6 +180,7 @@ namespace Framework
         newhitbox->duration = duration;
         newhitbox->owner = attacker;
         newhitbox->team = team;
+        newhitbox->soundDelay = soundDelay;
 
         // Decide team based on attacker, so we avoid friendly fire.
         if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
@@ -437,15 +438,18 @@ namespace Framework
             // Play air swing or ineffective sound if no enemy hit
             if (!HB->soundTriggered && HB->team == HitBoxComponent::Team::Player)
             {
-                if (auto* audio = attacker->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                HB->soundDelay -= dt;
+                if (HB->soundDelay <= 0.0f)
                 {
-                    if (hitEnemy)
-                        audio->TriggerSound("Slash");
-                    if (ineffectiveHit)
-                        audio->TriggerSound("Ineffective"); // Blocked or no effect
-                    if (!hitAnything)
-                        audio->TriggerSound("Punch");       // Missed swing
-
+                    if (auto* audio = attacker->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                    {
+                        if (hitEnemy)
+                            audio->TriggerSound("Slash");
+                        if (ineffectiveHit)
+                            audio->TriggerSound("Ineffective"); // Blocked or no effect
+                        if (!hitAnything)
+                            audio->TriggerSound("Punch");       // Missed swing
+                    }
                 }
                 HB->soundTriggered = true;
             }

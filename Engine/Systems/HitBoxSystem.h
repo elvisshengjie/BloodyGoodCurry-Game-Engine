@@ -90,7 +90,7 @@ namespace Framework
 			float width = 0.2f, float height = 0.2f,
 			float damage = 1.0f,
 			float duration = 0.1f,
-			HitBoxComponent::Team team = HitBoxComponent::Team::Player);
+			HitBoxComponent::Team team = HitBoxComponent::Team::Player, float soundDelay = 0.015f);
 
 		void SpawnProjectile(GameObjectComposition* attacker,
 			float targetX, float targetY,
