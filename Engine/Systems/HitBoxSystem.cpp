@@ -206,7 +206,7 @@ namespace Framework
 
         ActiveHitBox active;
         active.hitbox = std::move(newhitbox);
-        active.owner = attacker;
+        active.ownerId = attacker->GetId();
         active.timer = duration;
 
         activeHitBoxes.push_back(std::move(active));
@@ -278,7 +278,7 @@ namespace Framework
 
         ActiveHitBox projectile;
         projectile.hitbox = std::move(newhitbox);
-        projectile.owner = attacker;
+        projectile.ownerId = attacker->GetId();
         projectile.timer = duration;
         projectile.velX = dirX * speed;
         projectile.velY = dirY * speed;
@@ -309,8 +309,8 @@ namespace Framework
         for (auto it = activeHitBoxes.begin(); it != activeHitBoxes.end();)
         {
             it->timer -= dt;
-            auto* attacker = it->owner;
             auto* HB = it->hitbox.get();
+            auto* attacker = FACTORY->GetObjectWithId(it->ownerId);
 
             if (!attacker || !HB || !HB->active)
             {

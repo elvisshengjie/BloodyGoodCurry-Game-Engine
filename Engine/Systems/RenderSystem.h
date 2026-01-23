@@ -127,7 +127,8 @@ namespace Framework {
         int ScreenWidth()  const { return screenW; }
         /// \brief  Back-buffer height in pixels.
         int ScreenHeight() const { return screenH; }
-
+        /// \brief  Get the active game viewport rectangle in window pixel coordinates.
+        bool GetGameViewportRect(int& x, int& y, int& width, int& height) const;
         /// \brief  Convert a screen cursor position to world space using the active camera.
         bool ScreenToWorld(double cursorX, double cursorY,
             float& worldX, float& worldY,
@@ -148,6 +149,7 @@ namespace Framework {
 #if SOFASPUDS_ENABLE_EDITOR
         // --- Editor frame scaffolding -----------------------------------------------------
         void DrawDockspace();
+        void DrawGameViewportWindow();
 
         void HandleViewportPicking();
 #endif
@@ -228,6 +230,11 @@ namespace Framework {
         };
 
         ViewRect gameViewport{};              //!< Active game viewport in pixels.
+#if SOFASPUDS_ENABLE_EDITOR
+        ViewRect imguiViewportRect{};         //!< ImGui content rect (top-left coords).
+        bool     imguiViewportValid = false;  //!< True when ImGui viewport has valid size.
+        bool     imguiViewportMouseInContent = false; //!< Mouse is over viewport content.
+#endif
 
         // --- Editor layout flags ---------------------------------------------------------
         bool  showEditor = false;              //!< Toggle editor UI visibility.
