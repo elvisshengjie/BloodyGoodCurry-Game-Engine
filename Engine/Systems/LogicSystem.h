@@ -19,6 +19,7 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/GlowComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/PlayerComponent.h"
