@@ -22,6 +22,7 @@
 
 #include "LogicSystem.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/GlowComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/TransformComponent.h"
@@ -257,6 +258,26 @@ namespace Framework {
         bool  draggingSelection = false;
         float dragOffsetX = 0.0f;
         float dragOffsetY = 0.0f;
+
+        // --- Glow drawing tool (editor) --------------------------------------------------
+        struct GlowBrushSettings
+        {
+            float color[3]{ 1.0f, 0.8f, 0.3f };
+            float opacity{ 1.0f };
+            float brightness{ 1.0f };
+            float innerRadius{ 0.05f };
+            float outerRadius{ 0.2f };
+            float falloffExponent{ 1.0f };
+            float pointSpacing{ 0.02f };
+        };
+
+        bool          glowDrawMode = false;
+        bool          glowDrawing = false;
+        float         glowLastPointX = 0.0f;
+        float         glowLastPointY = 0.0f;
+        GOC*          glowDrawObject = nullptr;
+        GlowComponent* glowDrawComponent = nullptr;
+        GlowBrushSettings glowBrush{};
 
         // --- Game camera -----------------------------------------------------------------
         gfx::Camera2D camera;                 //!< In-game camera.

@@ -646,6 +646,13 @@ namespace Framework {
         glfwGetCursorPos(native, &cursorX, &cursorY);
         UpdateEditorCameraControls(native, io, cursorX, cursorY);
 
+        if (glowDrawMode && released)
+        {
+            glowDrawing = false;
+            glowDrawObject = nullptr;
+            glowDrawComponent = nullptr;
+        }
+
         float worldX = 0.0f;
         float worldY = 0.0f;
         bool  insideViewport = false;
@@ -653,6 +660,69 @@ namespace Framework {
         {
             draggingSelection = false;
             leftMouseDownPrev = mouseDown;
+            return;
+        }
+
+        if (glowDrawMode)
+        {
+            if (pressed && insideViewport && !wantCapture)
+            {
+                glowDrawObject = FACTORY->CreateEmptyComposition();
+                if (glowDrawObject)
+                {
+                    glowDrawObject->SetObjectName("Glow");
+                    glowDrawObject->SetLayerName(mygame::ActiveLayerName());
+
+                    auto* tr = glowDrawObject->EmplaceComponent<Framework::TransformComponent>(
+                        Framework::ComponentTypeId::CT_TransformComponent);
+                    tr->x = worldX;
+                    tr->y = worldY;
+                    tr->rot = 0.0f;
+                    tr->scaleX = 1.0f;
+                    tr->scaleY = 1.0f;
+
+                    glowDrawComponent = glowDrawObject->EmplaceComponent<Framework::GlowComponent>(
+                        Framework::ComponentTypeId::CT_GlowComponent);
+                    glowDrawComponent->r = glowBrush.color[0];
+                    glowDrawComponent->g = glowBrush.color[1];
+                    glowDrawComponent->b = glowBrush.color[2];
+                    glowDrawComponent->opacity = glowBrush.opacity;
+                    glowDrawComponent->brightness = glowBrush.brightness;
+                    glowDrawComponent->innerRadius = glowBrush.innerRadius;
+                    glowDrawComponent->outerRadius = glowBrush.outerRadius;
+                    glowDrawComponent->falloffExponent = glowBrush.falloffExponent;
+                    glowDrawComponent->points.clear();
+                    glowDrawComponent->points.emplace_back(0.0f, 0.0f);
+
+                    glowDrawObject->initialize();
+                    mygame::SetSelectedObjectId(glowDrawObject->GetId());
+                    mygame::editor::RecordObjectCreated(*glowDrawObject);
+                    glowDrawing = true;
+                    glowLastPointX = worldX;
+                    glowLastPointY = worldY;
+                }
+            }
+
+            if (glowDrawing && glowDrawObject && glowDrawComponent && mouseDown && insideViewport && !wantCapture)
+            {
+                const float dx = worldX - glowLastPointX;
+                const float dy = worldY - glowLastPointY;
+                const float distSq = dx * dx + dy * dy;
+                const float minDist = glowBrush.pointSpacing;
+                if (distSq >= minDist * minDist)
+                {
+                    if (auto* tr = glowDrawObject->GetComponentType<Framework::TransformComponent>(
+                        Framework::ComponentTypeId::CT_TransformComponent))
+                    {
+                        glowDrawComponent->points.emplace_back(worldX - tr->x, worldY - tr->y);
+                    }
+                    glowLastPointX = worldX;
+                    glowLastPointY = worldY;
+                }
+            }
+
+            leftMouseDownPrev = mouseDown;
+            draggingSelection = false;
             return;
         }
 
@@ -980,6 +1050,20 @@ namespace Framework {
             extent = std::max(extent, scaledRadius);
         }
 
+        if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+            Framework::ComponentTypeId::CT_GlowComponent))
+        {
+            const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+            float maxDist = 0.0f;
+            for (const auto& pt : glow->points)
+            {
+                const float lx = pt.x * tr->scaleX;
+                const float ly = pt.y * tr->scaleY;
+                maxDist = std::max(maxDist, std::sqrt(lx * lx + ly * ly));
+            }
+            extent = std::max(extent, maxDist + glow->outerRadius * scale);
+        }
+
         if (auto* rect = obj->GetComponentType<Framework::RenderComponent>(
             Framework::ComponentTypeId::CT_RenderComponent))
         {
@@ -1023,11 +1107,51 @@ namespace Framework {
 
             const float dx = worldX - tr->x;
             const float dy = worldY - tr->y;
-            const float distanceSq = dx * dx + dy * dy;
+            float distanceSq = dx * dx + dy * dy;
 
             bool contains = false;
 
-            if (auto* circle = obj->GetComponentType<Framework::CircleRenderComponent>(
+            if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+                Framework::ComponentTypeId::CT_GlowComponent))
+            {
+                if (glow->visible && glow->opacity > 0.0f && glow->outerRadius > 0.0f)
+                {
+                    const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                    const float radius = glow->outerRadius * scale;
+                    const float cosR = std::cos(tr->rot);
+                    const float sinR = std::sin(tr->rot);
+                    float closestSq = std::numeric_limits<float>::max();
+
+                    if (glow->points.empty())
+                    {
+                        contains = (distanceSq <= radius * radius);
+                        closestSq = distanceSq;
+                    }
+                    else
+                    {
+                        for (const auto& pt : glow->points)
+                        {
+                            const float lx = pt.x * tr->scaleX;
+                            const float ly = pt.y * tr->scaleY;
+                            const float rx = cosR * lx - sinR * ly;
+                            const float ry = sinR * lx + cosR * ly;
+                            const float pdx = worldX - (tr->x + rx);
+                            const float pdy = worldY - (tr->y + ry);
+                            const float pointDistSq = (pdx * pdx + pdy * pdy);
+                            closestSq = std::min(closestSq, pointDistSq);
+                            if (pointDistSq <= radius * radius)
+                            {
+                                contains = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (contains)
+                        distanceSq = closestSq;
+                }
+            }
+            else if (auto* circle = obj->GetComponentType<Framework::CircleRenderComponent>(
                 Framework::ComponentTypeId::CT_CircleRenderComponent))
             {
                 const float radius = circle->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
@@ -1513,6 +1637,25 @@ namespace Framework {
             {
                 ImGui::TextDisabled("Camera disabled: legacy static framing.");
             }
+
+            ImGui::Separator();
+            ImGui::TextUnformatted("Glow Draw");
+            ImGui::Checkbox("Enable Glow Draw", &glowDrawMode);
+
+            if (!glowDrawMode)
+                ImGui::BeginDisabled();
+
+            ImGui::ColorEdit3("Glow Color", glowBrush.color);
+            ImGui::DragFloat("Glow Opacity", &glowBrush.opacity, 0.01f, 0.0f, 1.0f, "%.2f");
+            ImGui::DragFloat("Glow Brightness", &glowBrush.brightness, 0.05f, 0.0f, 10.0f, "%.2f");
+            ImGui::DragFloat("Glow Inner Radius", &glowBrush.innerRadius, 0.005f, 0.0f, 1000.0f, "%.3f");
+            ImGui::DragFloat("Glow Outer Radius", &glowBrush.outerRadius, 0.005f, 0.0f, 1000.0f, "%.3f");
+            ImGui::DragFloat("Glow Falloff", &glowBrush.falloffExponent, 0.05f, 0.01f, 8.0f, "%.2f");
+            ImGui::DragFloat("Glow Point Spacing", &glowBrush.pointSpacing, 0.005f, 0.001f, 1.0f, "%.3f");
+            ImGui::TextDisabled("Left-drag in the viewport to draw a glow stroke.");
+
+            if (!glowDrawMode)
+                ImGui::EndDisabled();
         }
         ImGui::End();
     }
@@ -2005,6 +2148,47 @@ namespace Framework {
                     auto* animComp = obj->GetComponentType<Framework::SpriteAnimationComponent>(
                         Framework::ComponentTypeId::CT_SpriteAnimationComponent);
 
+                    if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+                        Framework::ComponentTypeId::CT_GlowComponent))
+                    {
+                        if (glow->visible && glow->opacity > 0.0f && glow->brightness > 0.0f)
+                        {
+                            const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                            const float inner = glow->innerRadius * scale;
+                            const float outer = glow->outerRadius * scale;
+
+                            if (outer > 0.0f)
+                            {
+                                flushSpriteBatch();
+
+                                const float cosR = std::cos(tr->rot);
+                                const float sinR = std::sin(tr->rot);
+
+                                if (glow->points.empty())
+                                {
+                                    gfx::Graphics::renderGlow(tr->x, tr->y,
+                                        inner, outer,
+                                        glow->brightness, glow->falloffExponent,
+                                        glow->r, glow->g, glow->b, glow->opacity);
+                                }
+                                else
+                                {
+                                    for (const auto& pt : glow->points)
+                                    {
+                                        const float lx = pt.x * tr->scaleX;
+                                        const float ly = pt.y * tr->scaleY;
+                                        const float rx = cosR * lx - sinR * ly;
+                                        const float ry = sinR * lx + cosR * ly;
+                                        gfx::Graphics::renderGlow(tr->x + rx, tr->y + ry,
+                                            inner, outer,
+                                            glow->brightness, glow->falloffExponent,
+                                            glow->r, glow->g, glow->b, glow->opacity);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
                         Framework::ComponentTypeId::CT_SpriteComponent))
                     {
@@ -2171,6 +2355,21 @@ namespace Framework {
                             {
                                 const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
                                 const float d = std::max(0.1f, scaledRadius * 2.f);
+                                drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
+                            }
+                            else if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+                                Framework::ComponentTypeId::CT_GlowComponent))
+                            {
+                                const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                                float maxDist = 0.0f;
+                                for (const auto& pt : glow->points)
+                                {
+                                    const float lx = pt.x * tr->scaleX;
+                                    const float ly = pt.y * tr->scaleY;
+                                    maxDist = std::max(maxDist, std::sqrt(lx * lx + ly * ly));
+                                }
+                                const float radius = (maxDist + glow->outerRadius * scale);
+                                const float d = std::max(0.1f, radius * 2.f);
                                 drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
                             }
                         }
