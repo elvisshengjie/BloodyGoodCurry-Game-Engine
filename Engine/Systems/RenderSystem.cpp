@@ -1379,6 +1379,7 @@ namespace Framework {
                     gCameraFollowLocked = false;
                     gfx::Graphics::resetViewProjection();
                 }
+
                 else
                 {
                     camera.SetViewHeight(cameraViewHeight);
@@ -2097,6 +2098,26 @@ namespace Framework {
 #endif
             // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
+
+            // Displays objective
+            std::string enemyText = "Didnt work";
+            if (logic.enemiesAlive > 0)
+            {
+                enemyText = "Objective: Kill all enemies (" + std::to_string(logic.enemiesAlive) + " enemies remaining)";
+            }
+            else
+            {
+                enemyText = "Objective: Go to the gate";
+            }
+            
+
+            textHint.RenderText(
+                enemyText,
+                650.0f,
+                1100.0f,
+                0.75f,
+                glm::vec3(1.0f, 0.2f, 0.2f)
+            );
 
             if (textReadyTitle)
             {
