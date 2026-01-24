@@ -28,6 +28,7 @@
 #pragma once
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
+#include "Component/AudioComponent.h"
 #include <iostream>
 #include <algorithm>
 
@@ -48,6 +49,7 @@ namespace Framework
         bool isInvulnerable = false;
         float invulnTime = 0.0f;
         bool isDead = false;
+        bool deathSoundPlayed = false;
 
         /*************************************************************************************
           \brief Initializes the component.
@@ -110,6 +112,12 @@ namespace Framework
             playerHealth = std::max(playerHealth - dmg, 0);
             std::cout << "[PlayerHealthComponent] Took " << dmg
                 << " damage, current health = " << playerHealth << "\n";
+
+            if (playerHealth <= 0)
+            {
+                isDead = true;
+                std::cout << "[PlayerHealthComponent] Player is DEAD.\n";
+            }
         }
 
         /*************************************************************************************

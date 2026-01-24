@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      RenderSystem.cpp
  \par       SofaSpuds
  \author    yimo.kong ( yimo.kong@digipen.edu) - Primary Author, 50%
@@ -16,8 +16,8 @@
             - Editor UI: dockspace host, viewport controls, asset browser, JSON editor, panels.
             - Imports: handles OS file drops and refreshes textures used by sprite components.
             - Lifecycle: initialize(), per-frame draw(), shutdown(), and menu-frame helpers.
-            Uses Graphics.cpp for GPU work (VAOs/shaders/sprite draw) and ImGui for tools.
-            Camera math relies on GLM; input comes via GLFW.
+            - Uses Graphics.cpp for GPU work (VAOs/shaders/sprite draw) and ImGui for tools.
+            - Camera math relies on GLM; input comes via GLFW.
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
@@ -46,7 +46,9 @@
 
 #include "RenderSystem.h"
 #include "Core/PathUtils.h"
+#if SOFASPUDS_ENABLE_EDITOR
 #include <imgui.h>
+#endif
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
@@ -57,23 +59,41 @@
 #include <limits>
 #include <unordered_set>
 #include <unordered_map>
+#include <iostream>
+#if SOFASPUDS_ENABLE_EDITOR
+#include "Resource_Asset_Manager/Asset_Manager.h"
+#include "Debug/AssetManagerPanel.h"
 #include "Debug/AudioImGui.h"
 #include "Debug/UndoStack.h"
 #include "Debug/Inspector.h"
 #include "Debug/EditorGizmo.h"
+#endif
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
 #include <glm/gtc/matrix_transform.hpp>
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "../../Sandbox/MyGame/Game.hpp"
 #include "Component/HitBoxComponent.h"
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace Framework {
 
     RenderSystem* RenderSystem::sInstance = nullptr;
     RenderSystem* RenderSystem::Get()
     {
         return sInstance;
+    }
+
+    bool RenderSystem::GetGameViewportRect(int& x, int& y, int& width, int& height) const
+    {
+        x = gameViewport.x;
+        y = gameViewport.y;
+        width = gameViewport.width;
+        height = gameViewport.height;
+        return width > 0 && height > 0;
     }
 
     namespace {
@@ -90,8 +110,8 @@ namespace Framework {
 
         // Camera follow drag-lock state lives only in this translation unit.
         // We lock camera follow while dragging the Player so screen->world mapping stays stable.
-        bool       gCameraFollowLocked = false;
-        glm::vec2  gCameraLockPos = glm::vec2(0.0f, 0.0f);
+        bool        gCameraFollowLocked = false;
+        glm::vec2   gCameraLockPos = glm::vec2(0.0f, 0.0f);
 
         // Helper to test if an object is "Player" by name.
         inline bool IsPlayerObject(Framework::GOC* obj) {
@@ -209,7 +229,7 @@ namespace Framework {
         // Only affect the gameplay camera – editor camera keeps its own view height.
         camera.SetViewHeight(cameraViewHeight);
     }
-    
+
     /*************************************************************************************
       \brief  Probe for a Roboto font file in common asset locations.
       \return Absolute/relative path string to a usable Roboto .ttf, or empty if not found.
@@ -411,8 +431,8 @@ namespace Framework {
             return attackTex[1] ? attackTex[1] : idleTex;
         case Mode::Attack3:
             return attackTex[2] ? attackTex[2] : idleTex;
-        //case Mode::Knockback:
-        //case Mode::Death:
+        case Mode::Knockback:
+        case Mode::Death:
             return idleTex ? idleTex : playerTex;
         case Mode::Idle:
         default:
@@ -439,8 +459,10 @@ namespace Framework {
                 dropped.emplace_back(paths[i]);
         }
 
+#if SOFASPUDS_ENABLE_EDITOR
         if (!dropped.empty())
             assetBrowser.QueueExternalFiles(dropped);
+#endif
     }
 
     /*************************************************************************************
@@ -449,6 +471,7 @@ namespace Framework {
     *************************************************************************************/
     void RenderSystem::ProcessImportedAssets()
     {
+#if SOFASPUDS_ENABLE_EDITOR
         if (assetsRoot.empty())
             return;
 
@@ -486,6 +509,7 @@ namespace Framework {
                 }
             }
         }
+#endif
     }
 
     /*************************************************************************************
@@ -501,8 +525,10 @@ namespace Framework {
         GLFWwindow* native = window->raw();
         if (!native)
             return;
-
+#if SOFASPUDS_ENABLE_EDITOR
         ImGuiIO& io = ImGui::GetIO();
+#endif
+
         auto handleToggle = [&](int key, bool& held)
             {
                 const bool pressed = glfwGetKey(native, key) == GLFW_PRESS;
@@ -533,7 +559,7 @@ namespace Framework {
             // Keep state accurate so next editor activation treats F as a fresh press.
             editorFrameHeld = glfwGetKey(native, GLFW_KEY_F) == GLFW_PRESS;
         }
-
+#if SOFASPUDS_ENABLE_EDITOR
         if (showEditor)
         {
             if (handleToggle(GLFW_KEY_T, translateKeyHeld) && !io.WantCaptureKeyboard)
@@ -567,6 +593,7 @@ namespace Framework {
             rotateKeyHeld = glfwGetKey(native, GLFW_KEY_R) == GLFW_PRESS;
             scaleKeyHeld = glfwGetKey(native, GLFW_KEY_S) == GLFW_PRESS;
         }
+#endif
     }
 
     /*************************************************************************************
@@ -574,6 +601,7 @@ namespace Framework {
       \details Converts cursor to world (ScreenToWorld), selects nearest hit, preserves drag
                offset, zeroes body velocity if present, and unlocks follow on mouse release.
     *************************************************************************************/
+#if SOFASPUDS_ENABLE_EDITOR
     void RenderSystem::HandleViewportPicking()
     {
         if (!window || !FACTORY)
@@ -589,15 +617,15 @@ namespace Framework {
             draggingSelection = false;
             return;
         }
-#if defined(_DEBUG) || defined(EDITOR)
-        
+
+
         if (Framework::editor::IsGizmoActive())
         {
             leftMouseDownPrev = glfwGetMouseButton(window->raw(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             draggingSelection = false;
             return;
         }
-#endif
+
 
         GLFWwindow* native = window->raw();
         if (!native)
@@ -608,8 +636,7 @@ namespace Framework {
         }
 
         ImGuiIO& io = ImGui::GetIO();
-        const bool wantCapture = io.WantCaptureMouse;
-
+        const bool wantCapture = io.WantCaptureMouse && !imguiViewportMouseInContent;
         const bool mouseDown = glfwGetMouseButton(native, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
         const bool pressed = mouseDown && !leftMouseDownPrev;
         const bool released = !mouseDown && leftMouseDownPrev;
@@ -619,6 +646,13 @@ namespace Framework {
         glfwGetCursorPos(native, &cursorX, &cursorY);
         UpdateEditorCameraControls(native, io, cursorX, cursorY);
 
+        if (glowDrawMode && released)
+        {
+            glowDrawing = false;
+            glowDrawObject = nullptr;
+            glowDrawComponent = nullptr;
+        }
+
         float worldX = 0.0f;
         float worldY = 0.0f;
         bool  insideViewport = false;
@@ -626,6 +660,69 @@ namespace Framework {
         {
             draggingSelection = false;
             leftMouseDownPrev = mouseDown;
+            return;
+        }
+
+        if (glowDrawMode)
+        {
+            if (pressed && insideViewport && !wantCapture)
+            {
+                glowDrawObject = FACTORY->CreateEmptyComposition();
+                if (glowDrawObject)
+                {
+                    glowDrawObject->SetObjectName("Glow");
+                    glowDrawObject->SetLayerName(mygame::ActiveLayerName());
+
+                    auto* tr = glowDrawObject->EmplaceComponent<Framework::TransformComponent>(
+                        Framework::ComponentTypeId::CT_TransformComponent);
+                    tr->x = worldX;
+                    tr->y = worldY;
+                    tr->rot = 0.0f;
+                    tr->scaleX = 1.0f;
+                    tr->scaleY = 1.0f;
+
+                    glowDrawComponent = glowDrawObject->EmplaceComponent<Framework::GlowComponent>(
+                        Framework::ComponentTypeId::CT_GlowComponent);
+                    glowDrawComponent->r = glowBrush.color[0];
+                    glowDrawComponent->g = glowBrush.color[1];
+                    glowDrawComponent->b = glowBrush.color[2];
+                    glowDrawComponent->opacity = glowBrush.opacity;
+                    glowDrawComponent->brightness = glowBrush.brightness;
+                    glowDrawComponent->innerRadius = glowBrush.innerRadius;
+                    glowDrawComponent->outerRadius = glowBrush.outerRadius;
+                    glowDrawComponent->falloffExponent = glowBrush.falloffExponent;
+                    glowDrawComponent->points.clear();
+                    glowDrawComponent->points.emplace_back(0.0f, 0.0f);
+
+                    glowDrawObject->initialize();
+                    mygame::SetSelectedObjectId(glowDrawObject->GetId());
+                    mygame::editor::RecordObjectCreated(*glowDrawObject);
+                    glowDrawing = true;
+                    glowLastPointX = worldX;
+                    glowLastPointY = worldY;
+                }
+            }
+
+            if (glowDrawing && glowDrawObject && glowDrawComponent && mouseDown && insideViewport && !wantCapture)
+            {
+                const float dx = worldX - glowLastPointX;
+                const float dy = worldY - glowLastPointY;
+                const float distSq = dx * dx + dy * dy;
+                const float minDist = glowBrush.pointSpacing;
+                if (distSq >= minDist * minDist)
+                {
+                    if (auto* tr = glowDrawObject->GetComponentType<Framework::TransformComponent>(
+                        Framework::ComponentTypeId::CT_TransformComponent))
+                    {
+                        glowDrawComponent->points.emplace_back(worldX - tr->x, worldY - tr->y);
+                    }
+                    glowLastPointX = worldX;
+                    glowLastPointY = worldY;
+                }
+            }
+
+            leftMouseDownPrev = mouseDown;
+            draggingSelection = false;
             return;
         }
 
@@ -724,7 +821,7 @@ namespace Framework {
 
         leftMouseDownPrev = mouseDown;
     }
-
+#endif
     /*************************************************************************************
       \brief  Convert a screen cursor position to world space.
       \param  cursorX,cursorY  Screen coordinates (GLFW).
@@ -827,8 +924,11 @@ namespace Framework {
     {
         if (!showEditor)
             return false;
+        // If editor is disabled, mygame namespace is not available
+#if SOFASPUDS_ENABLE_EDITOR
         if (mygame::IsEditorSimulationRunning())
             return false;
+#endif
         if (gameViewport.width <= 0 && gameViewport.height <= 0)
             return false;
         return true;
@@ -836,12 +936,13 @@ namespace Framework {
 
     /*************************************************************************************
       \brief  Editor camera panning and zooming using middle-mouse and wheel.
-      \param  native   GLFW window pointer.
-      \param  io       ImGuiIO for wheel/mouse capture checks.
-      \param  cursorX  Screen X.
-      \param  cursorY  Screen Y.
+      \param  native    GLFW window pointer.
+      \param  io        ImGuiIO for wheel/mouse capture checks.
+      \param  cursorX   Screen X.
+      \param  cursorY   Screen Y.
       \details Pans when MMB is held inside the viewport; zooms about the cursor with wheel.
     *************************************************************************************/
+#if SOFASPUDS_ENABLE_EDITOR
     void RenderSystem::UpdateEditorCameraControls(GLFWwindow* native, const ImGuiIO& io,
         double cursorX, double cursorY)
     {
@@ -871,7 +972,8 @@ namespace Framework {
             editorCameraPanning = false;
         }
 
-        const bool wantCaptureMouse = io.WantCaptureMouse;
+        const bool allowViewportInput = imguiViewportMouseInContent;
+        const bool wantCaptureMouse = io.WantCaptureMouse && !allowViewportInput;
         const bool middleDown = glfwGetMouseButton(native, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS;
 
         if (middleDown && insideViewport && !wantCaptureMouse)
@@ -912,13 +1014,14 @@ namespace Framework {
             }
         }
     }
-
+#endif
     /*************************************************************************************
       \brief  Center the editor camera on the selected object and adjust zoom to fit it.
       \details Estimates an extent from circle/rect/sprite size and adds padding to view height.
     *************************************************************************************/
     void RenderSystem::FrameEditorSelection()
     {
+#if SOFASPUDS_ENABLE_EDITOR
         if (!ShouldUseEditorCamera())
             return;
         if (!FACTORY)
@@ -947,6 +1050,20 @@ namespace Framework {
             extent = std::max(extent, scaledRadius);
         }
 
+        if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+            Framework::ComponentTypeId::CT_GlowComponent))
+        {
+            const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+            float maxDist = 0.0f;
+            for (const auto& pt : glow->points)
+            {
+                const float lx = pt.x * tr->scaleX;
+                const float ly = pt.y * tr->scaleY;
+                maxDist = std::max(maxDist, std::sqrt(lx * lx + ly * ly));
+            }
+            extent = std::max(extent, maxDist + glow->outerRadius * scale);
+        }
+
         if (auto* rect = obj->GetComponentType<Framework::RenderComponent>(
             Framework::ComponentTypeId::CT_RenderComponent))
         {
@@ -957,6 +1074,7 @@ namespace Framework {
         const float desiredHeight = std::max(extent * 2.0f + padding, 0.4f);
         editorCamera.SetViewHeight(desiredHeight);
         editorCameraViewHeight = editorCamera.ViewHeight();
+#endif
     }
 
     /*************************************************************************************
@@ -966,6 +1084,7 @@ namespace Framework {
     *************************************************************************************/
     Framework::GOCId RenderSystem::TryPickObject(float worldX, float worldY) const
     {
+#if SOFASPUDS_ENABLE_EDITOR
         if (!FACTORY)
             return 0;
 
@@ -978,7 +1097,7 @@ namespace Framework {
             Framework::GOC* obj = objPtr.get();
             if (!obj)
                 continue;
-            if (!mygame::ShouldRenderLayer(obj->GetLayerName()))
+            if (!FACTORY->Layers().IsLayerEnabled(obj->GetLayerName()))
                 continue;
 
             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
@@ -988,11 +1107,51 @@ namespace Framework {
 
             const float dx = worldX - tr->x;
             const float dy = worldY - tr->y;
-            const float distanceSq = dx * dx + dy * dy;
+            float distanceSq = dx * dx + dy * dy;
 
             bool contains = false;
 
-            if (auto* circle = obj->GetComponentType<Framework::CircleRenderComponent>(
+            if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+                Framework::ComponentTypeId::CT_GlowComponent))
+            {
+                if (glow->visible && glow->opacity > 0.0f && glow->outerRadius > 0.0f)
+                {
+                    const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                    const float radius = glow->outerRadius * scale;
+                    const float cosR = std::cos(tr->rot);
+                    const float sinR = std::sin(tr->rot);
+                    float closestSq = std::numeric_limits<float>::max();
+
+                    if (glow->points.empty())
+                    {
+                        contains = (distanceSq <= radius * radius);
+                        closestSq = distanceSq;
+                    }
+                    else
+                    {
+                        for (const auto& pt : glow->points)
+                        {
+                            const float lx = pt.x * tr->scaleX;
+                            const float ly = pt.y * tr->scaleY;
+                            const float rx = cosR * lx - sinR * ly;
+                            const float ry = sinR * lx + cosR * ly;
+                            const float pdx = worldX - (tr->x + rx);
+                            const float pdy = worldY - (tr->y + ry);
+                            const float pointDistSq = (pdx * pdx + pdy * pdy);
+                            closestSq = std::min(closestSq, pointDistSq);
+                            if (pointDistSq <= radius * radius)
+                            {
+                                contains = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (contains)
+                        distanceSq = closestSq;
+                }
+            }
+            else if (auto* circle = obj->GetComponentType<Framework::CircleRenderComponent>(
                 Framework::ComponentTypeId::CT_CircleRenderComponent))
             {
                 const float radius = circle->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
@@ -1040,13 +1199,17 @@ namespace Framework {
         }
 
         return bestId;
+#else
+        (void)worldX; (void)worldY;
+        return 0;
+#endif
     }
 
     /*************************************************************************************
-   \brief  Compute and apply the game viewport rectangle inside the window.
-   \details Supports editor split width, optional full height, centering, and notifies
-            cameras/text to update their projection/viewports. Calls glViewport accordingly.
- *************************************************************************************/
+       \brief  Compute and apply the game viewport rectangle inside the window.
+       \details Supports editor split width, optional full height, centering, and notifies
+               cameras/text to update their projection/viewports. Calls glViewport accordingly.
+     *************************************************************************************/
     void RenderSystem::UpdateGameViewport()
     {
         if (!window)
@@ -1082,6 +1245,48 @@ namespace Framework {
             glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
             return;
         }
+#if SOFASPUDS_ENABLE_EDITOR
+        if (imguiViewportValid)
+        {
+            int desiredWidth = std::max(1, imguiViewportRect.width);
+            int desiredHeight = std::max(1, imguiViewportRect.height);
+            desiredWidth = std::clamp(desiredWidth, 1, fullWidth);
+            desiredHeight = std::clamp(desiredHeight, 1, fullHeight);
+
+            const int xOffset = std::clamp(imguiViewportRect.x, 0, std::max(0, fullWidth - desiredWidth));
+            int yOffset = fullHeight - (imguiViewportRect.y + desiredHeight);
+            yOffset = std::clamp(yOffset, 0, std::max(0, fullHeight - desiredHeight));
+
+            if (gameViewport.width != desiredWidth ||
+                gameViewport.height != desiredHeight ||
+                gameViewport.y != yOffset ||
+                gameViewport.x != xOffset)
+            {
+                gameViewport.x = xOffset;
+                gameViewport.y = yOffset;
+                gameViewport.width = desiredWidth;
+                gameViewport.height = desiredHeight;
+
+                screenW = gameViewport.width;
+                screenH = gameViewport.height;
+
+                if (textReadyTitle) textTitle.setViewport(screenW, screenH);
+                if (textReadyHint)  textHint.setViewport(screenW, screenH);
+            }
+
+            if (gameViewport.width > 0 && gameViewport.height > 0)
+            {
+                camera.SetViewportSize(gameViewport.width, gameViewport.height);
+                editorCamera.SetViewportSize(gameViewport.width, gameViewport.height);
+            }
+            camera.SetViewHeight(cameraViewHeight);
+            editorCamera.SetViewHeight(editorCameraViewHeight);
+
+            if (gameViewport.width > 0 && gameViewport.height > 0)
+                glViewport(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
+            return;
+        }
+#endif
 
         const float minSplit = 0.3f;
         const float maxSplit = 0.7f;
@@ -1165,45 +1370,98 @@ namespace Framework {
       \brief  Draw the editor dockspace host window on the right side of the screen.
       \details Creates a passthrough dock node sized to the editor region; no background/chrome.
     *************************************************************************************/
+#if SOFASPUDS_ENABLE_EDITOR
     void RenderSystem::DrawDockspace()
     {
-        if (!showEditor)
-            return;
+        if (!showEditor) return;
+
         ImGuiIO& io = ImGui::GetIO();
-        if (!(io.ConfigFlags & ImGuiConfigFlags_DockingEnable))
-            return;
+        if (!(io.ConfigFlags & ImGuiConfigFlags_DockingEnable)) return;
 
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
 
-        const float editorWidth = viewport->WorkSize.x - static_cast<float>(gameViewport.width);
-        if (editorWidth <= 1.0f || viewport->WorkSize.y <= 1.0f)
-            return;
-
-        const ImVec2 editorPos(viewport->WorkPos.x + static_cast<float>(gameViewport.width),
-            viewport->WorkPos.y);
-        const ImVec2 editorSize(editorWidth, viewport->WorkSize.y);
-
-        ImGui::SetNextWindowPos(editorPos, ImGuiCond_Always);
-        ImGui::SetNextWindowSize(editorSize, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
         ImGui::SetNextWindowViewport(viewport->ID);
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
 
-        ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+        // IMPORTANT: this is the dock-node background color
+        ImGui::PushStyleColor(ImGuiCol_DockingEmptyBg, ImVec4(0, 0, 0, 0));
+
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground;
+            ImGuiWindowFlags_NoBackground;
 
         ImGui::Begin("EditorDockHost", nullptr, flags);
+
         ImGuiID dockspaceId = ImGui::GetID("EditorDockspace");
-        ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode |
-            ImGuiDockNodeFlags_NoDockingInCentralNode;
-        ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockFlags);
+        ImGuiDockNodeFlags dockFlags = ImGuiDockNodeFlags_PassthruCentralNode;
+
+        ImGui::DockSpace(dockspaceId, ImVec2(0, 0), dockFlags);
+
         ImGui::End();
 
+        ImGui::PopStyleColor(2);
         ImGui::PopStyleVar(2);
     }
+
+    /*************************************************************************************
+  \brief  ImGui window that defines the game viewport bounds.
+  \details Uses the window content region to map an OpenGL viewport and allows docking/moving.
+*************************************************************************************/
+    void RenderSystem::DrawGameViewportWindow()
+    {
+        if (!showEditor) { imguiViewportValid = false; imguiViewportMouseInContent = false; return; }
+
+        imguiViewportMouseInContent = false;
+
+        ImGui::SetNextWindowBgAlpha(0.0f);
+        ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+        ImGuiWindowFlags flags =
+            ImGuiWindowFlags_NoScrollbar |
+            ImGuiWindowFlags_NoScrollWithMouse |
+            ImGuiWindowFlags_NoBackground;
+
+        if (ImGui::Begin("Game Viewport", nullptr, flags))
+        {
+            const ImGuiViewport* vp = ImGui::GetMainViewport();
+
+            const ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
+            const ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
+            const ImVec2 windowPos = ImGui::GetWindowPos();
+
+            const ImVec2 contentPosAbs = ImVec2(windowPos.x + contentMin.x, windowPos.y + contentMin.y);
+            const ImVec2 contentSize = ImVec2(contentMax.x - contentMin.x, contentMax.y - contentMin.y);
+
+            // Convert to coords relative to the main viewport's origin (framebuffer space).
+            const ImVec2 contentPosRel = ImVec2(contentPosAbs.x - vp->Pos.x,
+                contentPosAbs.y - vp->Pos.y);
+
+            imguiViewportRect.x = (int)std::lround(contentPosRel.x);
+            imguiViewportRect.y = (int)std::lround(contentPosRel.y);
+            imguiViewportRect.width = (int)std::lround(contentSize.x);
+            imguiViewportRect.height = (int)std::lround(contentSize.y);
+
+            imguiViewportValid = imguiViewportRect.width > 0 && imguiViewportRect.height > 0;
+
+            const ImVec2 mousePosAbs = ImGui::GetMousePos();
+            imguiViewportMouseInContent =
+                (mousePosAbs.x >= contentPosAbs.x && mousePosAbs.x <= contentPosAbs.x + contentSize.x &&
+                    mousePosAbs.y >= contentPosAbs.y && mousePosAbs.y <= contentPosAbs.y + contentSize.y);
+        }
+        ImGui::End();
+
+        ImGui::PopStyleVar();
+        ImGui::PopStyleColor();
+    }
+
 
     /*************************************************************************************
       \brief  Small always-on-top helper for toggles and camera settings.
@@ -1217,29 +1475,26 @@ namespace Framework {
         pos.x += 12.0f;
         pos.y += 12.0f;
 
-        ImGui::SetNextWindowPos(pos, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(pos, ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowBgAlpha(0.35f);
 
         ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoNav |
-            ImGuiWindowFlags_NoDocking;
+            ImGuiWindowFlags_NoNav;
+        if (!showEditor)
+        {
+
+            return;
+        }
 
         if (ImGui::Begin("Viewport Controls", nullptr, flags))
         {
             ImGui::TextUnformatted("Viewport Controls");
             ImGui::Separator();
 
+
             bool editorEnabled = showEditor;
             if (ImGui::Checkbox("Editor Enabled (F10)", &editorEnabled))
                 showEditor = editorEnabled;
-
-            if (!showEditor)
-            {
-                ImGui::TextDisabled("Editor panels hidden. Press F10 or re-enable above.");
-                // No more controls when editor is off
-                ImGui::End();
-                return;
-            }
 
             const ImGuiIO& io = ImGui::GetIO();
             bool didUndo = false;
@@ -1275,24 +1530,47 @@ namespace Framework {
             // ---- everything below this only shows when editor is ON ----
 
             bool fullWidth = gameViewportFullWidth;
-            if (ImGui::Checkbox("Game Full Width", &fullWidth))
-                gameViewportFullWidth = fullWidth;
-            if (!gameViewportFullWidth)
+            if (!imguiViewportValid)
             {
+                if (ImGui::Checkbox("Game Full Width", &fullWidth))
+                    gameViewportFullWidth = fullWidth;
+                if (!gameViewportFullWidth)
+                {
+                    float splitPercent = editorSplitRatio * 100.0f;
+                    if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                        editorSplitRatio = splitPercent / 100.0f;
+                }
+            }
+            else
+            {
+                ImGui::BeginDisabled();
+                ImGui::Checkbox("Game Full Width", &fullWidth);
                 float splitPercent = editorSplitRatio * 100.0f;
-                if (ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                    editorSplitRatio = splitPercent / 100.0f;
+                ImGui::SliderFloat("Game Width", &splitPercent, 30.0f, 70.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp);
+                ImGui::EndDisabled();
+                ImGui::TextDisabled("Viewport size is controlled by the dockable window.");
             }
 
             bool fullHeight = gameViewportFullHeight;
-            if (ImGui::Checkbox("Game Full Height", &fullHeight))
-                gameViewportFullHeight = fullHeight;
+            if (!imguiViewportValid)
+            {
+                if (ImGui::Checkbox("Game Full Height", &fullHeight))
+                    gameViewportFullHeight = fullHeight;
 
-            if (!gameViewportFullHeight) {
+                if (!gameViewportFullHeight) {
+                    float hPercent = heightRatio * 100.0f;
+                    if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+                        heightRatio = hPercent / 100.0f;
+                    ImGui::TextDisabled("Viewport is centered vertically");
+                }
+            }
+            else
+            {
+                ImGui::BeginDisabled();
+                ImGui::Checkbox("Game Full Height", &fullHeight);
                 float hPercent = heightRatio * 100.0f;
-                if (ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
-                    heightRatio = hPercent / 100.0f;
-                ImGui::TextDisabled("Viewport is centered vertically");
+                ImGui::SliderFloat("Game Height", &hPercent, 30.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp);
+                ImGui::EndDisabled();
             }
 
             ImGui::Separator();
@@ -1359,10 +1637,29 @@ namespace Framework {
             {
                 ImGui::TextDisabled("Camera disabled: legacy static framing.");
             }
+
+            ImGui::Separator();
+            ImGui::TextUnformatted("Glow Draw");
+            ImGui::Checkbox("Enable Glow Draw", &glowDrawMode);
+
+            if (!glowDrawMode)
+                ImGui::BeginDisabled();
+
+            ImGui::ColorEdit3("Glow Color", glowBrush.color);
+            ImGui::DragFloat("Glow Opacity", &glowBrush.opacity, 0.01f, 0.0f, 1.0f, "%.2f");
+            ImGui::DragFloat("Glow Brightness", &glowBrush.brightness, 0.05f, 0.0f, 10.0f, "%.2f");
+            ImGui::DragFloat("Glow Inner Radius", &glowBrush.innerRadius, 0.005f, 0.0f, 1000.0f, "%.3f");
+            ImGui::DragFloat("Glow Outer Radius", &glowBrush.outerRadius, 0.005f, 0.0f, 1000.0f, "%.3f");
+            ImGui::DragFloat("Glow Falloff", &glowBrush.falloffExponent, 0.05f, 0.01f, 8.0f, "%.2f");
+            ImGui::DragFloat("Glow Point Spacing", &glowBrush.pointSpacing, 0.005f, 0.001f, 1.0f, "%.3f");
+            ImGui::TextDisabled("Left-drag in the viewport to draw a glow stroke.");
+
+            if (!glowDrawMode)
+                ImGui::EndDisabled();
         }
         ImGui::End();
     }
-
+#endif
     /*************************************************************************************
       \brief  GLFW drop-files callback trampoline into RenderSystem instance.
     *************************************************************************************/
@@ -1395,8 +1692,9 @@ namespace Framework {
     *************************************************************************************/
     void RenderSystem::Initialize()
     {
+#if SOFASPUDS_ENABLE_EDITOR
         dataFilesRoot = FindDataFilesRoot();
-
+#endif
         auto resolveData = [](const std::filesystem::path& rel) {
             return Framework::ResolveDataPath(rel).string();
             };
@@ -1421,9 +1719,9 @@ namespace Framework {
 
         std::cout << "[CWD] " << std::filesystem::current_path() << "\n";
         std::cout << "[EXE] " << Framework::GetExecutableDir() << "\n";
-
+#if SOFASPUDS_ENABLE_EDITOR
         imguiLayoutPath = resolveData("imgui_layout.ini");
-
+#endif
         if (auto fontPath = FindRoboto(); !fontPath.empty())
         {
             std::cout << "[Text] Using font: " << fontPath << "\n";
@@ -1457,6 +1755,7 @@ namespace Framework {
         knifeTex = Resource_Manager::resources_map["ming_knife"].handle;
         fireProjectileTex = Resource_Manager::resources_map["fire_projectile"].handle;
 
+#if SOFASPUDS_ENABLE_EDITOR
         ImGuiLayerConfig config;
         config.glsl_version = "#version 330";
         config.dockspace = true;
@@ -1489,15 +1788,16 @@ namespace Framework {
         }
 
 
-        jsonEditor.Initialize(dataFilesRoot);
+        jsonEditor.Initialize(AssetManager::ProjectRoot() / "Data_Files");
 
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);
+#endif
     }
     /*************************************************************************************
-   \brief  Handle fullscreen/editor shortcut keys when only menu UI is active.
-   \note   Provides F11 support for main/pause menus that bypass RenderSystem::draw().
-    *************************************************************************************/
+       \brief  Handle fullscreen/editor shortcut keys when only menu UI is active.
+       \note   Provides F11 support for main/pause menus that bypass RenderSystem::draw().
+     *************************************************************************************/
     void RenderSystem::HandleMenuShortcuts()
     {
         HandleShortcuts();
@@ -1555,7 +1855,32 @@ namespace Framework {
     {
         TryGuard::Run([&] {
             HandleShortcuts();
+#if SOFASPUDS_ENABLE_EDITOR
+            if (showEditor)
+            {
+                DrawDockspace();
+                DrawGameViewportWindow();
+            }
+            else
+            {
+                imguiViewportValid = false;
+                imguiViewportMouseInContent = false;
+            }
+#endif
             UpdateGameViewport();
+            // Clear only the game viewport area (opaque)
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(gameViewport.x, gameViewport.y, gameViewport.width, gameViewport.height);
+            glClearColor(0.f, 0.f, 0.f, 1.f);          // IMPORTANT: alpha = 1
+            glClear(GL_COLOR_BUFFER_BIT);
+            glDisable(GL_SCISSOR_TEST);
+
+            if (!FACTORY)
+            {
+                std::cerr << "[RenderSystem] FACTORY is null; skipping draw to avoid crash.\n";
+                return;
+            }
+
 
             // === Update camera BEFORE picking and rendering ===
             gfx::Graphics::resetViewProjection();
@@ -1591,18 +1916,18 @@ namespace Framework {
                 activeProj = camera.ProjectionMatrix();
                 gfx::Graphics::setViewProjection(activeView, activeProj);
             }
-
+#if SOFASPUDS_ENABLE_EDITOR
             // Now handle picking with the correct (current) camera matrices.
             HandleViewportPicking();
-
+#endif
             // Auto-load all textures referenced by objects
             for (auto& [id, objPtr] : FACTORY->Objects())
             {
                 GOC* obj = objPtr.get();
                 if (!obj) continue;
-                
+
                 // If object has SpriteComponent
-                if (auto* sp = obj->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent)) 
+                if (auto* sp = obj->GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent))
                 {
                     if (!sp->texture_key.empty())
                     {
@@ -1618,14 +1943,14 @@ namespace Framework {
                 }
 
                 // If object has RenderComponent
-                if (auto* rc = obj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent)) 
+                if (auto* rc = obj->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent))
                 {
                     if (!rc->texture_key.empty())
                     {
-                        unsigned tex = Resource_Manager::getTexture(rc->texture_key); 
+                        unsigned tex = Resource_Manager::getTexture(rc->texture_key);
                         if (!tex)
                         {
-                            Resource_Manager::load(rc->texture_key, rc->texture_key); 
+                            Resource_Manager::load(rc->texture_key, rc->texture_key);
                             tex = Resource_Manager::getTexture(rc->texture_key);
                         }
                         rc->texture_id = tex;
@@ -1641,20 +1966,21 @@ namespace Framework {
             for (auto& [id, objPtr] : FACTORY->Objects())
                 sortedIds.push_back(id);
 
-            // Sort by RenderComponent::layer
-            std::sort(sortedIds.begin(), sortedIds.end(), 
-                [](unsigned a, unsigned b) 
+            auto& layerManager = FACTORY->Layers();
+
+            // Sort by fixed layer groups and sublayers (Background -> Gameplay -> Foreground -> UI).
+            std::sort(sortedIds.begin(), sortedIds.end(),
+                [&layerManager](unsigned a, unsigned b)
                 {
-                    auto* objA = FACTORY->GetObjectWithId(a); 
-                    auto* objB = FACTORY->GetObjectWithId(b); 
+                    const LayerKey keyA = layerManager.LayerKeyFor(a);
+                    const LayerKey keyB = layerManager.LayerKeyFor(b);
 
-                    auto* rcA = objA ? objA->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr; 
-                    auto* rcB = objB ? objB->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent) : nullptr; 
+                    if (keyA.group != keyB.group)
+                        return static_cast<int>(keyA.group) < static_cast<int>(keyB.group);
+                    if (keyA.sublayer != keyB.sublayer)
+                        return keyA.sublayer < keyB.sublayer;
 
-                    int la = rcA ? rcA->layer : 0; 
-                    int lb = rcB ? rcB->layer : 0; 
-
-                    return la < lb; 
+                    return a < b;
                 });
 
 
@@ -1709,27 +2035,159 @@ namespace Framework {
 
             if (FACTORY)
             {
-                std::unordered_map<unsigned, std::vector<gfx::Graphics::SpriteInstance>> spriteBatches;
-                spriteBatches.reserve(64);
+                struct SpriteBatch
+                {
+                    unsigned texture = 0;
+                    std::vector<gfx::Graphics::SpriteInstance> instances;
+                };
+
+                SpriteBatch spriteBatch;
+                spriteBatch.instances.reserve(64);
+
+
+                auto flushSpriteBatch = [&spriteBatch]()
+                    {
+                        if (spriteBatch.instances.empty())
+                            return;
+                        gfx::Graphics::renderSpriteBatchInstanced(spriteBatch.texture, spriteBatch.instances);
+                        spriteBatch.instances.clear();
+                    };
+
+                auto renderProjectiles = [&]()
+                    {
+                        if (!(knifeTex || fireProjectileTex) || !logic.hitBoxSystem)
+                            return;
+
+                        const auto& activeHits = logic.hitBoxSystem->GetActiveHitBoxes();
+                        if (activeHits.empty())
+                            return;
+
+                        for (const auto& activeHit : activeHits)
+                        {
+                            if (!activeHit.hitbox || !activeHit.isProjectile)
+                                continue;
+
+                            const auto* hb = activeHit.hitbox.get();
+
+                            unsigned projTex = 0;
+                            int cols = 0;
+                            int rows = 1;
+                            int frames = 0;
+                            float fps = 12.0f;
+
+                            if (hb->team == HitBoxComponent::Team::Enemy && fireProjectileTex)
+                            {
+                                projTex = fireProjectileTex;
+                                cols = 5;
+                                frames = 5;
+                            }
+                            else if (knifeTex)
+                            {
+                                projTex = knifeTex;
+                                cols = 4;
+                                frames = 4;
+                            }
+
+                            if (!projTex || cols <= 0 || frames <= 0)
+                                continue;
+
+                            const float invCols = 1.0f / static_cast<float>(cols);
+                            const float invRows = 1.0f / static_cast<float>(rows);
+
+                            gfx::Graphics::SpriteInstance instance;
+                            glm::mat4 model(1.0f);
+                            model = glm::translate(model, glm::vec3(hb->spawnX, hb->spawnY, 0.0f));
+                            const float angle = std::atan2(activeHit.velY, activeHit.velX);
+                            model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
+                            model = glm::scale(model, glm::vec3(hb->width+0.15, hb->height+0.15, 1.0f));
+                            instance.model = model;
+                            instance.tint = glm::vec4(1.0f);
+
+                            const float duration = std::max(0.0001f, hb->duration);
+                            const float elapsed = std::clamp(duration - activeHit.timer, 0.0f, duration);
+                            const int frameIdx = static_cast<int>(elapsed * fps) % frames;
+                            const float u = static_cast<float>(frameIdx) * invCols;
+                            instance.uv = glm::vec4(u, 0.0f, invCols, invRows);
+
+                            if (!spriteBatch.instances.empty() && spriteBatch.texture != projTex)
+                                flushSpriteBatch();
+
+                            if (spriteBatch.instances.empty())
+                                spriteBatch.texture = projTex;
+
+                            spriteBatch.instances.push_back(instance);
+                        }
+                        flushSpriteBatch();
+                    };
 
                 //const auto& animState = logic.Animation();
                 //const int animCols = std::max(1, CurrentColumns());
                 //const int animRows = std::max(1, CurrentRows());
-
+                bool projectilesRendered = false;
                 // Pass 1: Sprites (instanced)
                 for (unsigned id : sortedIds)
                 {
-                    auto& objPtr = FACTORY->Objects().at(id); 
-                    GOC* obj = objPtr.get(); 
+                    auto& objPtr = FACTORY->Objects().at(id);
+                    GOC* obj = objPtr.get();
                     if (!obj) continue;
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
 
+
+                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
+
+                    const LayerKey layerKey = layerManager.LayerKeyFor(id);
+                    if (!projectilesRendered && layerKey.group > LayerGroup::Gameplay)
+                    {
+                        flushSpriteBatch();
+                        renderProjectiles();
+                        projectilesRendered = true;
+                    }
                     auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent);
                     if (!tr) continue;
 
                     auto* animComp = obj->GetComponentType<Framework::SpriteAnimationComponent>(
                         Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+
+                    if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+                        Framework::ComponentTypeId::CT_GlowComponent))
+                    {
+                        if (glow->visible && glow->opacity > 0.0f && glow->brightness > 0.0f)
+                        {
+                            const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                            const float inner = glow->innerRadius * scale;
+                            const float outer = glow->outerRadius * scale;
+
+                            if (outer > 0.0f)
+                            {
+                                flushSpriteBatch();
+
+                                const float cosR = std::cos(tr->rot);
+                                const float sinR = std::sin(tr->rot);
+
+                                if (glow->points.empty())
+                                {
+                                    gfx::Graphics::renderGlow(tr->x, tr->y,
+                                        inner, outer,
+                                        glow->brightness, glow->falloffExponent,
+                                        glow->r, glow->g, glow->b, glow->opacity);
+                                }
+                                else
+                                {
+                                    for (const auto& pt : glow->points)
+                                    {
+                                        const float lx = pt.x * tr->scaleX;
+                                        const float ly = pt.y * tr->scaleY;
+                                        const float rx = cosR * lx - sinR * ly;
+                                        const float ry = sinR * lx + cosR * ly;
+                                        gfx::Graphics::renderGlow(tr->x + rx, tr->y + ry,
+                                            inner, outer,
+                                            glow->brightness, glow->falloffExponent,
+                                            glow->r, glow->g, glow->b, glow->opacity);
+                                    }
+                                }
+                            }
+                        }
+                    }
 
                     if (auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
                         Framework::ComponentTypeId::CT_SpriteComponent))
@@ -1763,7 +2221,7 @@ namespace Framework {
                                 tex = sample.texture;
                             uvRect = sample.uv;
                         }
-                        
+
                         else if (!tex && !sp->texture_key.empty())
                         {
                             tex = Resource_Manager::getTexture(sp->texture_key);
@@ -1772,6 +2230,11 @@ namespace Framework {
 
                         if (!tex)
                             continue;
+                        if (!spriteBatch.instances.empty() && spriteBatch.texture != tex)
+                            flushSpriteBatch();
+
+                        if (spriteBatch.instances.empty())
+                            spriteBatch.texture = tex;
 
                         gfx::Graphics::SpriteInstance instance;
                         glm::mat4 model(1.0f);
@@ -1782,140 +2245,64 @@ namespace Framework {
                         instance.tint = glm::vec4(r, g, b, a);
                         instance.uv = uvRect;
 
-                        spriteBatches[tex].push_back(instance);
+                        spriteBatch.instances.push_back(instance);
+                        continue;
                     }
-                }
-                // Render projectiles with the correct sprite sheet (player knives vs fireballs).
-                if ((knifeTex || fireProjectileTex) && logic.hitBoxSystem)
-                {
-                    const auto& activeHits = logic.hitBoxSystem->GetActiveHitBoxes();
-                    if (!activeHits.empty())
+                    flushSpriteBatch();
+
+
+                    if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                        Framework::ComponentTypeId::CT_RenderComponent))
                     {
-                        
+                        if (!rc->visible || rc->a <= 0.0f)
+                            continue;
 
-                        for (const auto& activeHit : activeHits)
+                        if (!obj->GetComponentType<Framework::SpriteComponent>(
+                            Framework::ComponentTypeId::CT_SpriteComponent))
                         {
-                            if (!activeHit.hitbox || !activeHit.isProjectile)
-                                continue;
-
-                            const auto* hb = activeHit.hitbox.get();
-
-                            unsigned projTex = 0;
-                            int cols = 0;
-                            int rows = 1;
-                            int frames = 0;
-                            float fps = 12.0f;
-
-                            if (hb->team == HitBoxComponent::Team::Enemy && fireProjectileTex)
+                            unsigned rectTex = rc->texture_id;
+                            if (!rectTex && !rc->texture_key.empty())
                             {
-                                projTex = fireProjectileTex;
-                                cols = 5;
-                                frames = 5;
+                                rectTex = Resource_Manager::getTexture(rc->texture_key);
+                                rc->texture_id = rectTex;
                             }
-                            else if (knifeTex)
+                            const float scaledW = rc->w * tr->scaleX;
+                            const float scaledH = rc->h * tr->scaleY;
+                            if (rectTex)
                             {
-                                projTex = knifeTex;
-                                cols = 4;
-                                frames = 4;
+                                gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
+                                    scaledW, scaledH,
+                                    rc->r, rc->g, rc->b, rc->a);
+                            }
+                            else
+                            {
+                                gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
+                                    scaledW, scaledH,
+                                    rc->r, rc->g, rc->b, rc->a);
                             }
 
-                            if (!projTex || cols <= 0 || frames <= 0)
-                                continue;
 
-                            auto& batch = spriteBatches[projTex];
-                            const float invCols = 1.0f / static_cast<float>(cols);
-                            const float invRows = 1.0f / static_cast<float>(rows);
-
-                            gfx::Graphics::SpriteInstance instance;
-                            glm::mat4 model(1.0f);
-                            model = glm::translate(model, glm::vec3(hb->spawnX, hb->spawnY, 0.0f));
-                            const float angle = std::atan2(activeHit.velY, activeHit.velX);
-                            model = glm::rotate(model, angle, glm::vec3(0, 0, 1));
-                            model = glm::scale(model, glm::vec3(hb->width, hb->height, 1.0f));
-                            instance.model = model;
-                            instance.tint = glm::vec4(1.0f);
-
-                            const float duration = std::max(0.0001f, hb->duration);
-                            const float elapsed = std::clamp(duration - activeHit.timer, 0.0f, duration);
-                            const int frameIdx = static_cast<int>(elapsed * fps) % frames;
-                            const float u = static_cast<float>(frameIdx) * invCols;
-                            instance.uv = glm::vec4(u, 0.0f, invCols, invRows);
-
-                            batch.push_back(instance);
                         }
                     }
-                }
+ 
 
-                for (auto& [tex, batch] : spriteBatches)
-                {
-                    if (!batch.empty())
-                        gfx::Graphics::renderSpriteBatchInstanced(tex, batch);
-                }
-
-                // Pass 2: Rectangles (non-sprite quads)
-                for (unsigned id : sortedIds) 
-                {
-                    auto& objPtr = FACTORY->Objects().at(id); 
-                    GOC* obj = objPtr.get();  
-                    if (!obj) continue;
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-
-                    auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                        Framework::ComponentTypeId::CT_TransformComponent);
-                    auto* rc = obj->GetComponentType<Framework::RenderComponent>(
-                        Framework::ComponentTypeId::CT_RenderComponent);
-                    if (!tr || !rc) continue;
-
-                    // NEW: skip invisible rect-only renderables
-                    if (!rc->visible || rc->a <= 0.0f)
-                        continue;
-
-                    if (obj->GetComponentType<Framework::SpriteComponent>(
-                        Framework::ComponentTypeId::CT_SpriteComponent))
-                        continue;
-
-                    unsigned rectTex = rc->texture_id;
-                    if (!rectTex && !rc->texture_key.empty())
+                    if (auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
+                        Framework::ComponentTypeId::CT_CircleRenderComponent))
                     {
-                        rectTex = Resource_Manager::getTexture(rc->texture_key);
-                        rc->texture_id = rectTex;
-                    }
-                    const float scaledW = rc->w * tr->scaleX;
-                    const float scaledH = rc->h * tr->scaleY;
-                    if (rectTex)
-                    {
-                        gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
-                            scaledW, scaledH,
-                            rc->r, rc->g, rc->b, rc->a);
-                    }
-                    else
-                    {
-                        gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
-                            scaledW, scaledH,
-                            rc->r, rc->g, rc->b, rc->a);
+                        const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                        gfx::Graphics::renderCircle(tr->x, tr->y, scaledRadius, cc->r, cc->g, cc->b, cc->a);
                     }
                 }
 
-                // Pass 3: Circles
-                for (unsigned id : sortedIds) 
+                flushSpriteBatch();
+                if (!projectilesRendered)
                 {
-                    auto& objPtr = FACTORY->Objects().at(id); 
-                    GOC* obj = objPtr.get(); 
-                    if (!obj) continue;
-                    if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
-
-                    auto* tr = obj->GetComponentType<Framework::TransformComponent>(
-                        Framework::ComponentTypeId::CT_TransformComponent);
-                    auto* cc = obj->GetComponentType<Framework::CircleRenderComponent>(
-                        Framework::ComponentTypeId::CT_CircleRenderComponent);
-                    if (!tr || !cc) continue;
-
-                    const float scaledRadius = cc->radius * std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
-                    gfx::Graphics::renderCircle(tr->x, tr->y, scaledRadius, cc->r, cc->g, cc->b, cc->a);
+                    renderProjectiles();
                 }
 
                 // Pass 4: Hover/Selection highlight outlines (editor)
                 // Drawn in world space, using same VP as the object passes above.
+#if SOFASPUDS_ENABLE_EDITOR
                 if (showEditor) {
                     const auto hoveredId = mygame::GetHoverObjectId();
                     const auto selectedId = mygame::GetSelectedObjectId();
@@ -1930,12 +2317,13 @@ namespace Framework {
                                     gfx::Graphics::renderRectangleOutline(x, y, rot, w, h, 1.f, 1.f, 0.f, 1.f, 2.f);
                             };
 
-                        for (unsigned id : sortedIds) 
+                        for (unsigned id : sortedIds)
                         {
-                            auto& objPtr = FACTORY->Objects().at(id); 
-                            GOC* obj = objPtr.get(); 
+                            auto& objPtr = FACTORY->Objects().at(id);
+                            GOC* obj = objPtr.get();
                             if (!obj) continue;
-                            if (!mygame::ShouldRenderLayer(obj->GetLayerName())) continue;
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
 
                             const bool isHovered = (id == hoveredId);
                             const bool isSelected = (id == selectedId);
@@ -1969,16 +2357,35 @@ namespace Framework {
                                 const float d = std::max(0.1f, scaledRadius * 2.f);
                                 drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
                             }
+                            else if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
+                                Framework::ComponentTypeId::CT_GlowComponent))
+                            {
+                                const float scale = std::max(std::fabs(tr->scaleX), std::fabs(tr->scaleY));
+                                float maxDist = 0.0f;
+                                for (const auto& pt : glow->points)
+                                {
+                                    const float lx = pt.x * tr->scaleX;
+                                    const float ly = pt.y * tr->scaleY;
+                                    maxDist = std::max(maxDist, std::sqrt(lx * lx + ly * ly));
+                                }
+                                const float radius = (maxDist + glow->outerRadius * scale);
+                                const float d = std::max(0.1f, radius * 2.f);
+                                drawOutline(tr->x, tr->y, 0.f, d, d, isSelected);
+                            }
                         }
                     }
 
                     if (showPhysicsHitboxes && logic.hitBoxSystem)
                     {
-                        for (unsigned id : sortedIds) 
+
+                        for (unsigned id : sortedIds)
                         {
-                            auto& objPtr = FACTORY->Objects().at(id); 
-                            GOC* obj = objPtr.get(); 
+                            auto& objPtr = FACTORY->Objects().at(id);
+                            GOC* obj = objPtr.get();
                             if (!obj) continue;
+
+                            if (!layerManager.IsLayerEnabled(obj->GetLayerName()))
+                                continue;
 
                             auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                                 Framework::ComponentTypeId::CT_TransformComponent);
@@ -2012,7 +2419,9 @@ namespace Framework {
                         }
                     }
                 }
+#endif
             }
+#if SOFASPUDS_ENABLE_EDITOR
             if (showEditor)
             {
                 if (const ImGuiViewport* mainViewport = ImGui::GetMainViewport())
@@ -2026,7 +2435,7 @@ namespace Framework {
                     editor::RenderTransformGizmoForSelection(activeView, activeProj, gizmoRect);
                 }
             }
-
+#endif
             // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
 
@@ -2051,11 +2460,14 @@ namespace Framework {
                 );*/
             }
 
+            
+#if SOFASPUDS_ENABLE_EDITOR
             const double renderMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setRender(renderMs);
+#endif
 
             RestoreFullViewport(); // Restore full window viewport for ImGui.
-
+#if SOFASPUDS_ENABLE_EDITOR
             if (showEditor)
             {
                 if (ImGui::BeginMainMenuBar())
@@ -2068,10 +2480,11 @@ namespace Framework {
                     ImGui::EndMainMenuBar();
                 }
             }
+#endif
 
             t0 = clock::now();
+#if SOFASPUDS_ENABLE_EDITOR
 
-            DrawDockspace();
             DrawViewportControls();
             if (showEditor)
             {
@@ -2079,9 +2492,11 @@ namespace Framework {
                 jsonEditor.Draw();
                 mygame::DrawHierarchyPanel();
                 mygame::DrawSpawnPanel();
+                mygame::DrawLayerPanel();
                 mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);
+                mygame::DrawAssetManagerPanel(&jsonEditor);
 
                 if (ImGui::Begin("Crash Tests"))
                 {
@@ -2106,13 +2521,16 @@ namespace Framework {
                 }
                 ImGui::End();
 
-                Framework::DrawPerformanceWindow();
             }
-
+            // Always allow the performance overlay to be toggled via hotkey (F1),
+            // even when the editor UI is hidden.
+            Framework::DrawPerformanceWindow();
+#endif
             ProcessImportedAssets();
-
+#if SOFASPUDS_ENABLE_EDITOR
             const double imguiMs = std::chrono::duration<double, std::milli>(clock::now() - t0).count();
             Framework::setImGui(imguiMs);
+#endif
             }, "RenderSystem::draw");
     }
 
@@ -2121,7 +2539,15 @@ namespace Framework {
     *************************************************************************************/
     void RenderSystem::Shutdown()
     {
-        ImGui::SaveIniSettingsToDisk(imguiLayoutPath.c_str());
+#if SOFASPUDS_ENABLE_EDITOR
+        // Skip ImGui teardown if the context was never created (early failures)
+      // to avoid dereferencing a null ImGui state pointer on shutdown.
+        if (ImGui::GetCurrentContext())
+        {
+            ImGui::SaveIniSettingsToDisk(imguiLayoutPath.c_str());
+        }
+
+#endif
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), nullptr);
 
@@ -2132,9 +2558,11 @@ namespace Framework {
         textHint.cleanup();
         textReadyTitle = textReadyHint = false;
 
+#if SOFASPUDS_ENABLE_EDITOR
         ImGuiLayer::Shutdown();
         if (ImGui::GetCurrentContext())
             ImGui::DestroyContext();
+#endif
 
         sInstance = nullptr;
         window = nullptr;

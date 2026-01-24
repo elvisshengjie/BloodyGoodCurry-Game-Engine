@@ -29,13 +29,18 @@
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Systems/VfxHelpers.h"
+#include "Factory/Factory.h"
 
 #include <iostream>
 #include <cctype>
 #include <string_view>
 #include <cmath>
 #include <glm/vec2.hpp>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace Framework
 {
     namespace
@@ -161,7 +166,7 @@ namespace Framework
         float width, float height,
         float damage,
         float duration,
-        HitBoxComponent::Team team)
+        HitBoxComponent::Team team, float soundDelay)
     {
         if (!attacker)
             return;
@@ -175,6 +180,7 @@ namespace Framework
         newhitbox->duration = duration;
         newhitbox->owner = attacker;
         newhitbox->team = team;
+        newhitbox->soundDelay = soundDelay;
 
         // Decide team based on attacker, so we avoid friendly fire.
         if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
@@ -200,7 +206,7 @@ namespace Framework
 
         ActiveHitBox active;
         active.hitbox = std::move(newhitbox);
-        active.owner = attacker;
+        active.ownerId = attacker->GetId();
         active.timer = duration;
 
         activeHitBoxes.push_back(std::move(active));
@@ -272,7 +278,7 @@ namespace Framework
 
         ActiveHitBox projectile;
         projectile.hitbox = std::move(newhitbox);
-        projectile.owner = attacker;
+        projectile.ownerId = attacker->GetId();
         projectile.timer = duration;
         projectile.velX = dirX * speed;
         projectile.velY = dirY * speed;
@@ -295,18 +301,27 @@ namespace Framework
     *****************************************************************************************/
     void HitBoxSystem::Update(float dt)
     {
+        if (!FACTORY)
+            return;
+
+        auto& layers = FACTORY->Layers();
+
         for (auto it = activeHitBoxes.begin(); it != activeHitBoxes.end();)
         {
             it->timer -= dt;
-            auto* attacker = it->owner;
             auto* HB = it->hitbox.get();
+            auto* attacker = FACTORY->GetObjectWithId(it->ownerId);
 
             if (!attacker || !HB || !HB->active)
             {
                 it = activeHitBoxes.erase(it);
                 continue;
             }
-
+            if (!layers.IsLayerEnabled(attacker->GetLayerName()))
+            {
+                it = activeHitBoxes.erase(it);
+                continue;
+            }
             // Projectile movement
             if (it->isProjectile || HB->team == HitBoxComponent::Team::Thrown)
             {
@@ -314,146 +329,138 @@ namespace Framework
                 it->hitbox->spawnY += it->velY * dt;
             }
 
-            AABB hitboxAABB(
-                it->hitbox->spawnX,
-                it->hitbox->spawnY,
-                it->hitbox->width,
-                it->hitbox->height
-            );
+            AABB hitboxAABB(HB->spawnX, HB->spawnY, HB->width, HB->height);
 
-            bool hit = false;
+            bool hitAnything = false;
+            bool hitEnemy = false;
+            bool ineffectiveHit = false;
 
-            // Scan all level objects to find valid targets.
             for (auto* obj : logic.LevelObjects())
             {
-                if (!obj || obj == it->owner)
-                    continue;
-
-                // Determine if player or enemy
-                bool isPlayerTarget =
-                    obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
-                bool isEnemyTarget =
-                    obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent) != nullptr;
-
-                // Prevent friendly fire
-                if ((HB->team == HitBoxComponent::Team::Player && isPlayerTarget) ||
-                    (HB->team == HitBoxComponent::Team::Enemy && isEnemyTarget))
-                    continue;
-
-                // Build AABB for collision check
+                if (!obj || obj == attacker) continue;
+                if (!layers.IsLayerEnabled(obj->GetLayerName())) continue;
                 auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-                if (!(tr && rb))
-                    continue;
+                if (!(tr && rb)) continue;
 
                 AABB targetAABB(tr->x, tr->y, rb->width, rb->height);
-                if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB))
-                    continue;
+                if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB)) continue;
 
                 bool validTargetHit = false;
 
-                // Enemy hit logic, including type filtering.
-                if (isEnemyTarget)
+                // Player hit logic
+                if (auto* playerHealth = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
                 {
-
-                    auto* typeComp =
-                        obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent);
-                    auto* health =
-                        obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
-                    
-                    if (health && health->enemyHealth <= 0)
-                        continue;
-
-                    if (typeComp)
+                    if (!playerHealth->isInvulnerable)
                     {
-                        std::cout << "EnemyType at runtime: "
-                            << (typeComp->Etype == EnemyTypeComponent::EnemyType::physical ? "physical" : "ranged")
-                            << "\n";
+                        playerHealth->TakeDamage(static_cast<int>(HB->damage));
+                        validTargetHit = true;
 
-
-                        bool validHit =
-                            (typeComp->Etype == EnemyTypeComponent::EnemyType::physical &&
-                                HB->team == HitBoxComponent::Team::Player) ||
-                            (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged &&
-                                HB->team == HitBoxComponent::Team::Thrown);
-
-                        if (!validHit)
-                            continue;
-
-                        if (health)
+                        if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
                         {
-                            health->TakeDamage(static_cast<int>(HB->damage));
-                            if (HB->damage > 0.0f)
-                                SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
+                            if (!playerHealth->isDead)
+                                audio->TriggerSound("PlayerHit");
+                            else if (!playerHealth->deathSoundPlayed)
+                            {
+                                audio->TriggerSound("PlayerDead");
+                                playerHealth->deathSoundPlayed = true;
+                            }
                         }
-                        validTargetHit = true;
-                    }
-                    else if (health)
-                    {
-                        // Fall back to allowing hits on enemies without an EnemyTypeComponent.
-                        // This ensures VFX still plays for generic enemies.
-                        health->TakeDamage(static_cast<int>(HB->damage));
-                        if (HB->damage > 0.0f)
-                            SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
-
-                        validTargetHit = true;
                     }
                 }
-                // Player hit logic.
-                else if (isPlayerTarget)
+                // Enemy hit logic
+                else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
-                    auto* health =
-                        obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
-                    if (health)
+                    bool canHit = false;
+
+                    if (auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent))
                     {
-                        if (health->isInvulnerable)
-                            continue;
-                        health->TakeDamage(static_cast<int>(HB->damage));
+                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::physical && HB->team == HitBoxComponent::Team::Player)
+                            canHit = true;
+                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged && HB->team == HitBoxComponent::Team::Thrown)
+                            canHit = true;
+                    }
+                    else
+                    {
+                        canHit = true;
+                    }
+
+                    if (enemyHealth->enemyHealth <= 0) canHit = false;
+
+                    if (canHit)
+                    {
+                        enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
+                        hitEnemy = true;
+                        SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
+                        if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                        {audio->TriggerSound("EnemyHit");}
+                    }
+                    else if (enemyHealth->enemyHealth > 0)
+                    {
+                        ineffectiveHit = true;
                     }
                 }
+                else
+                {
+                    validTargetHit = true; // Non-damaging hit (neutral objects)
+                }
 
-                // Apply knockback and “knockback” animation on valid enemy hits.
-                auto* attackerTr = attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-                auto* targetRb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-
+                // Apply knockback if valid hit
                 if (validTargetHit)
                 {
-                    if (attackerTr && targetRb)
+                    bool isPlayer = obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
+                    bool isEnemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent) != nullptr;
+                    if ((isPlayer || isEnemy))
                     {
-                        float dx = tr->x - attackerTr->x;
-                        float dy = tr->y - attackerTr->y;
-                        float len = std::sqrt(dx * dx + dy * dy);
-
-                        if (len > 0.001f)
+                        auto* attackerTr = attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                        if (attackerTr)
                         {
-                            dx /= len;
-                            dy /= len;
+                            float dx = tr->x - attackerTr->x;
+                            float dy = tr->y - attackerTr->y;
+                            float len = std::sqrt(dx * dx + dy * dy);
+                            if (len > 0.001f) { dx /= len; dy /= len; }
+
+                            const float knockStrength = 1.5f;
+                            rb->knockVelX = dx * knockStrength;
+                            rb->knockVelY = dy * knockStrength * 0.4f;
+                            rb->knockbackTime = 0.25f;
                         }
 
-                        const float knockStrength = 1.5f;
-                        targetRb->velX += dx * knockStrength;
-                        targetRb->velY += dy * knockStrength * 0.4f;
-                        targetRb->knockbackTime = 0.2f;
+                        PlayAnimationIfAvailable(obj, "knockback");
                     }
-
-                    // Trigger knockback animation on the enemy if it exists.
-                    PlayAnimationIfAvailable(obj, "knockback");
                 }
-                if (validTargetHit) { hit = true; }
-                break;
+
+                if (validTargetHit) hitAnything = true;
+                break; // Only first collision per hitbox
             }
 
-            // Remove immediately if hit or expired; otherwise keep ticking.
-            if (hit || it->timer <= 0.0f)
+            // Play air swing or ineffective sound if no enemy hit
+            if (!HB->soundTriggered && HB->team == HitBoxComponent::Team::Player)
             {
+                HB->soundDelay -= dt;
+                if (HB->soundDelay <= 0.0f)
+                {
+                    if (auto* audio = attacker->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                    {
+                        if (hitEnemy)
+                            audio->TriggerSound("Slash");
+                        if (ineffectiveHit)
+                            audio->TriggerSound("Ineffective"); // Blocked or no effect
+                        if (!hitAnything)
+                            audio->TriggerSound("Punch");       // Missed swing
+                    }
+                }
+                HB->soundTriggered = true;
+            }
+
+            // Remove hitbox if hit or expired
+            if (hitAnything || it->timer <= 0.0f)
                 it = activeHitBoxes.erase(it);
-            }
             else
-            {
                 ++it;
-            }
         }
     }
+
 
 } // namespace Framework

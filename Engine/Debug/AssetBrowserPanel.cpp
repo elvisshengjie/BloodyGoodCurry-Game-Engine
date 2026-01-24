@@ -13,13 +13,15 @@
             - Audio helper: modal that lists .wav/.mp3 files in the current folder.
             - Status line: user feedback after operations (import/replace/no-op), colored by
               success/error.
-           
+
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
 #include "Debug/AssetBrowserPanel.h"
+
+#if SOFASPUDS_ENABLE_EDITOR
 
 #include <algorithm>
 #include <cctype>
@@ -31,7 +33,11 @@
 #include <sstream>
 
 #include "Graphics/Graphics.hpp"
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 /*************************************************************************************
   \brief  Canonicalize a path to a stable, human-readable string (generic form).
   \param  p Filesystem path.
@@ -208,8 +214,8 @@ namespace mygame {
             }
             ImGui::EndPopup();
         }
-       
-    } 
+
+    }
 
     /*************************************************************************************
       \brief  Destroy preview textures and clear cache on panel destruction.
@@ -1016,6 +1022,7 @@ namespace mygame {
     bool AssetBrowserPanel::IsSelected(const std::filesystem::path& path) const
     {
         if (m_selectedEntry.empty())
+
             return false;
 
         std::error_code ec;
@@ -1146,3 +1153,5 @@ namespace mygame {
     }
 
 } // namespace mygame
+
+#endif // SOFASPUDS_ENABLE_EDITOR

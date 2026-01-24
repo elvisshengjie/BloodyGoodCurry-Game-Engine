@@ -32,15 +32,60 @@
             All rights reserved.
 *********************************************************************************************/
 #pragma once
+#include <array>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <cstdint>
 
 #include "Composition/Composition.h"
 
 namespace Framework {
+    enum class LayerGroup : std::uint8_t {
+        Background = 0,
+        Gameplay = 1,
+        Foreground = 2,
+        UI = 3,
+        Count
+    };
+
+    constexpr int kMaxLayerSublayer = 20;
+
+    struct LayerKey {
+        LayerGroup group{ LayerGroup::Background };
+        int sublayer{ 0 };
+    };
+
+    bool operator==(const LayerKey& lhs, const LayerKey& rhs);
+
+    struct LayerKeyHasher {
+        std::size_t operator()(const LayerKey& key) const noexcept;
+    };
+
+    const char* LayerGroupName(LayerGroup group);
+    LayerKey ParseLayerName(const std::string& name);
+    std::string NormalizeLayerName(const std::string& name);
+    std::string LayerNameFromKey(LayerKey key);
+
+    class LayerVisibility {
+    public:
+        LayerVisibility();
+
+        bool IsGroupEnabled(LayerGroup group) const;
+        bool IsSublayerEnabled(LayerGroup group, int sublayer) const;
+        bool IsLayerEnabled(LayerKey key) const;
+
+        void SetGroupEnabled(LayerGroup group, bool enabled);
+        void SetSublayerEnabled(LayerGroup group, int sublayer, bool enabled);
+        void EnableAll();
+        void EnableOnly(LayerKey key);
+
+    private:
+        std::array<bool, static_cast<std::size_t>(LayerGroup::Count)> groupEnabled{};
+        std::array<std::array<bool, kMaxLayerSublayer + 1>, static_cast<std::size_t>(LayerGroup::Count)> sublayerEnabled{};
+    };
 
     /*****************************************************************************************
       \class Layer
@@ -53,13 +98,14 @@ namespace Framework {
     class Layer {
     public:
         Layer() = default;                      ///< Default constructor creates an empty layer.
-        explicit Layer(std::string name);       ///< Constructs a layer with a given name.
+        explicit Layer(LayerKey key);       ///< Constructs a layer with a given key.
 
         /*************************************************************************************
           \brief Retrieves the name of this layer.
           \return A constant reference to the layer name.
         *************************************************************************************/
         const std::string& Name() const { return LayerName; }
+        const LayerKey& Key() const { return KeyValue; }
 
         /*************************************************************************************
           \brief Renames the layer.
@@ -100,7 +146,8 @@ namespace Framework {
         void Clear();
 
     private:
-        std::string LayerName;        ///< Name of the layer (e.g., "Gameplay", "UI").
+        std::string LayerName;        ///< Name of the layer (e.g., "Gameplay:0", "UI:3").
+        LayerKey KeyValue{};
         std::vector<GOCId> ObjectIds; ///< List of GameObject IDs belonging to this layer.
     };
 
@@ -119,35 +166,36 @@ namespace Framework {
           \param layerName  The name of the desired layer.
           \return A reference to the ensured Layer instance.
         *************************************************************************************/
-        Layer& EnsureLayer(std::string_view layerName);
+        Layer& EnsureLayer(const std::string& layerName);
 
         /*************************************************************************************
           \brief Finds a layer by name (read-only).
           \param layerName  The layer name to search for.
           \return Pointer to the layer, or nullptr if not found.
         *************************************************************************************/
-        const Layer* FindLayer(std::string_view layerName) const;
+        const Layer* FindLayer(const std::string& layerName) const;
 
         /*************************************************************************************
           \brief Finds a layer by name (modifiable).
           \param layerName  The layer name to search for.
           \return Pointer to the layer, or nullptr if not found.
         *************************************************************************************/
-        Layer* FindLayer(std::string_view layerName);
+        Layer* FindLayer(const std::string& layerName);
 
         /*************************************************************************************
           \brief Assigns an object to a layer, removing it from any previous layer.
           \param id         The GameObject ID to assign.
           \param layerName  The target layer name.
         *************************************************************************************/
-        void AssignToLayer(GOCId id, std::string_view layerName);
+        void AssignToLayer(GOCId id, const std::string& layerName);
 
         /*************************************************************************************
           \brief Removes an object from a specific layer.
           \param id         The GameObject ID to remove.
           \param layerName  The layer name from which to remove it.
         *************************************************************************************/
-        void RemoveFromLayer(GOCId id, std::string_view layerName);
+        void RemoveFromLayer(GOCId id, const std::string& layerName);
+
 
         /*************************************************************************************
           \brief Removes an object from whichever layer it currently belongs to.
@@ -161,12 +209,21 @@ namespace Framework {
           \return The layer name, or "Default" if not assigned.
         *************************************************************************************/
         std::string LayerFor(GOCId id) const;
+        LayerKey LayerKeyFor(GOCId id) const;
 
         /*************************************************************************************
           \brief Gets the names of all existing layers.
           \return A vector containing the names of all layers.
         *************************************************************************************/
         std::vector<std::string> LayerNames() const;
+
+        bool IsLayerEnabled(const std::string& layerName) const;
+        bool IsLayerEnabled(LayerKey key) const;
+
+        LayerVisibility& Visibility() { return visibility; }
+        const LayerVisibility& Visibility() const { return visibility; }
+
+        void LogVisibilitySummary(std::string_view label) const;
 
         /*************************************************************************************
           \brief Clears all layers and object-to-layer mappings.
@@ -175,8 +232,9 @@ namespace Framework {
         void Clear();
 
     private:
-        std::unordered_map<std::string, Layer> LayersByName; ///< Maps layer names to Layer objects.
-        std::unordered_map<GOCId, std::string> ObjectToLayer; ///< Reverse lookup for object-to-layer mapping.
+        std::unordered_map<LayerKey, Layer, LayerKeyHasher> LayersByKey; ///< Maps layer keys to Layer objects.
+        std::unordered_map<GOCId, LayerKey> ObjectToLayer; ///< Reverse lookup for object-to-layer mapping.
+        LayerVisibility visibility;
     };
 
 }

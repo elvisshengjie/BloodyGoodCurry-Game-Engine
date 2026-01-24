@@ -20,6 +20,7 @@
 #include "Systems/GUISystem.hpp"
 #include "Systems/RenderSystem.h"
 #include "Systems/InputSystem.h"
+#include "Audio/SoundManager.h"
 #include <chrono>
 #include <vector>
 namespace mygame {
@@ -102,10 +103,18 @@ namespace mygame {
         unsigned exitBtnIdleTex = 0;  //Exit button idle texture.
         unsigned exitBtnHoverTex = 0;  //Exit button hover texture.
         unsigned closePopupTex = 0;    //Popup close button texture.
-
+        unsigned optionsHeaderTex = 0;
+        unsigned exitPopupNoteTex = 0;     //Exit confirmation note texture.
+        unsigned exitPopupTitleTex = 0;    //Exit popup title texture.
+        unsigned exitPopupPromptTex = 0;   //Exit popup prompt texture.
+        unsigned exitPopupCloseTex = 0;    //Exit popup close texture.
+        unsigned exitPopupYesTex = 0;      //Exit popup YES texture.
+        unsigned exitPopupNoTex = 0;       //Exit popup NO texture.
         // --- How To Play textures ---------------------------------------------------------
         unsigned noteBackgroundTex = 0;    //Note-style popup background.
         unsigned howToHeaderTex = 0;       //"How To Play" title art.
+        float howToHeaderOffsetX = 0.0f;   //Configurable header offset X.
+        float howToHeaderOffsetY = 0.0f;   //Configurable header offset Y.
         struct HowToRowConfig {
             unsigned iconTex = 0;
             unsigned labelTex = 0;
@@ -124,11 +133,15 @@ namespace mygame {
         bool iconTimerInitialized = false;                     //Guard to seed the timer once.
 
         // --- Latches ---------------------------------------------------------------------
-        bool startLatched = false;     
-        bool exitLatched = false;     
+        bool startLatched = false;
+        bool exitLatched = false;
         bool optionsLatched = false;
         bool howToLatched = false;
         bool showHowToPopup = false;
+        bool showOptionsPopup = false;
+        bool showExitPopup = false;
+        bool audioMuted = false;
+        float masterVolumeDefault = 0.7f;
    
 
         // --- GUI system ------------------------------------------------------------------
@@ -140,7 +153,17 @@ namespace mygame {
         RectF howToBtn{ 100.f, 180.f, 220.f, 58.f }; //how to play button rectangle.
         RectF exitBtn{ 100.f, 180.f, 220.f, 58.f }; //Exit button rectangle.
         RectF howToPopup{ 72.f, 420.f, 520.f, 320.f }; //Popup background rectangle.
-        RectF closeBtn{ 0.f, 0.f, 56.f, 56.f };        //Close button rectangle.
+        RectF closeBtn{ 0.f, 0.f, 56.f, 56.f };
+        RectF optionsPopup{ 0.f, 0.f, 520.f, 320.f };   //Options popup rectangle.
+        RectF optionsHeader{ 0.f, 0.f, 220.f, 80.f };   //Options title art rectangle.
+        RectF optionsCloseBtn{ 0.f, 0.f, 56.f, 56.f };  //Options popup close button rectangle.
+        RectF muteToggleBtn{ 0.f, 0.f, 220.f, 58.f };   //Mute checkbox button rectangle.
+        RectF exitPopup{ 0.f, 0.f, 520.f, 320.f };     //Exit confirmation popup rectangle.
+        RectF exitCloseBtn{ 0.f, 0.f, 56.f, 56.f };    //Exit popup close button rectangle.
+        RectF exitYesBtn{ 0.f, 0.f, 160.f, 64.f };     //Exit popup YES button.
+        RectF exitNoBtn{ 0.f, 0.f, 160.f, 64.f };      //Exit popup NO button.
+        RectF exitTitle{ 0.f, 0.f, 220.f, 80.f };      //Exit popup title texture rect.
+        RectF exitPrompt{ 0.f, 0.f, 340.f, 96.f };     //Exit popup prompt texture rect.//Close button rectangle.
         bool layoutInitialized = false;
         void BuildGui();
         void BuildGui(float x, float bottomY, float w, float h, float spacing);

@@ -16,7 +16,7 @@
 #define GRAPHICS_HPP
 
 #include <glad/glad.h>
-#include "../Resource_Manager/Resource_Manager.h"
+#include "../Resource_Asset_Manager/Resource_Manager.h"
 #include <glm/mat4x4.hpp>
 #include <vector>
 namespace gfx {
@@ -93,6 +93,9 @@ namespace gfx {
          * \brief Draw a colored filled circle at (posX,posY) with given radius.
          */
         static void renderCircle(float posX, float posY, float radius,
+            float r, float g, float b, float a);
+        static void renderGlow(float posX, float posY, float innerRadius, float outerRadius,
+            float brightness, float falloffExponent,
             float r, float g, float b, float a);
 
 
@@ -173,6 +176,7 @@ namespace gfx {
         static unsigned int spriteShader;
         static unsigned int spriteInstanceVBO;
         static unsigned int spriteInstanceShader;
+        static unsigned int glowShader;
     };
 
 } // namespace gfx

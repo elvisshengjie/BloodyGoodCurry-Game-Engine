@@ -24,12 +24,20 @@
 *********************************************************************************************/
 
 #include "Debug/JsonEditorPanel.h"
+
+#if SOFASPUDS_ENABLE_EDITOR
+
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <cstring>
 #include <fstream>
 #include <system_error>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 
 namespace mygame {
 
@@ -53,7 +61,7 @@ namespace mygame {
 	void JsonEditorPanel::Initialize(const std::filesystem::path& dataRoot)
 	{
 		// Base directory for JSON files.
-		m_dataRoot = dataRoot;
+		m_dataRoot = std::filesystem::absolute(dataRoot);
 		// Scan directory and build list.
 		RefreshFiles();
 		// No file selected yet.
@@ -254,6 +262,18 @@ namespace mygame {
 		{
 			ShowStatus("JSON file list refreshed.", ImVec4(0.6f, 0.85f, 0.6f, 1.0f));
 		}
+		
+		// If the currently selected file no longer exists, close it.
+		if (m_selectedIndex != static_cast<std::size_t>(-1))
+		{
+			if (m_selectedIndex >= m_jsonFiles.size())
+			{
+				m_selectedIndex = static_cast<std::size_t>(-1);
+				m_textBuffer.assign(1, '\0');
+				m_dirty = false;
+				ShowStatus("Previously open file was deleted.", ImVec4(1.0f, 0.6f, 0.2f, 1.0f));
+			}
+		}
 	}
 
 	// Load file content at index into the text buffer (null-terminated).
@@ -371,3 +391,5 @@ namespace mygame {
 		return 0;
 	}
 }
+
+#endif // SOFASPUDS_ENABLE_EDITOR

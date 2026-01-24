@@ -1,8 +1,15 @@
 /*********************************************************************************************
  \file      UndoStack.h
+ \par       SofaSpuds
+ \author     erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Interface for the editor undo/redo system.
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 #pragma once
+
+#if SOFASPUDS_ENABLE_EDITOR
 
 #include "Core/Core.hpp"
 #include "Component/SpriteAnimationComponent.h" // Required for SpriteSheetAnimation struct
@@ -74,3 +81,5 @@ namespace mygame
         void ShutdownUndoSystem();
     }
 }
+
+#endif // SOFASPUDS_ENABLE_EDITOR

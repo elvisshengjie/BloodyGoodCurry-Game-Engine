@@ -15,7 +15,13 @@
 
 #include "Composition.h"
 #include "Factory/Factory.h"
+#include "Core/Layer.h"
 #include <utility>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace Framework {
     //Default destructor: vector<unique_ptr<...>> automatically release own component
     /*************************************************************************************
@@ -31,7 +37,7 @@ namespace Framework {
   *************************************************************************************/
     void GameObjectComposition::SetLayerName(const std::string& layer)
     {
-        std::string newLayer = layer.empty() ? std::string("Default") : layer;
+        std::string newLayer = Framework::NormalizeLayerName(layer);
         if (LayerName == newLayer)
             return;
 

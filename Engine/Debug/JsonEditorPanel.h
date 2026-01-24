@@ -26,6 +26,8 @@
 *********************************************************************************************/
 #pragma once
 
+#if SOFASPUDS_ENABLE_EDITOR
+
 #include <chrono>
 #include <filesystem>
 #include <string>
@@ -56,13 +58,15 @@ namespace mygame {
         *************************************************************************************/
         void Draw();
 
+        /*************************************************************************************
+         \brief Rescan the data root and rebuild the internal list of JSON files.
+        *************************************************************************************/
+        void RefreshFiles();
+
     private:
         using Clock = std::chrono::steady_clock;
 
-        /*************************************************************************************
-          \brief Rescan the data root and rebuild the internal list of JSON files.
-        *************************************************************************************/
-        void RefreshFiles();
+
 
         /*************************************************************************************
           \brief Load the file at \p index into the text buffer (null-terminated).
@@ -107,3 +111,5 @@ namespace mygame {
         Clock::time_point m_statusTimestamp{};           ///< When the current status message was set.
     };
 }
+
+#endif // SOFASPUDS_ENABLE_EDITOR

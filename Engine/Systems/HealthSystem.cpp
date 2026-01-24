@@ -1,12 +1,40 @@
+/*********************************************************************************************
+ \file      HealthSystem.cpp
+ \par       SofaSpuds
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 40%
+            yimo.kong (yimo.kong@digipen.edu) - Secondary Author, 40%
+            elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Secondary Author, 20% (Draw)
+ \brief     Implements the HealthSystem responsible for managing player and enemy health,
+            handling death timers, triggering death animations, and destroying objects at
+            the correct time.
+ \details   Responsibilities:
+            - Tracks all GameObjectComposition instances that contain health components.
+            - Handles enemy death: triggers death animation (if available), waits for both
+              animation completion and a minimum timer before destruction.
+            - Handles player death: plays death animation, enforces invulnerability timers,
+              and destroys the player only after animation + timer finish.
+            - Uses stable IDs instead of raw pointers to avoid dangling references.
+            - Provides draw() support for player HUD through PlayerHUDComponent.
+            - Fully integrates with SpriteAnimationComponent for frame-based animation logic.
+ \copyright
+            All content ï¿½ 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
 #include "HealthSystem.h"
 #include "Factory/Factory.h"
 #include "Component/SpriteAnimationComponent.h"
-
+#include "RenderSystem.h"
 #include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <string_view>
+#include <glad/glad.h>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace Framework
 {
     namespace
@@ -188,12 +216,14 @@ namespace Framework
         // Track by ID instead of raw pointers to avoid dangling references.
         gameObjectIds.clear();
         deathTimers.clear();
+        playerDied = false;
 
         RefreshTrackedObjects();
     }
 
     void HealthSystem::Update(float dt)
     {
+        lastDt = dt;
         RefreshTrackedObjects();
         gameObjectIds.erase(
             std::remove_if(
@@ -222,16 +252,23 @@ namespace Framework
                             // Default death animation name; can be extended per-enemy type if
                             // future enemies need unique death clips (e.g., "water_death").
                             constexpr std::string_view deathAnimName = "death";
-
                             float& timer = deathTimers[id];
                             auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                                 ComponentTypeId::CT_SpriteAnimationComponent);
+                            auto* audio = goc->GetComponentType<AudioComponent>(
+                                ComponentTypeId::CT_AudioComponent);
 
-                            // First frame after "death" ¨C trigger death animation and compute duration.
+                            // First frame after "death" ï¿½C trigger death animation and compute duration.
                             if (timer <= 0.0f)
                             {
                                 PlayAnimationIfAvailable(goc, deathAnimName);
-
+                                if (audio)
+                                {
+                                    if (audio->entityType == "enemy_fire")
+                                        audio->Play("FireGhostExplosion");  // the death clip
+                                    else if (audio->entityType == "enemy_water")
+                                        audio->Play("WaterGhostExplosion"); // the death clip
+                                }
                                 // Use animation length if available; otherwise fall back to a minimum.
                                 timer = std::max(AnimationDuration(anim, deathAnimName), 0.2f);
                             }
@@ -274,6 +311,9 @@ namespace Framework
                         goc->GetComponentType<PlayerHealthComponent>(
                             ComponentTypeId::CT_PlayerHealthComponent))
                     {
+                        auto* audio = goc->GetComponentType<AudioComponent>(
+                            ComponentTypeId::CT_AudioComponent);
+
                         constexpr std::string_view deathAnimName = "death";
                         auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                             ComponentTypeId::CT_SpriteAnimationComponent);
@@ -296,10 +336,18 @@ namespace Framework
                         {
                             float& timer = deathTimers[id];
 
+                            playerDied = true;
+                            
+                            if (!playerHealth->deathSoundPlayed && audio)
+                            {
+                                audio->TriggerSound("PlayerDead");
+                                playerHealth->deathSoundPlayed = true;
+                                std::cout << "[DEBUG] PlayerDead triggered\n";
+                            }
                             if (!playerHealth->isDead)
                             {
+                                audio->TriggerSound("PlayerDead");
                                 playerHealth->isDead = true;
-
                                 PlayAnimationIfAvailable(goc, deathAnimName);
                                 timer = std::max(AnimationDuration(anim, deathAnimName), 0.2f);
                             }
@@ -330,7 +378,7 @@ namespace Framework
 
                         // Player is alive; clear any stale death timers / flags.
                         deathTimers.erase(id);
-                        playerHealth->isDead = false;
+                        
                     }
 
                     // Keep tracking this ID.
@@ -341,14 +389,55 @@ namespace Framework
 
     void HealthSystem::draw()
     {
-        // Currently no UI/visuals for health. Rendering of health bars or
-        // damage indicators could be added here in the future.
+        if (!window)
+            return;
+        int viewportX = 0;
+        int viewportY = 0;
+        int viewportW = 0;
+        int viewportH = 0;
+        bool hasViewport = false;
+        if (auto* renderer = RenderSystem::Get())
+        {
+            hasViewport = renderer->GetGameViewportRect(viewportX, viewportY, viewportW, viewportH);
+        }
+        if (!hasViewport)
+        {
+            viewportX = 0;
+            viewportY = 0;
+            viewportW = window->Width();
+            viewportH = window->Height();
+        }
+        if (viewportW <= 0 || viewportH <= 0)
+            return;
+
+        glViewport(viewportX, viewportY, viewportW, viewportH);
+
+        for (GOCId id : gameObjectIds)
+        {
+            GOC* goc = FACTORY->GetObjectWithId(id);
+            if (!goc)
+                continue;
+
+            auto* playerHealth =
+                goc->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
+            if (!playerHealth)
+                continue;
+
+            auto* hud = goc->GetComponentType<PlayerHUDComponent>(ComponentTypeId::CT_PlayerHUDComponent);
+            if (!hud)
+                continue;
+
+            hud->Update(lastDt);
+            hud->Draw(viewportW, viewportH);
+        }
+        glViewport(0, 0, window->Width(), window->Height());
     }
 
     void HealthSystem::Shutdown()
     {
         gameObjectIds.clear();
         deathTimers.clear();
+        playerDied = false;
     }
 
 } // namespace Framework

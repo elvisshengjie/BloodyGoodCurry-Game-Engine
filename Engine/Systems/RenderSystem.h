@@ -22,6 +22,7 @@
 
 #include "LogicSystem.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/GlowComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/TransformComponent.h"
@@ -30,29 +31,32 @@
 #include "Component/PlayerAttackComponent.h"
 
 #include "Config/WindowConfig.h"
-
+#if SOFASPUDS_ENABLE_EDITOR
 #include "Debug/ImGuiLayer.h"
 #include "Debug/Perf.h"
 #include "Debug/Spawn.h"
+#include "Debug/LayerPanel.h"
 #include "Debug/Selection.h"
 #include "Debug/HierarchyPanel.h"
 #include "Debug/InspectorPanel.h"
 #include "Debug/AssetBrowserPanel.h"
 #include "Debug/AnimationEditorPanel.h"
 #include "Debug/JsonEditorPanel.h"
+#endif
 
 #include "Factory/Factory.h"
 #include "Graphics/Graphics.hpp"
 #include "Graphics/Camera2D.hpp"
 #include "Graphics/Window.hpp"
 #include "Graphics/GraphicsText.hpp"
-#include "Resource_Manager/Resource_Manager.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 
 #include <array>
 #include <filesystem>
 #include <string>
-
+#if SOFASPUDS_ENABLE_EDITOR
 #include <imgui.h>
+#endif
 #include <glm/vec2.hpp>
 
 struct GLFWwindow;
@@ -124,7 +128,8 @@ namespace Framework {
         int ScreenWidth()  const { return screenW; }
         /// \brief  Back-buffer height in pixels.
         int ScreenHeight() const { return screenH; }
-
+        /// \brief  Get the active game viewport rectangle in window pixel coordinates.
+        bool GetGameViewportRect(int& x, int& y, int& width, int& height) const;
         /// \brief  Convert a screen cursor position to world space using the active camera.
         bool ScreenToWorld(double cursorX, double cursorY,
             float& worldX, float& worldY,
@@ -135,23 +140,26 @@ namespace Framework {
 
     private:
         // --- Filesystem / asset resolution ------------------------------------------------
-        std::string           FindRoboto() const;
+        std::string             FindRoboto() const;
         std::filesystem::path FindAssetsRoot() const;
         std::filesystem::path FindDataFilesRoot() const;
 
         // --- Asset import / file-drop -----------------------------------------------------
         void HandleFileDrop(int count, const char** paths);
         void ProcessImportedAssets();
-
+#if SOFASPUDS_ENABLE_EDITOR
         // --- Editor frame scaffolding -----------------------------------------------------
         void DrawDockspace();
-        void HandleShortcuts();
-        void HandleViewportPicking();
+        void DrawGameViewportWindow();
 
+        void HandleViewportPicking();
+#endif
+        void HandleShortcuts();
         // --- Camera & picking helpers -----------------------------------------------------
+#if SOFASPUDS_ENABLE_EDITOR
         void  UpdateEditorCameraControls(GLFWwindow* native, const ImGuiIO& io,
             double cursorX, double cursorY);
-
+#endif
         bool  CursorToViewportNdc(double cursorX, double cursorY,
             float& ndcX, float& ndcY,
             bool& insideViewport) const;
@@ -167,8 +175,9 @@ namespace Framework {
         // --- Viewport layout --------------------------------------------------------------
         void UpdateGameViewport();
         void RestoreFullViewport();
+#if SOFASPUDS_ENABLE_EDITOR
         void DrawViewportControls();
-
+#endif
         // --- GLFW static callback ---------------------------------------------------------
         static void GlfwDropCallback(GLFWwindow* window, int count, const char** paths);
 
@@ -185,9 +194,14 @@ namespace Framework {
         static RenderSystem* sInstance;
 
         // --- Editor panels & roots --------------------------------------------------------
+        // These members rely on types that are only included when editor is enabled.
+#if SOFASPUDS_ENABLE_EDITOR
         mygame::AssetBrowserPanel assetBrowser;
-        std::filesystem::path     assetsRoot;
         mygame::JsonEditorPanel   jsonEditor;
+#endif
+        // These paths are used in HandleFileDrop even if editor is off (checked for empty),
+        // so we keep them available to avoid modifying the interface too heavily.
+        std::filesystem::path     assetsRoot;
         std::filesystem::path     dataFilesRoot;
 
         // --- Frame/viewport state ---------------------------------------------------------
@@ -217,6 +231,11 @@ namespace Framework {
         };
 
         ViewRect gameViewport{};              //!< Active game viewport in pixels.
+#if SOFASPUDS_ENABLE_EDITOR
+        ViewRect imguiViewportRect{};         //!< ImGui content rect (top-left coords).
+        bool     imguiViewportValid = false;  //!< True when ImGui viewport has valid size.
+        bool     imguiViewportMouseInContent = false; //!< Mouse is over viewport content.
+#endif
 
         // --- Editor layout flags ---------------------------------------------------------
         bool  showEditor = false;              //!< Toggle editor UI visibility.
@@ -240,6 +259,26 @@ namespace Framework {
         float dragOffsetX = 0.0f;
         float dragOffsetY = 0.0f;
 
+        // --- Glow drawing tool (editor) --------------------------------------------------
+        struct GlowBrushSettings
+        {
+            float color[3]{ 1.0f, 0.8f, 0.3f };
+            float opacity{ 1.0f };
+            float brightness{ 1.0f };
+            float innerRadius{ 0.05f };
+            float outerRadius{ 0.2f };
+            float falloffExponent{ 1.0f };
+            float pointSpacing{ 0.02f };
+        };
+
+        bool          glowDrawMode = false;
+        bool          glowDrawing = false;
+        float         glowLastPointX = 0.0f;
+        float         glowLastPointY = 0.0f;
+        GOC*          glowDrawObject = nullptr;
+        GlowComponent* glowDrawComponent = nullptr;
+        GlowBrushSettings glowBrush{};
+
         // --- Game camera -----------------------------------------------------------------
         gfx::Camera2D camera;                 //!< In-game camera.
         float         cameraViewHeight = 1.0f; //!< Ortho view height (world units).
@@ -255,6 +294,7 @@ namespace Framework {
 
         // --- Layout persistence -----------------------------------------------------------
         std::string imguiLayoutPath{};       //!< Optional saved ImGui layout path.
+
     };
 
 } // namespace Framework

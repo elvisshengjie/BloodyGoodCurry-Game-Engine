@@ -19,9 +19,11 @@
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
+
 #include "Graphics.hpp"
 #include "Core/PathUtils.h"
 #include <vector>
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <cstddef>
@@ -34,7 +36,11 @@
 #include "stb_image.h"
 
 #include <stdexcept>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 namespace gfx {
 
     /// \brief PI constant used for circle tessellation.
@@ -57,6 +63,7 @@ namespace gfx {
     unsigned int Graphics::spriteShader = 0;
     unsigned int Graphics::spriteInstanceVBO = 0;
     unsigned int Graphics::spriteInstanceShader = 0;
+    unsigned int Graphics::glowShader = 0;
 
     /// \brief Circle tessellation segments (triangle fan).
     static int segments = 50;
@@ -278,8 +285,8 @@ namespace gfx {
         Resource_Manager::loadAll(Framework::ResolveAssetPath("Textures").string());
 
         // Use the string ID directly
-        bgTexture = Resource_Manager::resources_map["house"].handle;
-        if (!bgTexture) throw std::runtime_error("bg_texture|missing|house");
+        //bgTexture = Resource_Manager::resources_map["house"].handle;
+        //if (!bgTexture) throw std::runtime_error("bg_texture|missing|house");
 
         // ----- Background shader -----
         const char* bgVertexSrc =
@@ -308,6 +315,36 @@ namespace gfx {
             "uniform vec4 uColor;\n"
             "void main(){ FragColor = uColor; }\n";
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
+
+        // ----- Glow shader (circle with radial falloff) -----
+        const char* glowVertexSrc =
+            "#version 330 core\n"
+            "layout (location = 0) in vec3 aPos;\n"
+            "uniform mat4 uMVP;\n"
+            "out vec2 vLocal;\n"
+            "void main(){\n"
+            "  vLocal = aPos.xy;\n"
+            "  gl_Position = uMVP * vec4(aPos, 1.0);\n"
+            "}\n";
+        const char* glowFragmentSrc =
+            "#version 330 core\n"
+            "in vec2 vLocal;\n"
+            "out vec4 FragColor;\n"
+            "uniform vec4 uColor;\n"
+            "uniform float uInnerRadius;\n"
+            "uniform float uOuterRadius;\n"
+            "uniform float uBrightness;\n"
+            "uniform float uFalloffExp;\n"
+            "void main(){\n"
+            "  float dist = length(vLocal);\n"
+            "  float inner = max(uInnerRadius, 0.0001);\n"
+            "  float outer = max(uOuterRadius, inner + 0.0001);\n"
+            "  float t = clamp((dist - inner) / (outer - inner), 0.0, 1.0);\n"
+            "  float falloff = pow(1.0 - t, max(uFalloffExp, 0.01));\n"
+            "  float alpha = uColor.a * uBrightness * falloff;\n"
+            "  FragColor = vec4(uColor.rgb * uBrightness, alpha);\n"
+            "}\n";
+        glowShader = createShaderProgram(glowVertexSrc, glowFragmentSrc);
 
         // ----- Sprite pipeline (quad VAO + shader with sub-UV) -----
         initSpritePipeline();
@@ -464,6 +501,40 @@ namespace gfx {
     }
 
     /*****************************************************************************************
+     \brief  Draw a glow circle with radial falloff at (posX,posY).
+    ******************************************************************************************/
+    void Graphics::renderGlow(float posX, float posY, float innerRadius, float outerRadius,
+        float brightness, float falloffExponent,
+        float r, float g, float b, float a) {
+        if (!glowShader)
+            return;
+
+        glUseProgram(glowShader);
+
+        glm::mat4 model(1.0f);
+        model = glm::translate(model, glm::vec3(posX, posY, 0.0f));
+        model = glm::scale(model, glm::vec3(outerRadius, outerRadius, 1.0f));
+
+        const glm::mat4 mvp = sViewProjectionMatrix * model;
+        const float safeOuter = std::max(outerRadius, 0.0001f);
+        float normalizedInner = innerRadius / safeOuter;
+        normalizedInner = std::max(0.0f, std::min(normalizedInner, 0.999f));
+
+        glUniformMatrix4fv(glGetUniformLocation(glowShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+        glUniform4f(glGetUniformLocation(glowShader, "uColor"), r, g, b, a);
+        glUniform1f(glGetUniformLocation(glowShader, "uInnerRadius"), normalizedInner);
+        glUniform1f(glGetUniformLocation(glowShader, "uOuterRadius"), 1.0f);
+        glUniform1f(glGetUniformLocation(glowShader, "uBrightness"), brightness);
+        glUniform1f(glGetUniformLocation(glowShader, "uFalloffExp"), falloffExponent);
+
+        glBindVertexArray(VAO_circle);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, circleVertexCount);
+        glBindVertexArray(0);
+        glUseProgram(0);
+        GL_THROW_IF_ERROR("renderGlow");
+    }
+
+    /*****************************************************************************************
      \brief  Draw a textured sprite (entire texture) with tint.
      \details The sprite quad is centered at origin (pivot at center).
               Use renderSpriteFrame for sprite-sheet sub-rects.
@@ -614,6 +685,7 @@ namespace gfx {
 
         glDeleteBuffers(1, &spriteInstanceVBO);
         glDeleteProgram(spriteInstanceShader);
+        glDeleteProgram(glowShader);
     }
 
     /*****************************************************************************************

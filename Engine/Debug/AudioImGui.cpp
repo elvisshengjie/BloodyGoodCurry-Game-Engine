@@ -20,10 +20,20 @@
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
+
 #include "AudioImGui.h"
+
+#if SOFASPUDS_ENABLE_EDITOR
+
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
+
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 
 namespace Framework
 {
@@ -78,8 +88,10 @@ namespace Framework
         {
             ImGui::Text("Failed to load audio file:\n%s", s_unsupportedFile.c_str());
             ImGui::Separator();
-            if (ImGui::Button("OK", ImVec2(120, 0))) 
-            {s_showUnsupportedPopup = false;ImGui::CloseCurrentPopup();}
+            if (ImGui::Button("OK", ImVec2(120, 0)))
+            {
+                s_showUnsupportedPopup = false; ImGui::CloseCurrentPopup();
+            }
             ImGui::EndPopup();
         }
         ImVec2 windowSize(400, 300);
@@ -207,10 +219,12 @@ namespace Framework
         s_audioReady = false;
         std::cout << "[AudioImGui] Audio shutdown completed.\n";
     }
-    
+
     void AudioImGui::ShowUnsupportedAudioPopup(const std::string& file)
     {
         s_unsupportedFile = file;
         s_showUnsupportedPopup = true;
     }
 }
+
+#endif // SOFASPUDS_ENABLE_EDITOR

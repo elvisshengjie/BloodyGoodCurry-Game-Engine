@@ -13,11 +13,16 @@
             All rights reserved.
 **********************************************************************************************/
 #include "AudioManager.h"
+#include <algorithm>
 #include <iostream>
 #include <filesystem>
 #include "fmod.h"
 #include "fmod_errors.h"
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 /*****************************************************************************************
  \brief Constructor for the AudioManager.
 *****************************************************************************************/
@@ -47,8 +52,15 @@ bool AudioManager::initialize()
     result = FMOD_System_Init(m_system, 32, FMOD_INIT_NORMAL, nullptr);
     if (result != FMOD_OK) 
     {
-    std::cerr << "Failed to initialize FMOD system: " << FMOD_ErrorString(result) << std::endl;
-    return false;
+        std::cerr << "Failed to initialize FMOD system: " << FMOD_ErrorString(result) << std::endl;
+
+        // Clean up the partially created system to avoid leaking the FMOD state
+        if (m_system)
+        {
+            FMOD_System_Release(m_system);
+            m_system = nullptr;
+        }
+        return false;
     }
 
     std::cout << "AudioManager initialized successfully" << std::endl;
@@ -62,6 +74,7 @@ void AudioManager::shutdown()
 {
     if (m_system) 
     {
+        pruneStoppedChannels();
         stopAllSounds();       // stop active channels
         unloadAllSounds();     // release FMOD sounds
         // Close and release FMOD system
@@ -77,10 +90,12 @@ void AudioManager::shutdown()
  \brief Updates the FMOD system. 
         This is called once per frame in the main game loop.
 *****************************************************************************************/
-void AudioManager::update() 
+void AudioManager::update(float deltaTime)
 {
     if (m_system) 
     {
+        pruneStoppedChannels();
+        updateFades(deltaTime);
         FMOD_System_Update(m_system);
     }
 }
@@ -173,6 +188,7 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch,
 {
     if (!m_system)
     {return false;}
+    pruneStoppedChannels();
         
     auto it = m_sounds.find(name);
     if (it == m_sounds.end()) 
@@ -208,6 +224,7 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch,
 *****************************************************************************************/
 void AudioManager::stopSound(const std::string& name)
 {
+    pruneStoppedChannels();
     auto it = m_channels.find(name);
     if (it == m_channels.end()) 
         return;
@@ -226,6 +243,7 @@ void AudioManager::stopSound(const std::string& name)
 *****************************************************************************************/
 void AudioManager::stopAllSounds()
 {
+    pruneStoppedChannels();
     for (auto& [name, channels] : m_channels) 
     {
         for (auto* ch : channels) 
@@ -244,6 +262,7 @@ void AudioManager::stopAllSounds()
 *****************************************************************************************/
 void AudioManager::pauseSound(const std::string& name, bool pause)
 {
+    pruneStoppedChannels();
     auto it = m_channels.find(name);
     if (it == m_channels.end()) 
     {
@@ -265,6 +284,7 @@ void AudioManager::pauseSound(const std::string& name, bool pause)
 *****************************************************************************************/
 void AudioManager::pauseAllSounds(bool pause)
 {
+    pruneStoppedChannels();
     for (auto& [name, channels] : m_channels) 
     {
         for (FMOD_CHANNEL* channel : channels) 
@@ -303,6 +323,7 @@ void AudioManager::setMasterVolume(float volume)
 *****************************************************************************************/
 void AudioManager::setSoundVolume(const std::string& name, float volume)
 {
+    pruneStoppedChannels();
     auto it = m_channels.find(name);
     if (it == m_channels.end()) 
     {
@@ -325,6 +346,7 @@ void AudioManager::setSoundVolume(const std::string& name, float volume)
 *****************************************************************************************/
 void AudioManager::setSoundPitch(const std::string& name, float pitch)
 {
+    pruneStoppedChannels();
     auto it = m_channels.find(name);
     if (it == m_channels.end()) 
     {
@@ -388,7 +410,31 @@ bool AudioManager::isSoundPlaying(const std::string& name) const
 
     return false;
 }
+/*****************************************************************************************
+ \brief Remove any channels that have stopped playing or became invalid.
+*****************************************************************************************/
+void AudioManager::pruneStoppedChannels()
+{
+    for (auto it = m_channels.begin(); it != m_channels.end(); )
+    {
+        auto& channels = it->second;
 
+        channels.erase(std::remove_if(channels.begin(), channels.end(), [](FMOD_CHANNEL* ch)
+            {
+                if (!ch)
+                    return true;
+
+                FMOD_BOOL isPlaying = 0;
+                const FMOD_RESULT res = FMOD_Channel_IsPlaying(ch, &isPlaying);
+                return res != FMOD_OK || isPlaying == 0;
+            }), channels.end());
+
+        if (channels.empty())
+            it = m_channels.erase(it);
+        else
+            ++it;
+    }
+}
 /*****************************************************************************************
  \brief Retrieves a list of all the loaded sounds.
  \return Vector containing identifiers of the loaded sounds.
@@ -415,10 +461,10 @@ std::string AudioManager::getFullPath(const std::string& fileName) const
 
     // Try different possible paths
     std::vector<std::filesystem::path> possiblePaths = {
-    currentPath / "game-assests" / "audio" / "sfx" / fileName,
-    currentPath / ".." / "game-assests" / "audio" / "sfx" / fileName,
-    currentPath / ".." / ".." / "game-assests" / "audio" / "sfx" / fileName,
-    currentPath / ".." / ".." / ".." / "game-assests" / "audio" / "sfx" / fileName
+        currentPath / "assets" / "Audio" / fileName,
+        currentPath / ".." / "assets" / "Audio" / fileName,
+        currentPath / ".." / ".." / "assets" / "Audio" / fileName,
+        currentPath / ".." / ".." / ".." / "assets" / "Audio" / fileName
     };
 
     for (const auto& path: possiblePaths)
@@ -443,6 +489,73 @@ void AudioManager::checkFMODError(FMOD_RESULT result, const std::string& operati
     if (result != FMOD_OK) 
     {
         std::cerr << "FMOD Error during '" << operation << "': " << FMOD_ErrorString(result) << " (code " << result << ")" << std::endl;
+    }
+}
+/*****************************************************************************************
+ \brief Fades in all currently playing instances of a sound over a specified duration.
+ \param name         The identifier of the sound to fade in.
+ \param duration     Duration of the fade in seconds.
+ \param targetVolume The final volume level after the fade (default is 1.0f).
+*****************************************************************************************/
+void AudioManager::fadeInSound(const std::string& name, float duration, float targetVolume)
+{
+    auto it = m_channels.find(name);
+    if (it == m_channels.end()) return;
+
+    for (auto* channel : it->second)
+    {
+        if (!channel) continue;
+        FMOD_Channel_SetVolume(channel, 0.0f);
+        m_fades.push_back({ channel, 0.0f, targetVolume, duration, 0.0f });
+    }
+}
+/*****************************************************************************************
+ \brief Fades out all currently playing instances of a sound over a specified duration.
+        Stops the sound once the fade is complete.
+ \param name     The identifier of the sound to fade out.
+ \param duration Duration of the fade in seconds.
+*****************************************************************************************/
+void AudioManager::fadeOutSound(const std::string& name, float duration)
+{
+    auto it = m_channels.find(name);
+    if (it == m_channels.end()) return;
+
+    for (auto* channel : it->second)
+    {
+        if (!channel) continue;
+        float currentVol = 1.0f;
+        FMOD_Channel_GetVolume(channel, &currentVol);
+        m_fades.push_back({ channel, currentVol, 0.0f, duration, 0.0f });
+    }
+}
+/*****************************************************************************************
+ \brief Updates all active fades. Should be called every frame.
+ \param deltaTime Time elapsed since the last update (in seconds).
+*****************************************************************************************/
+void AudioManager::updateFades(float deltaTime)
+{
+    for (auto it = m_fades.begin(); it != m_fades.end();)
+    {
+        it->elapsed += deltaTime;
+        float t = it->elapsed / it->duration;
+        if (t > 1.0f) t = 1.0f;
+
+        float volume = it->startVolume + t * (it->endVolume - it->startVolume);
+        if (it->channel)
+            FMOD_Channel_SetVolume(it->channel, volume);
+
+        if (t >= 1.0f)
+        {
+            // If fade out, stop channel
+            if (it->endVolume == 0.0f && it->channel)
+                FMOD_Channel_Stop(it->channel);
+
+            it = m_fades.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
     }
 }
 

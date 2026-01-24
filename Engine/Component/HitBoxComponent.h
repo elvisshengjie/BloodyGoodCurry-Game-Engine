@@ -20,7 +20,7 @@
             - Support cloning for instanced attacks or prefabs.
 
  \copyright
-            All content ?2025 DigiPen Institute of Technology Singapore.
+            All content 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
@@ -60,6 +60,8 @@ namespace Framework
         float spawnY = 0.0f;         ///< Y-position offset relative to the attacker.
         GOC* owner = nullptr;        ///< Optional reference to the entity that owns this hitbox.
         float damage = 1.0f;         ///< Amount of damage this hitbox inflicts.
+        bool soundTriggered = false; //< To be used with HitBox Sounds so it can play mutiple SlashSounds
+        float soundDelay{ 0.0f }; //< To be used for delaying a sound
 
         /*************************************************************************************
           \brief Initializes the hitbox component.

@@ -8,6 +8,10 @@
       "key": "howto_header",
       "path": "Textures/UI/How To Play/How To Play.png"
     },
+    "header_offset": {
+      "x": -80,
+      "y": 48
+    },
     "close": {
       "key": "menu_popup_close",
       "path": "Textures/UI/How To Play/XButton.png"
@@ -23,8 +27,8 @@
           "path": "Textures/UI/How To Play/WASD to move.png"
         },
         "fps": 8.0,
-        "iconAspect": 1.05,
-        "labelAspect": 3.4
+        "iconAspect": 0.9,
+        "labelAspect": 2.6
       },
       {
         "icon": {
@@ -37,7 +41,7 @@
         },
         "fps": 8.0,
         "iconAspect": 1.8,
-        "labelAspect": 2.8
+        "labelAspect": 3.1
       },
       {
         "icon": {
@@ -63,7 +67,7 @@
         },
         "fps": 8.0,
         "iconAspect": 0.72,
-        "labelAspect": 3.6
+        "labelAspect": 3.1
       }
     ]
   }

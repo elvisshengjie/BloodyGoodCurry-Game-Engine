@@ -31,16 +31,18 @@
             All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
-
+#include "Common/CRTDebug.h"
 #include "Factory.h"
 #include <stdexcept>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
 
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/GlowComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 
@@ -53,6 +55,8 @@
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
+#include "Component/GateTargetComponent.h"
+#include "Graphics/PlayerHUD.h"
 
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
@@ -272,7 +276,11 @@ namespace Framework {
                 if (!s.EnterIndex(i)) continue; // now at GameObjects[i]
 
                 GOC* g = BuildFromCurrentJsonObject(s);
-                if (g) { out.push_back(g); }
+                if (g)
+                {
+                    g->initialize();
+                    out.push_back(g);
+                }
                 s.ExitObject();                     // leave GameObject[i]
             }
             s.ExitArray();
@@ -339,11 +347,37 @@ namespace Framework {
             auto const& cc = static_cast<CircleRenderComponent const&>(component);
             return json{ {"radius", cc.radius}, {"r", cc.r}, {"g", cc.g}, {"b", cc.b}, {"a", cc.a} };
         }
+        case ComponentTypeId::CT_GlowComponent: {
+            auto const& glow = static_cast<GlowComponent const&>(component);
+            json points = json::array();
+            for (auto const& p : glow.points) {
+                points.push_back({ {"x", p.x}, {"y", p.y} });
+            }
+            return json{
+                {"r", glow.r},
+                {"g", glow.g},
+                {"b", glow.b},
+                {"opacity", glow.opacity},
+                {"brightness", glow.brightness},
+                {"inner_radius", glow.innerRadius},
+                {"outer_radius", glow.outerRadius},
+                {"falloff_exponent", glow.falloffExponent},
+                {"visible", glow.visible},
+                {"points", points}
+            };
+        }
         case ComponentTypeId::CT_SpriteComponent: {
             auto const& sp = static_cast<SpriteComponent const&>(component);
             json out = json::object();
             if (!sp.texture_key.empty()) out["texture_key"] = sp.texture_key;
             if (!sp.path.empty()) out["path"] = sp.path;
+            return out;
+        }
+        case ComponentTypeId::CT_GateTargetComponent: {
+            auto const& gateTarget = static_cast<GateTargetComponent const&>(component);
+            json out = json::object();
+            if (!gateTarget.levelPath.empty())
+                out["level_path"] = gateTarget.levelPath;
             return out;
         }
         case ComponentTypeId::CT_SpriteAnimationComponent: {
@@ -405,6 +439,8 @@ namespace Framework {
             auto const& atk = static_cast<PlayerAttackComponent const&>(component);
             return json{ {"damage", atk.damage}, {"attack_speed", atk.attack_speed} };
         }
+        case ComponentTypeId::CT_PlayerHUDComponent:
+            return json::object();
         case ComponentTypeId::CT_EnemyComponent:
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
             return json::object();
@@ -435,7 +471,6 @@ namespace Framework {
             auto const& audio = static_cast<AudioComponent const&>(component);
             json soundMap = json::object();
 
-            // Iterate through the map of sounds and save them
             for (auto const& [actionName, info] : audio.sounds) {
                 soundMap[actionName] = {
                     {"id", info.id},
@@ -445,7 +480,8 @@ namespace Framework {
 
             return json{
                 {"sounds", soundMap},
-                {"volume", audio.volume}
+                {"volume", audio.volume},
+                {"entityType", audio.entityType} // <--- ADD THIS LINE
             };
         }
         default:
@@ -688,6 +724,7 @@ namespace Framework {
             }
         }
         ObjectsToBeDeleted.clear();
+        PruneLastLevelCache();
     }
 
     /*************************************************************************************
@@ -705,6 +742,7 @@ namespace Framework {
             }
         }
         ObjectsToBeDeleted.clear();
+        PruneLastLevelCache();
         // Destroy any remaining tracked game objects and release their components
         for (auto const& [id, _] : GameObjectIdMap) {
             (void)_;
@@ -726,6 +764,28 @@ namespace Framework {
 
         if (FACTORY == this)
             FACTORY = nullptr;
+    }
+
+    void GameObjectFactory::PruneLastLevelCache()
+    {
+        // Remove any cached pointers that no longer exist in the ownership map.
+        auto isDead = [this](GOC* ptr)
+            {
+                if (!ptr)
+                    return true;
+
+                for (auto const& [id, owned] : GameObjectIdMap)
+                {
+                    (void)id;
+                    if (owned.get() == ptr)
+                        return false;
+                }
+                return true;
+            };
+
+        LastLevelCache.erase(
+            std::remove_if(LastLevelCache.begin(), LastLevelCache.end(), isDead),
+            LastLevelCache.end());
     }
 
     /*************************************************************************************
@@ -811,6 +871,34 @@ namespace Framework {
             readFloat("g", cc.g);
             readFloat("b", cc.b);
             readFloat("a", cc.a);
+            break;
+        }
+        case ComponentTypeId::CT_GlowComponent:
+        {
+            auto& glow = static_cast<GlowComponent&>(component);
+            readFloat("r", glow.r);
+            readFloat("g", glow.g);
+            readFloat("b", glow.b);
+            readFloat("opacity", glow.opacity);
+            readFloat("brightness", glow.brightness);
+            readFloat("inner_radius", glow.innerRadius);
+            readFloat("outer_radius", glow.outerRadius);
+            readFloat("falloff_exponent", glow.falloffExponent);
+            readBool("visible", glow.visible);
+
+            glow.points.clear();
+            if (auto it = data.find("points"); it != data.end() && it->is_array())
+            {
+                glow.points.reserve(it->size());
+                for (auto const& p : *it)
+                {
+                    float px = 0.0f;
+                    float py = 0.0f;
+                    if (p.contains("x")) px = p["x"].get<float>();
+                    if (p.contains("y")) py = p["y"].get<float>();
+                    glow.points.emplace_back(px, py);
+                }
+            }
             break;
         }
         case ComponentTypeId::CT_SpriteComponent:
@@ -927,6 +1015,10 @@ namespace Framework {
             readInt("enemyMaxhealth", hp.enemyMaxhealth);
             break;
         }
+        case ComponentTypeId::CT_PlayerHUDComponent:
+        {
+            break;
+        }
         case ComponentTypeId::CT_EnemyTypeComponent:
         {
             auto& type = static_cast<EnemyTypeComponent&>(component);
@@ -951,6 +1043,13 @@ namespace Framework {
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
         case ComponentTypeId::CT_InputComponents:
         case ComponentTypeId::CT_AudioComponent:
+        {
+            auto& audio = static_cast<AudioComponent&>(component);
+            readString("entityType", audio.entityType); //
+            readFloat("volume", audio.volume);          // 
+            // You may also want to read "sounds" map here if needed for snapshots
+            break;
+        }
         default:
             break;
         }

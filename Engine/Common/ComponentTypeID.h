@@ -42,6 +42,9 @@ namespace Framework
         /// CircleRenderComponent: specialized rendering for circles
         CT_CircleRenderComponent,
 
+        /// GlowComponent: procedural glow blobs/strokes
+        CT_GlowComponent,
+
         /// InputComponents: manages input bindings and player controls
         CT_InputComponents,
 
@@ -61,6 +64,7 @@ namespace Framework
         CT_PlayerComponent,
         CT_PlayerHealthComponent,
         CT_PlayerAttackComponent,
+        CT_PlayerHUDComponent,
 
         /// EnemyComponent: Enemy Component
         CT_EnemyComponent,
@@ -75,6 +79,8 @@ namespace Framework
         //Audio Component
         CT_AudioComponent,
         CT_ZoomTriggerComponent,
+        // Gate target component
+        CT_GateTargetComponent,
 
         /// Maximum enum value marker (not a real component, used for iteration/validation)
         CT_MaxComponent

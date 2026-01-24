@@ -82,6 +82,9 @@ namespace mygame {
         int playerHealth{};
         int playerMaxhealth{};
 
+        // To tell AudioComponent which type of entity this is
+        std::string entityType = "";  // "player" or "enemy"
+
         // override toggles (default: inherit from prefab JSON)
         bool overridePrefabTransform{ false };
         bool overridePrefabCircle{ false };
@@ -118,8 +121,7 @@ namespace mygame {
     const std::string& CurrentSpriteTextureKey();
     unsigned CurrentSpriteTextureHandle();
 
-    const std::string& ActiveLayerName();
-    bool IsLayerIsolationEnabled();
-    bool ShouldRenderLayer(const std::string& layerName);
+
+    const std::string& SelectedStartLevel();
 
 } // namespace mygame

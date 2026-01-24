@@ -1,7 +1,13 @@
-#include "audioSystem.h"
+﻿#include "audioSystem.h"
 #include "Core/PathUtils.h"
 #include "RenderSystem.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 #include <iostream>
+#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+
+#ifdef _DEBUG
+#define new DBG_NEW       // <- redefine new AFTER all includes
+#endif
 /*********************************************************************************************
  \file      AudioSystem.cpp
  \par       SofaSpuds
@@ -24,7 +30,7 @@ namespace Framework {
 
      \param window
         Reference to the graphics window for ImGui context.
-    *****************************************************************************************/
+     *****************************************************************************************/
     AudioSystem::AudioSystem(gfx::Window& window) :window(&window) {}
     /*****************************************************************************************
      \brief
@@ -35,73 +41,144 @@ namespace Framework {
         - Loads all audio assets from the assets directory.
         - Sets the default master volume.
         - Initializes the ImGui audio debug panel via AudioImGui.
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::Initialize()
     {
-        // Initialize audio engine
+        // 1. Start audio engine
         if (!SoundManager::getInstance().initialize())
         {
-            std::cerr << "[AudioSystem] Failed to initialize SoundManager!" << std::endl; return;
+            std::cerr << "[AudioSystem] Failed to initialize SoundManager!\n";
+            return;
         }
-        
-        // Load all sounds (previously in AudioImGui)
-        Resource_Manager::loadAll(Framework::ResolveAssetPath("Audio").string());
 
-        // Set default master volume
-        SoundManager::getInstance().setMasterVolume(0.7f);
-        std::cout << "[AudioSystem] Audio system initialized successfully.\n";
-        // Initialize ImGui for audio panel
-        SoundManager::getInstance().playSound("SoundTrackloop", true);
+        // 2. Load all audio files under /Assets/Audio
+        const std::string audioPath = Framework::ResolveAssetPath("Audio").string();
+        Resource_Manager::loadAll(audioPath);
+#if SOFASPUDS_ENABLE_EDITOR
+        // 3. Debug UI
         AudioImGui::Initialize(*window);
+#endif
+
+        std::cout << "[AudioSystem] Initialized successfully.\n";
     }
+
     /*****************************************************************************************
      \brief
         Updates the audio system per frame.
 
      \param dt
         Delta time since the last frame (currently unused, reserved for future logic).
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::Update(float dt)
     {
         (void)dt;
-
+        // In editor-only builds or during shutdown the LogicSystem may not have
+        // initialized the global factory yet. Guard against that scenario so we
+        // do not dereference a null FACTORY pointer (was causing access
+        // violations when the audio system continued updating after the factory
+        // was torn down).
+        if (!FACTORY)
+            return;
         // Iterate all game objects in the factory
         for (auto& [id, gocPtr] : FACTORY->Objects())
         {
             if (!gocPtr) continue;
             GOC* goc = gocPtr.get();
-            if (auto* ph = goc->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
-            {
-                if (ph->playerHealth <= 0)
-                {
-                    if (auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
-                        audio->Stop("footsteps");
-                }
-            }
-            // Get Rigidbody and Audio components
-            auto* rb = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
-            if (!rb || !audio) continue;
-            // Footsteps audio
-            const float moveThreshold = 0.01f; // tweak as needed
-            bool isMoving = (std::fabs(rb->velX) > moveThreshold ||
-                std::fabs(rb->velY) > moveThreshold);
-            if (isMoving)
-            {if (!audio->playing["footsteps"])audio->Play("footsteps");}
+
+            if (!audio) continue;
+
+            if (audio->entityType == "player")
+            {
+                HandlePlayerFootsteps(goc, dt);
+            }
+
+            // other audio logic (enemy sounds, attacks, etc.)
+        }
+
+    }
+
+    std::string AudioSystem::GetRandomClip(const std::vector<std::string>& clips)
+    {
+        if (clips.empty()) return "";
+        return clips[rand() % clips.size()];
+    }
+    void AudioSystem::HandlePlayerFootsteps(GOC* player, float dt)
+    {
+        if (!player) return;
+        auto* audio = player->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+        auto* rb = player->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+        auto* health = player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
+        if (!audio || !rb) return;
+
+        // Stop if dead
+        if (health && health->playerHealth <= 0)
+        {
+            if (audio->isFootstepPlaying)
+            {
+                audio->Stop(audio->currentFootstep);
+                audio->isFootstepPlaying = false;
+            }
+            audio->footstepTimer = 0.0f;
+            return;
+        }
+
+        // Check movement
+        const float moveThreshold = 0.01f;
+        bool moving = (fabs(rb->velX) > moveThreshold || fabs(rb->velY) > moveThreshold);
+
+        if (!moving)
+        {
+            if (audio->isFootstepPlaying)
+            {
+                audio->Stop(audio->currentFootstep);
+                audio->isFootstepPlaying = false;
+            }
+            audio->footstepTimer = 0.0f;
+            return;
+        }
+
+        // Update footstep timer
+        audio->footstepTimer -= dt; // or however you access delta time
+
+        // Wait for timer to expire
+        if (audio->footstepTimer > 0.0f)
+            return;
+
+        // Wait for previous step to finish
+        if (audio->isFootstepPlaying)
+        {
+            if (!SoundManager::getInstance().isSoundPlaying(audio->currentFootstep))
+                audio->isFootstepPlaying = false;
             else
-            {if (audio->playing["footsteps"])  audio->Stop("footsteps");}
+                return; // still playing → do not start new
+        }
+
+        // Pick a random footstep and play it
+        audio->currentFootstep = GetRandomClip(audio->footstepClips);
+        if (!audio->currentFootstep.empty())
+        {
+            audio->Play(audio->currentFootstep);
+            audio->isFootstepPlaying = true;
+
+            // Reset timer for next footstep (adjust this value to match your animation)
+            audio->footstepTimer = 0.5f; // 500ms delay - tune this to match animation
         }
     }
+
+
 
     /*****************************************************************************************
      \brief
         Draws the ImGui-based audio debug panel.
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::draw() {
+#if SOFASPUDS_ENABLE_EDITOR
         if (!RenderSystem::IsEditorVisible())
             return;
 
         AudioImGui::Render();
+#endif
     };
     /*****************************************************************************************
      \brief
@@ -111,15 +188,19 @@ namespace Framework {
         - Unloads all loaded sounds from SoundManager.
         - Shuts down the AudioImGui debug interface.
         - Prints a confirmation message to the console.
-    *****************************************************************************************/
+     *****************************************************************************************/
     void AudioSystem::Shutdown()
     {
         // Unload all sounds
         SoundManager::getInstance().unloadAllSounds();
         // Fully tear down the audio backend to release FMOD allocations
         SoundManager::getInstance().shutdown();
+        // Clear cached sound entries so CRT leak checks do not flag leftover map nodes
+        Resource_Manager::unloadAll(Resource_Manager::Sound);
         // Shutdown the audio ImGui UI
+#if SOFASPUDS_ENABLE_EDITOR
         AudioImGui::Shutdown();
+#endif
         std::cout << "[AudioSystem] Audio system shutdown completed.\n";
     }
-};
+}
