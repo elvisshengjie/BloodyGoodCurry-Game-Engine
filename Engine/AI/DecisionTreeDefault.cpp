@@ -346,9 +346,58 @@ namespace Framework
 
                 // Determine behavior based on Type (melee vs ranged)
                 bool isRanged = (typeComp && typeComp->Etype == EnemyTypeComponent::EnemyType::ranged);
+ 
 
                 // Keep ranged enemies a bit closer so they don't aggro from too far away
                 float stopDistance = isRanged ? 1.0f : 0.1f;
+                //Ranged Retreat
+                const float preferredMinDistance = 0.5f;   // Too close → retreat
+                const float preferredMaxDistance = 1.0f;   // Too far → approach
+                const float retreatSpeed = 0.8f;
+                // ---------------------------------------
+                // RANGED MOVEMENT / RETREAT
+                // ---------------------------------------
+                if (isRanged)
+                {
+                    float norm = (distance > 0.001f) ? distance : 1.0f;
+                    float dirX = dx / norm;
+                    float dirY = dy / norm;
+
+                    // Post-shot retreat burst
+                    if (ai->retreatTimer > 0.0f)
+                    {
+                        ai->retreatTimer -= dt;
+                        rb->velX = -dirX * retreatSpeed * 1.2f;
+                        rb->velY = -dirY * retreatSpeed * 1.2f;
+                    }
+                    // Player too close → retreat
+                    else if (distance < preferredMinDistance)
+                    {
+                        if ((rand() % 100) < 70) // 70% chance to retreat
+                        {
+                            rb->velX = -dirX * retreatSpeed;
+                            
+                        }
+                        else
+                        {
+                            rb->velX = 0.0f;
+                            rb->velY = 0.0f;
+                        }
+                      
+                    }
+                    // Player too far → approach
+                    else if (distance > preferredMaxDistance)
+                    {
+                        rb->velX = dirX * speed;
+                        
+                    }
+                    else
+                    {
+                        rb->velX *= 0.85f;
+                        rb->velY *= 0.85f;
+                    }
+                }
+
 
                 // Smoothly move towards the player
                 if (distance > stopDistance)
