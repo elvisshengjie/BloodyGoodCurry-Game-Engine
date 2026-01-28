@@ -2609,8 +2609,8 @@ namespace Framework {
 
             textHint.RenderText(
                 enemyText,
-                650.0f,
-                1100.0f,
+                static_cast<float>(screenW) - (static_cast<float>(screenW)/3.f)*2.f,//650.0f,
+                static_cast<float>(screenH) - 64.0f,//1100.0f,
                 0.75f,
                 glm::vec3(1.0f, 0.2f, 0.2f)
             );
