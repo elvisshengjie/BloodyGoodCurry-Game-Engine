@@ -42,6 +42,7 @@ namespace mygame {
         bool mainMenuBGMPlaying = false;
         const char* MAIN_MENU_BGM = "MenuMusic";
         const char* START_BUTTTON = "MenuGameStart";
+        const char* EXIT_BUTTTON = "Quit";
         // BGM Sounds
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
@@ -158,6 +159,8 @@ namespace mygame {
                 }
                 if (mainMenu.ConsumeExit())
                 {
+                    if (SoundManager::getInstance().isSoundLoaded(QUIT_BUTTON))
+                        SoundManager::getInstance().playSound(QUIT_BUTTON);
                     currentState = GameState::EXIT;
                 }
                 break;
@@ -322,7 +325,8 @@ namespace mygame {
 
 
                 case GameState::EXIT:
-       
+                    if (SoundManager::getInstance().isSoundLoaded(QUIT_BUTTON))
+                        SoundManager::getInstance().playSound(QUIT_BUTTON);
                 if (gInputSystem) {
                     if (auto* w = gInputSystem->Window()) w->close();
                 }

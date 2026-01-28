@@ -82,6 +82,7 @@ namespace mygame {
         *************************************************************************/
         bool ConsumeExit();
 
+        void PlayExitSound();
 
         // Adjust cached layout if the screen size changes (keeps buttons under the cursor).
         void SyncLayout(int screenW, int screenH);
@@ -147,6 +148,9 @@ namespace mygame {
         bool exitTransitionTimerInitialized = false;
         bool audioMuted = false;
         float masterVolumeDefault = 0.7f;
+
+        //--Sounds  ---------------------------------------------------------------------
+        const char* EXIT_BUTTON = "Quit";
    
 
         // --- GUI system ------------------------------------------------------------------
