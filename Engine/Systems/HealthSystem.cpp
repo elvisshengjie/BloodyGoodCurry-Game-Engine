@@ -221,6 +221,8 @@ namespace Framework
 
         RefreshTrackedObjects();
     }
+    
+   
 
     void HealthSystem::Update(float dt)
     {
@@ -396,7 +398,20 @@ namespace Framework
                 }),
             gameObjectIds.end());
     }
+    auto WorldToScreenUI = [](float worldX, float worldY, int screenW, int screenH, const glm::mat4& vpMatrix)
+    {
+            glm::vec4 clipPos = vpMatrix * glm::vec4(worldX, worldY, 0.0f, 1.0f);
 
+            if (clipPos.w == 0.0f)
+                return std::make_pair(-100.0f, -100.0f); // off-screen fallback
+
+            glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w; // normalized device coords [-1,1]
+
+            float x = (ndc.x * 0.5f + 0.5f) * screenW;
+            float y = (ndc.y * 0.5f + 0.5f) * screenH;
+
+            return std::make_pair(x, y);
+    };
     void HealthSystem::draw()
     {
         if (!window)
@@ -439,7 +454,53 @@ namespace Framework
 
             hud->Update(lastDt);
             hud->Draw(viewportW, viewportH);
+     
         }
+        
+        for (GOCId id : gameObjectIds)
+        {
+            GOC* goc = FACTORY->GetObjectWithId(id);
+            if (!goc)
+                continue;
+            auto* enemyHealth =
+                goc->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+            auto* transform =
+                goc->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+
+            if (!enemyHealth || !transform)
+                continue;
+            // Offset above enemy head (pixels)
+            float worldOffsetY = 0.0f; // adjust based on enemy height
+            float worldX = transform->x;
+            float worldY = transform->y + worldOffsetY;
+
+            auto screenPos = WorldToScreenUI(worldX, worldY, viewportW, viewportH,
+                gfx::Graphics::GetViewProjectionMatrix());
+            float screenX = screenPos.first;
+            float screenY = screenPos.second;
+
+            // Health bar dimensions
+            float barWidth = viewportW * 0.05f;  // 5% of screen width
+            float barHeight = viewportH * 0.015f; // 1.5% of screen height
+
+            float healthRatio = float(enemyHealth->enemyHealth) / float(enemyHealth->enemyMaxhealth);
+            if (healthRatio < 0.0f) healthRatio = 0.0f;
+            if (healthRatio > 1.0f) healthRatio = 1.0f;
+
+            // Background (grey)
+            gfx::Graphics::renderRectangleUI(screenX - barWidth / 2, screenY - barHeight / 2,
+                barWidth, barHeight,
+                0.2f, 0.2f, 0.2f, 1.0f,
+                viewportW, viewportH);
+
+            // Foreground (green)
+            gfx::Graphics::renderRectangleUI(screenX - barWidth / 2, screenY - barHeight / 2,
+                barWidth * healthRatio, barHeight,
+                0.0f, 1.0f, 0.0f, 1.0f,
+                viewportW, viewportH);
+
+        }
+       
         glViewport(0, 0, window->Width(), window->Height());
     }
 
