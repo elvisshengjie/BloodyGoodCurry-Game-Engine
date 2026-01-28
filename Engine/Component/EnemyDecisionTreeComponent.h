@@ -26,6 +26,7 @@
 *********************************************************************************************/
 #pragma once
 #include "Composition/Component.h"
+#include "Memory/ComponentPool.h"
 #include "Serialization/Serialization.h"
 #include "AI/DecisionTreeDefault.h"
 #include "Composition/Composition.h"
@@ -46,7 +47,7 @@ namespace Framework {
     enum class Facing { LEFT, RIGHT };
     /*****************************************************************************************
       \brief Creates a default decision tree for an enemy.
-      \param enemy  Pointer to the enemy�s GameObjectComposition.
+      \param enemy  Pointer to the enemy GameObjectComposition.
       \return A unique_ptr to a new DecisionTree instance configured for default AI behavior.
     *****************************************************************************************/
     std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy, LogicSystem* logic);
@@ -102,9 +103,9 @@ namespace Framework {
           \brief Creates a deep copy of this component.
           \return A unique_ptr holding a cloned EnemyDecisionTreeComponent.
         *************************************************************************************/
-        std::unique_ptr<GameComponent> Clone() const override
+        ComponentHandle Clone() const override
         {
-            auto copy = std::make_unique<EnemyDecisionTreeComponent>();
+            auto copy = ComponentPool<EnemyDecisionTreeComponent>::CreateTyped();
             copy->dir = dir;
             copy->pauseTimer = pauseTimer;
             copy->chaseSpeed = chaseSpeed;
