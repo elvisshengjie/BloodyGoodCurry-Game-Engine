@@ -70,6 +70,10 @@ namespace Framework {
         float chaseTimer = 0.0f;             ///< Accumulated time spent in chase mode.
         float maxChaseDuration = 3.0f;       ///< Maximum allowed chase time before reset.
         float retreatTimer = 0.0f;           ///< Retreat Timer
+        bool rangedAttackActive = false;     ///< True while a ranged attack animation is playing.
+        bool rangedProjectileFired = false;  ///< True once the ranged projectile has been spawned.
+        float rangedAttackTimer = 0.0f;      ///< Timer tracking ranged attack animation elapsed time.
+        float rangedAttackDuration = 0.0f;   ///< Cached duration for the ranged attack animation.
         bool hasSeenPlayer = false;          ///< Tracks whether the enemy has detected the player.
         Facing facing = Facing::RIGHT;
 
@@ -111,6 +115,10 @@ namespace Framework {
             copy->chaseSpeed = chaseSpeed;
             copy->chaseTimer = chaseTimer;
             copy->maxChaseDuration = maxChaseDuration;
+            copy->rangedAttackActive = rangedAttackActive;
+            copy->rangedProjectileFired = rangedProjectileFired;
+            copy->rangedAttackTimer = rangedAttackTimer;
+            copy->rangedAttackDuration = rangedAttackDuration;
             copy->hasSeenPlayer = hasSeenPlayer;
 
             return copy;
