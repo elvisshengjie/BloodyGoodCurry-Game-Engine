@@ -850,24 +850,22 @@ namespace Framework {
                 }
                 else
                 {
-                    // Stop movement during attacks
-                    if (IsAttackState(animState))
+                    float forwardX = (rc) ? ((rc->w >= 0.0f) ? 1.0f : -1.0f) : 1.0f;
+                    float speedModifier = 1.0f;
+                    if ((input.IsKeyHeld(GLFW_KEY_D) && forwardX < 0) ||
+                        (input.IsKeyHeld(GLFW_KEY_A) && forwardX > 0))
                     {
-                        rb->velX = 0.0f;
-                        rb->velY = 0.0f;
+                        speedModifier = 0.75f; 
                     }
-                    else
-                    {
-                        if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f);
-                        if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f);
-                        if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D))
-                            rb->velX *= rb->dampening;
+                    if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f * speedModifier);
+                    if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f * speedModifier);
 
-                        if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY, 1.f);
-                        if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
-                        if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S))
-                            rb->velY *= rb->dampening;
-                    }
+                    if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D))
+                        rb->velX *= rb->dampening;
+                    if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY, 1.f);
+                    if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
+                    if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S))
+                        rb->velY *= rb->dampening;
                 }
    
             }
