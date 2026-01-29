@@ -204,7 +204,7 @@ namespace Framework
 
                 if (rb && tr && ai)
                 {
-                    const float patrolSpeed = 0.2f;
+                    const float patrolSpeed = 0.5f;
                     const float patrolRange = 0.5f;
                     const float pauseDuration = 2.0f;
 
