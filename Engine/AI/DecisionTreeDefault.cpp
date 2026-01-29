@@ -363,14 +363,11 @@ namespace Framework
                 float distance = std::sqrt(dx * dx + dy * dy);
                 attack->attack_timer += dt;
                 const float speed = 1.0f;
-                const float accel = 2.0f;
+                
 
                 // Determine behavior based on Type (melee vs ranged)
                 bool isRanged = (typeComp && typeComp->Etype == EnemyTypeComponent::EnemyType::ranged);
  
-
-                // Keep ranged enemies a bit closer so they don't aggro from too far away
-                float stopDistance = isRanged ? 1.0f : 0.1f;
                 //Ranged Retreat
                 const float preferredMinDistance = 0.5f;   // Too close → retreat
                 const float preferredMaxDistance = 1.2f;   // Too far → approach
