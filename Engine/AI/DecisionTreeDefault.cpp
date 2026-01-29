@@ -389,28 +389,35 @@ namespace Framework
                     else
                     {
                         rb->velX *= 0.85f;
-                      
+                        
                     }
                 }
+                // ----------------------------
+                // Stuck detection & movement
+                // ----------------------------
+                // Detect if enemy is stuck
+                bool stuckX = std::abs(tr->x - ai->prevX) < 0.001f;
+                bool stuckY = std::abs(tr->y - ai->prevY) < 0.001f;
 
+                // Increment timers
+                if (stuckX) ai->stuckXTimer += dt; else ai->stuckXTimer = 0.0f;
+                if (stuckY) ai->stuckYTimer += dt; else ai->stuckYTimer = 0.0f;
 
-
-                // Smoothly move towards the player
-                if (distance > stopDistance)
+                // Handle horizontal stuck
+                if (ai->stuckXTimer > ai->stuckThreshold)
                 {
-                    float norm = (distance > 0.001f) ? distance : 1.0f;
-                    float targetVX = (dx / norm) * speed;
-                    float targetVY = (dy / norm) * speed;
-
-                    // Smooth approach using simple linear interpolation
-                    rb->velX += (targetVX - rb->velX) * std::min(accel * dt, 1.0f);
-                    rb->velY += (targetVY - rb->velY) * std::min(accel * dt, 1.0f);
+                    // Try moving vertically instead
+                    rb->velY = (rand() % 2 == 0 ? 1.0f : -1.0f) * 0.2f; // small nudge
+                    rb->velX = 0.0f;
+                    ai->stuckXTimer = 0.0f; // reset timer
                 }
-                else
+
+                // Handle vertical stuck
+                if (ai->stuckYTimer > ai->stuckThreshold)
                 {
-                    // Slow down when very close to the player
-                    rb->velX *= 0.5f;
-                    rb->velY *= 0.5f;
+                    rb->velX = (rand() % 2 == 0 ? 1.0f : -1.0f) * 0.2f; // small nudge
+                    rb->velY = 0.0f;
+                    ai->stuckYTimer = 0.0f; // reset timer
                 }
 
 

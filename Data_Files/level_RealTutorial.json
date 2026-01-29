@@ -6,6 +6,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 4.699999809265137,
             "layer": 0,
@@ -35,6 +36,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 4.699999809265137,
             "layer": 0,
@@ -64,6 +66,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.09000000357627869,
             "layer": 0,
@@ -93,6 +96,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.09000000357627869,
             "layer": 0,
@@ -122,6 +126,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -151,6 +156,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -180,6 +186,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,
@@ -188,7 +195,7 @@
             "w": 4.369999885559082
           },
           "RigidBodyComponent": {
-            "height": 0.4000000059604645,
+            "height": 0.6000000238418579,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 4.369999885559082
@@ -209,6 +216,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,
@@ -238,6 +246,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -267,6 +276,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.0,
             "layer": 0,
@@ -296,6 +306,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -322,6 +333,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -336,7 +348,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.38844847679138184,
+            "x": 0.3884485363960266,
             "y": -1.237348198890686
           }
         },
@@ -348,6 +360,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -374,6 +387,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -401,6 +415,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -415,8 +430,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.3850001096725464,
-            "y": 0.4041403532028198
+            "x": 0.3865582346916199,
+            "y": 0.2592369318008423
           }
         },
         "layer": "Background:0",
@@ -427,6 +442,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -453,6 +469,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -479,6 +496,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -505,6 +523,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -531,6 +550,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -557,6 +577,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.2000000476837158,
             "layer": -1,
@@ -567,10 +588,10 @@
             "w": 1.5
           },
           "RigidBodyComponent": {
-            "height": 1.0,
+            "height": 0.5,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
-            "width": 1.399999976158142
+            "width": 1.0
           },
           "SpriteAnimationComponent": {
             "activeAnimation": 0,
@@ -585,7 +606,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -615,6 +636,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 15,
@@ -629,7 +651,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.9690967798233032,
+            "x": -0.9740967750549316,
             "y": -1.664929986000061
           }
         },
@@ -641,6 +663,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 15,
@@ -667,6 +690,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 15,
@@ -693,6 +717,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 15,
@@ -719,6 +744,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 15,
@@ -745,6 +771,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -771,6 +798,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 15,
@@ -797,6 +825,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 15,
@@ -823,6 +852,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 15,
@@ -849,6 +879,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 15,
@@ -875,6 +906,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": -3,
@@ -901,6 +933,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -927,6 +960,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -957,6 +991,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -987,6 +1022,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -1013,6 +1049,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -1039,6 +1076,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -1065,6 +1103,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -1091,6 +1130,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -1117,6 +1157,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -5,
@@ -1143,6 +1184,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.5,
             "layer": -3,
@@ -1169,6 +1211,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1195,6 +1238,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1221,6 +1265,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1247,6 +1292,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1273,6 +1319,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1299,6 +1346,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1325,6 +1373,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1351,6 +1400,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1377,6 +1427,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1403,6 +1454,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1429,6 +1481,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1455,6 +1508,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1481,6 +1535,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1507,6 +1562,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1533,6 +1589,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1559,6 +1616,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.699999988079071,
             "layer": -3,
@@ -1585,6 +1643,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1614,6 +1673,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1643,6 +1703,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1672,6 +1733,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1701,6 +1763,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1730,6 +1793,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1759,6 +1823,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1788,6 +1853,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.5,
             "layer": 0,
@@ -1817,6 +1883,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1843,6 +1910,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1869,6 +1937,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1895,6 +1964,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1921,6 +1991,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1947,6 +2018,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1973,6 +2045,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -1999,6 +2072,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2025,6 +2099,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2051,6 +2126,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2077,6 +2153,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2103,6 +2180,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2129,6 +2207,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2155,6 +2234,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6800000071525574,
             "layer": -3,
@@ -2181,6 +2261,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2207,6 +2288,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2233,6 +2315,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2259,6 +2342,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2285,6 +2369,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2311,6 +2396,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2337,6 +2423,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2363,6 +2450,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2389,6 +2477,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2415,6 +2504,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2441,6 +2531,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2467,6 +2558,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2493,6 +2585,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2519,6 +2612,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2545,6 +2639,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2571,6 +2666,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2597,6 +2693,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2623,6 +2720,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2649,6 +2747,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2675,6 +2774,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2701,6 +2801,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6800000071525574,
             "layer": -3,
@@ -2727,6 +2828,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2753,6 +2855,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2779,6 +2882,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2805,6 +2909,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2831,6 +2936,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2857,6 +2963,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2883,6 +2990,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2909,6 +3017,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2935,6 +3044,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2961,6 +3071,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -2987,6 +3098,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -3013,6 +3125,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -3039,6 +3152,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -3065,6 +3179,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -3091,6 +3206,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -3117,6 +3233,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.6850000023841858,
             "layer": -3,
@@ -3143,6 +3260,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.10000000149011612,
             "layer": 0,
@@ -3176,6 +3294,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 1.100000023841858,
             "layer": 0,
@@ -3273,6 +3392,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.30000001192092896,
             "layer": 0,
@@ -3282,7 +3402,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": -0.20000000298023224,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3299,7 +3419,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3362,7 +3482,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.503333330154419,
+            "x": -0.25999942421913147,
             "y": -0.023400306701660156
           }
         },
@@ -3437,6 +3557,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.30000001192092896,
             "layer": 0,
@@ -3446,7 +3567,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.20000000298023224,
+            "velocity_x": -0.20000000298023224,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3463,7 +3584,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3526,7 +3647,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.4666658937931061,
+            "x": -0.25999942421913147,
             "y": -1.1290658712387085
           }
         },
@@ -3597,6 +3718,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.30000001192092896,
             "layer": 0,
@@ -3606,7 +3728,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": -0.20000000298023224,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3623,7 +3745,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 8,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3686,7 +3808,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.503333330154419,
+            "x": -0.25999942421913147,
             "y": -1.1407661437988281
           }
         },
@@ -3757,6 +3879,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.30000001192092896,
             "layer": 0,
@@ -3766,7 +3889,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": -0.20000000298023224,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3783,7 +3906,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 8,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3846,7 +3969,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.503333330154419,
+            "x": -0.25999942421913147,
             "y": 0.0
           }
         },
@@ -3967,6 +4090,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
+            "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.25,
             "layer": 1,
@@ -3977,7 +4101,7 @@
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
             "velocity_x": 0.0,
-            "velocity_y": 0.0,
+            "velocity_y": -1.401298464324817e-45,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
@@ -3993,7 +4117,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -4008,7 +4132,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 0,
+                "currentFrame": 2,
                 "name": "run",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -4101,8 +4225,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.6606656908988953,
-            "y": -1.454952359199524
+            "x": -0.7770916223526001,
+            "y": -1.4695079326629639
           }
         },
         "layer": "Gameplay:0",

@@ -71,6 +71,11 @@ namespace Framework {
         float maxChaseDuration = 3.0f;       ///< Maximum allowed chase time before reset.
         float retreatTimer = 0.0f;           ///< Retreat Timer
         bool hasSeenPlayer = false;          ///< Tracks whether the enemy has detected the player.
+        float prevX = 0.0f;
+        float prevY = 0.0f;
+        float stuckXTimer = 0.0f;  // how long X has been stuck
+        float stuckYTimer = 0.0f;  // how long Y has been stuck
+        const float stuckThreshold = 0.2f; // seconds before trying alternative axis
         Facing facing = Facing::RIGHT;
 
         EnemyDecisionTreeComponent() = default;
