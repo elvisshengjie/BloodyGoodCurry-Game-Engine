@@ -1783,6 +1783,7 @@ namespace Framework {
         Resource_Manager::load("ming_attack1", resolveAsset("Textures/Character/Ming_Sprite/1st_Attack Sprite.png"));
         Resource_Manager::load("ming_attack2", resolveAsset("Textures/Character/Ming_Sprite/2nd_Attack Sprite.png"));
         Resource_Manager::load("ming_attack3", resolveAsset("Textures/Character/Ming_Sprite/3rd_Attack Sprite.png"));
+        Resource_Manager::load("ming_throw", resolveAsset("Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png"));
         Resource_Manager::load("ming_knife", resolveAsset("Textures/Character/Ming_Sprite/Knife_Sprite.png"));
         Resource_Manager::load("fire_projectile", resolveAsset("Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png"));
         Resource_Manager::load("impact_vfx_sheet", resolveAsset("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png"));
