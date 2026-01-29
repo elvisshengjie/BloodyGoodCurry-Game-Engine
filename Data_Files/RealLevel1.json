@@ -22,8 +22,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.011268526315689087,
-            "y": -0.032647013664245605
+            "x": 0.015104144811630249,
+            "y": -0.03333333134651184
           }
         },
         "layer": "Background:0",
@@ -253,8 +253,8 @@
           },
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
+            "velocity_x": 1.401298464324817e-45,
+            "velocity_y": -2.500567395644586e-21,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
@@ -270,7 +270,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -285,7 +285,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "run",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -300,7 +300,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 12,
+                "currentFrame": 6,
                 "name": "attack1",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -315,7 +315,7 @@
                   "startFrame": 0,
                   "totalFrames": 8
                 },
-                "currentFrame": 7,
+                "currentFrame": 6,
                 "name": "attack2",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/2nd_Attack Sprite.png",
                 "textureKey": "attack2_sheet"
@@ -334,6 +334,21 @@
                 "name": "attack3",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
                 "textureKey": "attack3_sheet"
+                },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "throw",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png",
+                "textureKey": "throw_sheet"
               },
               {
                 "config": {
@@ -378,12 +393,50 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.21679608523845673,
-            "y": -0.633216381072998
+            "x": -0.18346278369426727,
+            "y": -0.9220895767211914
           }
         },
         "layer": "Background:0",
         "name": "player"
+      },
+      {
+        "Components": {
+          "GateTargetComponent": {
+            "level_path": "level01.json"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 1.2000000476837158,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "hawker_gate",
+            "texture_path": "../../assets/Textures/Environment/lvl 1_Hawker/Gate.png",
+            "visible": true,
+            "w": 1.600000023841858
+          },
+          "RigidBodyComponent": {
+            "height": 0.6000000238418579,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Gate.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.0,
+            "y": 0.0
+          }
+        },
+        "layer": "Background:0",
+        "name": "Hawker_Gate"
       }
     ],
     "name": "RealLevel1"
