@@ -27,6 +27,7 @@
 #include "RenderSystem.h"
 #include "Systems/ParticleSystem.h"
 #include <algorithm>
+#include <cmath>
 #include <cctype>
 #include <iostream>
 #include <string_view>
@@ -421,7 +422,8 @@ namespace Framework
         int viewportW = 0;
         int viewportH = 0;
         bool hasViewport = false;
-        if (auto* renderer = RenderSystem::Get())
+        auto* renderer = RenderSystem::Get();
+        if (renderer)
         {
             hasViewport = renderer->GetGameViewportRect(viewportX, viewportY, viewportW, viewportH);
         }
@@ -466,16 +468,29 @@ namespace Framework
                 goc->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
             auto* transform =
                 goc->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+            auto* render =
+                goc->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent);
 
             if (!enemyHealth || !transform)
                 continue;
             // Offset above enemy head (pixels)
-            float worldOffsetY = 0.0f; // adjust based on enemy height
-            float worldX = transform->x;
-            float worldY = transform->y + worldOffsetY;
+            const float scaleY = std::max(1.0f, std::fabs(transform->scaleY));
+            float baseHeight = scaleY;
+            if (render)
+            {
+                baseHeight = std::max(1.0f, std::fabs(render->h * transform->scaleY));
+            }
+  
+            const float halfHeight = baseHeight * 0.5f;
 
+            // reduce distance (try 0.30f ~ 0.45f)
+            float worldOffsetY = halfHeight * 0.35f;
+            float worldY = transform->y + worldOffsetY;
+            float worldX = transform->x;
+            const glm::mat4& viewProjection =
+                renderer ? renderer->GetWorldViewProjectionMatrix() : gfx::Graphics::GetViewProjectionMatrix();
             auto screenPos = WorldToScreenUI(worldX, worldY, viewportW, viewportH,
-                gfx::Graphics::GetViewProjectionMatrix());
+                viewProjection);
             float screenX = screenPos.first;
             float screenY = screenPos.second;
 
@@ -483,7 +498,11 @@ namespace Framework
             float barWidth = viewportW * 0.05f;  // 5% of screen width
             float barHeight = viewportH * 0.015f; // 1.5% of screen height
 
-            float healthRatio = float(enemyHealth->enemyHealth) / float(enemyHealth->enemyMaxhealth);
+            float healthRatio = 0.0f;
+            if (enemyHealth->enemyMaxhealth > 0)
+            {
+                healthRatio = float(enemyHealth->enemyHealth) / float(enemyHealth->enemyMaxhealth);
+            }
             if (healthRatio < 0.0f) healthRatio = 0.0f;
             if (healthRatio > 1.0f) healthRatio = 1.0f;
 

@@ -1935,6 +1935,7 @@ namespace Framework {
                 activeView = editorCamera.ViewMatrix();
                 activeProj = editorCamera.ProjectionMatrix();
                 gfx::Graphics::setViewProjection(activeView, activeProj);
+                worldViewProjection = activeProj * activeView;
             }
             else if (cameraEnabled)
             {
@@ -1956,6 +1957,11 @@ namespace Framework {
                 activeView = camera.ViewMatrix();
                 activeProj = camera.ProjectionMatrix();
                 gfx::Graphics::setViewProjection(activeView, activeProj);
+                worldViewProjection = activeProj * activeView;
+            }
+            else
+            {
+                worldViewProjection = activeProj * activeView;
             }
 #if SOFASPUDS_ENABLE_EDITOR
             // Now handle picking with the correct (current) camera matrices.
