@@ -945,14 +945,18 @@ void MainMenuPage::SyncLayout(int screenW, int screenH)
     optionsPopup = { optionsPopupX, optionsPopupY, optionsPopupW, optionsPopupH };
 
     const float optionsCloseSize = std::min(optionsPopupW, optionsPopupH) * 0.14f;
-    optionsCloseBtn = { optionsPopupX + optionsPopupW - optionsCloseSize * 0.85f,
-        optionsPopupY + optionsPopupH - optionsCloseSize * 0.75f,
+    const float optionsCloseNudgeLeft = optionsPopupW * 0.06f;
+    const float optionsCloseNudgeDown = optionsPopupH * 0.06f;
+    optionsCloseBtn = { optionsPopupX + optionsPopupW - optionsCloseSize * 2.0f - optionsCloseNudgeLeft,
+        optionsPopupY + optionsPopupH - optionsCloseSize * 0.75f - optionsCloseNudgeDown,
         optionsCloseSize, optionsCloseSize };
 
     const float optionsHeaderH = optionsPopupH * 0.18f;
     const float optionsHeaderW = optionsHeaderH * textureAspect(optionsHeaderTex, 2.7f);
-    optionsHeader = { optionsPopupX + (optionsPopupW - optionsHeaderW) * 0.5f,
-        optionsPopupY + optionsPopupH - optionsHeaderH - optionsPopupH * 0.08f,
+    const float optionsHeaderNudgeUp = optionsPopupH * 0.10f;
+    const float optionsHeaderNudgeLeft = optionsPopupW * 0.16f;
+    optionsHeader = { optionsPopupX + (optionsPopupW - optionsHeaderW) * 0.5f - optionsHeaderNudgeLeft,
+         optionsPopupY + optionsPopupH - optionsHeaderH - optionsPopupH * 0.08f + optionsHeaderNudgeUp,
         optionsHeaderW, optionsHeaderH };
 
     const float contentTop = optionsHeader.y - optionsPopupH * 0.05f;
