@@ -1880,6 +1880,44 @@ namespace Framework {
         return sInstance ? sInstance->showEditor : false;
     }
 
+    void RenderSystem::SetGlobalBrightness(float brightness)
+    {
+        if (!sInstance) return;
+        sInstance->globalBrightness = std::clamp(brightness, 0.5f, 2.0f);
+    }
+
+    float RenderSystem::GetGlobalBrightness()
+    {
+        return sInstance ? sInstance->globalBrightness : 1.0f;
+    }
+
+    void RenderSystem::RenderBrightnessOverlay()
+    {
+        const float brightness = globalBrightness;
+        if (std::abs(brightness - 1.0f) <= 0.001f) {
+            return;
+        }
+
+        RestoreFullViewport();
+        gfx::Graphics::resetViewProjection();
+
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        if (brightness > 1.0f) {
+            const float alpha = brightness - 1.0f;
+            gfx::Graphics::renderRectangleUI(0.0f, 0.0f,
+                static_cast<float>(screenW), static_cast<float>(screenH),
+                1.0f, 1.0f, 1.0f, alpha, screenW, screenH);
+        }
+        else {
+            const float alpha = 1.0f - brightness;
+            gfx::Graphics::renderRectangleUI(0.0f, 0.0f,
+                static_cast<float>(screenW), static_cast<float>(screenH),
+                0.0f, 0.0f, 0.0f, alpha, screenW, screenH);
+        }
+    }
     /*************************************************************************************
       \brief  Main per-frame render/update entry: sets VP, draws world/UI, and editor tools.
       \details Order:
