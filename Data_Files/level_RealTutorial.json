@@ -606,7 +606,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -678,7 +678,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.6049721240997314,
+            "x": -0.5949721336364746,
             "y": -1.6877328157424927
           }
         },
@@ -3428,8 +3428,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.4499995708465576,
-            "y": -0.023400306701660156
+            "x": 1.8056002855300903,
+            "y": -0.026206105947494507
           }
         },
         "layer": "Gameplay:0",
@@ -3593,8 +3593,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.6240553855895996,
-            "y": -1.1290658712387085
+            "x": -2.689838409423828,
+            "y": 0.05491650104522705
           }
         },
         "layer": "Gameplay:0",
@@ -3691,7 +3691,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 8,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3754,8 +3754,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.8933334350585938,
-            "y": -1.104742407798767
+            "x": -2.7146730422973633,
+            "y": -1.1523995399475098
           }
         },
         "layer": "Gameplay:0",
@@ -3835,7 +3835,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3852,7 +3852,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 8,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3915,8 +3915,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -2.1108272075653076,
-            "y": -0.03995633125305176
+            "x": 0.8151705265045166,
+            "y": 0.023220926523208618
           }
         },
         "layer": "Gameplay:0",
@@ -4046,8 +4046,8 @@
           },
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
-            "velocity_x": -3.2385822912317508e-09,
-            "velocity_y": -4.31811164602891e-09,
+            "velocity_x": 0.0,
+            "velocity_y": 1.401298464324817e-45,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
@@ -4063,7 +4063,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 4,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -4078,7 +4078,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 2,
+                "currentFrame": 1,
                 "name": "run",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -4186,8 +4186,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.5356172919273376,
-            "y": -1.4079290628433228
+            "x": -0.6578298807144165,
+            "y": -1.437958836555481
           }
         },
         "layer": "Gameplay:0",
@@ -4207,7 +4207,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Bucket.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bucket.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -4234,7 +4234,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -4261,13 +4261,13 @@
             "w": 0.4000000059604645
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.1986577957868576,
+            "x": -0.1936578005552292,
             "y": -1.2304253578186035
           }
         },
@@ -4288,7 +4288,7 @@
             "w": 0.4000000059604645
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -4315,13 +4315,13 @@
             "w": 0.4000000059604645
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Bucket.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bucket.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.7721375823020935,
+            "x": -0.7754709124565125,
             "y": -0.4921700954437256
           }
         },
@@ -4342,7 +4342,7 @@
             "w": 0.4000000059604645
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -4369,7 +4369,7 @@
             "w": 0.4000000059604645
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Bucket.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bucket.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -4409,7 +4409,7 @@
             "y": -0.4881025552749634
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -4439,7 +4439,7 @@
             "y": -1.029083013534546
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -4456,7 +4456,7 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -4496,8 +4496,35 @@
             "y": -0.28101402521133423
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:0",
         "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.4000000059604645
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2057948261499405,
+            "y": -0.8079298138618469
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
       }
     ],
     "name": "level_RealTutorial"
