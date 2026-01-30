@@ -189,9 +189,7 @@ namespace Framework
         // Patrol leaf: simple left-right patrol with pause when turning around.
         // ---------------------------------------------------------------------
         auto patrolLeaf = std::make_unique<DecisionNode>(
-            nullptr,
-            nullptr,
-            nullptr,
+            nullptr, nullptr, nullptr,
             [enemyID](float dt)
             {
                 GOC* enemy = FACTORY->GetObjectWithId(enemyID);
@@ -202,50 +200,60 @@ namespace Framework
                 auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
 
-                if (rb && tr && ai)
+                if (!(rb && tr && ai))
+                    return;
+
+                // Initialize patrol origin once
+                if (!ai->patrolOriginSet)
                 {
-                    const float patrolSpeed = 0.5f;
-                    const float patrolRange = 0.5f;
-                    const float pauseDuration = 2.0f;
+                    ai->patrolOriginX = tr->x;
+                    ai->patrolOriginY = tr->y;
+                    ai->patrolOriginSet = true;
+                    if (ai->dir == 0.0f)
+                        ai->dir = 1.0f;
+                }
 
-                    // If currently pausing, count down and stop movement
-                    if (ai->pauseTimer > 0.0f)
-                    {
-                        ai->pauseTimer -= dt;
-                        rb->velX = 0.0f;
-                        return;
-                    }
+                const float patrolSpeed = 0.6f;
+                const float patrolRange = 10.0f;
+                const float pauseDuration = 2.0f;
 
-                    // Move horizontally according to patrol direction
-                    rb->velX = patrolSpeed * ai->dir;
+                float leftEdge = ai->patrolOriginX - patrolRange;
+                float rightEdge = ai->patrolOriginX + patrolRange;
+
+                // Pause handling
+                if (ai->pauseTimer > 0.0f)
+                {
+                    ai->pauseTimer -= dt;
+                    rb->velX = 0.0f;
                     rb->velY = 0.0f;
+                    return;
+                }
 
-                    float newX = tr->x + rb->velX * dt;
-                    float newY = tr->y;
+                // Set velocity
+                rb->velX = patrolSpeed * ai->dir;
+                rb->velY = 0.0f;
 
-                    // Predict the future AABB and test collisions with "rect" walls
-                    AABB futureBox(newX, newY, rb->width, rb->height);
-                    bool collisionDetected = false;
+                // Predict future position for collision detection
+                float futureX = tr->x + rb->velX * dt;
+                AABB futureBox(futureX, tr->y, rb->width, rb->height);
 
-                    auto& objects = FACTORY->Objects();
-                    for (auto& [otherId, otherObj] : objects)
+                bool collisionDetected = false;
+                auto& objects = FACTORY->Objects();
+
+                for (auto& [_, other] : objects)
+                {
+
+                    auto* rbO = other->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+                    auto* trO = other->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                    if (!rbO || !trO)
+                        continue;
+
+                    std::string otherName = other->GetObjectName();
+                    std::transform(otherName.begin(), otherName.end(), otherName.begin(),
+                        [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+
+                    if (otherName == "rect")
                     {
-                        auto* rbO = otherObj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-                        auto* trO = otherObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-                        if (!rbO || !trO)
-                            continue;
-
-                        std::string otherName = otherObj->GetObjectName();
-                        std::transform(
-                            otherName.begin(),
-                            otherName.end(),
-                            otherName.begin(),
-                            [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); }
-                        );
-
-                        if (otherName != "rect")
-                            continue;
-
                         AABB wallBox(trO->x, trO->y, rbO->width, rbO->height);
                         if (Collision::CheckCollisionRectToRect(futureBox, wallBox))
                         {
@@ -253,36 +261,18 @@ namespace Framework
                             break;
                         }
                     }
-
-                    // If we hit a wall, flip direction and pause briefly
-                    if (collisionDetected)
-                    {
-                        ai->dir *= -1.0f;
-                        ai->pauseTimer = pauseDuration;
-                    }
-                    else
-                    {
-                        // Apply the movement
-                        tr->x = newX;
-                        tr->y = newY;
-                    }
-
-                    // Clamp patrol range and flip direction at the edges
-                    if (tr->x < -patrolRange)
-                    {
-                        tr->x = -patrolRange;
-                        ai->dir = 1.0f;
-                        ai->pauseTimer = pauseDuration;
-                    }
-                    if (tr->x > patrolRange)
-                    {
-                        tr->x = patrolRange;
-                        ai->dir = -1.0f;
-                        ai->pauseTimer = pauseDuration;
-                    }
-                    // Optional: ensure a patrol/idle animation when not attacking
-                    PlayAnimationIfAvailable(enemy, "idle");
                 }
+
+                // Check boundaries OR collision
+                if (collisionDetected || futureX <= leftEdge || futureX >= rightEdge)
+                {
+                    ai->dir *= -1.0f;
+                    ai->pauseTimer = pauseDuration;
+                    rb->velX = 0.0f;
+                }
+
+                ai->prevX = tr->x;
+                PlayAnimationIfAvailable(enemy, "idle");
             }
         );
 
