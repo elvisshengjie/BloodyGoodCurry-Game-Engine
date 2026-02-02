@@ -1,5 +1,8 @@
 #include "Asset_Manager.h"
 /*********************************************************************************
+*\file    Asset_Manager.cpp
+ \par       SofaSpuds
+ \author     jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100% 
   \brief Get the project root folder by searching upwards for 'assets' and 'Data_Files'.
   \return Filesystem path to the root of the project.
   \throws std::runtime_error if the root cannot be found.

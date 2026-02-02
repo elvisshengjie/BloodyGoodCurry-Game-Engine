@@ -402,6 +402,12 @@ namespace Framework {
         }
         else if (rb && rb->knockbackTime > 0.0f)
         {
+            if (animState != AnimState::Knockback)
+            {
+                pendingThrow.active = false;
+                throwRequestQueued = false;
+                attackTimer = 0.f;
+            }
             SetAnimState(AnimState::Knockback);
         }
         // If we are in an attack animation, let it run to completion.
@@ -890,6 +896,14 @@ namespace Framework {
             {
                 throwCooldownTimer = std::max(0.0f, throwCooldownTimer - dt);
             }
+            if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
+            {
+                throwRequestQueued = true;
+            }
+            if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
+            {
+                throwRequestQueued = false;
+            }
 
             // Handle attack input: spawn through PlayerAttackComponent only (single source of truth).
             if (playerHealth && !playerHealth->isDead && input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
@@ -921,7 +935,7 @@ namespace Framework {
                 }
 
             }
-            else if (playerHealth && !playerHealth->isDead && input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) && attack && tr && rc)
+            else if (playerHealth && !playerHealth->isDead && throwRequestQueued && attack && tr && rc)
             {
                 const bool canThrow = throwCooldownTimer <= 0.0f && !pendingThrow.active && !IsAttackState(animState);
 
@@ -944,6 +958,7 @@ namespace Framework {
 
                     BeginThrowAttack();
                     throwCooldownTimer = std::max(throwCooldownTimer, AttackDurationForState(AnimState::Throw));
+                    throwRequestQueued = false;
                 }
             }
 

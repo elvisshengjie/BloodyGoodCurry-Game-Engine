@@ -2276,7 +2276,7 @@ namespace Framework {
                             int cols = 0;
                             int rows = 1;
                             int frames = 0;
-                            float fps = 12.0f;
+                            float fps = 18.0f;
 
                             if (hb->team == HitBoxComponent::Team::Enemy && fireProjectileTex)
                             {

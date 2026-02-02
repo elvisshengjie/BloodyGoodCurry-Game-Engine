@@ -434,9 +434,17 @@ namespace Framework
                                 float dirX = dx / norm;
                                 float dirY = dy / norm;
 
-                                // Spawn offset
+                                // Spawn offset to avoid immediate collisions with nearby hitboxes.
                                 float spawnX = tr->x;
                                 float spawnY = tr->y;
+                                if (rb)
+                                {
+                                    const float halfW = rb->width * 0.5f;
+                                    const float halfH = rb->height * 0.5f;
+                                    const float spawnOffset = std::max(halfW, halfH) + 0.1f;
+                                    spawnX += dirX * spawnOffset;
+                                    spawnY += dirY * spawnOffset;
+                                }
 
                                 logic->hitBoxSystem->SpawnProjectile(
                                     enemy,
