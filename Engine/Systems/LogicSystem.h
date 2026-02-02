@@ -179,7 +179,7 @@ namespace Framework {
         AnimConfig                           idleConfig{ 5,1,5,6.f };
         AnimConfig                           runConfig{ 8,1,8,10.f };
         AnimConfig                           attackConfigs[3]{ {13,1,13,12.f}, {8,1,8,12.f}, {9,1,9,12.f} };
-        AnimConfig                           throwConfig{ 14,1,14,18.f };
+        AnimConfig                           throwConfig{ 14,1,14,24.f };
         AnimConfig                           knockbackConfig{ 4,1,4,5.f };
         AnimConfig                           deathConfig{ 8,1,8,8.f };
         int                                  frame{ 0 };

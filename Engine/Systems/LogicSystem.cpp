@@ -409,7 +409,7 @@ namespace Framework {
             if (animState != AnimState::Knockback)
             {
                 pendingThrow.active = false;
-                throwRequestQueued = false;
+
                 attackTimer = 0.f;
             }
             if (knockbackAnimTimer <= 0.0f)
@@ -859,6 +859,8 @@ namespace Framework {
             // Velocity intent set on RigidBody; an external system integrates it.
             if (rb && tr && playerHealth && !playerHealth->isDead)
             {
+                const bool isKnockback = rb->knockbackTime > 0.0f || knockbackAnimTimer > 0.0f;
+                const bool isThrowing = animState == AnimState::Throw;
                 if (rb->lungeTime > 0.0f)
                 {
                     rb->lungeTime -= dt;
@@ -868,7 +870,7 @@ namespace Framework {
                         rb->lungeTime = 0.0f;
                     }
                 }
-                else
+                else if (!isKnockback && !isThrowing)
                 {
                     float forwardX = (rc) ? ((rc->w >= 0.0f) ? 1.0f : -1.0f) : 1.0f;
                     float speedModifier = 1.0f;
@@ -886,6 +888,11 @@ namespace Framework {
                     if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
                     if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S))
                         rb->velY *= rb->dampening;
+                }
+                else if (isThrowing && !isKnockback)
+                {
+                    rb->velX = 0.0f;
+                    rb->velY = 0.0f;
                 }
    
             }
@@ -921,7 +928,9 @@ namespace Framework {
             {
                 throwCooldownTimer = std::max(0.0f, throwCooldownTimer - dt);
             }
-            if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
+            const bool knockbackActive = rb && (rb->knockbackTime > 0.0f || knockbackAnimTimer > 0.0f);
+            if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) ||
+                (knockbackActive && input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT)))
             {
                 throwRequestQueued = true;
             }
@@ -962,7 +971,8 @@ namespace Framework {
             }
             else if (playerHealth && !playerHealth->isDead && throwRequestQueued && attack && tr && rc)
             {
-                const bool canThrow = throwCooldownTimer <= 0.0f && !pendingThrow.active && !IsAttackState(animState);
+                const bool canThrow = throwCooldownTimer <= 0.0f && !pendingThrow.active &&
+                    !IsAttackState(animState) && !knockbackActive;
 
                 // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
                 if (canThrow && (aimDirX != 0.0f || aimDirY != 0.0f))
@@ -997,7 +1007,7 @@ namespace Framework {
                     hitBoxSystem->SpawnProjectile(player,
                         pendingThrow.spawnX, pendingThrow.spawnY,
                         pendingThrow.dirX, pendingThrow.dirY,
-                        0.3f,
+                        0.8f,
                         0.1f, 0.1f,
                         1.0f, 5.f, HitBoxComponent::Team::Thrown);
 
