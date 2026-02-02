@@ -394,10 +394,14 @@ namespace Framework {
         if (rb && rb->knockbackTime > 0.0f)
             rb->knockbackTime = std::max(0.0f, rb->knockbackTime - dt);
 
+        if (knockbackAnimTimer > 0.0f)
+            knockbackAnimTimer = std::max(0.0f, knockbackAnimTimer - dt);
+
         const bool playerDead = health && health->playerHealth <= 0;
 
         if (playerDead)
         {
+            knockbackAnimTimer = 0.0f;
             SetAnimState(AnimState::Death);
         }
         else if (rb && rb->knockbackTime > 0.0f)
@@ -408,6 +412,16 @@ namespace Framework {
                 throwRequestQueued = false;
                 attackTimer = 0.f;
             }
+            if (knockbackAnimTimer <= 0.0f)
+            {
+                const AnimConfig cfg = ConfigFromSpriteSheet(animComp, AnimState::Knockback);
+                const float fps = cfg.fps > 0.0f ? cfg.fps : 1.0f;
+                knockbackAnimTimer = static_cast<float>(cfg.frames) / fps;
+            }
+            SetAnimState(AnimState::Knockback);
+        }
+        else if (knockbackAnimTimer > 0.0f)
+        {
             SetAnimState(AnimState::Knockback);
         }
         // If we are in an attack animation, let it run to completion.
