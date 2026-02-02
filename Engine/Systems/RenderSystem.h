@@ -228,6 +228,7 @@ namespace Framework {
         unsigned idleTex = 0;                 //!< Idle animation sheet.
         unsigned runTex = 0;                  //!< Run animation sheet.
         std::array<unsigned, 3> attackTex{};  //!< Combo attack sheets (1st / 2nd / 3rd).
+        unsigned knockbackTex = 0;            //!< Knockback animation sheet.
         unsigned knifeTex = 0;                //!< Animated knife projectile sheet.
         unsigned fireProjectileTex = 0;       //!< Fire enemy projectile sheet.
 

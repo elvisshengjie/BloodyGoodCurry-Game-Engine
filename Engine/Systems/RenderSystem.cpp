@@ -470,6 +470,7 @@ namespace Framework {
         case Mode::Attack3:
             return attackTex[2] ? attackTex[2] : idleTex;
         case Mode::Knockback:
+            return knockbackTex ? knockbackTex : idleTex;
         case Mode::Death:
             return idleTex ? idleTex : playerTex;
         case Mode::Idle:
@@ -1882,6 +1883,7 @@ namespace Framework {
         Resource_Manager::load("ming_attack2", resolveAsset("Textures/Character/Ming_Sprite/2nd_Attack Sprite.png"));
         Resource_Manager::load("ming_attack3", resolveAsset("Textures/Character/Ming_Sprite/3rd_Attack Sprite.png"));
         Resource_Manager::load("ming_throw", resolveAsset("Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png"));
+        Resource_Manager::load("ming_knockback", resolveAsset("Textures/Character/Ming_Sprite/Knockback_Sprite.png"));
         Resource_Manager::load("ming_knife", resolveAsset("Textures/Character/Ming_Sprite/Knife_Sprite.png"));
         Resource_Manager::load("fire_projectile", resolveAsset("Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png"));
         Resource_Manager::load("impact_vfx_sheet", resolveAsset("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png"));
@@ -1890,6 +1892,7 @@ namespace Framework {
         attackTex[0] = Resource_Manager::resources_map["ming_attack1"].handle;
         attackTex[1] = Resource_Manager::resources_map["ming_attack2"].handle;
         attackTex[2] = Resource_Manager::resources_map["ming_attack3"].handle;
+        knockbackTex = Resource_Manager::resources_map["ming_knockback"].handle;
         knifeTex = Resource_Manager::resources_map["ming_knife"].handle;
         fireProjectileTex = Resource_Manager::resources_map["fire_projectile"].handle;
 
