@@ -652,6 +652,9 @@ namespace Framework {
         {
             leftMouseDownPrev = false;
             draggingSelection = false;
+            dragUndoPending = false;
+            dragUndoMoved = false;
+            dragUndoObjectId = 0;
             return;
         }
         if (!showEditor)
@@ -659,6 +662,9 @@ namespace Framework {
             // no picking/dragging when editor UI is hidden
             leftMouseDownPrev = false;
             draggingSelection = false;
+            dragUndoPending = false;
+            dragUndoMoved = false;
+            dragUndoObjectId = 0;
             return;
         }
 
@@ -667,6 +673,9 @@ namespace Framework {
         {
             leftMouseDownPrev = glfwGetMouseButton(window->raw(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             draggingSelection = false;
+            dragUndoPending = false;
+            dragUndoMoved = false;
+            dragUndoObjectId = 0;
             return;
         }
 
@@ -676,6 +685,9 @@ namespace Framework {
         {
             leftMouseDownPrev = false;
             draggingSelection = false;
+            dragUndoPending = false;
+            dragUndoMoved = false;
+            dragUndoObjectId = 0;
             return;
         }
 
@@ -684,6 +696,23 @@ namespace Framework {
         const bool mouseDown = glfwGetMouseButton(native, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
         const bool pressed = mouseDown && !leftMouseDownPrev;
         const bool released = !mouseDown && leftMouseDownPrev;
+        auto finalizeDragUndo = [&]()
+            {
+                if (!dragUndoPending)
+                    return;
+
+                if (dragUndoMoved && dragUndoObjectId != 0 && FACTORY)
+                {
+                    if (auto* target = FACTORY->GetObjectWithId(dragUndoObjectId))
+                    {
+                        mygame::editor::RecordTransformChange(*target, dragUndoStart);
+                    }
+                }
+
+                dragUndoPending = false;
+                dragUndoMoved = false;
+                dragUndoObjectId = 0;
+            };
 
         double cursorX = 0.0;
         double cursorY = 0.0;
@@ -732,6 +761,7 @@ namespace Framework {
 
             leftMouseDownPrev = mouseDown;
             draggingSelection = false;
+            finalizeDragUndo();
             return;
         }
 
@@ -795,6 +825,7 @@ namespace Framework {
 
             leftMouseDownPrev = mouseDown;
             draggingSelection = false;
+            finalizeDragUndo();
             return;
         }
 
@@ -827,6 +858,10 @@ namespace Framework {
                         dragOffsetX = tr->x - worldX;
                         dragOffsetY = tr->y - worldY;
                         draggingSelection = true;
+                        dragUndoStart = mygame::editor::CaptureTransformSnapshot(*obj);
+                        dragUndoObjectId = pickedId;
+                        dragUndoPending = true;
+                        dragUndoMoved = false;
 
                         // If we started dragging the Player, lock camera follow at the start position.
                         if (IsPlayerObject(obj))
@@ -849,7 +884,10 @@ namespace Framework {
         }
 
         if (draggingSelection && (!mouseDown || wantCapture))
+        { 
             draggingSelection = false;
+            finalizeDragUndo();
+        }
 
         if (draggingSelection)
         {
@@ -861,6 +899,11 @@ namespace Framework {
                     if (auto* tr = obj->GetComponentType<Framework::TransformComponent>(
                         Framework::ComponentTypeId::CT_TransformComponent))
                     {
+                        const float nextX = worldX + dragOffsetX;
+                        const float nextY = worldY + dragOffsetY;
+                        if (std::fabs(tr->x - nextX) > 0.0001f || std::fabs(tr->y - nextY) > 0.0001f)
+                            dragUndoMoved = true;
+
                         tr->x = worldX + dragOffsetX;
                         tr->y = worldY + dragOffsetY;
 
@@ -870,23 +913,27 @@ namespace Framework {
                     else
                     {
                         draggingSelection = false;
+                        finalizeDragUndo();
                     }
                 }
                 else
                 {
                     mygame::ClearSelection();
                     draggingSelection = false;
+                    finalizeDragUndo();
                 }
             }
             else
             {
                 draggingSelection = false;
+                finalizeDragUndo();
             }
         }
 
         if (released)
         {
             draggingSelection = false;
+            finalizeDragUndo();
             // On release, always unlock camera follow (if it was locked due to dragging Player).
             gCameraFollowLocked = false;
         }

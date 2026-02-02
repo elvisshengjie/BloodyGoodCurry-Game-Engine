@@ -42,6 +42,7 @@
 #include "Debug/AssetBrowserPanel.h"
 #include "Debug/AnimationEditorPanel.h"
 #include "Debug/JsonEditorPanel.h"
+#include "Debug/UndoStack.h"
 #endif
 
 #include "Factory/Factory.h"
@@ -266,6 +267,13 @@ namespace Framework {
         bool  draggingSelection = false;
         float dragOffsetX = 0.0f;
         float dragOffsetY = 0.0f;
+#if SOFASPUDS_ENABLE_EDITOR
+        mygame::editor::TransformSnapshot dragUndoStart{};
+        Framework::GOCId dragUndoObjectId = 0;
+        bool  dragUndoPending = false;
+        bool  dragUndoMoved = false;
+#endif
+
 
         // --- Eraser tool (editor) --------------------------------------------------------
         bool  eraserMode = false;
