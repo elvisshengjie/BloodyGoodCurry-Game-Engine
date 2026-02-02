@@ -35,7 +35,7 @@
 #include "Systems/VfxHelpers.h"
 #include "Memory/GameObjectPool.h"
 #include "Resource_Asset_Manager/Resource_Manager.h"
-
+#include "Systems/ParticleSystem.h"
 #include <cctype>
 #include <string>
 #include <string_view>
@@ -885,7 +885,18 @@ namespace Framework {
                 input.IsKeyHeld(GLFW_KEY_RIGHT) ||
                 input.IsKeyHeld(GLFW_KEY_UP) ||
                 input.IsKeyHeld(GLFW_KEY_DOWN);
-
+            runParticleTimer = std::max(0.0f, runParticleTimer - dt);
+            const bool isMoving =
+                (rb && (std::fabs(rb->velX) > 0.01f || std::fabs(rb->velY) > 0.01f));
+            if (wantRun && isMoving && playerHealth && !playerHealth->isDead && tr && rc && runParticleTimer <= 0.0f)
+            {
+                if (auto* particleSystem = ParticleSystem::Instance())
+                {
+                    const float facingDir = (rc->w >= 0.0f) ? 1.0f : -1.0f;
+                    particleSystem->SpawnRunParticles({ tr->x, tr->y }, facingDir);
+                }
+                runParticleTimer = 0.08f;
+            }
             // Update PlayerAttackComponent (handles hitbox lifetime)
             if (attack && tr && !playerHealth->isDead)
             {

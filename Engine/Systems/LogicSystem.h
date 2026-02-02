@@ -200,7 +200,8 @@ namespace Framework {
         PendingThrow                         pendingThrow{};
         float                                throwCooldownTimer{ 0.0f };
         bool                                 throwRequestQueued{ false };
-        
+
+        float                                runParticleTimer{ 0.0f };
     };
 
 } // namespace Framework
