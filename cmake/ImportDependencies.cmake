@@ -107,6 +107,21 @@ macro(import_freetype)
   endif()
 endmacro()
 
+# ---- pl_mpeg (MPEG1 decoder, single-header) ----
+macro(import_pl_mpeg)
+  if (NOT TARGET pl_mpeg)
+    FetchContent_Declare(
+      pl_mpeg
+      GIT_REPOSITORY https://github.com/phoboslab/pl_mpeg.git
+      GIT_TAG master
+    )
+    FetchContent_MakeAvailable(pl_mpeg)
+
+    # Header-only "interface" target so include dirs propagate
+    add_library(pl_mpeg INTERFACE)
+    target_include_directories(pl_mpeg INTERFACE ${pl_mpeg_SOURCE_DIR})
+  endif()
+endmacro()
 
 # ---- Bundle entrypoint ----
 macro(importDependencies)
@@ -115,4 +130,5 @@ macro(importDependencies)
   import_stb_image()
   import_imgui()
   import_freetype()
+  import_pl_mpeg()
 endmacro()
