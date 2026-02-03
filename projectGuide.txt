@@ -59,11 +59,27 @@ Once the solution is open in Visual Studio, you can toggle between configuration
   - Features: Fully optimized code. Debug logs may be disabled.
   - Performance: Runs at maximum speed.
     -F1 to show performance panel
-  
 
-Real-time (in-game) editor
-Toggle at runtime: Press F10 to show/hide the editor panels.
-Toggle F11 to minimize screen/fullscreen
+Editor Mode (Offline)
+
+-Run: clean.bat then run.bat
+
+Game Mode (Offline / no editor)
+
+-Run: clean.bat then run_game.bat
+
+ShortCut
+F10: Toggle editor panels (show/hide editor UI).
+
+F11: Toggle fullscreen. (Works regardless of editor).
+
+Extra editor controls when editor UI is visible:
+
+T / R / S switch gizmo modes (Translate/Rotate/Scale).
+
+Delete removes selected object (editor-only flow).
+
+
 
 
 

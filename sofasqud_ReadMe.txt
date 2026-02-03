@@ -63,6 +63,7 @@ S - Scale
 Control Z undo
 Editor & Viewport
 
+Keys
 F10: Toggle Editor panels (dockspace & tools).
 F11: Toggle fullscreen/windowed mode.
 F1 Performance window
@@ -71,8 +72,17 @@ f9 crash game (debugging)
 Delete by pressing on keyboard Delete the selected object
 control Z to undo button
 
-Using the In-Game Editor (real time)
+Enter: “Start” button equivalent
+Used to skip cutscene and also to pause/resume 
 
+Esc: Pause / Back equivalent
+Used to pause during gameplay (when not in editor mode) and also to skip cutscene.
+
+Using the In-Game Editor (real time)
+Editor camera controls (stop mode)
+Middle Mouse Button (hold + drag): Pan editor camera (only when cursor is inside the viewport)
+
+Mouse Wheel (scroll): Zoom editor camera (zooms around the cursor)
 Open the editor: press F10. Panels appear on the right (dockspace). 
 Viewport Controls: small floating helper to toggle editor/viewport sizing, and play/stop sim.
 
@@ -108,6 +118,9 @@ To edit the spritesheet and change the settings of the object
 inspector window
 
 To read the object component values
+
+layer 
+To spawn object at certain layer, check visibility of certain layer
 
 
 Important!
