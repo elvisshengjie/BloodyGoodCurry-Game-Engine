@@ -20,9 +20,11 @@
 #include "Audio/SoundManager.h"
 #include "Debug/CrashLogger.hpp"
 #include "Graphics/Graphics.hpp"
+#include "Core/PathUtils.h"
 #include "Debug/Perf.h"
 #include "Memory/GameObjectPool.h"
 #include "Memory/ObjectAllocator.h"
+#include "Video/VideoPlayer.hpp"
 #include <algorithm>
 #include <array>
 #include <GLFW/glfw3.h>
@@ -48,6 +50,7 @@ namespace mygame {
         const char* MAIN_MENU_BGM = "MenuMusic";
         const char* START_BUTTTON = "MenuGameStart";
         const char* EXIT_BUTTTON = "Quit";
+        const char* CUTSCENE_AUDIO = "CutsceneAudio";
         // BGM Sounds
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
@@ -105,7 +108,7 @@ namespace mygame {
         Framework::HealthSystem* gHealthSystem = nullptr;
         Framework::ParticleSystem* gParticleSystem = nullptr;
 
-        enum class GameState { MAIN_MENU, TRANSITIONING, PLAYING, PAUSED, DEFEAT, EXIT };
+        enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, PLAYING, PAUSED, DEFEAT, EXIT };
         GameState currentState = GameState::MAIN_MENU;
         bool editorSimulationRunning = false;
        
@@ -113,6 +116,9 @@ namespace mygame {
         MainMenuPage mainMenu;
         PauseMenuPage pauseMenu;
         DefeatScreenPage defeatScreen;
+        Framework::VideoPlayer cutscenePlayer;
+        bool cutsceneReady = false;
+        bool cutsceneAudioPlaying = false;
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
@@ -147,6 +153,16 @@ namespace mygame {
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+        cutsceneReady = cutscenePlayer.Load(Framework::ResolveAssetPath("Video/output.mpg").string());
+        if (!cutsceneReady) {
+            std::cerr << "[Cutscene] Warning: Could not load Video/output.mpg.\n";
+        }
+        if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
+            const auto cutsceneAudioPath = Framework::ResolveAssetPath("Video/audio.mp3").string();
+            if (!SoundManager::getInstance().loadSound(CUTSCENE_AUDIO, cutsceneAudioPath)) {
+                std::cerr << "[Cutscene] Warning: Could not load Video/audio.mp3.\n";
+            }
+        }
         currentState = GameState::MAIN_MENU;
 
         editorSimulationRunning = false;
@@ -165,7 +181,7 @@ namespace mygame {
             float sfxVolume = pauseMenu.GetSfxVolume();
             const auto& pauseOptions = pauseMenu.GetOptionsValues();
             const auto& mainOptions = mainMenu.GetOptionsValues();
-            if (currentState == GameState::MAIN_MENU || currentState == GameState::TRANSITIONING) {
+            if (currentState == GameState::MAIN_MENU || currentState == GameState::TRANSITIONING || currentState == GameState::CUTSCENE) {
                 bgmVolume = mainMenu.GetBgmVolume();
                 sfxVolume = mainMenu.GetSfxVolume();
                 pauseMenu.SetOptionsValues(mainOptions);
@@ -201,8 +217,19 @@ namespace mygame {
                         SoundManager::getInstance().playSound(START_BUTTTON);
                     SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM);
                     SoundManager::getInstance().fadeOutMusic(MAIN_MENU_BGM, kBGMFadeDuration);
-                    currentState = GameState::TRANSITIONING;
-                    transitionTimer = kStartTransitionDuration;
+                    if (cutsceneReady) {
+                        cutscenePlayer.Start();
+                        if (SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
+                            SoundManager::getInstance().stopSound(CUTSCENE_AUDIO);
+                            SoundManager::getInstance().playSound(CUTSCENE_AUDIO, 1.0f, 1.0f, false);
+                            cutsceneAudioPlaying = true;
+                        }
+                        currentState = GameState::CUTSCENE;
+                    }
+                    else {
+                        currentState = GameState::TRANSITIONING;
+                        transitionTimer = kStartTransitionDuration;
+                    }
                     editorSimulationRunning = false;
                     pauseMenu.ResetLatches();
                     if (gHealthSystem)
@@ -222,6 +249,23 @@ namespace mygame {
                     editorSimulationRunning = true;
                 }
                 break;
+
+            case GameState::CUTSCENE: {
+                cutscenePlayer.Update(dt);
+                handlePerfToggle();
+                const bool skipCutscene = gInputSystem &&
+                    (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
+                if (skipCutscene || cutscenePlayer.IsFinished())
+                {
+                    if (cutsceneAudioPlaying && SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
+                        SoundManager::getInstance().stopSound(CUTSCENE_AUDIO);
+                    }
+                    cutsceneAudioPlaying = false;
+                    currentState = GameState::PLAYING;
+                    editorSimulationRunning = true;
+                }
+                break;
+            }
 
             case GameState::PLAYING:
                 if (editorSimulationRunning)
@@ -419,6 +463,16 @@ namespace mygame {
                         static_cast<float>(gRenderSystem->ScreenHeight()),
                         0.0f, 0.0f, 0.0f, normalized,
                         gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+                    gRenderSystem->EndMenuFrame();
+                    gRenderSystem->RenderBrightnessOverlay();
+                }
+                break;
+
+            case GameState::CUTSCENE:
+                if (gRenderSystem)
+                {
+                    gRenderSystem->BeginMenuFrame();
+                    cutscenePlayer.Draw();
                     gRenderSystem->EndMenuFrame();
                     gRenderSystem->RenderBrightnessOverlay();
                 }

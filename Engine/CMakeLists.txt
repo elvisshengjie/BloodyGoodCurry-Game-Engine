@@ -86,6 +86,7 @@ target_link_libraries(${ENGINE_NAME} PUBLIC
     stb_image
     glm::glm
     freetype
+    pl_mpeg
 )
 
 target_link_libraries(${ENGINE_NAME} PRIVATE
