@@ -50,6 +50,7 @@ namespace mygame {
         const char* MAIN_MENU_BGM = "MenuMusic";
         const char* START_BUTTTON = "MenuGameStart";
         const char* EXIT_BUTTTON = "Quit";
+        const char* CUTSCENE_AUDIO = "CutsceneAudio";
         // BGM Sounds
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
@@ -60,7 +61,6 @@ namespace mygame {
         bool defeatBGMPlaying = false;
         bool defeatSoundStarted = false;
         bool boilingStarted = false;
-        const char* CUTSCENE_AUDIO = "CutsceneAudio";
         //Timer
         float bgmFadeTimer = 0.0f;
         constexpr float kBGMFadeDuration = 1.5f;
@@ -118,6 +118,7 @@ namespace mygame {
         DefeatScreenPage defeatScreen;
         Framework::VideoPlayer cutscenePlayer;
         bool cutsceneReady = false;
+        bool cutsceneAudioPlaying = false;
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
@@ -155,11 +156,11 @@ namespace mygame {
         cutsceneReady = cutscenePlayer.Load(Framework::ResolveAssetPath("Video/output.mpg").string());
         if (!cutsceneReady) {
             std::cerr << "[Cutscene] Warning: Could not load Video/output.mpg.\n";
-        } else {
-            if (!SoundManager::getInstance().loadSound(
-                    CUTSCENE_AUDIO,
-                    Framework::ResolveAssetPath("Video/output.mpg").string())) {
-                std::cerr << "[Cutscene] Warning: Could not load cutscene audio.\n";
+        }
+        if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
+            const auto cutsceneAudioPath = Framework::ResolveAssetPath("Video/audio.mp3").string();
+            if (!SoundManager::getInstance().loadSound(CUTSCENE_AUDIO, cutsceneAudioPath)) {
+                std::cerr << "[Cutscene] Warning: Could not load Video/audio.mp3.\n";
             }
         }
         currentState = GameState::MAIN_MENU;
@@ -217,12 +218,12 @@ namespace mygame {
                     SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM);
                     SoundManager::getInstance().fadeOutMusic(MAIN_MENU_BGM, kBGMFadeDuration);
                     if (cutsceneReady) {
-                        SoundManager::getInstance().stopAllSounds();
-
-                        if (SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
-                            SoundManager::getInstance().playSound(CUTSCENE_AUDIO, 1.0f, 1.0f, false);
-                        }
                         cutscenePlayer.Start();
+                        if (SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
+                            SoundManager::getInstance().stopSound(CUTSCENE_AUDIO);
+                            SoundManager::getInstance().playSound(CUTSCENE_AUDIO, 1.0f, 1.0f, false);
+                            cutsceneAudioPlaying = true;
+                        }
                         currentState = GameState::CUTSCENE;
                     }
                     else {
@@ -256,7 +257,10 @@ namespace mygame {
                     (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
                 if (skipCutscene || cutscenePlayer.IsFinished())
                 {
-                    SoundManager::getInstance().stopSound(CUTSCENE_AUDIO);
+                    if (cutsceneAudioPlaying && SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
+                        SoundManager::getInstance().stopSound(CUTSCENE_AUDIO);
+                    }
+                    cutsceneAudioPlaying = false;
                     currentState = GameState::PLAYING;
                     editorSimulationRunning = true;
                 }
