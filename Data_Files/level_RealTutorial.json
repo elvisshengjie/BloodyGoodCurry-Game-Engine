@@ -144,7 +144,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.8899911642074585,
+            "x": 1.889991283416748,
             "y": -1.6109999418258667
           }
         },
@@ -264,7 +264,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.899999976158142,
+            "x": 1.9000000953674316,
             "y": 0.800000011920929
           }
         },
@@ -312,169 +312,6 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -2.611999988555908,
-            "y": -1.0980000495910645
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.3884485960006714,
-            "y": -1.237348198890686
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 3.350001335144043,
-            "y": -1.0980000495910645
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png",
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -2.6080336570739746,
-            "y": 0.4113007187843323
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.3519294261932373,
-            "y": 0.20063436031341553
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 3.3499999046325684,
-            "y": 0.4039999842643738
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
             "w": 2.0
           },
           "SpriteComponent": {
@@ -485,10 +322,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -3.090667486190796,
-            "y": 1.899999976158142
+            "y": 1.8899999856948853
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset"
       },
       {
@@ -512,10 +349,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -1.2200000286102295,
-            "y": 1.899999976158142
+            "y": 1.8899999856948853
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset"
       },
       {
@@ -539,10 +376,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 0.6402255296707153,
-            "y": 1.899999976158142
+            "y": 1.8899999856948853
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset"
       },
       {
@@ -566,10 +403,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 2.514207363128662,
-            "y": 1.899999976158142
+            "y": 1.8899999856948853
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset"
       },
       {
@@ -606,7 +443,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -628,7 +465,7 @@
             "y": 0.6679999828338623
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Hawker_Store_Animated"
       },
       {
@@ -641,6 +478,7 @@
             "h": 0.5,
             "layer": 15,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Bucket.png",
             "visible": true,
             "w": 0.5
           },
@@ -651,11 +489,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.0007632970809937,
-            "y": -1.664929986000061
+            "x": -0.9782395362854004,
+            "y": -1.6856082677841187
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Front_Of_Player"
       },
       {
@@ -682,7 +520,7 @@
             "y": -1.6877328157424927
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Front_Of_Player"
       },
       {
@@ -705,11 +543,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.8164582252502441,
-            "y": -1.7069087028503418
+            "x": -0.788974940776825,
+            "y": -1.7275210618972778
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Front_Of_Player"
       },
       {
@@ -736,7 +574,7 @@
             "y": -1.7604155540466309
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Front_Of_Player"
       },
       {
@@ -763,7 +601,7 @@
             "y": -1.20277738571167
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Front_Of_Player"
       },
       {
@@ -790,7 +628,7 @@
             "y": -0.9190945029258728
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -817,7 +655,7 @@
             "y": -0.9401041269302368
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -844,7 +682,7 @@
             "y": -1.2024304866790771
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -868,10 +706,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -4.054407596588135,
-            "y": -0.09893948584794998
+            "y": -0.09893949329853058
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -898,7 +736,7 @@
             "y": 0.2682291865348816
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -921,11 +759,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.527519941329956,
-            "y": -0.10350251197814941
+            "x": 2.5186145305633545,
+            "y": 0.009145081043243408
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -952,7 +790,7 @@
             "y": 0.278645783662796
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -978,9 +816,9 @@
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.71180659532547,
-            "y": -1.085937261581421
+            "scale_y": 0.9746946692466736,
+            "x": -0.7149999737739563,
+            "y": -1.1336182355880737
           }
         },
         "layer": "Gameplay:0",
@@ -1014,170 +852,8 @@
             "y": 0.0
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Background:1",
         "name": "Rect"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -5.599999904632568,
-            "y": 0.40699997544288635
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -5.580002307891846,
-            "y": -1.0980000495910645
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -2.5880000591278076,
-            "y": -2.549999952316284
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -5.579999923706055,
-            "y": -2.549999952316284
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.38499999046325684,
-            "y": -2.549999952316284
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 1.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 3.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Floor.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 3.3499999046325684,
-            "y": -2.549999952316284
-          }
-        },
-        "layer": "Background:0",
-        "name": "Art_Asset"
       },
       {
         "Components": {
@@ -1200,10 +876,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -4.960000038146973,
-            "y": 1.899999976158142
+            "y": 1.8899999856948853
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1230,7 +906,7 @@
             "y": 0.21400000154972076
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1257,7 +933,7 @@
             "y": 0.21400000154972076
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1284,7 +960,7 @@
             "y": 0.21399998664855957
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1311,7 +987,7 @@
             "y": 0.21400000154972076
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1338,7 +1014,7 @@
             "y": 0.2240000069141388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1351,6 +1027,7 @@
             "h": 0.699999988079071,
             "layer": -3,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Table.png",
             "visible": true,
             "w": 0.699999988079071
           },
@@ -1365,7 +1042,7 @@
             "y": 0.2199999988079071
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1392,7 +1069,7 @@
             "y": -1.0138885974884033
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1419,7 +1096,7 @@
             "y": -1.0140000581741333
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1446,7 +1123,7 @@
             "y": -1.0140000581741333
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1473,7 +1150,7 @@
             "y": -1.0140000581741333
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1500,7 +1177,7 @@
             "y": -1.0140000581741333
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1527,7 +1204,7 @@
             "y": -1.0140000581741333
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1551,10 +1228,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -1.8554532527923584,
-            "y": -2.2024435997009277
+            "y": -2.1351442337036133
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1581,7 +1258,7 @@
             "y": -2.13700008392334
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1608,7 +1285,7 @@
             "y": -2.13700008392334
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1635,7 +1312,7 @@
             "y": -2.131120204925537
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1902,7 +1579,7 @@
             "y": 0.6629999876022339
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1929,7 +1606,7 @@
             "y": 0.6626735925674438
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1956,7 +1633,7 @@
             "y": 0.6639999747276306
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -1983,7 +1660,7 @@
             "y": 0.6639999747276306
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2010,7 +1687,7 @@
             "y": 0.6620000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2034,10 +1711,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 3.4619998931884766,
-            "y": 0.6617830395698547
+            "y": 0.6656782031059265
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2064,7 +1741,7 @@
             "y": 0.6620000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2091,7 +1768,7 @@
             "y": 0.6620000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2118,7 +1795,7 @@
             "y": 0.6620009541511536
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2145,7 +1822,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2172,7 +1849,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2199,7 +1876,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2226,7 +1903,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2253,7 +1930,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2280,7 +1957,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2307,7 +1984,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2334,7 +2011,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2361,7 +2038,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2388,7 +2065,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2401,6 +2078,7 @@
             "h": 0.6850000023841858,
             "layer": -3,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Store 01.png",
             "visible": true,
             "w": 0.6850000023841858
           },
@@ -2411,11 +2089,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.07995840907096863,
+            "x": -0.07995840162038803,
             "y": -0.5370001196861267
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2442,7 +2120,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2469,7 +2147,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2496,7 +2174,7 @@
             "y": 0.6620000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2523,7 +2201,7 @@
             "y": 0.6620001792907715
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2550,7 +2228,7 @@
             "y": 0.6620000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2577,7 +2255,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2604,7 +2282,7 @@
             "y": -0.5388975143432617
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2628,10 +2306,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -4.630486965179443,
-            "y": -0.538425624370575
+            "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2644,6 +2322,7 @@
             "h": 0.6850000023841858,
             "layer": -3,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Store 02.png",
             "visible": true,
             "w": 0.6850000023841858
           },
@@ -2658,7 +2337,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2685,7 +2364,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2712,7 +2391,7 @@
             "y": -1.6718254089355469
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2735,11 +2414,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.07999999821186066,
+            "x": -0.07999998331069946,
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2761,12 +2440,12 @@
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
-            "scale_y": 1.0,
+            "scale_y": 1.0026624202728271,
             "x": 0.7499930262565613,
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2793,7 +2472,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2820,7 +2499,7 @@
             "y": 0.6639999747276306
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2847,7 +2526,7 @@
             "y": 0.6639999747276306
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2874,7 +2553,7 @@
             "y": 0.6639999747276306
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2901,7 +2580,7 @@
             "y": -0.5347549915313721
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2928,7 +2607,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2955,7 +2634,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -2982,7 +2661,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3009,7 +2688,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3036,7 +2715,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3063,7 +2742,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3090,7 +2769,7 @@
             "y": -1.6720000505447388
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3114,10 +2793,10 @@
             "scale_x": 1.0,
             "scale_y": 1.004312515258789,
             "x": 2.002000093460083,
-            "y": -0.558967113494873
+            "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3130,6 +2809,7 @@
             "h": 0.6850000023841858,
             "layer": -3,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Store 03.png",
             "visible": true,
             "w": 0.6850000023841858
           },
@@ -3140,11 +2820,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.3360000252723694,
-            "y": -0.5370000004768372
+            "x": 0.33252063393592834,
+            "y": -0.5408933162689209
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3171,7 +2851,7 @@
             "y": -0.5370000004768372
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3194,11 +2874,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.7371019124984741,
+            "x": -1.7369999885559082,
             "y": -0.5351024866104126
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Art_Asset_Forward"
       },
       {
@@ -3267,7 +2947,7 @@
             "y": 0.8816366791725159
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Hawker_Gate"
       },
       {
@@ -3365,7 +3045,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3428,7 +3108,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.415599822998047,
+            "x": -0.4843980073928833,
             "y": -0.026206105947494507
           }
         },
@@ -3530,7 +3210,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3593,8 +3273,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.5898394584655762,
-            "y": 0.05491650104522705
+            "x": -3.5098376274108887,
+            "y": 0.054916493594646454
           }
         },
         "layer": "Gameplay:0",
@@ -3691,7 +3371,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 7,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3754,7 +3434,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.5546741485595703,
+            "x": -3.5546722412109375,
             "y": -1.1523995399475098
           }
         },
@@ -3852,7 +3532,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 7,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3915,8 +3595,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.315169095993042,
-            "y": 0.023220926523208618
+            "x": 0.8749880790710449,
+            "y": 0.3022143840789795
           }
         },
         "layer": "Gameplay:0",
@@ -4046,8 +3726,8 @@
           },
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
-            "velocity_x": 0.0,
-            "velocity_y": 1.401298464324817e-45,
+            "velocity_x": 8.812472529484694e-09,
+            "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
@@ -4063,7 +3743,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 2,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -4078,7 +3758,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 1,
+                "currentFrame": 3,
                 "name": "run",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -4186,8 +3866,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.6578298807144165,
-            "y": -1.437958836555481
+            "x": -0.7102326154708862,
+            "y": -1.4777675867080688
           }
         },
         "layer": "Gameplay:0",
@@ -4217,7 +3897,7 @@
             "y": 0.12574321031570435
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "artassetsForward"
       },
       {
@@ -4244,7 +3924,7 @@
             "y": -0.9794185757637024
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4271,7 +3951,7 @@
             "y": -1.2304253578186035
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4298,7 +3978,7 @@
             "y": -0.5043726563453674
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4325,34 +4005,7 @@
             "y": -0.4921700954437256
           }
         },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.4000000059604645,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.4000000059604645
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.589099109172821,
-            "y": -0.5125077366828918
-          }
-        },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4379,7 +4032,7 @@
             "y": -0.4962376356124878
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4452,6 +4105,7 @@
             "h": 0.5,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Cart.png",
             "visible": true,
             "w": 0.5
           },
@@ -4466,7 +4120,7 @@
             "y": -0.3356728255748749
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4521,6 +4175,3510 @@
             "scale_y": 1.0,
             "x": -0.2057948261499405,
             "y": -0.8079298138618469
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.715061604976654,
+            "y": -1.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7149999737739563,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7149999737739563,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2850000858306885,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7149999737739563,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.7850000858306885,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.7850000858306885,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7850000262260437,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.284999966621399,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.784999966621399,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7149999737739563,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2849999964237213,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7149999737739563,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.4000000059604645
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/Cleaning_Sign_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.607795000076294,
+            "y": -0.4943486452102661
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7149999737739563,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.715000033378601,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.2149999141693115,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.7149999141693115,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.2149999141693115,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7149999141693115,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.215000152587891,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.715000152587891,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -5.215000152587891,
+            "y": -1.1100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7149999141693115,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.715000033378601,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.2149999141693115,
+            "y": 0.014999999664723873
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.7149999141693115,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2849999964237213,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7149999141693115,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2850000858306885,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.784999966621399,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.284999966621399,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.7850000858306885,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7850000262260437,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.7850000858306885,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.2149999141693115,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -5.215000152587891,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.215000152587891,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.715000152587891,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7149999141693115,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.2149999141693115,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.7149999141693115,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": -1.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.2149999141693115,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.715000152587891,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.215000152587891,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.715000033378601,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -5.215000152587891,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -5.215000152587891,
+            "y": -1.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.715000033378601,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.2149999141693115,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.715000152587891,
+            "y": -1.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.284999966621399,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7850000262260437,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2849999964237213,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.784999966621399,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2850000858306885,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.7850000858306885,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": -1.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.715000152587891,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.7850000858306885,
+            "y": -2.109999895095825
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": -1.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.2149999141693115,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.7850000858306885,
+            "y": -1.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -5.215000152587891,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7149999141693115,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.215000152587891,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.215000152587891,
+            "y": 0.015000000596046448
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2850000858306885,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.284999966621399,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2849999964237213,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.784999966621399,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.7850000858306885,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7850000262260437,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.7850000858306885,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7850000262260437,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2849999964237213,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.784999966621399,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2150000035762787,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.7850000858306885,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.2850000858306885,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 3.7850000858306885,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.7149999141693115,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.284999966621399,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -5.215000152587891,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -5.215000152587891,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.715000152587891,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.7850000858306885,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2850000858306885,
+            "y": -0.10999999940395355
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2850000858306885,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Whitefloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.7850000858306885,
+            "y": -0.6100000143051147
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.715000033378601,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.2149999141693115,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.215000033378601,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.2149999141693115,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7149999141693115,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.715000152587891,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.7149999141693115,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.215000152587891,
+            "y": 0.38999998569488525
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7850000262260437,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.784999966621399,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.715000033378601,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2849999964237213,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -4.215000152587891,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.2149999141693115,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -2.7149999141693115,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2850000858306885,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.7850000858306885,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.284999966621399,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.2149999141693115,
+            "y": 0.8899999856948853
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 1_Hawker/floor/Greyfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -3.7149999141693115,
+            "y": 0.8899999856948853
           }
         },
         "layer": "Background:0",
