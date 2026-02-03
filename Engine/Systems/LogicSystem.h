@@ -22,6 +22,7 @@
 #include "Component/GlowComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/SpriteAnimationComponent.h"
+#include "Component/ShadowComponent.h"
 #include "Component/PlayerComponent.h"
 #include "Component/PlayerAttackComponent.h"
 #include "Component/PlayerHealthComponent.h"

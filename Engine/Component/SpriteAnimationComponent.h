@@ -560,6 +560,9 @@ namespace Framework {
                 return;
 
             const auto resolvedPath = ResolveAnimationPath(anim.spriteSheetPath);
+            if (Resource_Manager::getTexture(anim.textureKey))
+                Resource_Manager::Unload(anim.textureKey);
+
             if (Resource_Manager::load(anim.textureKey, resolvedPath))
                 anim.textureId = Resource_Manager::getTexture(anim.textureKey);
             else

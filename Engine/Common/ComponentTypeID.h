@@ -59,6 +59,9 @@ namespace Framework
 
         /// SpriteAnimationComponent: drives sprite-frame swapping for animations
         CT_SpriteAnimationComponent,
+
+        /// ShadowComponent: sprite-flip drop shadow settings
+        CT_ShadowComponent,
         
         //PlayerComponent
         CT_PlayerComponent,

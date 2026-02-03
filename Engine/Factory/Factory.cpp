@@ -45,6 +45,7 @@
 #include "Component/GlowComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/SpriteAnimationComponent.h"
+#include "Component/ShadowComponent.h"
 
 #include "Component/PlayerComponent.h"
 #include "Component/PlayerHealthComponent.h"
@@ -373,6 +374,22 @@ namespace Framework {
             if (!sp.texture_key.empty()) out["texture_key"] = sp.texture_key;
             if (!sp.path.empty()) out["path"] = sp.path;
             return out;
+        }
+        case ComponentTypeId::CT_ShadowComponent: {
+            auto const& shadow = static_cast<ShadowComponent const&>(component);
+            return json{
+                {"enabled", shadow.enabled},
+                {"offset_x", shadow.offsetX},
+                {"offset_y", shadow.offsetY},
+                {"scale_x", shadow.scaleX},
+                {"scale_y", shadow.scaleY},
+                {"flip_y", shadow.flipY},
+                {"r", shadow.r},
+                {"g", shadow.g},
+                {"b", shadow.b},
+                {"a", shadow.a},
+                {"blend_mode", BlendModeToString(shadow.blendMode)}
+            };
         }
         case ComponentTypeId::CT_GateTargetComponent: {
             auto const& gateTarget = static_cast<GateTargetComponent const&>(component);
@@ -907,6 +924,29 @@ namespace Framework {
             auto& sp = static_cast<SpriteComponent&>(component);
             readString("texture_key", sp.texture_key);
             readString("path", sp.path);
+            break;
+        }
+        case ComponentTypeId::CT_ShadowComponent:
+        {
+            auto& shadow = static_cast<ShadowComponent&>(component);
+            readBool("enabled", shadow.enabled);
+            readFloat("offset_x", shadow.offsetX);
+            readFloat("offset_y", shadow.offsetY);
+            readFloat("scale_x", shadow.scaleX);
+            readFloat("scale_y", shadow.scaleY);
+            readBool("flip_y", shadow.flipY);
+            readFloat("r", shadow.r);
+            readFloat("g", shadow.g);
+            readFloat("b", shadow.b);
+            readFloat("a", shadow.a);
+            std::string modeValue;
+            readString("blend_mode", modeValue);
+            if (!modeValue.empty())
+            {
+                BlendMode parsedMode = shadow.blendMode;
+                if (TryParseBlendMode(modeValue, parsedMode))
+                    shadow.blendMode = parsedMode;
+            }
             break;
         }
         case ComponentTypeId::CT_SpriteAnimationComponent:

@@ -2467,8 +2467,6 @@ namespace Framework {
                             blendMode = rc->blendMode;
                         }
 
-                        const bool useSolidColor = (blendMode == BlendMode::SolidColor);
-
                         unsigned tex = sp->texture_id;
                         glm::vec4 uvRect(0.0f, 0.0f, 1.0f, 1.0f);
 
@@ -2485,6 +2483,44 @@ namespace Framework {
                             tex = Resource_Manager::getTexture(sp->texture_key);
                             sp->texture_id = tex;
                         }
+
+                        if (auto* shadow = obj->GetComponentType<Framework::ShadowComponent>(
+                            Framework::ComponentTypeId::CT_ShadowComponent))
+                        {
+                            if (shadow->enabled && tex)
+                            {
+                                gfx::Graphics::SpriteInstance shadowInstance;
+                                glm::mat4 shadowModel(1.0f);
+                                shadowModel = glm::translate(shadowModel,
+                                    glm::vec3(tr->x + shadow->offsetX, tr->y + shadow->offsetY, 0.0f));
+                                shadowModel = glm::rotate(shadowModel, tr->rot, glm::vec3(0, 0, 1));
+                                const float shadowScaleY = shadow->scaleY * (shadow->flipY ? -1.0f : 1.0f);
+                                shadowModel = glm::scale(shadowModel,
+                                    glm::vec3(sx * tr->scaleX * shadow->scaleX,
+                                        sy * tr->scaleY * shadowScaleY, 1.0f));
+                                shadowInstance.model = shadowModel;
+                                shadowInstance.tint = glm::vec4(shadow->r, shadow->g, shadow->b, shadow->a);
+                                shadowInstance.uv = uvRect;
+
+                                flushSpriteBatch();
+
+                                const bool shadowSolidColor = (shadow->blendMode == BlendMode::SolidColor);
+                                if (shadowSolidColor)
+                                {
+                                    applyBlendMode(BlendMode::Alpha);
+                                    gfx::Graphics::EnableSolidColor(true, shadow->r, shadow->g, shadow->b, shadow->a);
+                                    gfx::Graphics::renderSpriteBatchInstanced(tex, &shadowInstance, 1);
+                                    gfx::Graphics::EnableSolidColor(false, 1, 1, 1, 1);
+                                }
+                                else
+                                {
+                                    applyBlendMode(shadow->blendMode);
+                                    gfx::Graphics::renderSpriteBatchInstanced(tex, &shadowInstance, 1);
+                                }
+                            }
+                        }
+
+                        const bool useSolidColor = (blendMode == BlendMode::SolidColor);
 
 
                         gfx::Graphics::SpriteInstance instance;

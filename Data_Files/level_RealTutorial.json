@@ -443,7 +443,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -489,8 +489,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.9782395362854004,
-            "y": -1.6856082677841187
+            "x": -1.0107632875442505,
+            "y": -1.664929986000061
           }
         },
         "layer": "Background:1",
@@ -3028,7 +3028,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3045,7 +3045,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3108,8 +3108,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.4843980073928833,
-            "y": -0.026206105947494507
+            "x": 0.8861395120620728,
+            "y": 0.27609995007514954
           }
         },
         "layer": "Gameplay:0",
@@ -3193,7 +3193,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3210,7 +3210,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3273,173 +3273,12 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -3.5098376274108887,
-            "y": 0.054916493594646454
+            "x": -2.079838991165161,
+            "y": 0.05491650104522705
           }
         },
         "layer": "Gameplay:0",
         "name": "FireEnemy"
-      },
-      {
-        "Components": {
-          "AudioComponent": {
-            "entityType": "enemy_water",
-            "sounds": {
-              "GhostHurt1": {
-                "id": "GhostHurt1",
-                "loop": false
-              },
-              "GhostHurt2": {
-                "id": "GhostHurt2",
-                "loop": false
-              },
-              "GhostHurt3": {
-                "id": "GhostHurt3",
-                "loop": false
-              },
-              "GhostHurt4": {
-                "id": "GhostHurt4",
-                "loop": false
-              },
-              "GhostHurt5": {
-                "id": "GhostHurt5",
-                "loop": false
-              },
-              "GhostHurt6": {
-                "id": "GhostHurt6",
-                "loop": false
-              },
-              "GhostHurt7": {
-                "id": "GhostHurt7",
-                "loop": false
-              },
-              "GhostHurt8": {
-                "id": "GhostHurt8",
-                "loop": false
-              },
-              "WaterGhostAttack": {
-                "id": "WaterGhostAttack",
-                "loop": false
-              },
-              "WaterGhostExplosion": {
-                "id": "WaterGhostExplosion",
-                "loop": false
-              }
-            },
-            "volume": 0.4000000059604645
-          },
-          "EnemyAttackComponent": {
-            "attack_speed": 1.2000000476837158,
-            "damage": 1
-          },
-          "EnemyComponent": {},
-          "EnemyDecisionTreeComponent": {},
-          "EnemyHealthComponent": {
-            "enemyHealth": 2,
-            "enemyMaxhealth": 2
-          },
-          "EnemyTypeComponent": {
-            "type": "physical"
-          },
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 0,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
-            "velocity_y": 0.0,
-            "width": 0.10000000149011612
-          },
-          "SpriteAnimationComponent": {
-            "activeAnimation": 0,
-            "animations": [
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 3,
-                "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
-                "textureKey": "water_idle"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 18.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 0,
-                "name": "slashattack",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
-                "textureKey": "water_slashattack"
-              },
-              {
-                "config": {
-                  "columns": 9,
-                  "endFrame": 8,
-                  "fps": 10.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 9
-                },
-                "currentFrame": 0,
-                "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
-                "textureKey": "water_knockback"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 8.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 0,
-                "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
-                "textureKey": "water_death"
-              }
-            ],
-            "fps": 6.0,
-            "frames": [],
-            "loop": true,
-            "play": true
-          },
-          "SpriteComponent": {
-            "texture_key": "water_idle"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -3.5546722412109375,
-            "y": -1.1523995399475098
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Enemy"
       },
       {
         "Components": {
@@ -3532,7 +3371,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 3,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3595,8 +3434,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.8749880790710449,
-            "y": 0.3022143840789795
+            "x": -2.064673662185669,
+            "y": -1.1523995399475098
           }
         },
         "layer": "Gameplay:0",
@@ -3605,128 +3444,78 @@
       {
         "Components": {
           "AudioComponent": {
-            "entityType": "player",
+            "entityType": "enemy_water",
             "sounds": {
-              "ConcreteFootsteps1": {
-                "id": "ConcreteFootsteps1",
+              "GhostHurt1": {
+                "id": "GhostHurt1",
                 "loop": false
               },
-              "ConcreteFootsteps2": {
-                "id": "ConcreteFootsteps2",
+              "GhostHurt2": {
+                "id": "GhostHurt2",
                 "loop": false
               },
-              "ConcreteFootsteps3": {
-                "id": "ConcreteFootsteps3",
+              "GhostHurt3": {
+                "id": "GhostHurt3",
                 "loop": false
               },
-              "ConcreteFootsteps4": {
-                "id": "ConcreteFootsteps4",
+              "GhostHurt4": {
+                "id": "GhostHurt4",
                 "loop": false
               },
-              "ConcreteFootsteps5": {
-                "id": "ConcreteFootsteps5",
+              "GhostHurt5": {
+                "id": "GhostHurt5",
                 "loop": false
               },
-              "ConcreteFootsteps6": {
-                "id": "ConcreteFootsteps6",
+              "GhostHurt6": {
+                "id": "GhostHurt6",
                 "loop": false
               },
-              "GrappleShoot1": {
-                "id": "GrappleShoot1",
+              "GhostHurt7": {
+                "id": "GhostHurt7",
                 "loop": false
               },
-              "GrappleShoot2": {
-                "id": "GrappleShoot2",
+              "GhostHurt8": {
+                "id": "GhostHurt8",
                 "loop": false
               },
-              "GrappleShoot3": {
-                "id": "GrappleShoot3",
+              "WaterGhostAttack": {
+                "id": "WaterGhostAttack",
                 "loop": false
               },
-              "GrappleShoot4": {
-                "id": "GrappleShoot4",
-                "loop": false
-              },
-              "Ineffective Boink1": {
-                "id": "Ineffective Boink1",
-                "loop": false
-              },
-              "Ineffective Boink2": {
-                "id": "Ineffective Boink2",
-                "loop": false
-              },
-              "Ineffective Boink3": {
-                "id": "Ineffective Boink3",
-                "loop": false
-              },
-              "PlayerDead": {
-                "id": "PlayerDead",
-                "loop": false
-              },
-              "PlayerHit": {
-                "id": "PlayerHit",
-                "loop": false
-              },
-              "Punch1": {
-                "id": "Punch1",
-                "loop": false
-              },
-              "Punch2": {
-                "id": "Punch2",
-                "loop": false
-              },
-              "Punch3": {
-                "id": "Punch3",
-                "loop": false
-              },
-              "Punch4": {
-                "id": "Punch4",
-                "loop": false
-              },
-              "Slash1": {
-                "id": "Slash1",
-                "loop": false
-              },
-              "Slash2": {
-                "id": "Slash2",
-                "loop": false
-              },
-              "Slash3": {
-                "id": "Slash3",
+              "WaterGhostExplosion": {
+                "id": "WaterGhostExplosion",
                 "loop": false
               }
             },
-            "volume": 1.0
+            "volume": 0.4000000059604645
           },
-          "HitBoxComponent": {
-            "duration": 0.15000000596046448,
-            "height": 0.15000000596046448,
-            "width": 0.15000000596046448
-          },
-          "PlayerAttackComponent": {
+          "EnemyAttackComponent": {
             "attack_speed": 1.2000000476837158,
             "damage": 1
           },
-          "PlayerComponent": {},
-          "PlayerHUDComponent": {},
-          "PlayerHealthComponent": {
-            "playerHealth": 5,
-            "playerMaxhealth": 5
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 2,
+            "enemyMaxhealth": 2
+          },
+          "EnemyTypeComponent": {
+            "type": "physical"
           },
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.25,
-            "layer": 1,
+            "h": 0.30000001192092896,
+            "layer": 0,
             "r": 1.0,
             "visible": true,
-            "w": 0.25
+            "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.20999999344348907,
-            "velocity_x": 8.812472529484694e-09,
+            "height": 0.10000000149011612,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3735,123 +3524,63 @@
             "animations": [
               {
                 "config": {
-                  "columns": 5,
-                  "endFrame": 4,
-                  "fps": 6.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 5
-                },
-                "currentFrame": 0,
-                "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
-                "textureKey": "idle_sheet"
-              },
-              {
-                "config": {
-                  "columns": 10,
-                  "endFrame": 9,
-                  "fps": 20.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 10
-                },
-                "currentFrame": 3,
-                "name": "run",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
-                "textureKey": "run_sheet"
-              },
-              {
-                "config": {
-                  "columns": 13,
-                  "endFrame": 12,
-                  "fps": 18.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 13
-                },
-                "currentFrame": 12,
-                "name": "attack1",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
-                "textureKey": "attack1_sheet"
-              },
-              {
-                "config": {
-                  "columns": 8,
-                  "endFrame": 7,
-                  "fps": 18.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 8
-                },
-                "currentFrame": 7,
-                "name": "attack2",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/2nd_Attack Sprite.png",
-                "textureKey": "attack2_sheet"
-              },
-              {
-                "config": {
                   "columns": 9,
                   "endFrame": 8,
-                  "fps": 18.0,
+                  "fps": 10.0,
                   "loop": true,
                   "rows": 1,
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 8,
-                "name": "attack3",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
-                "textureKey": "attack3_sheet"
+                "currentFrame": 2,
+                "name": "idle",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "water_idle"
               },
               {
                 "config": {
-                  "columns": 14,
-                  "endFrame": 13,
+                  "columns": 11,
+                  "endFrame": 10,
                   "fps": 18.0,
                   "loop": false,
                   "rows": 1,
                   "startFrame": 0,
-                  "totalFrames": 14
+                  "totalFrames": 11
                 },
                 "currentFrame": 0,
-                "name": "throw",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png",
-                "textureKey": "throw_sheet"
+                "name": "slashattack",
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+                "textureKey": "water_slashattack"
               },
               {
                 "config": {
-                  "columns": 4,
-                  "endFrame": 3,
-                  "fps": 5.0,
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
                   "loop": false,
                   "rows": 1,
                   "startFrame": 0,
-                  "totalFrames": 4
+                  "totalFrames": 9
                 },
                 "currentFrame": 0,
                 "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Knockback_Sprite.png",
-                "textureKey": "knockback_sheet"
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "water_knockback"
               },
               {
                 "config": {
-                  "columns": 8,
-                  "endFrame": 7,
+                  "columns": 11,
+                  "endFrame": 10,
                   "fps": 8.0,
                   "loop": false,
                   "rows": 1,
                   "startFrame": 0,
-                  "totalFrames": 8
+                  "totalFrames": 11
                 },
                 "currentFrame": 0,
                 "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Death_Sprite.png",
-                "textureKey": "death_sheet"
+                "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "water_death"
               }
             ],
             "fps": 6.0,
@@ -3860,18 +3589,18 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "idle_sheet"
+            "texture_key": "water_idle"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.7102326154708862,
-            "y": -1.4777675867080688
+            "x": 0.0028937458992004395,
+            "y": 0.005404770374298096
           }
         },
         "layer": "Gameplay:0",
-        "name": "player"
+        "name": "Enemy"
       },
       {
         "Components": {
@@ -7683,6 +7412,290 @@
         },
         "layer": "Background:0",
         "name": "artassets"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "entityType": "player",
+            "sounds": {
+              "ConcreteFootsteps1": {
+                "id": "ConcreteFootsteps1",
+                "loop": false
+              },
+              "ConcreteFootsteps2": {
+                "id": "ConcreteFootsteps2",
+                "loop": false
+              },
+              "ConcreteFootsteps3": {
+                "id": "ConcreteFootsteps3",
+                "loop": false
+              },
+              "ConcreteFootsteps4": {
+                "id": "ConcreteFootsteps4",
+                "loop": false
+              },
+              "ConcreteFootsteps5": {
+                "id": "ConcreteFootsteps5",
+                "loop": false
+              },
+              "ConcreteFootsteps6": {
+                "id": "ConcreteFootsteps6",
+                "loop": false
+              },
+              "GrappleShoot1": {
+                "id": "GrappleShoot1",
+                "loop": false
+              },
+              "GrappleShoot2": {
+                "id": "GrappleShoot2",
+                "loop": false
+              },
+              "GrappleShoot3": {
+                "id": "GrappleShoot3",
+                "loop": false
+              },
+              "GrappleShoot4": {
+                "id": "GrappleShoot4",
+                "loop": false
+              },
+              "Ineffective Boink1": {
+                "id": "Ineffective Boink1",
+                "loop": false
+              },
+              "Ineffective Boink2": {
+                "id": "Ineffective Boink2",
+                "loop": false
+              },
+              "Ineffective Boink3": {
+                "id": "Ineffective Boink3",
+                "loop": false
+              },
+              "PlayerDead": {
+                "id": "PlayerDead",
+                "loop": false
+              },
+              "PlayerHit": {
+                "id": "PlayerHit",
+                "loop": false
+              },
+              "Punch1": {
+                "id": "Punch1",
+                "loop": false
+              },
+              "Punch2": {
+                "id": "Punch2",
+                "loop": false
+              },
+              "Punch3": {
+                "id": "Punch3",
+                "loop": false
+              },
+              "Punch4": {
+                "id": "Punch4",
+                "loop": false
+              },
+              "Slash1": {
+                "id": "Slash1",
+                "loop": false
+              },
+              "Slash2": {
+                "id": "Slash2",
+                "loop": false
+              },
+              "Slash3": {
+                "id": "Slash3",
+                "loop": false
+              }
+            },
+            "volume": 1.0
+          },
+          "HitBoxComponent": {
+            "duration": 0.15000000596046448,
+            "height": 0.15000000596046448,
+            "width": 0.15000000596046448
+          },
+          "PlayerAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "PlayerComponent": {},
+          "PlayerHUDComponent": {},
+          "PlayerHealthComponent": {
+            "playerHealth": 5,
+            "playerMaxhealth": 5
+          },
+          "RenderComponent": {
+            "a": 0.8235294222831726,
+            "b": 0.4117647111415863,
+            "blend_mode": "premultipliedalpha",
+            "g": 0.3176470696926117,
+            "h": 0.25,
+            "layer": 1,
+            "r": 0.21960784494876862,
+            "visible": true,
+            "w": 0.25
+          },
+          "RigidBodyComponent": {
+            "height": 0.20999999344348907,
+            "velocity_x": -1.401298464324817e-45,
+            "velocity_y": -1.401298464324817e-45,
+            "width": 0.10000000149011612
+          },
+          "ShadowComponent": {
+            "a": 0.5,
+            "b": 0.20000000298023224,
+            "blend_mode": "multiply",
+            "enabled": true,
+            "flip_y": true,
+            "g": 0.20000000298023224,
+            "offset_x": 0.0,
+            "offset_y": -0.14499999582767487,
+            "r": 0.20000000298023224,
+            "scale_x": 1.0499999523162842,
+            "scale_y": 0.44999998807907104
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 5,
+                  "endFrame": 4,
+                  "fps": 6.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 5
+                },
+                "currentFrame": 3,
+                "name": "idle",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
+                "textureKey": "idle_sheet"
+              },
+              {
+                "config": {
+                  "columns": 10,
+                  "endFrame": 9,
+                  "fps": 20.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 10
+                },
+                "currentFrame": 2,
+                "name": "run",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
+                "textureKey": "run_sheet"
+              },
+              {
+                "config": {
+                  "columns": 13,
+                  "endFrame": 12,
+                  "fps": 18.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 13
+                },
+                "currentFrame": 0,
+                "name": "attack1",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
+                "textureKey": "attack1_sheet"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 18.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 7,
+                "name": "attack2",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/2nd_Attack Sprite.png",
+                "textureKey": "attack2_sheet"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 18.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "attack3",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
+                "textureKey": "attack3_sheet"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 18.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "throw",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png",
+                "textureKey": "throw_sheet"
+              },
+              {
+                "config": {
+                  "columns": 4,
+                  "endFrame": 3,
+                  "fps": 5.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 4
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Knockback_Sprite.png",
+                "textureKey": "knockback_sheet"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Death_Sprite.png",
+                "textureKey": "death_sheet"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "idle_sheet"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7122975587844849,
+            "y": -1.4756298065185547
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "player"
       }
     ],
     "name": "level_RealTutorial"
