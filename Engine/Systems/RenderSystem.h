@@ -25,6 +25,7 @@
 #include "Component/GlowComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/SpriteComponent.h"
+#include "Component/ShadowComponent.h"
 #include "Component/TransformComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/EnemyAttackComponent.h"
