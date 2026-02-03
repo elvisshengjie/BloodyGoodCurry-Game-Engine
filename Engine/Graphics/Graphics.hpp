@@ -50,7 +50,7 @@ namespace gfx {
         /**
          * \brief Draw fullscreen textured background.
          */
-        static void renderBackground();
+       /* static void renderBackground();*/
 
         static void renderFullscreenTexture(unsigned tex);
 

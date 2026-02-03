@@ -2173,52 +2173,52 @@ namespace Framework {
 
             auto t0 = clock::now();
 
-            static unsigned hawkerFloorTex = 0;
-            static unsigned hawkerHdbTex = 0;
+            //static unsigned hawkerFloorTex = 0;
+            //static unsigned hawkerHdbTex = 0;
 
-            auto ensureBackgroundTexture = [](unsigned& textureHandle,
-                const char* key,
-                const char* path)
-                {
-                    if (textureHandle)
-                        return;
+            //auto ensureBackgroundTexture = [](unsigned& textureHandle,
+            //    const char* key,
+            //    const char* path)
+            //    {
+            //        if (textureHandle)
+            //            return;
 
-                    textureHandle = Resource_Manager::getTexture(key);
-                    if (!textureHandle && path)
-                    {
-                        if (Resource_Manager::load(key, path))
-                        {
-                            textureHandle = Resource_Manager::getTexture(key);
-                        }
-                    }
-                };
+            //        textureHandle = Resource_Manager::getTexture(key);
+            //        if (!textureHandle && path)
+            //        {
+            //            if (Resource_Manager::load(key, path))
+            //            {
+            //                textureHandle = Resource_Manager::getTexture(key);
+            //            }
+            //        }
+            //    };
 
-            const std::string floorPath =
-                Framework::ResolveAssetPath("Textures/Environment/lvl 1_Hawker/Floor.png").string();
-            const std::string hdbPath =
-                Framework::ResolveAssetPath("Textures/Environment/lvl 1_Hawker/HDB.png").string();
+            //const std::string floorPath =
+            //    Framework::ResolveAssetPath("Textures/Environment/lvl 1_Hawker/Floor.png").string();
+            //const std::string hdbPath =
+            //    Framework::ResolveAssetPath("Textures/Environment/lvl 1_Hawker/HDB.png").string();
 
-            ensureBackgroundTexture(hawkerFloorTex, "hawker_floor_bg", floorPath.c_str());
-            ensureBackgroundTexture(hawkerHdbTex, "hawker_hdb_bg", hdbPath.c_str());
+            //ensureBackgroundTexture(hawkerFloorTex, "hawker_floor_bg", floorPath.c_str());
+            //ensureBackgroundTexture(hawkerHdbTex, "hawker_hdb_bg", hdbPath.c_str());
 
-            if (hawkerFloorTex && hawkerHdbTex)
-            {
-                gfx::Graphics::renderSprite(hawkerHdbTex, 0.0f, 0.5f, 0.0f,
-                    2.0f, 1.0f,
-                    1.f, 1.f, 1.f, 1.f);
-                gfx::Graphics::renderSprite(hawkerFloorTex, 0.0f, -0.5f, 0.0f,
-                    2.0f, 1.0f,
-                    1.f, 1.f, 1.f, 1.f);
-            }
-            else if (unsigned bgTex = Resource_Manager::getTexture("house"))
-            {
-                // Big background quad in world space (uses camera VP).
-                gfx::Graphics::renderSprite(bgTex, 0.0f, 0.0f, 0.0f, 2.0f, 2.0f, 1.f, 1.f, 1.f, 1.f);
-            }
-            else
-            {
-                gfx::Graphics::renderBackground();
-            }
+            //if (hawkerFloorTex && hawkerHdbTex)
+            //{
+            //    gfx::Graphics::renderSprite(hawkerHdbTex, 0.0f, 0.5f, 0.0f,
+            //        2.0f, 1.0f,
+            //        1.f, 1.f, 1.f, 1.f);
+            //    gfx::Graphics::renderSprite(hawkerFloorTex, 0.0f, -0.5f, 0.0f,
+            //        2.0f, 1.0f,
+            //        1.f, 1.f, 1.f, 1.f);
+            //}
+            //else if (unsigned bgTex = Resource_Manager::getTexture("house"))
+            //{
+            //    // Big background quad in world space (uses camera VP).
+            //    gfx::Graphics::renderSprite(bgTex, 0.0f, 0.0f, 0.0f, 2.0f, 2.0f, 1.f, 1.f, 1.f, 1.f);
+            //}
+            //else
+            //{
+            //    //gfx::Graphics::renderBackground();
+            //}
 
             if (FACTORY)
             {
