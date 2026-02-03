@@ -606,7 +606,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -3365,7 +3365,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 5,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3530,7 +3530,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 5,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3593,7 +3593,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.4898395538330078,
+            "x": -1.349839687347412,
             "y": 0.05491650104522705
           }
         },
@@ -3691,7 +3691,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 8,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3754,7 +3754,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.4946742057800293,
+            "x": -1.33467435836792,
             "y": -1.1523995399475098
           }
         },
@@ -3852,7 +3852,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 8,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -4367,13 +4367,13 @@
             "playerMaxhealth": 5
           },
           "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
+            "a": 0.8235294222831726,
+            "b": 0.4117647111415863,
+            "blend_mode": "premultipliedalpha",
+            "g": 0.3176470696926117,
             "h": 0.25,
             "layer": 1,
-            "r": 1.0,
+            "r": 0.21960784494876862,
             "visible": true,
             "w": 0.25
           },
@@ -4384,14 +4384,14 @@
             "width": 0.10000000149011612
           },
           "ShadowComponent": {
-            "a": 0.699999988079071,
+            "a": 0.5,
             "b": 0.20000000298023224,
             "blend_mode": "multiply",
             "enabled": true,
             "flip_y": true,
             "g": 0.20000000298023224,
             "offset_x": 0.0,
-            "offset_y": -0.11999999731779099,
+            "offset_y": -0.14499999582767487,
             "r": 0.20000000298023224,
             "scale_x": 1.0499999523162842,
             "scale_y": 0.44999998807907104
@@ -4532,8 +4532,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.7332615852355957,
-            "y": -1.4745151996612549
+            "x": -0.6910164952278137,
+            "y": -1.4460970163345337
           }
         },
         "layer": "Gameplay:0",

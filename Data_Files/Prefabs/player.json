@@ -21,14 +21,14 @@
       "ShadowComponent": {
         "enabled": true,
         "offset_x": 0.0,
-        "offset_y": -0.12,
+        "offset_y": -0.145,
         "scale_x": 1.05,
         "scale_y": 0.45,
         "flip_y": true,
         "r": 0.2,
         "g": 0.2,
         "b": 0.2,
-        "a": 0.7,
+        "a": 0.5,
         "blend_mode": "multiply"
       },
      "PlayerHUDComponent": {
