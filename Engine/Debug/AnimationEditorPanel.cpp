@@ -205,8 +205,8 @@ namespace mygame
         if (sample.texture)
         {
             const ImVec2 previewSize(120.0f, 120.0f);
-            const ImVec2 uv0(sample.uv.x, sample.uv.y);
-            const ImVec2 uv1(sample.uv.x + sample.uv.z, sample.uv.y + sample.uv.w);
+            const ImVec2 uv0(sample.uv.x, sample.uv.y + sample.uv.w);
+            const ImVec2 uv1(sample.uv.x + sample.uv.z, sample.uv.y);
             ImGui::Image(reinterpret_cast<void*>(static_cast<intptr_t>(sample.texture)), previewSize, uv0, uv1);
         }
         else
