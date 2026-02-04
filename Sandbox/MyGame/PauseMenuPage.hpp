@@ -115,7 +115,7 @@ namespace mygame {
         Quad resumeBtn{ 0.f, 0.f, 0.f, 0.f };
         Quad optionsBtn{ 0.f, 0.f, 0.f, 0.f };
         Quad howToBtn{ 0.f, 0.f, 0.f, 0.f };
-        Quad quitBtn{ 0.f, 0.f, 0.f, 0.f }; // This quad is reused for Main Menu button
+        Quad quitBtn{ 0.f, 0.f, 0.f, 0.f }; 
         Quad howToPopup{ 0.f, 0.f, 0.f, 0.f };
         Quad howToCloseBtn{ 0.f, 0.f, 0.f, 0.f };
         Quad optionsPopup{ 0.f, 0.f, 0.f, 0.f };

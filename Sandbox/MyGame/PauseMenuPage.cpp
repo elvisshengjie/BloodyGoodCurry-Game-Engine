@@ -739,7 +739,7 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
         const float rowHeight = availableHeight / static_cast<float>(rowCount);
 
         const float iconHeightBase = rowHeight * 0.78f;
-        const float labelHeightBase = rowHeight * 0.58f;
+        const float labelHeightBase = rowHeight * 0.70f;
         const float baseLeftPad = howToPopup.w * 0.20f;   // base position for labels
         const float rightPad = howToPopup.w * 0.14f;
         const float iconAnchorX = howToPopup.x + howToPopup.w - rightPad;
@@ -748,9 +748,9 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
         gfx::Graphics::setViewProjection(glm::mat4(1.0f), uiOrtho);
 
         for (size_t i = 0; i < howToRows.size(); ++i) {
-            // Icons bigger for first two, labels smaller for first two to match visual style
-                const float iconScale = (i == 0) ? 1.55f : (i == 1 ? 1.65f : (i == 2 ? 1.55f : (i == 3 ? 1.55f : 1.0f)));
-            const float labelScale = (i < 2) ? 0.55f : 1.0f;
+            // Icons bigger for first two; slightly upscaled labels for readability
+            const float iconScale = (i == 0) ? 1.55f : (i == 1 ? 1.65f : (i == 2 ? 1.55f : (i == 3 ? 1.55f : 1.0f)));
+            const float labelScale = (i < 2) ? 0.6f : 1.0f;
 
             const float iconHeight = iconHeightBase * iconScale;
             const float labelHeight = labelHeightBase * labelScale;
@@ -779,8 +779,8 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
 
                 // Nudge WASD/ESC left (same as MainMenu)
                 float iconNudgeLeft = 0.0f;
-                if (i == 0) iconNudgeLeft = howToPopup.w * 0.18f;
-                else if (i == 1) iconNudgeLeft = howToPopup.w * 0.15f;
+                if (i == 0) iconNudgeLeft = howToPopup.w * 0.15f;
+                else if (i == 1) iconNudgeLeft = howToPopup.w * 0.13f;
                 else if (i == 2) iconNudgeLeft = howToPopup.w * 0.12f;
                 else if (i == 3) iconNudgeLeft = howToPopup.w * 0.11f;
                 const float iconX = iconAnchorX - iconW - iconNudgeLeft;
