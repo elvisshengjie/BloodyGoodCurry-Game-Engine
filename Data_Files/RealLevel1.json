@@ -265,11 +265,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.001153990626335144,
-            "y": -0.8666043281555176
+            "x": -0.886084258556366,
+            "y": -0.8116397857666016
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:0",
         "name": "player"
       },
       {
@@ -286,14 +286,532 @@
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Textures/Environment/lvl 2_ Living + Kitchen/00_Living+Kitchen_concept.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/00_Living+Kitchen_concept.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.6692209243774414,
-            "y": -2.404921770095825
+            "x": -0.0649862289428711,
+            "y": -2.261056423187256
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7799999713897705,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2800000011920929,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.2799999713897705,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.2799999713897705,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7799999713897705,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2800000011920929,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7200000286102295,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7799999713897705,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2199999988079071,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.2799999713897705,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7200000286102295,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7200000286102295,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2800000011920929,
+            "y": 0.23999999463558197
           }
         },
         "layer": "Background:0",
