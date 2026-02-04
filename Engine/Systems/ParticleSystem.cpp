@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      ParticleSystem.cpp
  \par       SofaSpuds
- \author   
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Implements a lightweight particle system for one-off gameplay effects.
  \details   Spawns and updates short-lived circle particles for effects such as
             enemy death bursts. Uses Transform + CircleRender components and
@@ -34,22 +34,37 @@ namespace Framework {
 
     ParticleSystem* ParticleSystem::instance = nullptr;
 
+    /*************************************************************************************
+      \brief  Construct the particle system and initialize RNG.
+    *************************************************************************************/
     ParticleSystem::ParticleSystem()
         : rng(std::random_device{}())
     {
         instance = this;
     }
 
+    /*************************************************************************************
+      \brief  Get the current ParticleSystem instance.
+      \return Pointer to the ParticleSystem instance (or nullptr).
+    *************************************************************************************/
     ParticleSystem* ParticleSystem::Instance()
     {
         return instance;
     }
 
+    /*************************************************************************************
+      \brief  Initialize the particle system state.
+      \details Clears all currently tracked particles.
+    *************************************************************************************/
     void ParticleSystem::Initialize()
     {
         particles.clear();
     }
 
+    /*************************************************************************************
+      \brief  Shutdown the particle system and clear all particles.
+      \details Resets the singleton instance pointer if this system owns it.
+    *************************************************************************************/
     void ParticleSystem::Shutdown()
     {
         particles.clear();
@@ -59,6 +74,10 @@ namespace Framework {
         }
     }
 
+    /*************************************************************************************
+      \brief  Update all active particles (movement, fade/size interpolation, cleanup).
+      \param  dt  Delta time in seconds.
+    *************************************************************************************/
     void ParticleSystem::Update(float dt)
     {
         if (!FACTORY)
@@ -125,12 +144,18 @@ namespace Framework {
                 circle->radius = particle.startRadius + (particle.endRadius - particle.startRadius) * t;
                 circle->a = particle.startAlpha + (particle.endAlpha - particle.startAlpha) * t;
             }
+
             particle.velocity *= (1.0f - std::min(dt * 1.5f, 0.9f));
 
             ++index;
         }
     }
 
+    /*************************************************************************************
+      \brief  Spawn enemy death burst particles (circle-based).
+      \param  worldPos  Spawn position in world space.
+      \param  count     Number of particles to spawn.
+    *************************************************************************************/
     void ParticleSystem::SpawnEnemyDeathParticles(const glm::vec2& worldPos, std::size_t count)
     {
         if (!FACTORY || count == 0)
@@ -183,10 +208,17 @@ namespace Framework {
         }
     }
 
+    /*************************************************************************************
+      \brief  Spawn run trail particles (sprite-based).
+      \param  worldPos    Spawn position in world space.
+      \param  facingDir   Facing direction sign (mirrors spawn/velocity).
+      \param  count       Number of particles to spawn.
+    *************************************************************************************/
     void ParticleSystem::SpawnRunParticles(const glm::vec2& worldPos, float facingDir, std::size_t count)
     {
         if (!FACTORY || count == 0)
             return;
+
         constexpr const char* kRunParticleKey = "particle_ui";
         constexpr const char* kRunParticlePath = "Textures/UI/Particle.png";
 
@@ -226,12 +258,12 @@ namespace Framework {
             rc->g = 1.0f;
             rc->b = 1.0f;
             rc->a = 0.7f;
-            
 
             auto* sp = particleObj->EmplaceComponent<SpriteComponent>(
                 ComponentTypeId::CT_SpriteComponent);
             sp->texture_key = kRunParticleKey;
             sp->texture_id = Resource_Manager::getTexture(kRunParticleKey);
+
             const float speed = speedDist(rng);
 
             Particle particle{};
@@ -248,6 +280,5 @@ namespace Framework {
             particles.push_back(particle);
         }
     }
-
 
 } // namespace Framework

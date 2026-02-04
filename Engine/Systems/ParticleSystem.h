@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      ParticleSystem.h
  \par       SofaSpuds
- \author    
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Defines a lightweight particle system for one-off gameplay effects.
  \details   Spawns and updates short-lived circle particles. Designed for simple
             VFX bursts such as enemy death impacts without requiring sprite sheets.
