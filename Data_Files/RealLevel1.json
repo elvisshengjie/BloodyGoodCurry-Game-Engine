@@ -126,7 +126,7 @@
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
             "velocity_x": 1.401298464324817e-45,
-            "velocity_y": -2.802596928649634e-45,
+            "velocity_y": -1.401298464324817e-45,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
@@ -142,7 +142,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 4,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -391,6 +391,7 @@
             "h": 0.5,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png",
             "visible": true,
             "w": 0.5
           },
@@ -402,7 +403,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -1.2799999713897705,
-            "y": -0.25999999046325684
+            "y": -0.2618860900402069
           }
         },
         "layer": "Background:0",
@@ -812,6 +813,548 @@
             "scale_y": 1.0,
             "x": -0.2800000011920929,
             "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4416983127593994,
+            "y": -0.9184280633926392
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.5580000281333923,
+            "y": -0.9179999828338623
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.11900001019239426,
+            "y": -0.9179999828338623
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.8819999694824219,
+            "y": -0.9179999828338623
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4420000314712524,
+            "y": 0.4307132959365845
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Left.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.558068037033081,
+            "y": 0.4309999942779541
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.8816561698913574,
+            "y": 0.4309999942779541
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.11878900974988937,
+            "y": 0.4309999942779541
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.9869999885559082,
+            "y": -1.0880000591278076
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.5759999752044678,
+            "y": -1.0880000591278076
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png",
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.437999963760376,
+            "y": -1.0880000591278076
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0180000066757202,
+            "y": -1.0880000591278076
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1899999976158142,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.9869999885559082,
+            "y": 0.5849999785423279
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1899999976158142,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.5759999752044678,
+            "y": 0.5849999785423279
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1899999976158142,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.437999963760376,
+            "y": 0.5849999785423279
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1899999976158142,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0180000066757202,
+            "y": 0.5849999785423279
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4300000071525574,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.6109999418258667,
+            "y": -0.4545915424823761
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4300000071525574,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.6109999418258667,
+            "y": -0.028999999165534973
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4300000071525574,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.049999952316284,
+            "y": -0.028999999165534973
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4300000071525574,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.049999952316284,
+            "y": -0.45500001311302185
           }
         },
         "layer": "Background:0",
