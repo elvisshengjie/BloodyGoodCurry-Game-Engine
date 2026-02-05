@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      VideoPlayer.hpp
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author    h.jun (h.jun@digipen.edu) - Primary Author, 100%
 
  \brief     Declares a lightweight MPEG video player (video-only) backed by pl_mpeg and OpenGL.
 

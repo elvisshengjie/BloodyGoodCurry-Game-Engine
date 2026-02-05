@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      ShadowComponent.h
  \par       SofaSpuds
- \author    
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu)
  \brief     Declares the ShadowComponent class, a helper component that configures
             sprite-flip shadows rendered under a sprite.
 

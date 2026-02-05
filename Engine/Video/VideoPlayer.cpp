@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      VideoPlayer.cpp
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author    h.jun (h.jun@digipen.edu) - Primary Author, 100%
 
  \brief     Implements a lightweight MPEG-1 video player using pl_mpeg and OpenGL textures.
 
