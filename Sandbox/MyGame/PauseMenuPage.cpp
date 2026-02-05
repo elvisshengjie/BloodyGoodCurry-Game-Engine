@@ -2,16 +2,16 @@
  \file      PauseMenuPage.cpp
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
- \brief     In-game pause menu: parchment overlay with stylized buttons.
- \details   the pause overlay drawn over gameplay and its popups:
+ \brief     In-game pause menu overlay with popups and settings.
+ \details   Pause overlay drawn over gameplay and its popups:
             - Main note: parchment background with "Paused" header and core buttons.
             - Buttons: Resume / Options / How To Play / Main Menu plus an X close box.
             - How To Play: animated icon+label rows driven by JSON (frame count, fps, aspects).
-            - Options: simple audio mute toggle popup sharing the same parchment.
-            - Exit popup: "Are you sure?" confirmation when returning to main menu.
+            - Options popup: slider-based settings (Master/BGM/SFX volume + Brightness) with close/reset.
+            - Exit popup: "Are you sure?" confirmation before leaving to main menu.
             - JSON config: howto_popup.json / exit_popup.json override default texture keys/paths.
             - Layout: computes note/popup rectangles, buttons, and header offsets on resize.
-            - GUI wiring: integrates with the lightweight GUI helper to dispatch button callbacks.
+            - Implementation: cached texture resolution + GUI helper for clickable buttons/slider dragging.
 *********************************************************************************************/
 
 #include "PauseMenuPage.hpp"
