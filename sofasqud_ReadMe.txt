@@ -74,7 +74,7 @@ control Z to undo button
 
 Enter: “Start” button equivalent
 Used to skip cutscene and also to pause/resume 
-
+P : TO enable FPS
 Esc: Pause / Back equivalent
 Used to pause during gameplay (when not in editor mode) and also to skip cutscene.
 
