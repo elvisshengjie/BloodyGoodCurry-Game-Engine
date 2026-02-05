@@ -2788,7 +2788,9 @@ namespace Framework {
                 enemyText = "Objective: Go to the gate";
             }
             
-
+            std::string FPSText = "FPS: Nothing";
+            FPSText = "FPS: " + std::to_string((int)Framework::GetFps());
+            
             textHint.RenderText(
                 enemyText,
                 static_cast<float>(screenW) - (static_cast<float>(screenW)/3.f)*2.f,//650.0f,
@@ -2796,6 +2798,16 @@ namespace Framework {
                 0.75f,
                 glm::vec3(1.0f, 0.2f, 0.2f)
             );
+            if (showFPS)
+            {
+                textTitle.RenderText(
+                    FPSText,
+                    static_cast<float>(screenW) - 160.0f,
+                    static_cast<float>(screenH) - 64.0f,
+                    0.75f,
+                    glm::vec3(1.0f, 1.0f, 1.0f)
+                );
+            }
 
             if (textReadyTitle)
             {

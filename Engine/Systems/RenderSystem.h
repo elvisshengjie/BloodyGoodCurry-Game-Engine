@@ -148,6 +148,11 @@ namespace Framework {
         // Set gameplay camera view height (bigger -> zoom out, smaller -> zoom in)
         void SetCameraViewHeight(float viewHeight);
 
+        void ToggleFPS()
+        {
+            showFPS = !showFPS;
+        }
+
     private:
         // --- Filesystem / asset resolution ------------------------------------------------
         std::string             FindRoboto() const;
@@ -223,6 +228,7 @@ namespace Framework {
         gfx::TextRenderer textHint;      //!< Hint text (e.g., input/help).
         bool textReadyTitle = false;     //!< True once title font is ready.
         bool textReadyHint = false;      //!< True once hint font is ready.
+        bool showFPS = false;            //!< True to show FPS
 
         // --- Demo textures (player / animation) ------------------------------------------
         unsigned playerTex = 0;               //!< Legacy fallback player texture.
