@@ -673,8 +673,12 @@ namespace Framework {
 
             RecountEnemies();
 
-            if (input.IsKeyPressed(GLFW_KEY_P))
-                std::cout << "Number of enemies alive: " << enemiesAlive << "\n";
+            if (input.IsKeyReleased(GLFW_KEY_P)) 
+            {
+                std::cout << "FPS IS TOGGLED\n";
+                if (auto* rs = Framework::RenderSystem::Get()) 
+                    rs->ToggleFPS(); 
+            }
 
             std::vector<GOC*> finishedVfx;
 
