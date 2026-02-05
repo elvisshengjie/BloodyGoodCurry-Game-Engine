@@ -45,6 +45,7 @@
 
 #include "RenderSystem.h"
 #include "Core/PathUtils.h"
+#include "Debug/Perf.h"
 #if SOFASPUDS_ENABLE_EDITOR
 #include <imgui.h>
 #endif
