@@ -2,16 +2,16 @@
  \file      MainMenuPage.cpp
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
- \brief     Simple main-menu screen with cached texture resolution and image-button GUI.
- \details   main menu and its popups:
+ \brief     Main-menu screen with JSON-driven buttons and menu popups.
+ \details   Main menu and UI features:
             - Background: fullscreen parchment/background texture.
-            - Buttons: Start / How To / Options / Exit (labels and callbacks via JSON).
+            - Buttons: Start / How To / Options / Exit (definitions and callbacks via JSON).
             - Layout: button size/spacing/position derived from main_menu_ui.json.
             - How To popup: note-style parchment with animated icon/label rows.
-            - Options popup: stylized parchment with slider art and close/reset buttons.
-            - Exit popup: confirmation dialog before quitting the game.
-            - JSON config: main_menu_ui.json, howto_popup.json, exit_popup.json override defaults.
-            - GUI wiring: uses a GUI helper to register clickable buttons and invoke lambdas.
+            - Options popup: slider-based settings (Master/BGM/SFX volume + Brightness) with close/reset.
+            - Exit: short fade transition, then an exit confirmation popup.
+            - Config: main_menu_ui.json, howto_popup.json, exit_popup.json override defaults.
+            - Implementation: cached texture resolution + GUI helper for clickable buttons/slider dragging.
 *********************************************************************************************/
 
 #include "MainMenuPage.hpp"
