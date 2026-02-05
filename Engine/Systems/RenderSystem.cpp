@@ -613,11 +613,11 @@ namespace Framework {
                     }
                 };
 
-            if (handleToggle(GLFW_KEY_T, translateKeyHeld) && !io.WantCaptureKeyboard)
+            if (handleToggle(GLFW_KEY_T, translateKeyHeld) && !io.WantTextInput)
                 editor::SetCurrentTransformMode(editor::EditorTransformMode::Translate);
-            if (handleToggle(GLFW_KEY_R, rotateKeyHeld) && !io.WantCaptureKeyboard)
+            if (handleToggle(GLFW_KEY_R, rotateKeyHeld) && !io.WantTextInput)
                 editor::SetCurrentTransformMode(editor::EditorTransformMode::Rotate);
-            if (handleToggle(GLFW_KEY_S, scaleKeyHeld) && !io.WantCaptureKeyboard)
+            if (handleToggle(GLFW_KEY_S, scaleKeyHeld) && !io.WantTextInput)
                 editor::SetCurrentTransformMode(editor::EditorTransformMode::Scale);
 
             if (mygame::HasSelectedObject())
