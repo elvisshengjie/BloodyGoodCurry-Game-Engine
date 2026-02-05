@@ -6,18 +6,17 @@
             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 10%
             h.jun (h.jun@digipen.edu) - Author, 10%
 
- \brief     Editor/game viewport orchestration: camera control, picking/dragging,
-            split-view docking, ImGui panels, asset import plumbings, and frame submit.
- \details   The RenderSystem coordinates how the scene is viewed and interacted with:
-            - Viewports: computes game viewport (split width/height) and restores full window.
-            - Cameras: editor camera (pan/zoom/frame selection) and follow camera for gameplay.
-            - Picking/Drag: screen→world unproject, object hit-testing, and drag with offsets.
-            - Rendering: sets VP matrices, submits background and batched sprites, draws UI text.
-            - Editor UI: dockspace host, viewport controls, asset browser, JSON editor, panels.
-            - Imports: handles OS file drops and refreshes textures used by sprite components.
-            - Lifecycle: initialize(), per-frame draw(), shutdown(), and menu-frame helpers.
-            - Uses Graphics.cpp for GPU work (VAOs/shaders/sprite draw) and ImGui for tools.
-            - Camera math relies on GLM; input comes via GLFW.
+ \brief     Viewport + camera orchestration and (optionally) editor UI for the 2D sandbox.
+ \details   Coordinates how the scene is viewed and interacted with:
+            - Viewports: computes the active game viewport (split/full) and exposes its rect.
+            - Cameras: gameplay follow camera and (when enabled) an editor camera for pan/zoom/frame.
+            - Picking/Drag: screen->world unproject, hit-testing, selection, and drag offsets.
+            - Rendering: sets view/projection matrices, submits sprites/shapes/text, and overlays.
+            - Editor UI (SOFASPUDS_ENABLE_EDITOR): dockspace host, viewport controls, panels/tools,
+              asset import queue + live sprite refresh, and optional paint-style glow editing.
+            - Lifecycle: Initialize(), per-frame draw(), Shutdown(), and menu-frame helpers.
+
+
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.

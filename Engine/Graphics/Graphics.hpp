@@ -1,13 +1,15 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      Graphics.hpp
  \par       SofaSpuds
  \author    SofaSpuds Team
- \brief     Public 2D rendering API: init/teardown, background, shapes, sprites, and
-            sprite-sheet frame drawing. Also exposes simple crash/robustness test hooks.
+ \brief     Public 2D rendering API: init/teardown, shapes, sprites, sprite-sheet frames,
+            and procedural glow rendering.
  \details   Static-only helper used by the sandbox/game. Call initialize() once after a valid
-            OpenGL context is current; call cleanup() at shutdown. Textures are loaded through
-            stb_image (via loadTexture) or the engine Resource_Manager. Sprite-sheet animation
-            is driven by callers with renderSpriteFrame(...).
+            OpenGL context is current; call cleanup() at shutdown. Textures are loaded via
+            stb_image (loadTexture) or the engine Resource_Manager. Sprite-sheet animation is
+            driven by callers with renderSpriteFrame(...). Glow blobs are drawn with renderGlow(...).
+
+
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.

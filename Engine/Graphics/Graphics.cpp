@@ -1,20 +1,20 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      Graphics.cpp
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Main Author, 70%
             yimo kong (yimo.kong@digipen.edu)      - Author, 30%
- \brief     OpenGL-based 2D rendering utilities: geometry setup, shader utils, textures,
-            background, shapes, and sprite/sprite-sheet rendering with sub-UV animation.
- \details   This module encapsulates lightweight graphics helpers used by the sandbox/game:
-            - Geometry: unit rect, circle (procedural), fullscreen background, sprite quad.
-            - Shaders: minimal compile/link/validate with error logging.
+ \brief     OpenGL-based 2D rendering utilities: geometry, shaders, textures, shapes, sprites,
+            and procedural glow rendering.
+ \details   Encapsulates lightweight graphics helpers used by the sandbox/game:
+            - Geometry: unit rect, circle (procedural), fullscreen quad, sprite quad.
+            - Shaders: compile/link helpers and minimal built-in programs (sprites/shapes/glow).
             - Textures: stb_image loading with GL setup.
             - Transforms: GLM-based model builds (translate/rotate/scale), pivot-aware rect.
             - Sprites: whole-texture draw and sprite-sheet framed draw via uUVOffset/uUVScale.
-            - Diagnostics: GL error guard and crash-test toggles for robustness testing.
-            Data is kept in static members (per-process), initialized via initialize() and
-            released in cleanup(). Sprite-sheet animation is driven externally by callers
-            (e.g., Game.cpp) using renderSpriteFrame(...) with frame/cols/rows.
+            - Glow: radial falloff shader + renderGlow() for soft blobs/strokes.
+            Data is kept in static members, initialized via initialize() and released in cleanup().
+
+
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.

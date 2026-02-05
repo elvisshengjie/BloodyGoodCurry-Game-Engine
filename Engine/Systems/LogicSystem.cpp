@@ -6,25 +6,18 @@
             yimo kong (yimo.kong@digipen.edu)      - Author, 10%
             Ho Jun (h.jun@digipen.edu) - Author, 20%
 
- \brief     Core gameplay loop and input-driven logic for the sample sandbox.
- \details   This module owns high-level game state orchestration:
-            - Factory lifetime: component registration, prefab loading/unloading, level create/destroy.
-            - Player references: discovery, cached size for scale operations, animation state machine.
-            - Input mapping: WASD movement, Q/E rotation, Z/X scale, R reset, Shift accelerator.
-            - HitBoxSystem integration: spawns short-lived attack boxes towards cursor on LMB.
-            - Crash logging utilities: F9 forces a safe, logged crash for robustness testing.
-            - Collision "debug info": builds AABBs for player/target to visualize or check overlap.
+ \brief     Core gameplay loop and input-driven logic for the sandbox.
+ \details   Owns high-level game orchestration:
+            - Factory lifetime: component registration, prefab loading, level create/reload.
+            - Player state: discovery and animation state (idle/run/melee combo/throw/knockback/death).
+            - Input mapping: WASD move, LMB melee combo, RMB throw projectile, F1 overlay.
+            - HitBoxSystem: spawns melee hitboxes and deferred projectile throws (after throw animation).
+            - Editor hooks (when enabled): selection/spawn/debug tooling integration.
+            - Crash logging: writes crash logs and supports a debug-only crash test.
 
-            Performance & stability:
-            * Uses TryGuard::Run to isolate Update() logic and attribute errors with a tag.
-            * Minimizes per-frame object lookups by caching player/targets (validated via IsAlive()).
-            * Time-based animation frame stepping decoupled from render rate via fps in AnimConfig.
-
-            Conventions:
-            * Screen coordinates are mapped to world space via RenderSystem::ScreenToWorld().
-            * Layering, physics, and rendering are handled by their respective systems; LogicSystem
-              manipulates components (Transform/Render/RigidBody) but does not own them.
-©2025 DigiPen Institute of Technology Singapore. All rights reserved.
+ \copyright
+            All content (c) 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 #include "Common/CRTDebug.h"
 #include "Systems/LogicSystem.h"

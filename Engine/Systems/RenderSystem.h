@@ -1,18 +1,20 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      RenderSystem.h
  \par       SofaSpuds
  \author    yimo.kong ( yimo.kong@digipen.edu) - Primary Author, 50%
             erika.ishii (erika.ishii@digipen.edu) - Author, 30%
             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Author, 10%
             h.jun (h.jun@digipen.edu) - Author, 10%
- \brief     Editor-aware 2D render system: game viewport, UI dockspace, text, and picking.
- \details   Drives all frame-time drawing for the sandbox/editor:
-            - Game viewport: manages full/partial splits, camera control, screen→world unproject.
-            - Editor UI: ImGui dockspace, asset browser, JSON editor, hierarchy/selection.
-            - Text: title + hint text renderers with lazy font/asset resolution.
-            - Picking: cursor-to-world, object hit tests, and selection framing.
-            Provides Begin/EndMenuFrame helpers (without drawing the engine default background).
-            Exposes editor visibility for other systems to react to UI state.
+ \brief     Editor-aware 2D render system: game viewport, UI docking, text, and picking.
+ \details   Drives per-frame drawing for the sandbox:
+            - Viewport management: tracks the active game viewport rect and supports split/full layouts.
+            - Camera/picking: screen->world conversion, hit tests, selection framing, and drag support.
+            - Rendering: delegates GPU work to gfx::Graphics (sprites/shapes/text + overlays).
+            - Editor UI (SOFASPUDS_ENABLE_EDITOR): dockspace + tool panels (spawn/inspector/hierarchy/etc),
+              asset import hooks, and optional glow paint tool state.
+            Provides menu-frame helpers and exposes editor visibility for other systems.
+
+
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.

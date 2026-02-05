@@ -1,27 +1,24 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      Spawn.cpp
  \par       SofaSpuds
  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 80%
             erika.ishii (erika.ishii@digipen.edu) - Author, 20%
-
- \brief     Implements a debug ImGui panel for spawning prefabs at runtime. Provides
-            interactive controls for position, size, color, texture, and batch spawning.
-            Integrates with the engine’s prefab and factory systems.
-
- \details   This module allows developers to spawn prefabs interactively during runtime
-            for testing and debugging. Prefabs are drawn from PrefabManager’s registry
-            (master_copies). The user selects a prefab type, configures its parameters
-            (transform, render, circle, sprite), and spawns instances via ImGui. Supports
-            batch spawning with configurable offsets.
-            Additionally:
+ \brief     Implements a debug ImGui panel for spawning prefabs at runtime.
+ \details   Allows developers to spawn prefab instances interactively for testing/debugging.
+            Prefabs are drawn from PrefabManager's registry (master_copies) and cloned into
+            the live scene via the factory.
+            Features:
+              - Per-component tweak controls (transform/render/circle/sprite) and batch spawning.
               - Layer-aware spawning via the dedicated Layer panel.
-              - Sprite hookup via drag&drop from the Content Browser (texture key + handle).
-              - Level quick save/list/load, with on-disk layer discovery to pre-populate UI.
+              - Sprite hookup via drag & drop from the Content Browser (texture key + handle).
+              - Level quick save/list/load plus start level selection.
+              - Optional gate target assignment for prefabs that include GateTargetComponent.
+            Notes:
+              * Never mutates master_copies; all spawns are clones.
+              * UI state is kept in module-static variables.
+              * Compiled only when SOFASPUDS_ENABLE_EDITOR is enabled.
 
-            Design notes:
-              * All filesystem ops use error_code variants where possible (no exceptions).
-              * Never mutates master_copies; all spawns are clones into the live scene.
-              * UI state is kept in module-static variables to persist across frames.
+
 
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
@@ -159,7 +156,7 @@ namespace mygame {
     namespace {
 
         /*************************************************************************************
-          \brief  Lowercase-copy utility (ASCII).
+ \brief     Lowercase-copy utility (ASCII).
           \param  value Input string.
           \return Lowercased copy.
         *************************************************************************************/
@@ -170,7 +167,7 @@ namespace mygame {
         }
 
         /*************************************************************************************
-          \brief  Heuristic check for texture file extensions.
+ \brief     Heuristic check for texture file extensions.
           \param  path Filesystem path to test.
           \return true if extension is .png/.jpg/.jpeg (case-insensitive).
         *************************************************************************************/
@@ -180,7 +177,7 @@ namespace mygame {
         }
 
         /*************************************************************************************
-          \brief  Trim whitespace from both ends of a string (copying variant).
+ \brief     Trim whitespace from both ends of a string (copying variant).
           \param  value String to trim.
           \return Trimmed copy.
         *************************************************************************************/
@@ -195,7 +192,7 @@ namespace mygame {
 
 
         /*************************************************************************************
-          \brief  Quick filter: treat a file as a level only if its name contains "level".
+ \brief     Quick filter: treat a file as a level only if its name contains "level".
         *************************************************************************************/
         bool ContainsLevelKeyword(const std::string& name) {
             std::string lower;
@@ -207,7 +204,7 @@ namespace mygame {
 
 
         /*************************************************************************************
-          \brief  Scan level directory to refresh file list and per-file layer cache.
+ \brief     Scan level directory to refresh file list and per-file layer cache.
         *************************************************************************************/
         void RefreshLevelFileList() {
             gLevelFiles.clear();
@@ -250,14 +247,14 @@ namespace mygame {
 
       
         /*************************************************************************************
-          \brief  Construct absolute path to a level JSON from a filename.
+ \brief     Construct absolute path to a level JSON from a filename.
         *************************************************************************************/
         std::filesystem::path LevelFilePath(const std::string& filename) {
             return kLevelDirectory / filename;
         }
 
         /*************************************************************************************
-          \brief  Check whether an object pointer refers to a master prefab template.
+ \brief     Check whether an object pointer refers to a master prefab template.
         *************************************************************************************/
         bool IsMasterObject(GOC* obj) {
             for (auto const& kv : master_copies) {
@@ -268,7 +265,7 @@ namespace mygame {
         }
 
         /*************************************************************************************
-          \brief  Gather scene objects excluding master templates.
+ \brief     Gather scene objects excluding master templates.
           \return Vector of non-master GOC*.
         *************************************************************************************/
         std::vector<GOC*> CollectNonMasterObjects() {
@@ -287,7 +284,7 @@ namespace mygame {
         }
 
         /*************************************************************************************
-         \brief  Destroy an object while recording the deletion for undo.
+ \brief     Destroy an object while recording the deletion for undo.
          \param  obj Pointer to the object to delete (ignored if null).
        *************************************************************************************/
         void DestroyWithUndo(GOC* obj)
@@ -533,7 +530,7 @@ namespace mygame {
     } // namespace
 
        /*************************************************************************************
-      \brief  Apply SpawnSettings to an existing object.
+ \brief     Apply SpawnSettings to an existing object.
       \param  obj   Target object (already created).
       \param  s     Spawn settings (position/size/circle/sprite/rigidbody/player/enemy).
       \param  index Batch index (for step offsets when spawning new).
@@ -677,7 +674,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-     \brief  Helper to spawn a single prefab and apply current SpawnSettings.
+ \brief     Helper to spawn a single prefab and apply current SpawnSettings.
      \param  prefab Name of the prefab to clone (must exist in master_copies).
      \param  s      Spawn settings (position/size/circle/sprite/rigidbody/player/enemy).
      \param  index  Batch index (applied to stepX/stepY offsets).
@@ -699,7 +696,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-      \brief  Set the assets root used to resolve relative sprite paths dropped into the UI.
+ \brief     Set the assets root used to resolve relative sprite paths dropped into the UI.
       \param  root Absolute or relative path to the project's assets directory.
       \note   Path is canonicalized when possible (weakly_canonical).
     *************************************************************************************/
@@ -714,7 +711,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-     \brief  Internal helper to resolve a texture key + GL handle from a drag-drop path.
+ \brief     Internal helper to resolve a texture key + GL handle from a drag-drop path.
       \param  relativePath Path relative to the assets root (absolute paths are rebased).
       \param  outKey       Destination string for the resolved key.
       \param  outHandle    Destination handle for the GL texture id.
@@ -766,7 +763,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-      \brief  Use a texture from the Content Browser for sprite override.
+ \brief     Use a texture from the Content Browser for sprite override.
       \param  relativePath Path relative to the assets root (accepts absolute; will rebase).
       \note   Loads the texture into Resource_Manager if not present; updates preview handle.
     *************************************************************************************/
@@ -775,7 +772,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-      \brief  Use a texture from the Content Browser for rectangle overrides.
+ \brief     Use a texture from the Content Browser for rectangle overrides.
       \param  relativePath Path relative to the assets root (accepts absolute; will rebase).
     *************************************************************************************/
     static void UseRectangleTextureFromAsset(const std::filesystem::path& relativePath) {
@@ -783,7 +780,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-      \brief  Clear the current sprite override (key + preview handle).
+ \brief     Clear the current sprite override (key + preview handle).
     *************************************************************************************/
     void ClearSpriteTexture() {
         sSpriteTexKey.clear();
@@ -791,7 +788,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-     \brief  Clear the current rectangle override (key + preview handle).
+ \brief     Clear the current rectangle override (key + preview handle).
    *************************************************************************************/
     static void ClearRectangleTexture() {
         sRectangleTexKey.clear();
@@ -799,7 +796,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-      \brief  Get the currently selected sprite texture key.
+ \brief     Get the currently selected sprite texture key.
       \return Texture key string (empty if none).
     *************************************************************************************/
     const std::string& CurrentSpriteTextureKey() {
@@ -807,7 +804,7 @@ namespace mygame {
     }
 
     /*************************************************************************************
-      \brief  Get the GL handle of the current sprite texture (for preview).
+ \brief     Get the GL handle of the current sprite texture (for preview).
       \return OpenGL texture id (0 if none).
     *************************************************************************************/
     unsigned CurrentSpriteTextureHandle() {
@@ -817,7 +814,7 @@ namespace mygame {
 
 
     /*************************************************************************************
-      \brief Returns the currently selected start level filename (from the debug UI).
+ \brief     Returns the currently selected start level filename (from the debug UI).
       \return Level filename (may be empty if no level files are available).
     *************************************************************************************/
     const std::string& SelectedStartLevel() {
@@ -860,7 +857,7 @@ namespace mygame {
             }) != name.end();
     }
     /*************************************************************************************
-      \brief  Draw the Spawn panel UI and perform actions (spawn/clear/save/load).
+ \brief     Draw the Spawn panel UI and perform actions (spawn/clear/save/load).
       \note   Must be called every frame while the tools UI is visible.
     *************************************************************************************/
     void DrawSpawnPanel() {
