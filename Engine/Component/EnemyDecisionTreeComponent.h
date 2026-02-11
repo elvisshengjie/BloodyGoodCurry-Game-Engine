@@ -85,6 +85,10 @@ namespace Framework {
         bool patrolOriginSet = false; // set patrol origin
         Facing facing = Facing::RIGHT;
 
+        // ---------------- Navigation State ----------------
+        std::vector<int> currentPathNodeIDs;  ///< Current computed path (node IDs)
+        size_t currentPathIndex = 0;          ///< Index into current path
+
         EnemyDecisionTreeComponent() = default;
 
         /*************************************************************************************
@@ -141,8 +145,34 @@ namespace Framework {
             copy->rangedAttackTimer = rangedAttackTimer;
             copy->rangedAttackDuration = rangedAttackDuration;
             copy->hasSeenPlayer = hasSeenPlayer;
+            copy->currentPathNodeIDs = currentPathNodeIDs;
+            copy->currentPathIndex = currentPathIndex;
 
             return copy;
         }
+        void ClearPath()
+        {
+          currentPathNodeIDs.clear();
+          currentPathIndex = 0;
+        }
+
+        bool HasPath() const
+        {
+          return currentPathIndex < currentPathNodeIDs.size();
+        }
+
+        int GetCurrentNodeID() const
+        {
+            if (!HasPath())
+                return -1;
+          return currentPathNodeIDs[currentPathIndex];
+        }
+
+        void AdvancePath()
+        {
+            if (HasPath())
+                ++currentPathIndex;
+        }
+
     };
 }
