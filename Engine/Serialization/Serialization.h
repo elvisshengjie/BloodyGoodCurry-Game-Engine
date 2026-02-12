@@ -18,7 +18,7 @@
 *********************************************************************************************/
 #pragma once
 #include <string>
-
+#include <vector>
 namespace Framework
 {
     /*****************************************************************************************
@@ -163,5 +163,30 @@ namespace Framework
     }
     inline void StreamRead(ISerializer& stream, const std::string& key, bool& out) {
         stream.ReadBool(key, out);
+    }
+
+    inline void StreamRead(ISerializer& stream, const std::string& key, std::vector<int>& out)
+    {
+        // Try to enter the array by key
+        if (!stream.EnterArray(key))
+        {
+            out.clear(); // Clear vector if key not found
+            return;
+        }
+        size_t size = stream.ArraySize();
+        out.clear();
+        out.reserve(size);
+        // Read each element
+        for (size_t i = 0; i < size; ++i)
+        {
+            if (stream.EnterIndex(i))
+            {
+                int value = 0;
+                stream.ReadInt("", value); // array elements usually have no key
+                out.push_back(value);
+                stream.ExitObject(); // exit array element scope
+            }
+        }
+        stream.ExitArray(); // exit the array    
     }
 }
