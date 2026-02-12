@@ -1,0 +1,12 @@
+{
+  "GameObjects": [
+    {
+      "ID": 1,
+      "Name": "Waypoint1",
+      "Components": {
+        "TransformComponent": {"x": -4.0, "y": -1.5},
+        "WayPointComponent": {"NeighborIDs": [2, 3]}
+      }
+    }
+  ]
+}
