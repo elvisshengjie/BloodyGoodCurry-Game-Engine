@@ -48,7 +48,7 @@ namespace Framework
         navGraph.Clear();
         for (auto& [id, gocPtr] : FACTORY->Objects())
         {
-
+           
 
         }
 
