@@ -74,7 +74,7 @@ namespace Framework
 				return nearestID;
 			}
 
-            std::vector<int> FindPath(char startID, char goalID)
+            std::vector<int> FindPath(int startID, int goalID)
             {
                 std::vector<int> path;
                 if (nodes.find(startID) == nodes.end() || nodes.find(goalID) == nodes.end())

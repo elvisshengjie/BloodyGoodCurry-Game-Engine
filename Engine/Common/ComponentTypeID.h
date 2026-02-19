@@ -79,6 +79,7 @@ namespace Framework
         CT_EnemyHealthComponent,
         //Enemy Type Component
         CT_EnemyTypeComponent,
+        CT_WayPointComponent,
         //Audio Component
         CT_AudioComponent,
         CT_ZoomTriggerComponent,
