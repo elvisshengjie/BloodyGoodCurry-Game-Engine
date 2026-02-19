@@ -25,6 +25,7 @@ namespace Framework
 	private:
 		gfx::Window* window;
 		NavGraph navGraph;
+		void RequestPath(GOC* enemy, int goalNodeID);
 		void BuildGraphFromWaypoints();
 	};
 }

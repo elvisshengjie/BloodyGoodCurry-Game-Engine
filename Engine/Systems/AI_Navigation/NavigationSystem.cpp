@@ -46,12 +46,42 @@ namespace Framework
     void NavSystem::BuildGraphFromWaypoints()
     {
         navGraph.Clear();
+        //PASS 1 - For Nodes
         for (auto& [id, gocPtr] : FACTORY->Objects())
         {
-           
+            if (!gocPtr) continue;
 
+            auto* waypoint = gocPtr->GetComponentType<WayPointComponent>(
+                ComponentTypeId::CT_WayPointComponent);
+            if (!waypoint) continue;
+            auto* transform = gocPtr->GetComponentType
+                <TransformComponent>(ComponentTypeId::CT_TransformComponent);
+            if (!transform) continue;
+
+            navGraph.AddNode(id, transform->x, transform->y);
         }
-
+        //PASS 2 - Add Edges
+        for (auto& [id, gocPtr] : FACTORY->Objects())
+        {
+            if (!gocPtr) continue;
+            auto* waypoint = gocPtr->GetComponentType<WayPointComponent>(
+                ComponentTypeId::CT_WayPointComponent);
+            if (!waypoint) continue;
+            for (int neighborID : waypoint->NeighborIDs)
+                navGraph.AddDirectedEdge(id, neighborID);
+        }
+    }
+    void NavSystem::RequestPath(GOC* enemy, int goalNodeID)
+    {
+        if (!enemy) return;
+        auto* transform = enemy->GetComponentType
+        <TransformComponent>(ComponentTypeId::CT_TransformComponent);
+        auto* ai = enemy->GetComponentType
+            <EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+        if (!transform || !ai) return;
+        int startID = navGraph.FindNearestNode(transform->x, transform->y);
+        ai->currentPathNodeIDs = navGraph.FindPath(startID, goalNodeID);
+        ai->currentPathIndex = 0;
     }
     /*****************************************************************************************
       \brief
@@ -62,7 +92,10 @@ namespace Framework
          Currently logs initialization status to the console.
     *****************************************************************************************/
     void NavSystem::Initialize()
-    {std::cout << "[NavSystem] Initialized.\n"; }
+    {
+        BuildGraphFromWaypoints();
+        std::cout << "[NavSystem] Initialized.\n"; 
+    }
     /*****************************************************************************************
      \brief
         Updates all AI-controlled entities.
@@ -78,7 +111,50 @@ namespace Framework
     {
         for (auto& [id, gocPtr] : FACTORY->Objects())
         {
+            if (!gocPtr) continue;
+            auto* ai = gocPtr->GetComponentType<EnemyDecisionTreeComponent>(
+                ComponentTypeId::CT_EnemyDecisionTreeComponent);
+            if (!ai || !ai->HasPath()) continue;
+            auto* transform = gocPtr->GetComponentType
+                <TransformComponent>(ComponentTypeId::CT_TransformComponent);
+            auto* rb = gocPtr->GetComponentType<RigidBodyComponent>(
+                ComponentTypeId::CT_RigidBodyComponent); 
+            if (!transform) continue;
+            int nodeID = ai->GetCurrentNodeID();
+            const GraphNode* node = navGraph.GetNode(nodeID);
+            if (!node) continue;
+            float dx = node->x - transform->x;
+            float dy = node->y - transform->y;
+            float distance = std::sqrt(dx * dx + dy * dy);
+            const float reachThreshold = 0.2f;
+            if (distance < reachThreshold)
+            { 
+                ai->AdvancePath();
+                if (rb)
+                {
+                    rb->velX = 0.0f;
+                    rb->velY = 0.0f;
+                }
+                continue;
+            }
+            else
+            {
+                float invLength = 1.0f / distance;
+                float dirX = dx * invLength;
+                float dirY = dy * invLength;
+                float speed = (ai->chaseSpeed > 0.0f) ? ai->chaseSpeed : 10.0f;
+                if (rb)
+                {
+                    rb->velX = dirX * speed;
+                    rb->velY = dirY * speed;
+                }
+                else
+                {
+                    transform->x += dirX * speed * dt;
+                    transform->y += dirY * speed * dt;
+                }
 
+            }
         }
     }
 
@@ -92,6 +168,23 @@ namespace Framework
     *****************************************************************************************/
     void NavSystem::draw()
     {
+#ifdef _DEBUG
+        for (int id : navGraph.GetAllNodesIDs())
+        {
+            const GraphNode* node = navGraph.GetNode(id);
+            if (!node) continue;
+            for (int neighborID : node->NeighborIDs)
+            {
+                const GraphNode* neighbor = navGraph.GetNode(neighborID);
+                if (!neighbor) continue;
+                /*     window->drawLine(
+                    node->x, node->y,
+                    neighbor->x, neighbor->y,
+                    gfx::Color(0, 255, 0)
+                );*/
+            }
+        }
+#endif
     }
     /*****************************************************************************************
      \brief

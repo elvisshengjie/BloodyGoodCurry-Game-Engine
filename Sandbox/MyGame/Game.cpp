@@ -15,6 +15,7 @@
 #include "Systems/audioSystem.h"
 #include "Systems/EnemySystem.h"
 #include "Systems/AiSystem.h"
+#include "Systems/AI_Navigation/NavigationSystem.h"
 #include "Systems/HealthSystem.h"
 #include "Systems/ParticleSystem.h"
 #include "Audio/SoundManager.h"
@@ -104,6 +105,7 @@ namespace mygame {
         Framework::AudioSystem* gAudioSystem = nullptr;
         Framework::RenderSystem* gRenderSystem = nullptr;
         Framework::EnemySystem* gEnemySystem = nullptr;
+        Framework::NavSystem* gNavSystem = nullptr;
         Framework::AiSystem* gAiSystem = nullptr;
         Framework::HealthSystem* gHealthSystem = nullptr;
         Framework::ParticleSystem* gParticleSystem = nullptr;
@@ -138,6 +140,7 @@ namespace mygame {
         gLogicSystem = gSystems.RegisterSystem<Framework::LogicSystem>(win, *gInputSystem);
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
         gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win, *gLogicSystem);
+        gNavSystem = gSystems.RegisterSystem<Framework::NavSystem>(win);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
         gHealthSystem = gSystems.RegisterSystem<Framework::HealthSystem>(win);

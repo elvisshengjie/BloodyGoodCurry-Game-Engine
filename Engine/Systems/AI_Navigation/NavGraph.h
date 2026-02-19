@@ -86,9 +86,9 @@ namespace Framework
                 }
                 auto compare = [](const SearchNode& a, const SearchNode& b) { return a > b; };
                 std::priority_queue<SearchNode, std::vector<SearchNode>, decltype(compare)> openList(compare);
-                std::unordered_map<char, bool> closedList;
-                std::unordered_map<char, float> gScores;
-                std::unordered_map<char, char> cameFrom;
+                std::unordered_map<int, bool> closedList;
+                std::unordered_map<int, float> gScores;
+                std::unordered_map<int, int> cameFrom;
                 const GraphNode& startNode = nodes[startID];
                 const GraphNode& goalNode = nodes[goalID];
                 float startH = CalculateHeurisitic(startNode, goalNode);
@@ -106,7 +106,7 @@ namespace Framework
                     closedList[current.NodeID] = true;
                     if (current.NodeID == goalID)
                     {
-                        char pathNode = goalID;
+                        int pathNode = goalID;
                         while (pathNode != 0)  // 0 indicates no parent
                         {
                             path.push_back(pathNode);
@@ -116,7 +116,7 @@ namespace Framework
                         return path;
                     }
                     const GraphNode& currentNode = nodes[current.NodeID];
-                    for (char neighborID : currentNode.NeighborIDs)
+                    for (int neighborID : currentNode.NeighborIDs)
                     {
                         if (closedList[neighborID])
                         {continue;}
