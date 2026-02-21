@@ -43,7 +43,7 @@ class DecisionTree
 {
     public:
     DecisionTree(std::unique_ptr<DecisionNode> startNode);
-    void run(BehaviorContext& ctx);
+    void run(float dt);
     private:
     std::unique_ptr<DecisionNode> rootNode; 
    

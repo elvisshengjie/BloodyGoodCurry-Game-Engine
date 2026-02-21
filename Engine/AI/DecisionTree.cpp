@@ -42,5 +42,5 @@ DecisionTree::DecisionTree(std::unique_ptr<DecisionNode> startNode):rootNode(std
  \details
     If the root node exists, the evaluation process begins by calling its evaluate() method.
 *********************************************************************************************/
-void DecisionTree::run(BehaviorContext& ctx) {if (rootNode){rootNode->evaluate(ctx);}}
+void DecisionTree::run(float dt){if (rootNode){rootNode->evaluate(dt);}}
 

@@ -22,21 +22,22 @@
             All rights reserved.
 *********************************************************************************************/
 #pragma once
-#include "BehaviorContext.h"
 #include <memory>
 #include <functional>
 class DecisionNode
 {
     public:
-        using Condition = std::function<bool(BehaviorContext&)>;
-        using Action = std::function<void(BehaviorContext&)>;
+     std::function<bool(float)> mainqns;
+     std::unique_ptr<DecisionNode> ifTrue;
+     std::unique_ptr<DecisionNode> ifFalse;
+     std::function<void(float)> action;
      
-        DecisionNode(
-            std::function<bool(BehaviorContext&)> condition,
-            std::unique_ptr<DecisionNode>         trueNode,
-            std::unique_ptr<DecisionNode>         falseNode,
-            std::function<void(BehaviorContext&)> leafAction
-        );
+     DecisionNode(
+         std::function<bool(float)> condition,
+         std::unique_ptr<DecisionNode> trueNode,
+         std::unique_ptr<DecisionNode> falseNode,
+         std::function<void(float)> action
+     );
 
      // Delete copy constructor and copy assignment
      DecisionNode(const DecisionNode&) = delete;
@@ -46,12 +47,7 @@ class DecisionNode
      DecisionNode(DecisionNode&&) = default;
      DecisionNode& operator=(DecisionNode&&) = default;
 
-     void evaluate(BehaviorContext& ctx);
+     void evaluate(float dt);
 
-    private:
-        Condition                    mainqns;
-        std::unique_ptr<DecisionNode> ifTrue;
-        std::unique_ptr<DecisionNode> ifFalse;
-        Action                       action;
 };
 

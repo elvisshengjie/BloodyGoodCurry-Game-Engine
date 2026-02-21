@@ -74,7 +74,7 @@
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
 #include "Component/GateTargetComponent.h"
-//#include "Ai/DecisionTreeDefault.h"
+#include "Ai/DecisionTreeDefault.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Serialization/JsonSerialization.h"
 
