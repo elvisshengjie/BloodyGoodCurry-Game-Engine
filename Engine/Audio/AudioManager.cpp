@@ -266,7 +266,6 @@ void AudioManager::pauseSound(const std::string& name, bool pause)
     auto it = m_channels.find(name);
     if (it == m_channels.end()) 
     {
-        std::cerr << "No active channels for sound '" << name << "'" << std::endl;
         return;
     }
 
@@ -327,7 +326,7 @@ void AudioManager::setSoundVolume(const std::string& name, float volume)
     auto it = m_channels.find(name);
     if (it == m_channels.end()) 
     {
-        std::cerr << "No active channels for sound '" << name << "'" << std::endl;
+        
         return;
     }
 
@@ -336,7 +335,7 @@ void AudioManager::setSoundVolume(const std::string& name, float volume)
         FMOD_Channel_SetVolume(channel, volume);
     }
 
-    std::cout << "Set volume of all instances of '" << name << "' to " << volume << std::endl;
+    
 }
 
 /*****************************************************************************************
@@ -350,7 +349,7 @@ void AudioManager::setSoundPitch(const std::string& name, float pitch)
     auto it = m_channels.find(name);
     if (it == m_channels.end()) 
     {
-        std::cerr << "No active channels for sound '" << name << "'" << std::endl;
+    
         return;
     }
 

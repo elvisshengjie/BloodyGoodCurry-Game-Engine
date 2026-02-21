@@ -223,9 +223,13 @@ bool AssetManager::CreateObjectAsset(
 bool AssetManager::DeletePrefab(const std::string& prefabName)
 {
 	std::filesystem::path prefabPath =
-		std::filesystem::path("Data_Files") / (prefabName + ".json");
+		ProjectRoot() / "Data_Files" / (prefabName + ".json");
 	if (!std::filesystem::exists(prefabPath))
+	{
+		std::cout << "Prefab not found at: " << prefabPath << std::endl;
 		return false;
+	}
+	std::cout << "Deleting file at: " << prefabPath << std::endl;
 	std::filesystem::remove(prefabPath);
 	return true;
 }
