@@ -61,7 +61,7 @@
 // - Load objects from data files (single and level JSON)
 
 namespace Framework {
-
+    extern GameObjectFactory* FACTORY;
     /*****************************************************************************************
       \class GameObjectFactory
       \brief Central system responsible for managing all GameObjectComposition (GOC) objects.
@@ -81,6 +81,7 @@ namespace Framework {
 
       \see GameObjectComposition, ComponentCreator, PrefabManager
     *****************************************************************************************/
+    extern GameObjectFactory* FACTORY;
     class GameObjectFactory : public ISystem {
     public:
 

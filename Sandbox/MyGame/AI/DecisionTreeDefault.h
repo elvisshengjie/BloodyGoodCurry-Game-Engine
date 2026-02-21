@@ -24,8 +24,6 @@
 #include "Composition/Composition.h"
 #include "Factory/Factory.h"
 #include "Common/ComponentTypeID.h"
-#include "DecisionTree.h"
-#include "DecisionNode.h"
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyAttackComponent.h"

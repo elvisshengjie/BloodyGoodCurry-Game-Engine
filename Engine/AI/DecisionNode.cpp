@@ -38,18 +38,18 @@
  \param leafAction
     Optional function executed if the node has no branches.
 *********************************************************************************************/
-DecisionNode::DecisionNode
-(
-    std::function<bool(float)> condition,
-    std::unique_ptr<DecisionNode> trueNode,
-    std::unique_ptr<DecisionNode> falseNode,
-    std::function<void(float)> leafAction
+DecisionNode::DecisionNode(
+    std::function<bool(BehaviorContext&)> condition,
+    std::unique_ptr<DecisionNode>         trueNode,
+    std::unique_ptr<DecisionNode>         falseNode,
+    std::function<void(BehaviorContext&)> leafAction
 )
-    : mainqns(std::move(condition)),
-    ifTrue(std::move(trueNode)),
-    ifFalse(std::move(falseNode)),
-    action(std::move(leafAction))
-{}
+    : mainqns(std::move(condition))
+    , ifTrue(std::move(trueNode))
+    , ifFalse(std::move(falseNode))
+    , action(std::move(leafAction))   // parameter name matches now
+{
+}
 
 /*********************************************************************************************
  \brief
@@ -63,19 +63,19 @@ DecisionNode::DecisionNode
     - If no branches exist, the node�s action is executed instead.
     - If no condition is defined, the node directly performs its action.
 *********************************************************************************************/
-void DecisionNode::evaluate(float dt)
+void DecisionNode::evaluate(BehaviorContext& ctx)
 {
     if (mainqns) {
-        if (mainqns(dt)) {
-            if (ifTrue) ifTrue->evaluate(dt);
-            else if (action) action(dt);
+        if (mainqns(ctx)) {
+            if (ifTrue) ifTrue->evaluate(ctx);
+            else if (action) action(ctx);
         }
         else {
-            if (ifFalse) ifFalse->evaluate(dt);
-            else if (action) action(dt);
+            if (ifFalse) ifFalse->evaluate(ctx);
+            else if (action) action(ctx);
         }
     }
     else if (action) {
-        action(dt);
+        action(ctx);
     }
 }
