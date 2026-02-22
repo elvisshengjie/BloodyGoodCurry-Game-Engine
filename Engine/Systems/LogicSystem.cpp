@@ -515,6 +515,7 @@ namespace Framework {
         RegisterComponent(EnemyComponent);
         RegisterComponent(EnemyAttackComponent);
         RegisterComponent(EnemyDecisionTreeComponent);
+        RegisterComponent(BehaviorTreeComponent);
         RegisterComponent(EnemyHealthComponent);
         RegisterComponent(EnemyTypeComponent);
         RegisterComponent(AudioComponent);

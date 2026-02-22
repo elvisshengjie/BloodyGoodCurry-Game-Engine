@@ -26,12 +26,12 @@ namespace Framework
             {
                 blackboard = std::make_unique<BlackBoard>();
             }
-            void BuildTree(GOC* owner)
+            void BuildTree(GOC* goc)
             {
                 tree.reset();
                 auto it = Registry().find(treeType);
                 if (it != Registry().end())
-                    tree = it->second(owner);
+                    tree = it->second(goc);
             }
             void Update(float dt, GOC* treeOwner)
             {
@@ -42,6 +42,14 @@ namespace Framework
                 ctx.owner = treeOwner;
                 ctx.blackboard = blackboard.get();
                 tree->run(ctx);
+            }
+            
+            ComponentHandle Clone() const override
+            {
+                auto copy = ComponentPool<BehaviorTreeComponent>::CreateTyped();
+                copy->treeType = treeType;
+                // Do NOT clone tree or blackboard — they get built fresh via BuildTree
+                return copy;
             }
     };
 }

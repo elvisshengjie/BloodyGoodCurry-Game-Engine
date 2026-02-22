@@ -53,6 +53,7 @@
 #include "Component/HitBoxComponent.h"
 #include "Component/EnemyComponent.h"
 #include "Component/EnemyAttackComponent.h"
+#include "Component/BehaviorTreeComponent.h"
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
@@ -462,6 +463,10 @@ namespace Framework {
         case ComponentTypeId::CT_EnemyComponent:
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
             return json::object();
+        case ComponentTypeId::CT_BehaviorTreeComponent: {
+            auto const& bt = static_cast<BehaviorTreeComponent const&>(component);
+            return json{ {"treeType", bt.treeType} };
+        }
         case ComponentTypeId::CT_EnemyAttackComponent: {
             auto const& atk = static_cast<EnemyAttackComponent const&>(component);
             return json{ {"damage", atk.damage}, {"attack_speed", atk.attack_speed} };
@@ -1082,6 +1087,12 @@ namespace Framework {
         case ComponentTypeId::CT_EnemyComponent:
         case ComponentTypeId::CT_PlayerComponent:
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
+        case ComponentTypeId::CT_BehaviorTreeComponent:
+        {
+            auto& bt = static_cast<BehaviorTreeComponent&>(component);
+            readString("treeType", bt.treeType);
+            break;
+        }
         case ComponentTypeId::CT_InputComponents:
         case ComponentTypeId::CT_AudioComponent:
         {

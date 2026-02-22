@@ -48,8 +48,11 @@ namespace Framework
         // Patrol leaf
         auto patrolLeaf = std::make_unique<DecisionNode>(
             nullptr, nullptr, nullptr,
-            [](BehaviorContext& ctx) { Framework::Patrol(ctx); }
-        );
+            [](BehaviorContext& ctx) 
+            { 
+             std::cout << "[AI] Patrol running for " << ctx.owner->GetObjectName() << "\n"; 
+            Framework::Patrol(ctx); }
+            );
 
         // Attack leaf
         auto attackLeaf = std::make_unique<DecisionNode>(
@@ -76,7 +79,7 @@ namespace Framework
     }
 }
 
-namespace Framework
+namespace 
 {
     struct EnemyTreeRegistrar {
         EnemyTreeRegistrar() 
@@ -85,5 +88,5 @@ namespace Framework
             {return Framework::BuildEnemyTree(owner);};
         }
     };
-    static EnemyTreeRegistrar gRegistrar;
+    const EnemyTreeRegistrar gRegistrar;
 }

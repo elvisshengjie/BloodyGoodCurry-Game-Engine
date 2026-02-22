@@ -63,19 +63,43 @@ namespace Framework
         Iterates through all game objects retrieved from the Factory. For each object,
         it attempts to run the default enemy decision tree safely using the provided delta time.
     *****************************************************************************************/
-void AiSystem::Update(float dt)
-{
-    for (auto& [id, gocPtr] : FACTORY->Objects())
+    void AiSystem::Update(float dt)
     {
-        if (!gocPtr) continue;
-        GOC* goc = gocPtr.get();
-        auto* btComp = goc->GetComponentType<BehaviorTreeComponent>(
-            ComponentTypeId::CT_BehaviorTreeComponent);
-        // Lazy initialize decision tree
-        if (btComp) 
-            btComp->Update(dt, goc);
+        for (auto& [id, gocPtr] : FACTORY->Objects())
+        {
+            if (!gocPtr) continue;
+            if (!gocPtr->GetComponent(ComponentTypeId::CT_EnemyComponent)) continue;
+            BehaviorTreeComponent* btComp = gocPtr->GetComponentType<BehaviorTreeComponent>(
+                ComponentTypeId::CT_BehaviorTreeComponent);
+
+            if (!btComp)
+            {
+                std::cout << "[AiSystem] Enemy missing BehaviorTreeComponent: "
+                    << gocPtr->GetObjectName() << "\n";
+                continue;
+            }
+
+
+            // Lazy initialize decision tree
+            if (!btComp->tree)
+            {
+                if (btComp->treeType.empty())
+                    btComp->treeType = "default_enemy"; // ensure default
+                btComp->BuildTree(gocPtr.get());
+                if (!btComp->tree)
+                {
+                    std::cout << "[AiSystem] BuildTree failed for: "
+                        << gocPtr->GetObjectName()
+                        << " treeType: '" << btComp->treeType << "'"
+                        << " registry size: " << BehaviorTreeComponent::Registry().size()
+                        << "\n";
+                    continue;
+                }
+            }
+            if (!btComp->tree) continue;
+            btComp->Update(dt, gocPtr.get());
+        }
     }
-}
 
     /*****************************************************************************************
      \brief

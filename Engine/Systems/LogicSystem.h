@@ -28,6 +28,7 @@
 #include "Component/PlayerHealthComponent.h"
 #include "Component/EnemyComponent.h"
 #include "Component/EnemyAttackComponent.h"
+#include "Component/BehaviorTreeComponent.h"
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
