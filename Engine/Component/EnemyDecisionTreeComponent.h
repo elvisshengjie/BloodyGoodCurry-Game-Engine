@@ -28,10 +28,9 @@
 #include "Composition/Component.h"
 #include "Memory/ComponentPool.h"
 #include "Serialization/Serialization.h"
-#include "AI/DecisionTreeDefault.h"
 #include "Composition/Composition.h"
 #include "AI/DecisionTree.h"
-#include "Systems/LogicSystem.h"
+#include "AI/Blackboard.h"
 #include <iostream>
 
 #define NOMINMAX
@@ -50,7 +49,7 @@ namespace Framework {
       \param enemy  Pointer to the enemy GameObjectComposition.
       \return A unique_ptr to a new DecisionTree instance configured for default AI behavior.
     *****************************************************************************************/
-    std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy, LogicSystem* logic);
+    //std::unique_ptr<DecisionTree> CreateDefaultEnemyTree(GOC* enemy, LogicSystem* logic);
 
     /*****************************************************************************************
       \class EnemyDecisionTreeComponent
@@ -63,7 +62,6 @@ namespace Framework {
     class EnemyDecisionTreeComponent : public GameComponent
     {
     public:
-        std::unique_ptr<DecisionTree> tree;  ///< The decision tree controlling enemy behavior.
         float dir = 0.0f;                    ///< Movement direction (1.0 for right, -1.0 for left).
         float pauseTimer = 0.0f;             ///< Timer used for brief pauses between AI actions.
         float chaseSpeed = 0.0f;             ///< Current speed while chasing the player.
@@ -111,7 +109,8 @@ namespace Framework {
             dir = 1.0f;
             prevX = prevY = 0.0f;
             stuckXTimer = stuckYTimer = 0.0f;
-            std::cout << "[EnemyDecisionTreeComponent] Tree initialized.\n";   
+
+            std::cout << "[EnemyDecisionTreeComponent] State initialized.\n";   
         }
 
         /*************************************************************************************

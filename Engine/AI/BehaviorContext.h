@@ -1,19 +1,13 @@
 #pragma once
 #include <functional>
 #include "Blackboard.h"
-class GOC;
-
-using SpawnHitBoxFn
-= std::function < void(GOC*, float, float, float, float, float, float, float)>;
-
-using SpawnProjectileFn = std::function
-<void(GOC*, float, float, float, float, float, float, float, float, float)>;
+#include "Composition/Composition.h"
 
 struct BehaviorContext
 {
-	float dt = 0.0f;
-	GOC* onwer = nullptr;
-	BlackBoard* blackboard = nullptr;
-	SpawnHitBoxFn spawnHitBox;
-	SpawnProjectileFn spawnProjectile;
+    float dt = 0.0f;
+    Framework::GOC* owner = nullptr;  // Use full type
+    BlackBoard* blackboard = nullptr;
+    std::function<void(Framework::GOC*, float, float, float, float, float, float, float)> spawnHitBox;
+    std::function<void(Framework::GOC*, float, float, float, float, float, float, float, float, float)> spawnProjectile;
 };

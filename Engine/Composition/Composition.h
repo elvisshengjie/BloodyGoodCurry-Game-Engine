@@ -94,7 +94,7 @@ namespace Framework {
           \brief Const-qualified overload of GetComponent.
           \param typeId  The ComponentTypeId to search for.
           
-eturn Const pointer to the component if found, nullptr otherwise.
+return Const pointer to the component if found, nullptr otherwise.
         *************************************************************************************/
         GameComponent const* GetComponent(ComponentTypeId typeId) const;
 

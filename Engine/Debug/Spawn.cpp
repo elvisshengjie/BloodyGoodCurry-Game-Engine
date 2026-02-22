@@ -71,6 +71,7 @@
 #include "Component/EnemyComponent.h"
 #include "Component/EnemyAttackComponent.h"
 #include "Component/EnemyDecisionTreeComponent.h"
+#include "Component/BehaviorTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
 #include "Component/GateTargetComponent.h"

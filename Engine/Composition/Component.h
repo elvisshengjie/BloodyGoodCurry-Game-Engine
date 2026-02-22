@@ -94,7 +94,8 @@ ote  Default implementation ignores the message (no-op).
         // polymorphic deep-copy
         /*************************************************************************************
           brief Creates a polymorphic deep copy of this component.
-          eturn A unique_ptr holding the cloned component instance.
+          
+eturn A unique_ptr holding the cloned component instance.
           
 ote  Pure virtual - must be implemented by derived components.
         *************************************************************************************/
@@ -105,14 +106,16 @@ ote  Pure virtual - must be implemented by derived components.
         // Example: PhysicsComponent might call GetOwner()->GetComponent<Transform>() to move it object
         /*************************************************************************************
           brief Returns a pointer to the owning GameObjectComposition.
-          eturn A non-const pointer to the owner.
+          
+eturn A non-const pointer to the owner.
         *************************************************************************************/
         GameObjectComposition* GetOwner() { return owner; }
 
         //read only
         /*************************************************************************************
           brief Returns a const pointer to the owning GameObjectComposition.
-          eturn A const-qualified pointer to the owner.
+          
+eturn A const-qualified pointer to the owner.
         *************************************************************************************/
         GameObjectComposition const* GetOwner() const { return owner; }
 
@@ -120,7 +123,8 @@ ote  Pure virtual - must be implemented by derived components.
         // example :if (comp->GetTypeId() == ComponentTypeId::CT_Transform) { ... }
         /*************************************************************************************
           brief Returns the type identifier of this component.
-          eturn ComponentTypeId enum representing the component type.
+          
+eturn ComponentTypeId enum representing the component type.
         *************************************************************************************/
         ComponentTypeId GetTypeId() const { return type_id; }
 

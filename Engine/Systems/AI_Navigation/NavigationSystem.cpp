@@ -117,8 +117,8 @@ namespace Framework
             if (!ai || !ai->HasPath()) continue;
             auto* transform = gocPtr->GetComponentType
                 <TransformComponent>(ComponentTypeId::CT_TransformComponent);
-            auto* rb = gocPtr->GetComponentType<RigidBodyComponent>(
-                ComponentTypeId::CT_RigidBodyComponent); 
+            auto* rb = gocPtr->GetComponentType
+                <RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             if (!transform) continue;
             int nodeID = ai->GetCurrentNodeID();
             const GraphNode* node = navGraph.GetNode(nodeID);

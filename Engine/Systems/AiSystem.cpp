@@ -69,17 +69,11 @@ void AiSystem::Update(float dt)
     {
         if (!gocPtr) continue;
         GOC* goc = gocPtr.get();
-        auto* ai = goc->GetComponentType<EnemyDecisionTreeComponent>(
-            ComponentTypeId::CT_EnemyDecisionTreeComponent);
-        if (!ai) continue;
+        auto* btComp = goc->GetComponentType<BehaviorTreeComponent>(
+            ComponentTypeId::CT_BehaviorTreeComponent);
         // Lazy initialize decision tree
-        if (!ai->tree)
-        {
-            ai->tree = CreateDefaultEnemyTree(goc, logic); // Pass LogicSystem pointer from AiSystem
-            std::cout << "[AiSystem] Initialized decision tree for enemy ID: " << id << "\n";
-        }
-       
-        UpdateDefaultEnemyTree(goc, dt, logic);
+        if (btComp) 
+            btComp->Update(dt, goc);
     }
 }
 

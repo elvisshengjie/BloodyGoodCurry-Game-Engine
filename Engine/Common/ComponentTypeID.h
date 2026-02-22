@@ -73,6 +73,7 @@ namespace Framework
         CT_EnemyComponent,
         //Decision Tree Component
         CT_EnemyDecisionTreeComponent,
+        CT_BehaviorTreeComponent,
         //EnemyAttackComponent
         CT_EnemyAttackComponent,
         //Enemy Health Component

@@ -1,5 +1,7 @@
 #pragma once
 #include "Factory/Factory.h"
+#include "Physics/Collision/Collision.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Component/TransformComponent.h"
 #include "Component/WayPointComponent.h"
 #include "Component/EnemyComponent.h"
