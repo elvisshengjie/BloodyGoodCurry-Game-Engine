@@ -687,7 +687,10 @@ namespace mygame {
 
         // For new objects: full application (including transform offsets)
         ApplySpawnSettingsToObject(*obj, s, index, /*applyTransformAndLayer*/ true);
-
+        if (auto* btComp = obj->GetComponentType<BehaviorTreeComponent>(
+            ComponentTypeId::CT_BehaviorTreeComponent)) {
+            btComp->BuildTree(obj);  // or however your BT init is called
+        }
         // Assign layer on creation
         obj->SetLayerName(ActiveLayerName());
 

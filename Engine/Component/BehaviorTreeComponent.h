@@ -3,31 +3,45 @@
 #include "../AI/Blackboard.h"
 #include "Composition/Component.h"
 #include <memory>
-
+#include <string>
+#include <functional>
+#include <unordered_map>
 namespace Framework
 {
     
     class BehaviorTreeComponent : public GameComponent
     {
-    public:
-        std::unique_ptr<DecisionTree> tree;
-        std::unique_ptr<BlackBoard> blackboard;
+        public:
+            using TreeBuilder = std::function<std::unique_ptr<DecisionTree>(GOC*)>;
+            static std::unordered_map<std::string, TreeBuilder>& Registry()
+            {
+                static std::unordered_map<std::string, TreeBuilder> reg;
+                return reg;
+            }
+            std::string treeType;
+            std::unique_ptr<DecisionTree> tree;
+            std::unique_ptr<BlackBoard> blackboard;
 
-        void initialize() override
-        {
-            tree.reset();
-            blackboard.reset();
-        }
-
-        void Update(float dt, GOC* treeOwner)
-        {
-            if (!tree) return;
-            if (!blackboard) blackboard = std::make_unique<BlackBoard>();
-            BehaviorContext ctx;
-            ctx.dt = dt;
-            ctx.owner = treeOwner;
-            ctx.blackboard = blackboard.get();
-            tree->run(ctx);
-        }
+            void initialize() override
+            {
+                blackboard = std::make_unique<BlackBoard>();
+            }
+            void BuildTree(GOC* owner)
+            {
+                tree.reset();
+                auto it = Registry().find(treeType);
+                if (it != Registry().end())
+                    tree = it->second(owner);
+            }
+            void Update(float dt, GOC* treeOwner)
+            {
+                if (!tree) return;
+                if (!blackboard) blackboard = std::make_unique<BlackBoard>();
+                BehaviorContext ctx;
+                ctx.dt = dt;
+                ctx.owner = treeOwner;
+                ctx.blackboard = blackboard.get();
+                tree->run(ctx);
+            }
     };
 }

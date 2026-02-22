@@ -18,6 +18,7 @@
 #include "EnemyConditions.h"
 #include "EnemyActions.h"
 #include "AI/DecisionNode.h"
+#include "Component/BehaviorTreeComponent.h"
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
@@ -73,4 +74,16 @@ namespace Framework
 
         return std::make_unique<DecisionTree>(std::move(root));
     }
+}
+
+namespace Framework
+{
+    struct EnemyTreeRegistrar {
+        EnemyTreeRegistrar() 
+        {
+            Framework::BehaviorTreeComponent::Registry()["default_enemy"] = [](Framework::GOC* owner) 
+            {return Framework::BuildEnemyTree(owner);};
+        }
+    };
+    static EnemyTreeRegistrar gRegistrar;
 }
