@@ -97,7 +97,27 @@ namespace Framework
                 }
             }
             if (!btComp->tree) continue;
-            btComp->Update(dt, gocPtr.get());
+            btComp->spawnHitBoxFn = [this](GOC* owner, float x, float y, float w, float h, float dmg, float dur, float knockback)
+            {
+                    if (logic && logic->hitBoxSystem)
+                    logic->hitBoxSystem->SpawnHitBox(owner, x, y, w, h, dmg, dur, HitBoxComponent::Team::Enemy, 0.0f);
+            };
+
+            btComp->spawnProjectileFn = [this](GOC* owner, float x, float y, float dirX, float dirY, float speed, float w, float h, float dmg, float lifetime)
+            {
+                    if (logic && logic->hitBoxSystem)
+                    logic->hitBoxSystem->SpawnProjectile(owner, x, y, dirX, dirY, speed, w, h, dmg, lifetime, HitBoxComponent::Team::Enemy);
+            };
+
+            try {
+                btComp->Update(dt, gocPtr.get());
+            }
+            catch (std::exception& e) {
+                std::cout << "[AiSystem] CRASH: " << e.what() << "\n";
+            }
+            catch (...) {
+                std::cout << "[AiSystem] CRASH: unknown exception\n";
+            }
         }
     }
 

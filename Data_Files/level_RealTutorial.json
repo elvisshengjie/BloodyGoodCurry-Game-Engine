@@ -3007,6 +3007,7 @@
             "damage": 1
           },
           "EnemyComponent": {},
+          "EnemyDecisionTreeComponent":{},
           "BehaviorTreeComponent": {"treeType": "default_enemy"},
           "EnemyHealthComponent": {
             "enemyHealth": 2,
@@ -3172,6 +3173,7 @@
             "damage": 1
           },
           "EnemyComponent": {},
+          "EnemyDecisionTreeComponent":{},
           "BehaviorTreeComponent": {"treeType": "default_enemy"},
           "EnemyHealthComponent": {
             "enemyHealth": 2,
@@ -3333,6 +3335,7 @@
             "damage": 1
           },
           "EnemyComponent": {},
+          "EnemyDecisionTreeComponent":{},
           "BehaviorTreeComponent": {"treeType": "default_enemy"},
           "EnemyHealthComponent": {
             "enemyHealth": 2,
@@ -3494,6 +3497,7 @@
             "damage": 1
           },
           "EnemyComponent": {},
+          "EnemyDecisionTreeComponent":{},
           "BehaviorTreeComponent": {"treeType": "default_enemy"},
           "EnemyHealthComponent": {
             "enemyHealth": 2,

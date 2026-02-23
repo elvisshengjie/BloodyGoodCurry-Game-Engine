@@ -86,7 +86,7 @@
         "enemyHealth": 2,
         "enemyMaxHealth": 2
       },
-
+      "EnemyDecisionTreeComponent":{},
       "BehaviorTreeComponent": 
       {"treeType": "default_enemy"},
 

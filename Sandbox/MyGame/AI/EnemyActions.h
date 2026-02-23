@@ -89,6 +89,7 @@ namespace Framework
         auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
         auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
         auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+        
 
         if (!rb || !tr || !ai) return;
 
@@ -145,7 +146,8 @@ namespace Framework
             }
         }
 
-        if (collisionDetected || futureX <= leftEdge || futureX >= rightEdge)
+        if ((collisionDetected || futureX <= leftEdge || futureX >= rightEdge)
+            && ai->pauseTimer <= 0.0f)  // <-- add this guard
         {
             ai->dir *= -1.0f;
             ai->pauseTimer = pauseDuration;
@@ -167,8 +169,9 @@ namespace Framework
         auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
         auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
         auto* audio = enemy->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
-
         auto* player = FindPlayer();
+        std::cout << "[MeleeAttack] attack=" << attack << " rb=" << rb
+            << " tr=" << tr << " ai=" << ai << " player=" << player << "\n";
         if (!attack || !rb || !tr || !ai || !player) return;
 
         auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
@@ -198,26 +201,31 @@ namespace Framework
 
         ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
         attack->attack_timer += ctx.dt;
+        std::cout << "[Melee] distance=" << distance
+            << " timer=" << attack->attack_timer
+            << " speed=" << attack->attack_speed
+            << " hitbox_active=" << attack->hitbox->active << "\n";
 
         if (attack->attack_timer >= attack->attack_speed && !attack->hitbox->active && distance < 0.8f)
         {
             attack->attack_timer = 0.0f;
-            attack->hitbox->active = true;
+            if (ctx.spawnHitBox)  // check callback is valid first
+            {
+                attack->hitbox->active = true;
+                float direction = (ai->facing == Facing::LEFT) ? -1.0f : 1.0f;
+                float hbWidth = rb->width * 1.2f;
+                float hbHeight = rb->height * 0.8f;
+                float spawnX = tr->x + (direction * hbWidth * 0.25f);
+                float spawnY = tr->y;
 
-            float direction = (ai->facing == Facing::LEFT) ? -1.0f : 1.0f;
-            float hbWidth = rb->width * 1.2f;
-            float hbHeight = rb->height * 0.8f;
-            float spawnX = tr->x + (direction * hbWidth * 0.25f);
-            float spawnY = tr->y;
+                attack->hitbox->duration = GetAnimDuration(enemy, "slashattack");
+                ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
+                    static_cast<float>(attack->damage),
+                    attack->hitbox->duration, 0.0f);
 
-            attack->hitbox->duration = GetAnimDuration(enemy, "slashattack");
-
-            ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
-                static_cast<float>(attack->damage),
-                attack->hitbox->duration, 0.0f);
-
-            if (audio) audio->TriggerSound("EnemyAttack");
-            PlayAnim(enemy, "slashattack");
+                if (audio) audio->TriggerSound("EnemyAttack");
+                PlayAnim(enemy, "slashattack");
+            }
         }
 
         if (attack->hitbox->active)

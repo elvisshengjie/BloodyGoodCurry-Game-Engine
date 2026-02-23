@@ -30,6 +30,7 @@
 #pragma once
 #include "Common/System.h"
 #include "Factory/Factory.h"
+#include "Systems/LogicSystem.h"
 #include "Component/BehaviorTreeComponent.h"
 #include "../../Engine/Graphics/Window.hpp"
 namespace Framework {

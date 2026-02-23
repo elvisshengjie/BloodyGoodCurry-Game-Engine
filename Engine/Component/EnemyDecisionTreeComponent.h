@@ -62,7 +62,7 @@ namespace Framework {
     class EnemyDecisionTreeComponent : public GameComponent
     {
     public:
-        float dir = 0.0f;                    ///< Movement direction (1.0 for right, -1.0 for left).
+        float dir = 1.0f;                    ///< Movement direction (1.0 for right, -1.0 for left).
         float pauseTimer = 0.0f;             ///< Timer used for brief pauses between AI actions.
         float chaseSpeed = 0.0f;             ///< Current speed while chasing the player.
         float chaseTimer = 0.0f;             ///< Accumulated time spent in chase mode.

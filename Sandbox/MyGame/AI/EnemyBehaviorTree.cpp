@@ -45,23 +45,37 @@ namespace Framework
             ComponentTypeId::CT_EnemyTypeComponent);
         isRanged = typeComp && typeComp->Etype == EnemyTypeComponent::EnemyType::ranged;
 
+        auto AliveGuardedAction = [](auto&& action)
+        {
+                return [action = std::forward<decltype(action)>(action)](BehaviorContext& ctx)
+                {
+                        auto* healthComp = ctx.owner->GetComponentType<EnemyHealthComponent>(
+                            ComponentTypeId::CT_EnemyHealthComponent);
+                        if (!healthComp || healthComp->enemyHealth <= 0)
+                            return; // skip if dead
+
+                        action(ctx); // run original AI logic
+                };
+        };
+
         // Patrol leaf
         auto patrolLeaf = std::make_unique<DecisionNode>(
             nullptr, nullptr, nullptr,
-            [](BehaviorContext& ctx) 
+            AliveGuardedAction([](BehaviorContext& ctx)
             { 
              std::cout << "[AI] Patrol running for " << ctx.owner->GetObjectName() << "\n"; 
-            Framework::Patrol(ctx); }
+            Framework::Patrol(ctx); })
             );
 
         // Attack leaf
         auto attackLeaf = std::make_unique<DecisionNode>(
             nullptr, nullptr, nullptr,
-            [isRanged](BehaviorContext& ctx)
+            AliveGuardedAction([isRanged](BehaviorContext& ctx)
             {
+                std::cout << "[AI] Attack running for " << ctx.owner->GetObjectName() << "\n";
                 if (isRanged) Framework::RangedAttack(ctx);
                 else Framework::MeleeAttack(ctx);
-            }
+            })
         );
 
         // Root: condition → attack : patrol

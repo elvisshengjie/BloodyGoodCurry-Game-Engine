@@ -2,13 +2,13 @@
 #include "../AI/DecisionTree.h"
 #include "../AI/Blackboard.h"
 #include "Composition/Component.h"
+#include "Component/HitBoxComponent.h"
 #include <memory>
 #include <string>
 #include <functional>
 #include <unordered_map>
 namespace Framework
 {
-    
     class BehaviorTreeComponent : public GameComponent
     {
         public:
@@ -21,6 +21,8 @@ namespace Framework
             std::string treeType;
             std::unique_ptr<DecisionTree> tree;
             std::unique_ptr<BlackBoard> blackboard;
+            std::function<void(GOC*, float, float, float, float, float, float, float)> spawnHitBoxFn;
+            std::function<void(GOC*, float, float, float, float, float, float, float, float, float)> spawnProjectileFn;
 
             void initialize() override
             {
