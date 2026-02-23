@@ -259,6 +259,7 @@ namespace Framework
     // ------------------------ RANGED ATTACK ------------------------
     inline void RangedAttack(BehaviorContext& ctx)
     {
+        std::cout << "Projectile func valid: " << (bool)ctx.spawnProjectile << "\n";
         GOC* enemy = ctx.owner;
         if (!enemy) return;
 

@@ -43,6 +43,8 @@ namespace Framework
                 ctx.dt = dt;
                 ctx.owner = treeOwner;
                 ctx.blackboard = blackboard.get();
+                ctx.spawnHitBox = spawnHitBoxFn;
+                ctx.spawnProjectile = spawnProjectileFn;
                 tree->run(ctx);
             }
             
