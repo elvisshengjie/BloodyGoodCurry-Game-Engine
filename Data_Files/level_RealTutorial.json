@@ -3008,7 +3008,7 @@
           },
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": {"treeType": "default_enemy"},
+          "BehaviorTreeComponent": { "treeType": "enemy_ranged" },
           "EnemyHealthComponent": {
             "enemyHealth": 2,
             "enemyMaxhealth": 2
@@ -3174,7 +3174,7 @@
           },
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": {"treeType": "default_enemy"},
+          "BehaviorTreeComponent": { "treeType": "enemy_ranged" },
           "EnemyHealthComponent": {
             "enemyHealth": 2,
             "enemyMaxhealth": 2
@@ -3336,7 +3336,7 @@
           },
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": {"treeType": "default_enemy"},
+          "BehaviorTreeComponent": { "treeType": "enemy_melee" },
           "EnemyHealthComponent": {
             "enemyHealth": 2,
             "enemyMaxhealth": 2
@@ -3498,7 +3498,7 @@
           },
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": {"treeType": "default_enemy"},
+          "BehaviorTreeComponent": { "treeType": "enemy_melee" },
           "EnemyHealthComponent": {
             "enemyHealth": 2,
             "enemyMaxhealth": 2

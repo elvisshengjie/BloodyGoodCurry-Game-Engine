@@ -1,6 +1,7 @@
 #pragma once
 #include "../AI/DecisionTree.h"
 #include "../AI/Blackboard.h"
+#include "Component/EnemyTypeComponent.h"
 #include "Composition/Component.h"
 #include "Component/HitBoxComponent.h"
 #include <memory>
@@ -32,6 +33,27 @@ namespace Framework
             {
                 tree.reset();
                 auto it = Registry().find(treeType);
+                //Fail safe cause I need a way to intergrate 
+                
+                /*     if(serializer.EnterObject("BehaviorTreeComponent"))
+                {
+                    serializer.ReadString("treeType", btc->treeType);
+                    serializer.ExitObject();
+                }*/
+
+                if (treeType.empty())
+                {
+                    auto* typeComp = goc->GetComponentType<EnemyTypeComponent>(
+                        ComponentTypeId::CT_EnemyTypeComponent);
+                    if (typeComp)
+                    {
+                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged)
+                            treeType = "enemy_ranged";
+                        else
+                            treeType = "enemy_melee";
+                    }
+                }
+
                 if (it != Registry().end())
                     tree = it->second(goc);
             }

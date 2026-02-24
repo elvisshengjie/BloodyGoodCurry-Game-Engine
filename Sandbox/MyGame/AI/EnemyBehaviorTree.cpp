@@ -35,71 +35,117 @@
 
 namespace Framework
 {
-    std::unique_ptr<DecisionTree> BuildEnemyTree(GOC* enemy)
-    {
-        if (!enemy) return nullptr;
-
-        // Determine enemy type at build time
-        bool isRanged = false;
-        auto* typeComp = enemy->GetComponentType<EnemyTypeComponent>(
-            ComponentTypeId::CT_EnemyTypeComponent);
-        isRanged = typeComp && typeComp->Etype == EnemyTypeComponent::EnemyType::ranged;
-
-        auto AliveGuardedAction = [](auto&& action)
+        // --------------------------------------------------------
+        // Shared Alive Guard Wrapper
+        // --------------------------------------------------------
+        template<typename T>
+        auto AliveGuardedAction(T&& action)
         {
-                return [action = std::forward<decltype(action)>(action)](BehaviorContext& ctx)
+            return [action = std::forward<T>(action)](BehaviorContext& ctx)
                 {
-                        auto* healthComp = ctx.owner->GetComponentType<EnemyHealthComponent>(
-                            ComponentTypeId::CT_EnemyHealthComponent);
-                        if (!healthComp || healthComp->enemyHealth <= 0)
-                            return; // skip if dead
+                    auto* healthComp = ctx.owner->GetComponentType<EnemyHealthComponent>(
+                        ComponentTypeId::CT_EnemyHealthComponent);
 
-                        action(ctx); // run original AI logic
+                    if (!healthComp || healthComp->enemyHealth <= 0)
+                        return;
+
+                    action(ctx);
                 };
-        };
+        }
+        // ========================================================
+        // MELEE TREE
+        // ========================================================
+        std::unique_ptr<DecisionTree> BuildMeleeEnemyTree(GOC* enemy)
+        {
+            if (!enemy) return nullptr;
 
-        // Patrol leaf
-        auto patrolLeaf = std::make_unique<DecisionNode>(
-            nullptr, nullptr, nullptr,
-            AliveGuardedAction([](BehaviorContext& ctx)
-            { 
-             std::cout << "[AI] Patrol running for " << ctx.owner->GetObjectName() << "\n"; 
-            Framework::Patrol(ctx); })
+            auto patrolLeaf = std::make_unique<DecisionNode>(
+                nullptr, nullptr, nullptr,
+                AliveGuardedAction([](BehaviorContext& ctx)
+                {
+                        std::cout << "[AI] Melee Patrol: "
+                            << ctx.owner->GetObjectName() << "\n";
+                        Patrol(ctx);
+                })
             );
 
-        // Attack leaf
-        auto attackLeaf = std::make_unique<DecisionNode>(
-            nullptr, nullptr, nullptr,
-            AliveGuardedAction([isRanged](BehaviorContext& ctx)
-            {
-                std::cout << "[AI] Attack running for " << ctx.owner->GetObjectName() << "\n";
-                if (isRanged) Framework::RangedAttack(ctx);
-                else Framework::MeleeAttack(ctx);
-            })
-        );
+            auto attackLeaf = std::make_unique<DecisionNode>(
+                nullptr, nullptr, nullptr,
+                AliveGuardedAction([](BehaviorContext& ctx)
+                {
+                        std::cout << "[AI] Melee Attack: "
+                            << ctx.owner->GetObjectName() << "\n";
+                        MeleeAttack(ctx);
+                })
+            );
 
-        // Root: condition → attack : patrol
-        auto root = std::make_unique<DecisionNode>(
-            [](BehaviorContext& ctx)
-            {
-                return Framework::HasTargetInRange(ctx);
-            },
-            std::move(attackLeaf),
-            std::move(patrolLeaf),
-            nullptr
-        );
+            auto root = std::make_unique<DecisionNode>(
+                [](BehaviorContext& ctx)
+                {
+                    return HasTargetInRange(ctx);
+                },
+                std::move(attackLeaf),
+                std::move(patrolLeaf),
+                nullptr
+            );
 
-        return std::make_unique<DecisionTree>(std::move(root));
-    }
+            return std::make_unique<DecisionTree>(std::move(root));
+        }
+
+        // ========================================================
+        // RANGED TREE
+        // ========================================================
+        std::unique_ptr<DecisionTree> BuildRangedEnemyTree(GOC* enemy)
+        {
+            if (!enemy) return nullptr;
+
+            auto patrolLeaf = std::make_unique<DecisionNode>(
+                nullptr, nullptr, nullptr,
+                AliveGuardedAction([](BehaviorContext& ctx)
+                    {
+                        std::cout << "[AI] Ranged Patrol: "
+                            << ctx.owner->GetObjectName() << "\n";
+                        Patrol(ctx);
+                    })
+            );
+
+            auto attackLeaf = std::make_unique<DecisionNode>(
+                nullptr, nullptr, nullptr,
+                AliveGuardedAction([](BehaviorContext& ctx)
+                    {
+                        std::cout << "[AI] Ranged Attack: "
+                            << ctx.owner->GetObjectName() << "\n";
+                        RangedAttack(ctx);
+                    })
+            );
+
+            auto root = std::make_unique<DecisionNode>(
+                [](BehaviorContext& ctx)
+                {
+                    return HasTargetInRange(ctx);
+                },
+                std::move(attackLeaf),
+                std::move(patrolLeaf),
+                nullptr
+            );
+
+            return std::make_unique<DecisionTree>(std::move(root));
+        }
 }
 
 namespace 
 {
-    struct EnemyTreeRegistrar {
-        EnemyTreeRegistrar() 
+    struct EnemyTreeRegistrar
+    {
+        EnemyTreeRegistrar()
         {
-            Framework::BehaviorTreeComponent::Registry()["default_enemy"] = [](Framework::GOC* owner) 
-            {return Framework::BuildEnemyTree(owner);};
+            Framework::BehaviorTreeComponent::Registry()["enemy_melee"] =
+                [](Framework::GOC* owner)
+                { return Framework::BuildMeleeEnemyTree(owner); };
+
+            Framework::BehaviorTreeComponent::Registry()["enemy_ranged"] =
+                [](Framework::GOC* owner)
+                { return Framework::BuildRangedEnemyTree(owner); };
         }
     };
     const EnemyTreeRegistrar gRegistrar;

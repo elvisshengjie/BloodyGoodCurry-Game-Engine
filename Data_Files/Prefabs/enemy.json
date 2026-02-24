@@ -87,8 +87,7 @@
         "enemyMaxHealth": 2
       },
       "EnemyDecisionTreeComponent":{},
-      "BehaviorTreeComponent": 
-      {"treeType": "default_enemy"},
+      "BehaviorTreeComponent": { "treeType": "enemy_melee" },
 
       "EnemyTypeComponent": {
         "type": "physical"

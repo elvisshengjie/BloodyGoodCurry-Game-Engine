@@ -83,8 +83,6 @@ namespace Framework
             // Lazy initialize decision tree
             if (!btComp->tree)
             {
-                if (btComp->treeType.empty())
-                    btComp->treeType = "default_enemy"; // ensure default
                 btComp->BuildTree(gocPtr.get());
                 if (!btComp->tree)
                 {

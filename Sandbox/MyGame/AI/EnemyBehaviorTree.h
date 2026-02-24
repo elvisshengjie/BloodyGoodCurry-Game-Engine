@@ -9,5 +9,6 @@
 namespace Framework
 {
 	
-	std::unique_ptr<DecisionTree> BuildEnemyTree(GOC* enemy);
+	std::unique_ptr<DecisionTree> BuildMeleeEnemyTree(GOC* enemy);
+	std::unique_ptr<DecisionTree> BuildRangedEnemyTree(GOC* enemy);
 }
