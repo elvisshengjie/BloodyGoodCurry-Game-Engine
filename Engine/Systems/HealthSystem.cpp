@@ -417,6 +417,7 @@ namespace Framework
     {
         if (!window)
             return;
+
         int viewportX = 0;
         int viewportY = 0;
         int viewportW = 0;
