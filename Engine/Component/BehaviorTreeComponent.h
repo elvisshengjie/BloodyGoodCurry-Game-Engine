@@ -33,29 +33,11 @@ namespace Framework
             {
                 tree.reset();
                 auto it = Registry().find(treeType);
-                //Fail safe cause I need a way to intergrate 
-                
-                /*     if(serializer.EnterObject("BehaviorTreeComponent"))
-                {
-                    serializer.ReadString("treeType", btc->treeType);
-                    serializer.ExitObject();
-                }*/
-
-                if (treeType.empty())
-                {
-                    auto* typeComp = goc->GetComponentType<EnemyTypeComponent>(
-                        ComponentTypeId::CT_EnemyTypeComponent);
-                    if (typeComp)
-                    {
-                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged)
-                            treeType = "enemy_ranged";
-                        else
-                            treeType = "enemy_melee";
-                    }
-                }
-
                 if (it != Registry().end())
                     tree = it->second(goc);
+                else
+                    std::cout << "[AiSystem] BuildTree failed: treeType '" << treeType
+                    << "' not found in registry size: " << Registry().size() << "\n";
             }
             void Update(float dt, GOC* treeOwner)
             {
@@ -69,7 +51,11 @@ namespace Framework
                 ctx.spawnProjectile = spawnProjectileFn;
                 tree->run(ctx);
             }
-            
+            void Serialize(ISerializer& stream) override
+            {
+                if (stream.HasKey("treeType"))
+                    StreamRead(stream, "treeType", treeType);
+            }
             ComponentHandle Clone() const override
             {
                 auto copy = ComponentPool<BehaviorTreeComponent>::CreateTyped();
@@ -77,5 +63,7 @@ namespace Framework
                 // Do NOT clone tree or blackboard — they get built fresh via BuildTree
                 return copy;
             }
+
+
     };
 }

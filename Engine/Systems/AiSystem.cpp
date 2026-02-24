@@ -95,7 +95,7 @@ namespace Framework
                 }
             }
             if (!btComp->tree) continue;
-            btComp->spawnHitBoxFn = [this](GOC* owner, float x, float y, float w, float h, float dmg, float dur, float knockback)
+            btComp->spawnHitBoxFn = [this](GOC* owner, float x, float y, float w, float h, float dmg, float dur, float /*knockback*/)
             {
                     if (logic && logic->hitBoxSystem)
                     logic->hitBoxSystem->SpawnHitBox(owner, x, y, w, h, dmg, dur, HitBoxComponent::Team::Enemy, 0.0f);
