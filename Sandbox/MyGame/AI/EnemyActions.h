@@ -319,7 +319,7 @@ namespace Framework
             float spawnX = tr->x + dirX * (std::max(rb->width, rb->height) * 0.5f + 0.1f);
             float spawnY = tr->y + dirY * (std::max(rb->width, rb->height) * 0.5f + 0.1f);
 
-            ctx.spawnProjectile(enemy, spawnX, spawnY, dirX, dirY, 0.2f, 0.3f, 0.15f,
+            ctx.spawnProjectile(enemy, spawnX, spawnY, dirX, dirY, 0.5f, 0.3f, 0.15f,
                 static_cast<float>(attack->damage), 3.0f);
 
             if (audio) audio->TriggerSound("EnemyAttack");
