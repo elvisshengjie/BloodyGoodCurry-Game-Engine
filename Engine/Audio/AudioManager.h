@@ -63,14 +63,11 @@ class AudioManager
     void fadeOutSound(const std::string& name, float duration);
     std::vector<std::string> getLoadedSounds() const;
     private:
-    FMOD_SYSTEM* m_system;///Pointer to the FMOD system instance.
     std::unordered_map<std::string, FMOD_SOUND*> m_sounds;///Map of loaded sounds by name.
     std::unordered_map<std::string, std::vector<FMOD_CHANNEL*>> m_channels;///Map of channels for each sound.
     std::vector<FadeData> m_fades;
-    
     struct Impl;
     Impl* pImpl;
-   
     std::string getFullPath(const std::string& fileName) const;
     void updateFades(float deltaTime);
     void checkFMODError(FMOD_RESULT result, const std::string& operation) const;
