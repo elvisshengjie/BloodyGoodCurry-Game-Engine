@@ -43,7 +43,9 @@ class AudioManager
     bool initialize();
     void shutdown();
     void update(float dt);
-    bool loadSound(const std::string& name, const std::string& filePath, bool loop = false);
+    bool loadSound(const std::string& name, const std::string& filePath, bool loop = false, bool is3D = false);
+    void setListenerPosition(const void* pos, const void* forward, const void* up);
+    void setSoundPosition(const std::string& name, const void* pos, const void* vel = nullptr);
     void unloadSound(const std::string& name);
     void unloadAllSounds();
     bool playSound(const std::string& name, float volume = 1.0f, float pitch = 1.0f, bool loop= false);
@@ -65,6 +67,10 @@ class AudioManager
     std::unordered_map<std::string, FMOD_SOUND*> m_sounds;///Map of loaded sounds by name.
     std::unordered_map<std::string, std::vector<FMOD_CHANNEL*>> m_channels;///Map of channels for each sound.
     std::vector<FadeData> m_fades;
+    
+    struct Impl;
+    Impl* pImpl;
+   
     std::string getFullPath(const std::string& fileName) const;
     void updateFades(float deltaTime);
     void checkFMODError(FMOD_RESULT result, const std::string& operation) const;

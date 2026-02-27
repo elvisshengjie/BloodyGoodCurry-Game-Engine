@@ -24,14 +24,35 @@
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
 /*****************************************************************************************
+ \struct AudioManager::Impl
+ \brief Private implementation of AudioManager (PIMPL pattern).
+
+ \details
+ Contains all FMOD-specific members, hiding FMOD types from the public header to
+ avoid incomplete type errors and reduce compilation dependencies.
+
+ \member system   Pointer to the FMOD system instance.
+ \member sounds   Map of loaded sounds by their string identifiers.
+ \member channels Map of active channels for each sound.
+ \member fades    Vector of active fade operations (volume interpolations).
+*****************************************************************************************/
+struct AudioManager::Impl
+{
+    FMOD_SYSTEM* system = nullptr;
+    std::unordered_map<std::string, FMOD_SOUND*> sounds;
+    std::unordered_map<std::string, std::vector<FMOD_CHANNEL*>> channels;
+    std::vector<FadeData> fades;
+};
+
+/*****************************************************************************************
  \brief Constructor for the AudioManager.
 *****************************************************************************************/
-AudioManager::AudioManager() : m_system(nullptr) {}
+AudioManager::AudioManager(){ pImpl = new Impl(); pImpl->system = nullptr;}
 
 /*****************************************************************************************
  \brief Destructor for the AudioManager. It cleans up any FMOD resources.
 *****************************************************************************************/
-AudioManager::~AudioManager() {shutdown();}
+AudioManager::~AudioManager() {shutdown(); delete pImpl;}
 
 /*****************************************************************************************
  \brief Initializes the FMOD system for audio playback.
@@ -40,7 +61,7 @@ AudioManager::~AudioManager() {shutdown();}
 bool AudioManager::initialize()
 {
     // Creates the FMOD System
-    FMOD_RESULT result = FMOD_System_Create(&m_system, FMOD_VERSION);
+    FMOD_RESULT result = FMOD_System_Create(&pImpl->system, FMOD_VERSION);
     if (result != FMOD_OK) 
     {
     std::cerr << "Failed to create FMOD system: " << FMOD_ErrorString(result) <<
@@ -49,16 +70,16 @@ bool AudioManager::initialize()
     }
 
     // Initializes the FMOD system
-    result = FMOD_System_Init(m_system, 32, FMOD_INIT_NORMAL, nullptr);
+    result = FMOD_System_Init(pImpl->system, 32, FMOD_INIT_NORMAL, nullptr);
     if (result != FMOD_OK) 
     {
         std::cerr << "Failed to initialize FMOD system: " << FMOD_ErrorString(result) << std::endl;
 
         // Clean up the partially created system to avoid leaking the FMOD state
-        if (m_system)
+        if (pImpl->system)
         {
-            FMOD_System_Release(m_system);
-            m_system = nullptr;
+            FMOD_System_Release(pImpl->system);
+            pImpl->system = nullptr;
         }
         return false;
     }
@@ -72,16 +93,16 @@ bool AudioManager::initialize()
 *****************************************************************************************/
 void AudioManager::shutdown() 
 {
-    if (m_system) 
+    if (pImpl->system) 
     {
         pruneStoppedChannels();
         stopAllSounds();       // stop active channels
         unloadAllSounds();     // release FMOD sounds
         // Close and release FMOD system
-        FMOD_System_Close(m_system);
-        FMOD_System_Release(m_system);
+        FMOD_System_Close(pImpl->system);
+        FMOD_System_Release(pImpl->system);
 
-        m_system = nullptr;
+        pImpl->system = nullptr;
         std::cout << "AudioManager shutdown complete" << std::endl;
     }
 }
@@ -92,11 +113,11 @@ void AudioManager::shutdown()
 *****************************************************************************************/
 void AudioManager::update(float deltaTime)
 {
-    if (m_system) 
+    if (pImpl->system) 
     {
         pruneStoppedChannels();
         updateFades(deltaTime);
-        FMOD_System_Update(m_system);
+        FMOD_System_Update(pImpl->system);
     }
 }
 
@@ -107,15 +128,15 @@ void AudioManager::update(float deltaTime)
  \param loop      Checks whether the sound should loop during playback.
  \return True if the sound is loaded successfully, false otherwise.
 *****************************************************************************************/
-bool AudioManager::loadSound(const std::string& name, const std::string& filePath, bool loop) 
+bool AudioManager::loadSound(const std::string& name, const std::string& filePath, bool loop, bool is3D)
 {
-    if (!m_system) 
+    if (!pImpl->system) 
     {
         std::cerr << "AudioManager not initialized" << std::endl; return false;
     }
 
     // Check if sound is already loaded
-    if (m_sounds.find(name) != m_sounds.end()) 
+    if (pImpl->sounds.find(name) != pImpl->sounds.end()) 
     { 
         std::cout << "Sound '" << name << "' is already loaded" << std::endl; return true;
     }
@@ -132,31 +153,76 @@ bool AudioManager::loadSound(const std::string& name, const std::string& filePat
     {
         mode |= FMOD_LOOP_NORMAL;
     }
-
-    FMOD_RESULT result = FMOD_System_CreateSound(m_system, fullPath.c_str(), mode, nullptr,&sound);
+    if (is3D) mode |= FMOD_3D;
+    FMOD_RESULT result = FMOD_System_CreateSound(pImpl->system, fullPath.c_str(), mode, nullptr,&sound);
     if (result != FMOD_OK) 
     {
         std::cerr << "Failed to load sound '" << name << "': " << FMOD_ErrorString(result)<< std::endl;
         return false;
     }
     
-    m_sounds[name] = sound;
+    pImpl->sounds[name] = sound;
     
     std::cout << "Loaded sound: " << name << " from " << fullPath << std::endl;
     return true;
 }
+/*****************************************************************************************
+ \brief Sets the 3D listener's position and orientation.
+ \param pos     Pointer to FMOD_VECTOR representing listener position.
+ \param forward Pointer to FMOD_VECTOR representing forward direction.
+ \param up      Pointer to FMOD_VECTOR representing up vector.
+ \note Velocity is set to zero; used for Doppler effects if needed.
+*****************************************************************************************/
+void AudioManager::setListenerPosition(const void* pos, const void* forward, const void* up)
+{
+    if (!pImpl->system) return;
 
+    FMOD_VECTOR* p = (FMOD_VECTOR*)pos;
+    FMOD_VECTOR* f = (FMOD_VECTOR*)forward;
+    FMOD_VECTOR* u = (FMOD_VECTOR*)up;
+    FMOD_VECTOR velocity = { 0.0f, 0.0f, 0.0f };
+
+    FMOD_RESULT result = FMOD_System_Set3DListenerAttributes(pImpl->system, 0, p, &velocity, f, u);
+    checkFMODError(result, "set3DListenerAttributes");
+}
+/*****************************************************************************************
+ \brief Sets the 3D position (and optional velocity) of a specific sound.
+ \param name Identifier of the sound to update.
+ \param pos  Pointer to an FMOD_VECTOR representing the new position.
+ \param vel  Pointer to an FMOD_VECTOR representing the velocity (optional, default nullptr).
+ \note The sound must be loaded and be a 3D sound; casts void* to FMOD_VECTOR internally.
+*****************************************************************************************/
+void AudioManager::setSoundPosition(const std::string& name, const void* pos, const void* vel)
+{
+    // Check system
+    if (!pImpl->system) return;
+
+    // Check if sound has active channels
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) return;
+
+    FMOD_VECTOR* p = (FMOD_VECTOR*)pos;
+    FMOD_VECTOR velocity = { 0.0f, 0.0f, 0.0f };
+    FMOD_VECTOR* v = vel ? (FMOD_VECTOR*)vel : &velocity;
+
+    for (FMOD_CHANNEL* ch : it->second)
+    {
+        if (!ch) continue;
+        FMOD_RESULT result = FMOD_Channel_Set3DAttributes(ch, p, v);
+        checkFMODError(result, "FMOD_Channel_Set3DAttributes");
+    }
+}
 /*****************************************************************************************
  \brief Unloads a specific sound by name.
  \param name  To identify the sound to unload.
 *****************************************************************************************/
 void AudioManager::unloadSound(const std::string& name)
 {
-    auto it = m_sounds.find(name);
-    if (it!= m_sounds.end()) 
+    auto it = pImpl->sounds.find(name);
+    if (it!= pImpl->sounds.end()) 
     { 
         FMOD_Sound_Release(it->second);
-        m_sounds.erase(it);
+        pImpl->sounds.erase(it);
         std::cout << "Unloaded sound: " << name << std::endl;
     }
     else 
@@ -169,12 +235,12 @@ void AudioManager::unloadSound(const std::string& name)
 *****************************************************************************************/
 void AudioManager::unloadAllSounds()
 {
-    for (auto& [name,sound]: m_sounds)
+    for (auto& [name,sound]: pImpl->sounds)
     {
         FMOD_Sound_Release(sound);
         std::cout << "Unloaded sound: "<< name<< std::endl;
     }
-    m_sounds.clear();
+    pImpl->sounds.clear();
 }
 
 /*****************************************************************************************
@@ -186,19 +252,19 @@ void AudioManager::unloadAllSounds()
 *****************************************************************************************/
 bool AudioManager::playSound(const std::string& name, float volume, float pitch, bool loop)
 {
-    if (!m_system)
+    if (!pImpl->system)
     {return false;}
     pruneStoppedChannels();
         
-    auto it = m_sounds.find(name);
-    if (it == m_sounds.end()) 
+    auto it = pImpl->sounds.find(name);
+    if (it == pImpl->sounds.end()) 
     {
         std::cerr << "Sound '" << name << "' not loaded" << std::endl;
         return false;
     }
 
     FMOD_CHANNEL* channel = nullptr;
-    FMOD_RESULT result = FMOD_System_PlaySound(m_system, it->second, nullptr, false, &channel);
+    FMOD_RESULT result = FMOD_System_PlaySound(pImpl->system, it->second, nullptr, false, &channel);
     if (result != FMOD_OK) 
     {
         std::cerr << "Failed to play sound '" << name << "': " << FMOD_ErrorString(result) << std::endl;
@@ -212,7 +278,7 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch,
     FMOD_Channel_SetPitch(channel, pitch);
 
     // store this channel
-    m_channels[name].push_back(channel);
+    pImpl->channels[name].push_back(channel);
 
     std::cout << "Playing sound: " << name << (loop ? " [looping]" : "") << std::endl;
     return true;
@@ -225,8 +291,8 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch,
 void AudioManager::stopSound(const std::string& name)
 {
     pruneStoppedChannels();
-    auto it = m_channels.find(name);
-    if (it == m_channels.end()) 
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) 
         return;
 
     for (auto* ch : it->second) 
@@ -234,7 +300,7 @@ void AudioManager::stopSound(const std::string& name)
         if (ch) FMOD_Channel_Stop(ch);
     }
 
-    m_channels.erase(it);
+    pImpl->channels.erase(it);
     std::cout << "Stopped all instances of: " << name << std::endl;
 }
 
@@ -244,14 +310,14 @@ void AudioManager::stopSound(const std::string& name)
 void AudioManager::stopAllSounds()
 {
     pruneStoppedChannels();
-    for (auto& [name, channels] : m_channels) 
+    for (auto& [name, channels] : pImpl->channels) 
     {
         for (auto* ch : channels) 
         {
             if (ch) FMOD_Channel_Stop(ch);
         }
     }
-    m_channels.clear();
+    pImpl->channels.clear();
     std::cout << "Stopped all sounds" << std::endl;
 }
 
@@ -263,8 +329,8 @@ void AudioManager::stopAllSounds()
 void AudioManager::pauseSound(const std::string& name, bool pause)
 {
     pruneStoppedChannels();
-    auto it = m_channels.find(name);
-    if (it == m_channels.end()) 
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) 
     {
         return;
     }
@@ -284,7 +350,7 @@ void AudioManager::pauseSound(const std::string& name, bool pause)
 void AudioManager::pauseAllSounds(bool pause)
 {
     pruneStoppedChannels();
-    for (auto& [name, channels] : m_channels) 
+    for (auto& [name, channels] : pImpl->channels) 
     {
         for (FMOD_CHANNEL* channel : channels) 
         {
@@ -300,10 +366,10 @@ void AudioManager::pauseAllSounds(bool pause)
 *****************************************************************************************/
 void AudioManager::setMasterVolume(float volume) 
 {
-    if (m_system) 
+    if (pImpl->system) 
     {
         FMOD_CHANNELGROUP* masterGroup = nullptr;
-        FMOD_RESULT result = FMOD_System_GetMasterChannelGroup(m_system, &masterGroup);
+        FMOD_RESULT result = FMOD_System_GetMasterChannelGroup(pImpl->system, &masterGroup);
         if (result == FMOD_OK && masterGroup) 
         {
             FMOD_ChannelGroup_SetVolume(masterGroup, volume);std::cout << "Set master volume to: " << volume << std::endl;
@@ -323,8 +389,8 @@ void AudioManager::setMasterVolume(float volume)
 void AudioManager::setSoundVolume(const std::string& name, float volume)
 {
     pruneStoppedChannels();
-    auto it = m_channels.find(name);
-    if (it == m_channels.end()) 
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) 
     {
         
         return;
@@ -346,8 +412,8 @@ void AudioManager::setSoundVolume(const std::string& name, float volume)
 void AudioManager::setSoundPitch(const std::string& name, float pitch)
 {
     pruneStoppedChannels();
-    auto it = m_channels.find(name);
-    if (it == m_channels.end()) 
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) 
     {
     
         return;
@@ -368,8 +434,8 @@ void AudioManager::setSoundPitch(const std::string& name, float pitch)
 *****************************************************************************************/
 void AudioManager::setSoundLoop(const std::string& name, bool loop)
 {
-    auto it = m_sounds.find(name);
-    if (it == m_sounds.end()) { return;}
+    auto it = pImpl->sounds.find(name);
+    if (it == pImpl->sounds.end()) { return;}
     FMOD_MODE mode;
     FMOD_Sound_GetMode(it->second, &mode);
     if (loop) mode |= FMOD_LOOP_NORMAL;
@@ -383,7 +449,7 @@ void AudioManager::setSoundLoop(const std::string& name, bool loop)
 *****************************************************************************************/
 bool AudioManager::isSoundLoaded(const std::string& name) const
 {
-    return m_sounds.find(name) != m_sounds.end();
+    return pImpl->sounds.find(name) != pImpl->sounds.end();
 }
 
 /*****************************************************************************************
@@ -393,8 +459,8 @@ bool AudioManager::isSoundLoaded(const std::string& name) const
 *****************************************************************************************/
 bool AudioManager::isSoundPlaying(const std::string& name) const
 {
-    auto it = m_channels.find(name);
-    if (it == m_channels.end()) 
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) 
         return false;
 
     for (FMOD_CHANNEL* channel : it->second) 
@@ -414,7 +480,7 @@ bool AudioManager::isSoundPlaying(const std::string& name) const
 *****************************************************************************************/
 void AudioManager::pruneStoppedChannels()
 {
-    for (auto it = m_channels.begin(); it != m_channels.end(); )
+    for (auto it = pImpl->channels.begin(); it != pImpl->channels.end(); )
     {
         auto& channels = it->second;
 
@@ -429,7 +495,7 @@ void AudioManager::pruneStoppedChannels()
             }), channels.end());
 
         if (channels.empty())
-            it = m_channels.erase(it);
+            it = pImpl->channels.erase(it);
         else
             ++it;
     }
@@ -441,7 +507,7 @@ void AudioManager::pruneStoppedChannels()
 std::vector<std::string> AudioManager::getLoadedSounds() const
 {
     std::vector<std::string> sounds;
-    for (const auto& [name, sound] : m_sounds) 
+    for (const auto& [name, sound] : pImpl->sounds) 
     {
         sounds.push_back(name);
     }
@@ -498,8 +564,8 @@ void AudioManager::checkFMODError(FMOD_RESULT result, const std::string& operati
 *****************************************************************************************/
 void AudioManager::fadeInSound(const std::string& name, float duration, float targetVolume)
 {
-    auto it = m_channels.find(name);
-    if (it == m_channels.end()) return;
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) return;
 
     for (auto* channel : it->second)
     {
@@ -516,8 +582,8 @@ void AudioManager::fadeInSound(const std::string& name, float duration, float ta
 *****************************************************************************************/
 void AudioManager::fadeOutSound(const std::string& name, float duration)
 {
-    auto it = m_channels.find(name);
-    if (it == m_channels.end()) return;
+    auto it = pImpl->channels.find(name);
+    if (it == pImpl->channels.end()) return;
 
     for (auto* channel : it->second)
     {
