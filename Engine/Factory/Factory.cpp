@@ -579,6 +579,48 @@ namespace Framework {
             array.push_back(std::move(objJson));      // Append object to "GameObjects" array
         }
 
+        auto hasNamedBehaviour = [&](const char* name) {
+            for (const auto& go : array) {
+                if (!go.is_object()) continue;
+                const auto nameIt = go.find("name");
+                if (nameIt == go.end() || !nameIt->is_string() || nameIt->get<std::string>() != name)
+                    continue;
+
+                const auto compsIt = go.find("Components");
+                if (compsIt == go.end() || !compsIt->is_object())
+                    continue;
+
+                const auto behaviourIt = compsIt->find("BehaviourComponent");
+                if (behaviourIt == compsIt->end() || !behaviourIt->is_object())
+                    continue;
+
+                const auto keyIt = behaviourIt->find("behaviourKey");
+                if (keyIt != behaviourIt->end() && keyIt->is_string() && keyIt->get<std::string>() == name)
+                    return true;
+            }
+            return false;
+            };
+
+        auto injectGlobalBehaviourObject = [&](const char* name) {
+            if (hasNamedBehaviour(name))
+                return;
+
+            array.push_back(json{
+                {"Components", json{
+                    {"BehaviourComponent", json{
+                        {"behaviourKey", name}
+                    }}
+                }},
+                {"layer", "Gameplay:0"},
+                {"name", name}
+            });
+        };
+
+        // Ensure global gameplay behaviour entities exist even for brand-new levels
+        // saved from editor tooling (e.g., Spawn panel level creation).
+        injectGlobalBehaviourObject("CombatDirector");
+        injectGlobalBehaviourObject("VfxCleanup");
+
         std::filesystem::path outputPath(filename);   // Normalize/hold output path
         std::error_code ec;                           // Non-throwing error code holder
         if (outputPath.has_parent_path())

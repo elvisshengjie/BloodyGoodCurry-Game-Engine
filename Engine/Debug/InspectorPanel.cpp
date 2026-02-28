@@ -86,7 +86,7 @@ namespace
                 }
 
                 std::string comboLabel = "Sound Resource##" + action;
-                if (ImGui::Combo(
+          /*      if (ImGui::Combo(
                     comboLabel.c_str(),
                     &currentIdx,
                     [](void* data, int idx, const char** out_text)
@@ -99,7 +99,7 @@ namespace
                     static_cast<int>(availableSounds.size())))
                 {
                     info.id = availableSounds[currentIdx];
-                }
+                }*/
 
                 // --- Loop Checkbox ---------------------------------------------
                 std::string loopLabel = "Loop##" + action;

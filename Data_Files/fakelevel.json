@@ -3,6 +3,24 @@
     "GameObjects": [
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "CombatDirector"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "CombatDirector"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "VfxCleanup"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "VfxCleanup"
+      },
+      {
+        "Components": {
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
@@ -916,7 +934,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -0.8439540266990662,
-            "y": -0.8950576782226563
+            "y": -0.8950576782226562
           }
         },
         "layer": "Default",
@@ -2012,6 +2030,9 @@
             "scale_y": 1.0,
             "x": -0.42643094062805176,
             "y": -0.7964167594909668
+          },
+          "BehaviourComponent": {
+            "behaviourKey": "PlayerController"
           }
         },
         "layer": "Default",
@@ -3490,7 +3511,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -0.1799994856119156,
-            "y": -1.1532058715820313
+            "y": -1.1532058715820312
           }
         },
         "layer": "Default",

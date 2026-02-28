@@ -3,6 +3,24 @@
     "GameObjects": [
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "CombatDirector"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "CombatDirector"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "VfxCleanup"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "VfxCleanup"
+      },
+      {
+        "Components": {
           "CircleRenderComponent": {
             "a": 1.0,
             "b": 0.30000001192092896,
@@ -48,12 +66,20 @@
       },
       {
         "Components": {
-         "AudioComponent":{
-            "sounds": 
-            {
-              "footsteps": { "id": "footsteps", "loop": true },
-              "Slash1": { "id": "Slash1", "loop": false },
-              "GrappleShoot1": { "id": "GrappleShoot1", "loop": false }
+          "AudioComponent": {
+            "sounds": {
+              "footsteps": {
+                "id": "footsteps",
+                "loop": true
+              },
+              "Slash1": {
+                "id": "Slash1",
+                "loop": false
+              },
+              "GrappleShoot1": {
+                "id": "GrappleShoot1",
+                "loop": false
+              }
             },
             "volume": 1.0,
             "playing": 0
@@ -165,7 +191,7 @@
                 "name": "attack3",
                 "spriteSheetPath": "../../assets\\Textures\\Character\\Ming_Sprite\\3rd_Attack Sprite.png",
                 "textureKey": "attack3_sheet"
-                },
+              },
               {
                 "config": {
                   "columns": 14,
@@ -224,6 +250,9 @@
             "rot": -0.02617994137108326,
             "x": -0.2381940633058548,
             "y": -0.6519675850868225
+          },
+          "BehaviourComponent": {
+            "behaviourKey": "PlayerController"
           }
         },
         "layer": "Default",
@@ -291,7 +320,7 @@
             "width": 0.12999999523162842
           },
           "SpriteComponent": {
-           "texture_key": "water_idle"
+            "texture_key": "water_idle"
           },
           "SpriteAnimationComponent": {
             "activeAnimation": 0,
@@ -403,7 +432,7 @@
             "width": 0.12999999523162842
           },
           "SpriteComponent": {
-           "texture_key": "water_idle"
+            "texture_key": "water_idle"
           },
           "SpriteAnimationComponent": {
             "activeAnimation": 0,

@@ -30,11 +30,13 @@
 #include <array>
 #include <GLFW/glfw3.h>
 #include <chrono>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <MainMenuPage.hpp>
 #include <PauseMenuPage.hpp>
 #include <DefeatScreenPage.hpp>
+#include "EngineCall.hpp"
 
 #include "Common/CRTDebug.h"   
 
@@ -151,6 +153,7 @@ namespace mygame {
         //(void)gRenderSystem;
 
         gSystems.IntializeAll();
+        RegisterMyGameScripts(*gLogicSystem);
 
 
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
@@ -560,6 +563,19 @@ namespace mygame {
         editorSimulationRunning = false;
         if (Framework::FACTORY)
             Framework::FACTORY->Layers().LogVisibilitySummary("EditorStopSimulation");
+    }
+
+    bool LoadLevelFromEditor(const std::filesystem::path& levelPath)
+    {
+        if (!gLogicSystem || levelPath.empty())
+            return false;
+
+        gLogicSystem->LoadLevel(levelPath);
+
+        if (gHealthSystem)
+            gHealthSystem->ClearPlayerDeathFlag();
+
+        return true;
     }
 
 } // namespace mygame

@@ -751,6 +751,19 @@ namespace mygame {
             return false;
 
         std::string key = relative.generic_string();
+        if (!key.empty()) {
+            constexpr std::string_view kAssetsPrefix = "Assets/";
+            constexpr std::string_view kLowerAssetsPrefix = "assets/";
+            if (key.rfind(kAssetsPrefix, 0) == 0) {
+                // already normalized
+            }
+            else if (key.rfind(kLowerAssetsPrefix, 0) == 0) {
+                key = std::string(kAssetsPrefix) + key.substr(kLowerAssetsPrefix.size());
+            }
+            else {
+                key = std::string(kAssetsPrefix) + key;
+            }
+        }
         if (key.empty())
             return false;
 
@@ -1309,17 +1322,16 @@ namespace mygame {
                     gLevelStatusIsError = true;
                 }
                 else {
-                    auto toKill = CollectNonMasterObjects();
-                    for (auto* obj : toKill)
-                        DestroyWithUndo(obj);
-                    FACTORY->Update(0.0f);
-
-                    FACTORY->CreateLevel(levelPath.string());
-
-                    size_t count = FACTORY->LastLevelObjects().size();
-                    gLevelStatusMessage = "Loaded level from " + levelPath.string() +
-                        " (" + std::to_string(count) + " objects)";
-                    gLevelStatusIsError = false;
+                    if (mygame::LoadLevelFromEditor(levelPath)) {
+                        size_t count = FACTORY->LastLevelObjects().size();
+                        gLevelStatusMessage = "Loaded level from " + levelPath.string() +
+                            " (" + std::to_string(count) + " objects)";
+                        gLevelStatusIsError = false;
+                    }
+                    else {
+                        gLevelStatusMessage = "Failed to load level from " + levelPath.string();
+                        gLevelStatusIsError = true;
+                    }
                 }
             }
         }

@@ -40,6 +40,9 @@
         "height": 0.21
       },
       "PlayerComponent": {},
+      "BehaviourComponent": {
+        "behaviourKey": "PlayerController"
+      },
       "PlayerHealthComponent": {
         "playerHealth": 5,
         "playerMaxhealth": 5
