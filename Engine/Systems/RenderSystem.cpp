@@ -2778,16 +2778,32 @@ namespace Framework {
             gfx::Graphics::resetViewProjection();
 
             // Displays objective
-            std::string enemyText = "Didnt work";
-            if (logic.enemiesAlive > 0)
+            int enemiesLeft = 0;
+            for (GOC* obj : logic.LevelObjects())
             {
-                enemyText = "Objective: Kill all enemies (" + std::to_string(logic.enemiesAlive) + " enemies remaining)";
+                if (!obj)
+                    continue;
+
+                auto* enemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent);
+                if (!enemy)
+                    continue;
+
+                auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+                if (health && health->enemyHealth > 0)
+                    ++enemiesLeft;
+            }
+
+            std::string enemyText;
+            if (enemiesLeft > 0)
+            {
+                const char* enemyLabel = (enemiesLeft == 1) ? "enemy" : "enemies";
+                enemyText = "Objective: Kill all enemies (" + std::to_string(enemiesLeft) + " " + enemyLabel + " remaining)";
             }
             else
             {
                 enemyText = "Objective: Go to the gate";
             }
-            
+
             std::string FPSText = "FPS: Nothing";
             FPSText = "FPS: " + std::to_string((int)Framework::GetFps());
             

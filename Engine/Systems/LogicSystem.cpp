@@ -60,197 +60,6 @@ namespace Framework {
     LogicSystem::~LogicSystem() = default;
 
     /*****************************************************************************************
-      \brief Get the currently active animation configuration (idle / run / attacks).
-    *****************************************************************************************/
-    const LogicSystem::AnimConfig& LogicSystem::CurrentConfig() const
-    {
-        return ConfigForState(animState);
-    }
-
-    const LogicSystem::AnimConfig& LogicSystem::ConfigForState(AnimState state) const
-    {
-        switch (state)
-        {
-        case AnimState::Idle:      return idleConfig;
-        case AnimState::Run:       return runConfig;
-        case AnimState::Attack1:   return attackConfigs[0];
-        case AnimState::Attack2:   return attackConfigs[1];
-        case AnimState::Attack3:   return attackConfigs[2];
-        case AnimState::Throw:     return throwConfig;
-        case AnimState::Knockback: return knockbackConfig;
-        case AnimState::Death:     return deathConfig;
-        }
-        // Fallback
-        return idleConfig;
-    }
-
-    bool LogicSystem::IsAttackState(AnimState state) const
-    {
-        return state == AnimState::Attack1 ||
-            state == AnimState::Attack2 ||
-            state == AnimState::Attack3 ||
-            state == AnimState::Throw;
-    }
-
-    void LogicSystem::SetAnimState(AnimState newState)
-    {
-        if (animState == newState)
-        {
-            ApplyAnimationStateToComponent(newState);
-            return;
-        }
-
-        animState = newState;
-        frame = 0;
-        frameClock = 0.f;
-
-        ApplyAnimationStateToComponent(newState);
-    }
-
-    LogicSystem::AnimState LogicSystem::AttackStateForIndex(int comboIndex) const
-    {
-        // Wrap combo index into [0,2]
-        const int wrapped = ((comboIndex - 1) % 3 + 3) % 3;
-        switch (wrapped)
-        {
-        case 0:  return AnimState::Attack1;
-        case 1:  return AnimState::Attack2;
-        default: return AnimState::Attack3;
-        }
-    }
-
-    float LogicSystem::AttackDurationForState(AnimState state) const
-    {
-        if (!IsAttackState(state))
-            return 0.f;
-        const SpriteAnimationComponent* anim = nullptr;
-        if (IsAlive(player))
-        {
-            anim = player->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
-        }
-
-        const AnimConfig cfg = ConfigFromSpriteSheet(anim, state);
-
-        if (cfg.fps <= 0.f)
-            return 0.f;
-
-        return static_cast<float>(cfg.frames) / cfg.fps;
-    }
-
-    void LogicSystem::ForceAttackState(int comboIndex)
-    {
-        comboStep = ((comboIndex - 1) % 3 + 3) % 3 + 1;   // store 1..3 for bookkeeping
-        AnimState nextState = AttackStateForIndex(comboStep);
-        SetAnimState(nextState);
-        attackTimer = AttackDurationForState(nextState);
-    }
-
-    void LogicSystem::BeginComboAttack()
-    {
-        comboStep = (comboStep % 3) + 1;   // 1 -> 2 -> 3 -> 1 ...
-        ForceAttackState(comboStep);
-    }
-
-    void LogicSystem::BeginThrowAttack()
-    {
-        SetAnimState(AnimState::Throw);
-        attackTimer = AttackDurationForState(AnimState::Throw);
-    }
-
-    LogicSystem::AnimationInfo::Mode LogicSystem::ModeForState(AnimState state) const
-    {
-        switch (state)
-        {
-        case AnimState::Run:       return AnimationInfo::Mode::Run;
-        case AnimState::Attack1:   return AnimationInfo::Mode::Attack1;
-        case AnimState::Attack2:   return AnimationInfo::Mode::Attack2;
-        case AnimState::Attack3:   return AnimationInfo::Mode::Attack3;
-        case AnimState::Throw:     return AnimationInfo::Mode::Throw;
-        case AnimState::Knockback: return AnimationInfo::Mode::Knockback;
-        case AnimState::Death:     return AnimationInfo::Mode::Death;
-        case AnimState::Idle:
-        default:                 return AnimationInfo::Mode::Idle;
-        }
-    }
-
-    std::string_view LogicSystem::AnimNameForState(AnimState state) const
-    {
-        switch (state)
-        {
-        case AnimState::Run:       return "run";
-        case AnimState::Attack1:   return "attack1";
-        case AnimState::Attack2:   return "attack2";
-        case AnimState::Attack3:   return "attack3";
-        case AnimState::Throw:     return "throw";
-        case AnimState::Knockback: return "knockback";
-        case AnimState::Death:     return "death";
-        case AnimState::Idle:
-        default:                 return "idle";
-        }
-    }
-
-    int LogicSystem::AnimationIndexForState(const SpriteAnimationComponent* comp, AnimState state) const
-    {
-        if (!comp)
-            return -1;
-
-        auto equalsIgnoreCase = [](std::string_view a, std::string_view b)
-            {
-                if (a.size() != b.size())
-                    return false;
-                for (std::size_t i = 0; i < a.size(); ++i)
-                {
-                    unsigned char c1 = static_cast<unsigned char>(a[i]);
-                    unsigned char c2 = static_cast<unsigned char>(b[i]);
-                    if (std::tolower(c1) != std::tolower(c2))
-                        return false;
-                }
-                return true;
-            };
-
-        const std::string_view desired = AnimNameForState(state);
-        for (std::size_t i = 0; i < comp->animations.size(); ++i)
-        {
-            if (equalsIgnoreCase(comp->animations[i].name, desired))
-                return static_cast<int>(i);
-        }
-
-        return -1;
-    }
-
-    LogicSystem::AnimConfig LogicSystem::ConfigFromSpriteSheet(const SpriteAnimationComponent* comp, AnimState state) const
-    {
-        AnimConfig cfg = ConfigForState(state);
-        if (!comp)
-            return cfg;
-
-        const int index = AnimationIndexForState(comp, state);
-        if (index < 0 || index >= static_cast<int>(comp->animations.size()))
-            return cfg;
-
-        const auto& sheet = comp->animations[static_cast<std::size_t>(index)];
-        cfg.cols = std::max(1, sheet.config.columns);
-        cfg.rows = std::max(1, sheet.config.rows);
-        cfg.frames = std::max(1, sheet.config.totalFrames);
-        cfg.fps = sheet.config.fps;
-        return cfg;
-    }
-
-    void LogicSystem::ApplyAnimationStateToComponent(AnimState state)
-    {
-        if (!IsAlive(player))
-            return;
-
-        auto* anim = player->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
-        if (!anim)
-            return;
-
-        const int index = AnimationIndexForState(anim, state);
-        if (index >= 0 && index != anim->ActiveAnimationIndex())
-            anim->SetActiveAnimation(index);
-    }
-
-    /*****************************************************************************************
       \brief Check if a given object pointer still exists in the factory.
       \param obj Candidate object pointer.
       \return true if obj is found among factory->Objects(); false otherwise.
@@ -366,90 +175,6 @@ namespace Framework {
     }
 
     /*****************************************************************************************
-      \brief Step the sprite-sheet animation based on desired state (idle/run/attacks).
-      \param dt      Delta time (seconds).
-      \param wantRun Whether the input implies running (vs idle).
-    *****************************************************************************************/
-    void LogicSystem::UpdateAnimation(float dt, bool wantRun)
-    {
-        SpriteAnimationComponent* animComp = nullptr;
-        if (IsAlive(player))
-        {
-            animComp = player->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
-        }
-        auto* rb = IsAlive(player)
-            ? player->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent)
-            : nullptr;
-        auto* health = IsAlive(player)
-            ? player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent)
-            : nullptr;
-
-        if (rb && rb->knockbackTime > 0.0f)
-            rb->knockbackTime = std::max(0.0f, rb->knockbackTime - dt);
-
-        if (knockbackAnimTimer > 0.0f)
-            knockbackAnimTimer = std::max(0.0f, knockbackAnimTimer - dt);
-
-        const bool playerDead = health && health->playerHealth <= 0;
-
-        if (playerDead)
-        {
-            knockbackAnimTimer = 0.0f;
-            SetAnimState(AnimState::Death);
-        }
-        else if (rb && rb->knockbackTime > 0.0f)
-        {
-            if (animState != AnimState::Knockback)
-            {
-                pendingThrow.active = false;
-
-                attackTimer = 0.f;
-            }
-            if (knockbackAnimTimer <= 0.0f)
-            {
-                const AnimConfig cfg = ConfigFromSpriteSheet(animComp, AnimState::Knockback);
-                const float fps = cfg.fps > 0.0f ? cfg.fps : 1.0f;
-                knockbackAnimTimer = static_cast<float>(cfg.frames) / fps;
-            }
-            SetAnimState(AnimState::Knockback);
-        }
-        else if (knockbackAnimTimer > 0.0f)
-        {
-            SetAnimState(AnimState::Knockback);
-        }
-        // If we are in an attack animation, let it run to completion.
-        else if (IsAttackState(animState))
-        {
-            attackTimer -= dt;
-            if (attackTimer <= 0.f)
-            {
-                attackTimer = 0.f;
-                AnimState desired = wantRun ? AnimState::Run : AnimState::Idle;
-                SetAnimState(desired);
-            }
-        }
-        else
-        {
-            AnimState desired = wantRun ? AnimState::Run : AnimState::Idle;
-            SetAnimState(desired);
-        }
-
-        const AnimConfig cfg = ConfigFromSpriteSheet(animComp, animState);
-        frameClock += dt * cfg.fps;
-        while (frameClock >= 1.f)
-        {
-            frameClock -= 1.f;
-            frame = (frame + 1) % cfg.frames;
-        }
-
-        animInfo.frame = frame;
-        animInfo.columns = cfg.cols;
-        animInfo.rows = cfg.rows;
-        animInfo.mode = ModeForState(animState);
-        animInfo.running = (animState == AnimState::Run);
-    }
-
-    /*****************************************************************************************
       \brief Get the player's world position (if available).
       \param outX [out] Player world X.
       \param outY [out] Player world Y.
@@ -521,6 +246,7 @@ namespace Framework {
         RegisterComponent(AudioComponent);
         RegisterComponent(ZoomTriggerComponent);
         RegisterComponent(GateTargetComponent);
+        RegisterComponent(BehaviourComponent);
         RegisterComponent(PlayerHUDComponent);
         FACTORY = factory.get();
         gateController.SetFactory(factory.get());
@@ -530,15 +256,6 @@ namespace Framework {
         std::cout << "[Prefab] Player path = " << std::filesystem::absolute(playerPrefab)
             << "  exists=" << std::filesystem::exists(playerPrefab) << "\n";
         std::filesystem::path startLevelPath = resolveData("level_RealTutorial.json");
-
-#if SOFASPUDS_ENABLE_EDITOR
-        const std::string& startLevelName = mygame::SelectedStartLevel();
-        if (!startLevelName.empty())
-        {
-            std::filesystem::path requestedPath(startLevelName);
-            startLevelPath = requestedPath.is_absolute() ? requestedPath : resolveData(startLevelName);
-        }
-#endif
 
         levelObjects = factory->CreateLevel(startLevelPath.string());
 
@@ -582,15 +299,6 @@ namespace Framework {
         }
         RefreshLevelReferences();
 
-        enemiesAlive = 0;
-        for (auto* obj : levelObjects)
-        {
-            if (!obj) continue;
-
-            if (obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
-                enemiesAlive++;
-        }
-
         WindowConfig cfg = LoadWindowConfig(resolveData("window.json").string());
         screenW = cfg.width;
         screenH = cfg.height;
@@ -633,9 +341,6 @@ namespace Framework {
 
         std::cout << "\n=== Controls ===\n"
             << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
-            << "A/D held => Run animation, otherwise Idle\n"
-            << "Left Mouse: Melee combo (3-hit)\n"
-            << "Right Mouse: Throw projectile\n"
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
 #ifndef NDEBUG
             << "F9: Trigger crash logging test (SIGABRT)\n"
@@ -669,398 +374,71 @@ namespace Framework {
             if (factory)
                 factory->Update(dt);
 
-            // Keep references fresh each frame in case of spawns/deletions.
             RefreshLevelReferences();
+            DispatchBehaviours(dt);
 
-            RecountEnemies();
-
-            if (input.IsKeyReleased(GLFW_KEY_P)) 
+            if (input.IsKeyReleased(GLFW_KEY_P))
             {
                 std::cout << "FPS IS TOGGLED\n";
-                if (auto* rs = Framework::RenderSystem::Get()) 
-                    rs->ToggleFPS(); 
+                if (auto* rs = Framework::RenderSystem::Get())
+                    rs->ToggleFPS();
             }
 
-            std::vector<GOC*> finishedVfx;
-
-            auto AdvanceSpriteAnimations = [&](float step)
+            if (factory)
+            {
+                for (auto& [id, objPtr] : factory->Objects())
                 {
-                    if (!factory)
-                        return;
+                    (void)id;
+                    auto* obj = objPtr.get();
+                    if (!obj)
+                        continue;
 
-                    for (auto& [id, objPtr] : factory->Objects())
+                    auto* anim = obj->GetComponentType<Framework::SpriteAnimationComponent>(
+                        Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+                    if (!anim || (!anim->HasFrames() && !anim->HasSpriteSheets()))
+                        continue;
+
+                    anim->Advance(dt);
+
+                    auto* sprite = obj->GetComponentType<Framework::SpriteComponent>(
+                        Framework::ComponentTypeId::CT_SpriteComponent);
+                    if (!sprite)
+                        continue;
+
+                    if (anim->HasSpriteSheets())
                     {
-                        (void)id;
-                        auto* obj = objPtr.get();
-                        if (!obj)
-                            continue;
-
-                        auto* anim = obj->GetComponentType<Framework::SpriteAnimationComponent>(
-                            Framework::ComponentTypeId::CT_SpriteAnimationComponent);
-                        if (!anim || (!anim->HasFrames() && !anim->HasSpriteSheets()))
-                            continue;
-
-                        anim->Advance(step);
-
-                        auto* sprite = obj->GetComponentType<Framework::SpriteComponent>(
-                            Framework::ComponentTypeId::CT_SpriteComponent);
-                        if (!sprite)
-                            continue;
-
-                        if (anim->HasSpriteSheets())
-                        {
-                            auto sample = anim->CurrentSheetSample();
-                            if (!sample.textureKey.empty())
-                                sprite->texture_key = sample.textureKey;
-                            if (sample.texture)
-                                sprite->texture_id = sample.texture;
-                        }
-                        else
-                        {
-                            size_t frameIndex = anim->CurrentFrameIndex();
-                            if (frameIndex >= anim->frames.size())
-                                continue;
-
-                            const auto& frame = anim->frames[frameIndex];
-                            sprite->texture_key = frame.texture_key;
-                            unsigned tex = anim->ResolveFrameTexture(frameIndex);
-                            if (tex)
-                                sprite->texture_id = tex;
-                        }
-                        if (IsImpactVfxObject(obj))
-                        {
-                            if (auto* active = anim->ActiveAnimation())
-                            {
-                                if (!active->config.loop && active->name == "impact")
-                                {
-                                    const int total = std::max(1, active->config.totalFrames);
-                                    const int start = std::clamp(active->config.startFrame, 0, total - 1);
-                                    const int end = (active->config.endFrame >= 0)
-                                        ? std::clamp(active->config.endFrame, start, total - 1)
-                                        : total - 1;
-
-                                    const int current = std::clamp(active->currentFrame, 0, total - 1);
-                                    if (current >= end)
-                                        finishedVfx.push_back(obj);
-                                }
-                            }
-                        }
+                        auto sample = anim->CurrentSheetSample();
+                        if (!sample.textureKey.empty())
+                            sprite->texture_key = sample.textureKey;
+                        if (sample.texture)
+                            sprite->texture_id = sample.texture;
                     }
-                };
-
-            AdvanceSpriteAnimations(dt);
-
-            for (auto* vfx : finishedVfx)
-            {
-                if (factory)
-                    factory->Destroy(vfx);
-            }
-
-            // --- Enemy loop: reacts to player's ACTIVE hitbox if both sides are valid ---
-            for (auto* obj : levelObjects)
-            {
-                if (!obj) continue;
-
-                if (obj->GetObjectName() == "Enemy")
-                {
-                    auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-                    auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-                    if (!(rb && tr)) continue;
-
-                    AABB enemyBox(tr->x, tr->y, rb->width, rb->height);
-
-                    if (IsAlive(player))
+                    else
                     {
-                        auto* attack = player->GetComponentType<PlayerAttackComponent>(ComponentTypeId::CT_PlayerAttackComponent);
-                        if (attack && attack->hitbox && attack->hitbox->active)
-                        {
-                            AABB playerHitBox(
-                                attack->hitbox->spawnX,
-                                attack->hitbox->spawnY,
-                                attack->hitbox->width,
-                                attack->hitbox->height
-                            );
+                        size_t frameIndex = anim->CurrentFrameIndex();
+                        if (frameIndex >= anim->frames.size())
+                            continue;
 
-                            if (Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
-                            {
-                                std::cout << "Enemy hit by player at (" << tr->x << ", " << tr->y << ")\n";
-                                attack->hitbox->DeactivateHurtBox();
-                            }
-                        }
+                        const auto& frame = anim->frames[frameIndex];
+                        sprite->texture_key = frame.texture_key;
+                        unsigned tex = anim->ResolveFrameTexture(frameIndex);
+                        if (tex)
+                            sprite->texture_id = tex;
                     }
                 }
             }
 
             if (hitBoxSystem)
                 hitBoxSystem->Update(dt);
-
-            // If player pointer is gone this frame, bail out from player-driven logic.
-            if (!IsAlive(player)) {
-                player = nullptr;
-                return;
-            }
-
-            auto mouse = input.Manager().GetMouseState();
-
-            auto* tr = player->GetComponentType<Framework::TransformComponent>(
-                Framework::ComponentTypeId::CT_TransformComponent);
-            auto* rc = player->GetComponentType<Framework::RenderComponent>(
-                Framework::ComponentTypeId::CT_RenderComponent);
-            auto* rb = player->GetComponentType<Framework::RigidBodyComponent>(
-                Framework::ComponentTypeId::CT_RigidBodyComponent);
-            auto* attack = player->GetComponentType<Framework::PlayerAttackComponent>(
-                Framework::ComponentTypeId::CT_PlayerAttackComponent);
-            auto* audio = player->GetComponentType<Framework::AudioComponent>
-                (Framework::ComponentTypeId::CT_AudioComponent);
-
-            // --- Mouse to world: use RenderSystem camera for consistent world-space aiming ---
-            float mouseWorldX = 0.0f;
-            float mouseWorldY = 0.0f;
-            bool  mouseInsideViewport = false;
-
-            // Direction from player -> mouse in world space (normalized)
-            float aimDirX = 0.0f;
-            float aimDirY = 0.0f;
-
-            if (tr)
-            {
-                if (auto* rs = RenderSystem::Get())
-                {
-                    if (rs->ScreenToWorld(mouse.x, mouse.y,
-                        mouseWorldX, mouseWorldY, mouseInsideViewport)
-                        && mouseInsideViewport)
-                    {
-                        const float dx = mouseWorldX - tr->x;
-                        const float dy = mouseWorldY - tr->y;
-                        const float lenSq = dx * dx + dy * dy;
-                        if (lenSq > 1e-6f)
-                        {
-                            const float invLen = 1.0f / std::sqrt(lenSq);
-                            aimDirX = dx * invLen;
-                            aimDirY = dy * invLen;
-                        }
-
-                        // Flip sprite by width sign based on world-space direction.
-                        if (rc && aimDirX != 0.0f)
-                        {
-                            if (aimDirX >= 0.0f)
-                                rc->w = std::abs(rc->w);
-                            else
-                                rc->w = -std::abs(rc->w);
-                        }
-                    }
-                }
-            }
-
-            auto* playerHealth =
-                player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
-
-            // Velocity intent set on RigidBody; an external system integrates it.
-            if (rb && tr && playerHealth && !playerHealth->isDead)
-            {
-                const bool isKnockback = rb->knockbackTime > 0.0f || knockbackAnimTimer > 0.0f;
-                const bool isThrowing = animState == AnimState::Throw;
-                if (rb->lungeTime > 0.0f)
-                {
-                    rb->lungeTime -= dt;
-                    if (rb->lungeTime <= 0.0f)
-                    {
-                        rb->velX = 0.0f;
-                        rb->lungeTime = 0.0f;
-                    }
-                }
-                else if (!isKnockback && !isThrowing)
-                {
-                    float forwardX = (rc) ? ((rc->w >= 0.0f) ? 1.0f : -1.0f) : 1.0f;
-                    float speedModifier = 1.0f;
-                    if ((input.IsKeyHeld(GLFW_KEY_D) && forwardX < 0) ||
-                        (input.IsKeyHeld(GLFW_KEY_A) && forwardX > 0))
-                    {
-                        speedModifier = 0.75f; 
-                    }
-                    if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f * speedModifier);
-                    if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f * speedModifier);
-
-                    if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D))
-                        rb->velX *= rb->dampening;
-                    if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY, 1.f);
-                    if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
-                    if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S))
-                        rb->velY *= rb->dampening;
-                }
-                else if (isThrowing && !isKnockback)
-                {
-                    rb->velX = 0.0f;
-                    rb->velY = 0.0f;
-                }
-   
-            }
-
-            // Running state if any movement keys are held (arrow keys supported too).
-            const bool wantRun = input.IsKeyHeld(GLFW_KEY_A) ||
-                input.IsKeyHeld(GLFW_KEY_D) ||
-                input.IsKeyHeld(GLFW_KEY_W) ||
-                input.IsKeyHeld(GLFW_KEY_S) ||
-                input.IsKeyHeld(GLFW_KEY_LEFT) ||
-                input.IsKeyHeld(GLFW_KEY_RIGHT) ||
-                input.IsKeyHeld(GLFW_KEY_UP) ||
-                input.IsKeyHeld(GLFW_KEY_DOWN);
-            runParticleTimer = std::max(0.0f, runParticleTimer - dt);
-            const bool isMoving =
-                (rb && (std::fabs(rb->velX) > 0.01f || std::fabs(rb->velY) > 0.01f));
-            if (wantRun && isMoving && playerHealth && !playerHealth->isDead && tr && rc && runParticleTimer <= 0.0f)
-            {
-                if (auto* particleSystem = ParticleSystem::Instance())
-                {
-                    const float facingDir = (rc->w >= 0.0f) ? 1.0f : -1.0f;
-                    particleSystem->SpawnRunParticles({ tr->x, tr->y }, facingDir);
-                }
-                runParticleTimer = 0.08f;
-            }
-            // Update PlayerAttackComponent (handles hitbox lifetime)
-            if (attack && tr && !playerHealth->isDead)
-            {
-                attack->Update(dt, tr);
-            }
-
-            if (throwCooldownTimer > 0.0f)
-            {
-                throwCooldownTimer = std::max(0.0f, throwCooldownTimer - dt);
-            }
-            const bool knockbackActive = rb && (rb->knockbackTime > 0.0f || knockbackAnimTimer > 0.0f);
-            if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) ||
-                (knockbackActive && input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT)))
-            {
-                throwRequestQueued = true;
-            }
-            if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
-            {
-                throwRequestQueued = false;
-            }
-
-            // Handle attack input: spawn through PlayerAttackComponent only (single source of truth).
-            if (playerHealth && !playerHealth->isDead && input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && attack && tr && rc)
-            {
-                // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
-                if (aimDirX != 0.0f || aimDirY != 0.0f)
-                {
-                    // Determine left/right direction
-                    float dirX = (mouseWorldX > tr->x) ? 1.0f : -1.0f;
-                    rb->velX = dirX * 0.1f;        // speed
-                    rb->lungeTime = 0.15f;         // duration
-                    auto attackTr = *tr;
-                    const float offset = 0.05f;
-                    const float halfW = std::abs(rc->w) * 0.5f;
-                    const float halfH = rc->h * 0.5f;
-
-                    attackTr.x = tr->x + aimDirX * (halfW + offset);
-                    attackTr.y = tr->y + aimDirY * (halfH + offset);
-
-                    hitBoxSystem->SpawnHitBox(player,
-                        attackTr.x, attackTr.y,
-                        0.1f, 0.1f,
-                        1.0f, 0.2f,
-                        HitBoxComponent::Team::Player);
-
-                    std::cout << "Hurtbox spawned at (" << attackTr.x << ", " << attackTr.y << ")\n";
-                    // Start / advance melee combo animation (Attack1,2,3 cycling)
-                    BeginComboAttack();
-                }
-
-            }
-            else if (playerHealth && !playerHealth->isDead && throwRequestQueued && attack && tr && rc)
-            {
-                const bool canThrow = throwCooldownTimer <= 0.0f && !pendingThrow.active &&
-                    !IsAttackState(animState) && !knockbackActive;
-
-                // Only spawn if we have a valid direction (mouse in viewport & not exactly on player).
-                if (canThrow && (aimDirX != 0.0f || aimDirY != 0.0f))
-                {
-                    auto attackTr = *tr;
-                    const float offset = 0.05f;
-                    const float halfW = std::abs(rc->w) * 0.5f;
-                    const float halfH = rc->h * 0.5f;
-
-                    attackTr.x = tr->x + aimDirX * (halfW + offset);
-                    attackTr.y = tr->y + aimDirY * (halfH + offset);
-
-                    pendingThrow.active = true;
-                    pendingThrow.spawnX = attackTr.x;
-                    pendingThrow.spawnY = attackTr.y;
-                    pendingThrow.dirX = aimDirX;
-                    pendingThrow.dirY = aimDirY;
-
-                    BeginThrowAttack();
-                    throwCooldownTimer = std::max(throwCooldownTimer, AttackDurationForState(AnimState::Throw));
-                    throwRequestQueued = false;
-                }
-            }
-
-            // Finally, advance the main character animation (idle/run/attack combo)
-            UpdateAnimation(dt, wantRun);
-
-            if (pendingThrow.active && attackTimer <= 0.0f)
-            {
-                if (hitBoxSystem)
-                {
-                    hitBoxSystem->SpawnProjectile(player,
-                        pendingThrow.spawnX, pendingThrow.spawnY,
-                        pendingThrow.dirX, pendingThrow.dirY,
-                        0.8f,
-                        0.1f, 0.1f,
-                        1.0f, 5.f, HitBoxComponent::Team::Thrown);
-
-                    std::cout << "Hurtbox spawned at (" << pendingThrow.spawnX << ", " << pendingThrow.spawnY << ")\n";
-                }
-                if (audio)
-                {
-                    audio->TriggerSound("GrappleShoot");
-                }
-                pendingThrow.active = false;
-            }
-
-            gateController.UpdateGateUnlockState();
-            std::string targetLevel;
-            if (gateController.ShouldTransitionOnPlayerContact(pendingLevelTransition, targetLevel))
-            {
-                pendingLevelTransition = true;
-                std::filesystem::path targetPath(targetLevel);
-                if (!targetPath.is_absolute())
-                {
-                    targetPath = resolveData(targetLevel);
-                }
-                LoadLevelAndResetState(targetPath);
-            }
-
-            // Collision debug info (player vs a target rect)
-            collisionInfo.playerValid = false;
-            collisionInfo.targetValid = false;
-
-            if (tr && rb)
-            {
-                collisionInfo.player = AABB(tr->x, tr->y, rb->width, rb->height);
-                collisionInfo.playerValid = true;
-            }
-
-            if (IsAlive(collisionTarget))
-            {
-                auto* tr2 = collisionTarget->GetComponentType<Framework::TransformComponent>(
-                    Framework::ComponentTypeId::CT_TransformComponent);
-                auto* rb2 = collisionTarget->GetComponentType<Framework::RigidBodyComponent>(
-                    Framework::ComponentTypeId::CT_RigidBodyComponent);
-                if (tr2 && rb2)
-                {
-                    collisionInfo.target = AABB(tr2->x, tr2->y, rb2->width, rb2->height);
-                    collisionInfo.targetValid = true;
-                }
-            }
-            }, "LogicSystem::Update");
+        }, "LogicSystem::Update");
     }
 
     void LogicSystem::LoadLevelAndResetState(const std::filesystem::path& levelPath)
     {
         if (!factory)
             return;
+
+        EndAllBehaviours();
 
         for (auto const& [id, obj] : factory->Objects())
         {
@@ -1083,26 +461,12 @@ namespace Framework {
         player = nullptr;
         collisionTarget = nullptr;
         pendingLevelTransition = false;
-        animState = AnimState::Idle;
-        frame = 0;
-        frameClock = 0.f;
-        attackTimer = 0.f;
-        comboStep = 0;
         animInfo = AnimationInfo{};
         collisionInfo = CollisionInfo{};
         gateController.Reset();
         gateController.SetPlayer(nullptr);
 
         RefreshLevelReferences();
-        enemiesAlive = 0;
-        for (auto* obj : levelObjects)
-        {
-            if (!obj) continue;
-
-            if (obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
-                enemiesAlive++;
-        }
-
     }
 
     /*****************************************************************************************
@@ -1122,6 +486,11 @@ namespace Framework {
         LoadLevelAndResetState(levelPath);
     }
 
+    void LogicSystem::LoadLevel(const std::filesystem::path& levelPath)
+    {
+        LoadLevelAndResetState(levelPath);
+    }
+
     /*****************************************************************************************
       \brief Shutdown and release owned systems/resources.
              - Clears references, shuts down factory and unloads prefabs.
@@ -1129,6 +498,7 @@ namespace Framework {
     *****************************************************************************************/
     void LogicSystem::Shutdown()
     {
+        EndAllBehaviours();
         levelObjects.clear();
         collisionTarget = nullptr;
         player = nullptr;
@@ -1156,24 +526,71 @@ namespace Framework {
     }
 
 
-    void LogicSystem::RecountEnemies()
+    void LogicSystem::RegisterBehaviour(const std::string& key, BehaviourFCT fct)
     {
-        int count = 0;
+        if (key.empty())
+            return;
 
+        behaviours[key] = fct;
+    }
+
+    void LogicSystem::DispatchBehaviours(float dt)
+    {
+        // Iterate levelObjects but always ensure the pointer is still alive in the factory.
+        // Do NOT access internal GameObjectComposition members (like ObjectId) directly here
+        // because they may be non-public; use IsAlive() / pointer identity checks instead.
+        for (auto* rawObjPtr : levelObjects)
+        {
+            // quick null check
+            if (!rawObjPtr)
+                continue;
+
+            // If we have a factory, ensure this pointer still refers to a live object the factory owns.
+            // Use IsAlive(rawObjPtr) which compares pointer identity against factory->Objects().
+            if (factory && !IsAlive(rawObjPtr))
+                continue; // object no longer exists (was destroyed), skip safely
+
+            // rawObjPtr is a live pointer now; use it directly.
+            Framework::GameObjectComposition* obj = rawObjPtr;
+
+            // Now use `obj` (a live pointer) for component access.
+            auto* behaviour = obj->GetComponentType<BehaviourComponent>(ComponentTypeId::CT_BehaviourComponent);
+            if (!behaviour || behaviour->behaviourKey.empty())
+                continue;
+
+            auto it = behaviours.find(behaviour->behaviourKey);
+            if (it == behaviours.end())
+                continue;
+
+            BehaviourFCT& fct = it->second;
+            if (!behaviour->started)
+            {
+                if (fct.Init)
+                    fct.Init(obj);
+                behaviour->started = true;
+            }
+
+            if (fct.Update)
+                fct.Update(obj, dt);
+        }
+    }
+
+    void LogicSystem::EndAllBehaviours()
+    {
         for (auto* obj : levelObjects)
         {
             if (!obj)
                 continue;
 
-            if (obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
-            {
-                auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+            auto* behaviour = obj->GetComponentType<BehaviourComponent>(ComponentTypeId::CT_BehaviourComponent);
+            if (!behaviour || !behaviour->started || behaviour->behaviourKey.empty())
+                continue;
 
-                if (!health || !health->isDead)
-                    count++;
-            }
+            auto it = behaviours.find(behaviour->behaviourKey);
+            if (it != behaviours.end() && it->second.End)
+                it->second.End(obj);
+
+            behaviour->started = false;
         }
-
-        enemiesAlive = count;
     }
 } // namespace Framework

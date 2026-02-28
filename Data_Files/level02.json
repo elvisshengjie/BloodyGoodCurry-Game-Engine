@@ -3,6 +3,24 @@
     "GameObjects": [
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "CombatDirector"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "CombatDirector"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "VfxCleanup"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "VfxCleanup"
+      },
+      {
+        "Components": {
           "CircleRenderComponent": {
             "a": 1.0,
             "b": 0.30000001192092896,

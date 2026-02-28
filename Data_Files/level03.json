@@ -3,6 +3,24 @@
     "GameObjects": [
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "CombatDirector"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "CombatDirector"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "VfxCleanup"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "VfxCleanup"
+      },
+      {
+        "Components": {
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
@@ -191,6 +209,9 @@
             "rot": 0.0,
             "x": 0.0,
             "y": 0.0
+          },
+          "BehaviourComponent": {
+            "behaviourKey": "PlayerController"
           }
         },
         "layer": "layer1",

@@ -23,6 +23,7 @@
 
 #pragma once
 #include "Graphics/Window.hpp"
+#include <filesystem>
 
 namespace mygame {
 
@@ -36,5 +37,6 @@ namespace mygame {
     bool IsEditorSimulationRunning();
     void EditorPlaySimulation();
     void EditorStopSimulation();
+    bool LoadLevelFromEditor(const std::filesystem::path& levelPath);
 
 }

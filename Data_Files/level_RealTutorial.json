@@ -3,6 +3,9 @@
     "GameObjects": [
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "GameDirector"
+          },
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
@@ -30,6 +33,24 @@
         },
         "layer": "Gameplay:0",
         "name": "Rect"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "CombatDirector"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "CombatDirector"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "VfxCleanup"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "VfxCleanup"
       },
       {
         "Components": {
@@ -2914,6 +2935,9 @@
       },
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "GateLogic"
+          },
           "GateTargetComponent": {
             "level_path": "RealLevel1.json"
           },
@@ -7521,6 +7545,9 @@
           "PlayerAttackComponent": {
             "attack_speed": 1.2000000476837158,
             "damage": 1
+          },
+          "BehaviourComponent": {
+            "behaviourKey": "PlayerController"
           },
           "PlayerComponent": {},
           "PlayerHUDComponent": {},

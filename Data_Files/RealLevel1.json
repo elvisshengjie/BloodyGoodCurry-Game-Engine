@@ -3,6 +3,24 @@
     "GameObjects": [
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "CombatDirector"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "CombatDirector"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "VfxCleanup"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "VfxCleanup"
+      },
+      {
+        "Components": {
           "AudioComponent": {
             "entityType": "player",
             "sounds": {
@@ -267,6 +285,9 @@
             "scale_y": 1.0,
             "x": -1.2921841144561768,
             "y": -0.8701776266098022
+          },
+          "BehaviourComponent": {
+            "behaviourKey": "PlayerController"
           }
         },
         "layer": "Gameplay:0",

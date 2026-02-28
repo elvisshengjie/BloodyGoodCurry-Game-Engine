@@ -32,6 +32,7 @@
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
+#include "Component/BehaviourComponent.h"
 #include "Graphics/PlayerHUD.h"
 #include "Component/GateTargetComponent.h"
 #include "Component/ZoomTriggerComponent.h"
@@ -45,13 +46,14 @@
 #include "Graphics/Window.hpp"
 #include "Physics/Collision/Collision.h"
 #include "Component/HitBoxComponent.h"
-#include "../../Sandbox/MyGame/MathUtils.hpp"
+#include "Logic/BehaviourFCT.h"
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <string>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace gfx { class Window; }
@@ -105,6 +107,8 @@ namespace Framework {
 
         /*! \brief Reload current level and refresh object references. */
         void ReloadLevel();
+        void LoadLevel(const std::filesystem::path& levelPath);
+        void RegisterBehaviour(const std::string& key, BehaviourFCT fct);
 
         /*! \name Accessors */
         ///@{
@@ -112,6 +116,8 @@ namespace Framework {
         const std::vector<GOC*>& LevelObjects()  const { return levelObjects; }
         const AnimationInfo& Animation()     const { return animInfo; }
         const CollisionInfo& Collision()     const { return collisionInfo; }
+        InputSystem&                Input()         { return input; }
+        const InputSystem&          Input()   const { return input; }
         bool                       GetPlayerWorldPosition(float& outX, float& outY) const;
         int                        ScreenWidth()   const { return screenW; }
         int                        ScreenHeight()  const { return screenH; }
@@ -122,50 +128,15 @@ namespace Framework {
         /*! \brief System name for diagnostics/profiling. */
         std::string GetName() override { return "LogicSystem"; }
 
-        int                                  enemiesAlive{ 0 };
     private:
 
         std::filesystem::path resolveData(std::string_view name) const;
 
-        // Extended to support combo attacks.
-        enum class AnimState { Idle, Run, Attack1, Attack2, Attack3, Throw, Knockback, Death };
-
-        struct AnimConfig {
-            int   cols;
-            int   rows;
-            int   frames;
-            float fps;
-        };
-
-        const AnimConfig& CurrentConfig() const;
-        const AnimConfig& ConfigForState(AnimState state) const;
-        bool                 IsAttackState(AnimState state) const;
-        void                 SetAnimState(AnimState newState);
-        void                 BeginComboAttack();
-        void                 BeginThrowAttack();
-        void                 ForceAttackState(int comboIndex);
-        AnimState            AttackStateForIndex(int comboIndex) const;
-        float                AttackDurationForState(AnimState state) const;
-        AnimationInfo::Mode  ModeForState(AnimState state) const;
-        std::string_view     AnimNameForState(AnimState state) const;
-        int                  AnimationIndexForState(const SpriteAnimationComponent* comp, AnimState state) const;
-        AnimConfig           ConfigFromSpriteSheet(const SpriteAnimationComponent* comp, AnimState state) const;
-        void                 ApplyAnimationStateToComponent(AnimState state);
-
         bool                 IsAlive(GOC* obj) const;
         void                 RefreshLevelReferences();
         void                 LoadLevelAndResetState(const std::filesystem::path& levelPath);
-        void                 UpdateAnimation(float dt, bool wantRun);
-        void                 RecountEnemies();
-
-        struct PendingThrow
-        {
-            bool  active{ false };
-            float spawnX{ 0.0f };
-            float spawnY{ 0.0f };
-            float dirX{ 0.0f };
-            float dirY{ 0.0f };
-        };
+        void                 DispatchBehaviours(float dt);
+        void                 EndAllBehaviours();
 
         gfx::Window* window;
         InputSystem& input;
@@ -177,19 +148,6 @@ namespace Framework {
         GOC* collisionTarget{ nullptr };
         GateController                       gateController;
 
-        AnimState                            animState{ AnimState::Idle };
-        AnimConfig                           idleConfig{ 5,1,5,6.f };
-        AnimConfig                           runConfig{ 8,1,8,10.f };
-        AnimConfig                           attackConfigs[3]{ {13,1,13,12.f}, {8,1,8,12.f}, {9,1,9,12.f} };
-        AnimConfig                           throwConfig{ 14,1,14,24.f };
-        AnimConfig                           knockbackConfig{ 4,1,4,5.f };
-        AnimConfig                           deathConfig{ 8,1,8,8.f };
-        int                                  frame{ 0 };
-        float                                frameClock{ 0.f };
-        float                                attackTimer{ 0.f };
-        int                                  comboStep{ 0 };
-        float                                knockbackAnimTimer{ 0.0f };
-
         AnimationInfo                        animInfo{};
         CollisionInfo                        collisionInfo{};
 
@@ -200,11 +158,7 @@ namespace Framework {
         bool                                 pendingLevelTransition{ false };
         std::unique_ptr<CrashLogger>         crashLogger;
 
-        PendingThrow                         pendingThrow{};
-        float                                throwCooldownTimer{ 0.0f };
-        bool                                 throwRequestQueued{ false };
-
-        float                                runParticleTimer{ 0.0f };
+        std::unordered_map<std::string, BehaviourFCT> behaviours;
     };
 
 } // namespace Framework
