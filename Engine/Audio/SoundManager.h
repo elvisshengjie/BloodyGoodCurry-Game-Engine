@@ -54,6 +54,8 @@ public:
     bool isSoundPlaying(const std::string& name) const;
     void fadeInMusic(const std::string& name, float duration, float targetVolume = 1.0f);
     void fadeOutMusic(const std::string& name, float duration);
+    void setListenerPos(const void* pos, const void* forward, const void* up);
+    void setSoundPos(const std::string& name, const void* pos, const void* vel = nullptr);
     std::vector<std::string> getLoadedSounds() const;
 
 private:

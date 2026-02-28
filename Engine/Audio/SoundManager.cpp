@@ -372,20 +372,80 @@ bool SoundManager::isSoundPlaying(const std::string& name) const
  \param duration     Duration of the fade in seconds.
  \param targetVolume The final volume level after the fade (default is 1.0f).
 *****************************************************************************************/
-void SoundManager::fadeInMusic(const std::string& name, float duration, float targetVolume)
+void SoundManager::fadeInMusic(const std::string& name,
+    float duration,
+    float targetVolume)
 {
-    if (m_audioManager)
-        m_audioManager->fadeInSound(name, duration, targetVolume); // call AudioManager
+    std::shared_ptr<AudioManager> local;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        local = m_audioManager;
+    }
+
+    if (local)
+    {
+        local->fadeInSound(name, duration, targetVolume);
+    }
 }
 /*****************************************************************************************
  \brief Fades out a currently playing sound over a specified duration and stops it at the end.
  \param name     The identifier of the sound to fade out.
  \param duration Duration of the fade in seconds.
 *****************************************************************************************/
-void SoundManager::fadeOutMusic(const std::string& name, float duration)
+void SoundManager::fadeOutMusic(const std::string& name,
+    float duration)
 {
-    if (m_audioManager)
-        m_audioManager->fadeOutSound(name, duration); // call AudioManager
+    std::shared_ptr<AudioManager> local;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        local = m_audioManager;
+    }
+
+    if (local)
+    {
+        local->fadeOutSound(name, duration);
+    }
+}
+/*****************************************************************************************
+ \brief Sets the 3D listener's position and orientation in the world.
+
+ This function forwards the listener’s spatial data to the underlying AudioManager.
+ The listener represents the player or camera in the 3D space. Updating the listener
+ position allows FMOD to correctly apply distance attenuation and stereo panning
+ effects based on sound source locations.
+
+ \param pos      Pointer to the listener's position vector.
+ \param forward  Pointer to the listener's forward direction vector.
+ \param up       Pointer to the listener's up direction vector.
+*****************************************************************************************/
+void SoundManager::setListenerPos(const void* pos, const void* forward, const void* up)
+{
+    std::shared_ptr<AudioManager> local;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        local = m_audioManager;
+    }
+    if (local) local->setListenerPosition(pos, forward, up);
+}
+/*****************************************************************************************
+ \brief Sets the 3D position and optional velocity of a specific sound.
+
+ This function updates the spatial attributes of a playing sound by forwarding the
+ data to the AudioManager. The position determines distance-based attenuation and
+ left/right panning, while the velocity (if provided) allows for doppler effects.
+
+ \param name The unique identifier of the sound.
+ \param pos  Pointer to the sound’s position vector.
+ \param vel  Pointer to the sound’s velocity vector (optional, can be nullptr).
+*****************************************************************************************/
+void SoundManager::setSoundPos(const std::string& name, const void* pos, const void* vel)
+{
+    std::shared_ptr<AudioManager> local;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        local = m_audioManager;
+    }
+    if (local) local->setSoundPosition(name, pos, vel);
 }
 /*****************************************************************************************
  \brief Retrieves a list of all loaded sounds.
