@@ -83,7 +83,7 @@ bool AudioManager::initialize()
         }
         return false;
     }
-
+    FMOD_System_Set3DSettings(pImpl->system, 1.0f, 1.0f, 1.0f);
     std::cout << "AudioManager initialized successfully" << std::endl;
     return true;
 }
@@ -279,7 +279,10 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch,
 
     // store this channel
     pImpl->channels[name].push_back(channel);
-
+    FMOD_MODE soundMode;
+    FMOD_Sound_GetMode(it->second, &soundMode);
+    if (soundMode & FMOD_3D)
+        FMOD_Channel_Set3DMinMaxDistance(channel, 1.0f, 12.0f);
     std::cout << "Playing sound: " << name << (loop ? " [looping]" : "") << std::endl;
     return true;
 }

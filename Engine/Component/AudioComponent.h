@@ -61,6 +61,7 @@ namespace Framework
     {
         public:
         bool initialized = false;
+        bool m_needs3DReload = false;
         std::unordered_map<std::string, SoundInfo> sounds;
         std::unordered_map<std::string, bool> playing;
         //Footsteps
@@ -180,6 +181,7 @@ namespace Framework
                     std::string id = "FireGhostProjectile" + std::to_string(i);
                     sounds[id] = { id, false };
                     attackClips.push_back(id);
+                    m_needs3DReload = true;
                 }
 
                 // Hurt variants
@@ -211,11 +213,24 @@ namespace Framework
                 // Water ghost death  only 1 clip
                 sounds["WaterGhostExplosion"] = { "WaterGhostExplosion", false };
                 deathClips.push_back("WaterGhostExplosion");
+                m_needs3DReload = true;
             }
 
             // Build playing map
             for (auto& [action, info] : sounds)
                 playing[action] = false;
+            
+            // Reload enemy sounds as 3D
+            if (m_needs3DReload)
+            {
+                for (auto& [action, info] : sounds)
+                {
+                    if (SoundManager::getInstance().isSoundLoaded(info.id))
+                        SoundManager::getInstance().unloadSound(info.id);
+                    SoundManager::getInstance().loadSound3D(info.id, info.id + ".wav");
+                }
+                m_needs3DReload = false;
+            }
             std::cout << "[AudioComponent] initialize called, entityType='" << entityType << "'\n";
         }
 
@@ -228,12 +243,23 @@ namespace Framework
           \details
               Begins playback only if the sound exists and is loaded by the SoundManager.
         *************************************************************************************/
-        void Play(const std::string& action)
+        void Play(const std::string& action, float posX = 0.0f, float posY = 0.0f, bool is3D = false)
         {
             ensureInitialized();
             auto it = sounds.find(action);
-            if (it != sounds.end() && SoundManager::getInstance().isSoundLoaded(it->second.id))
-            {SoundManager::getInstance().playSound(it->second.id, volume, 1.0f, it->second.loop); playing[action] = true;}
+            if (it == sounds.end()) return;
+            if (!SoundManager::getInstance().isSoundLoaded(it->second.id)) return;
+
+            SoundManager::getInstance().playSound(it->second.id, volume, 1.0f, it->second.loop);
+            playing[action] = true;
+
+            // Set position immediately after play so FMOD has it before first render
+            if (is3D)
+            {
+                float pos[3] = { posX, posY, 0.0f };
+                float vel[3] = { 0.0f, 0.0f, 0.0f };
+                SoundManager::getInstance().setSoundPos(it->second.id, pos, vel);
+            }
         }
         /*************************************************************************************
           \brief Stops a currently looping or active sound.
@@ -257,7 +283,7 @@ namespace Framework
           \details
               Useful for one-shot events such as effects, hits, UI sounds, or ambient cues.
         *************************************************************************************/
-        void TriggerSound(const std::string& name)
+        void TriggerSound(const std::string& name, float posX = 0.0f, float posY = 0.0f, bool is3D = false)
         {
             ensureInitialized();
             std::string clipToPlay = name;
@@ -279,7 +305,7 @@ namespace Framework
             else if (name == "EnemyDeath")
                 clipToPlay = GetRandomFrom(deathClips);
 
-            Play(clipToPlay);
+            Play(clipToPlay, posX, posY, is3D);
         }
         /*************************************************************************************
           \brief Selects a random element from a list of strings.

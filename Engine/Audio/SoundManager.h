@@ -39,6 +39,7 @@ public:
     void shutdown();
     void update(float dt);
     bool loadSound(const std::string& name, const std::string& filePath, bool loop = false);
+    bool loadSound3D(const std::string& name, const std::string& filePath, bool loop = false);
     void unloadSound(const std::string& name);
     void unloadAllSounds();
     bool playSound(const std::string& name, float volume = 1.0f, float pitch = 1.0f, bool loop = false);

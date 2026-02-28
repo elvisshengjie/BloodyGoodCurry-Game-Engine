@@ -223,7 +223,7 @@ namespace Framework
                     static_cast<float>(attack->damage),
                     attack->hitbox->duration, 0.0f);
 
-                if (audio) audio->TriggerSound("EnemyAttack");
+                if (audio) audio->TriggerSound("EnemyAttack", tr->x, tr->y, true);
                 PlayAnim(enemy, "slashattack");
             }
         }
@@ -322,7 +322,7 @@ namespace Framework
             ctx.spawnProjectile(enemy, spawnX, spawnY, dirX, dirY, 0.5f, 0.3f, 0.15f,
                 static_cast<float>(attack->damage), 3.0f);
 
-            if (audio) audio->TriggerSound("EnemyAttack");
+            if (audio) audio->TriggerSound("EnemyAttack", tr->x, tr->y, true);
             PlayAnim(enemy, "rangeattack");
             retreatTimer = retreatDuration;
         }

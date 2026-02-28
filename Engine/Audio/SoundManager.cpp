@@ -117,7 +117,43 @@ bool SoundManager::loadSound(const std::string& name, const std::string& filePat
 
     return local->loadSound(name, filePath, loop);
 }
+/*****************************************************************************************
+ \brief Loads a sound as a 3D spatial audio source.
 
+ \details
+     Convenience wrapper around loadSound that always enables FMOD_3D mode.
+     Use this for any sound that should attenuate with distance from the listener
+     (e.g., enemy attacks, enemy hurt/death sounds). Player sounds should still
+     use loadSound as they do not need spatial attenuation.
+
+     Internally delegates to AudioManager::loadSound with is3D set to true,
+     which causes FMOD to create the sound with FMOD_3D mode enabled. Without
+     this flag, setSoundPos and setListenerPos have no effect on the sound.
+
+ \param name     The unique identifier used to reference this sound later.
+ \param filePath Path to the audio file relative to the assets/Audio directory.
+ \param loop     Whether the sound should loop during playback (default: false).
+
+ \return True if the sound was successfully loaded as a 3D source, false otherwise.
+
+ \note After playing, the sound's world position must be set via setSoundPos and
+       the listener position must be updated via setListenerPos each frame for
+       distance attenuation to work correctly.
+*****************************************************************************************/
+bool SoundManager::loadSound3D(const std::string& name, const std::string& filePath, bool loop)
+{
+    std::shared_ptr<AudioManager> local;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        local = m_audioManager;
+    }
+    if (!local)
+    {
+        std::cerr << "SoundManager not initialized" << std::endl;
+        return false;
+    }
+    return local->loadSound(name, filePath, loop, true); // is3D = true
+}
 /*****************************************************************************************
  \brief Unload a specific sound by it's identifier.
  \param name To identifier the sound to unload.

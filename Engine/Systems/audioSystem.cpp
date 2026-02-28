@@ -72,30 +72,67 @@ namespace Framework {
     void AudioSystem::Update(float dt)
     {
         (void)dt;
-        // In editor-only builds or during shutdown the LogicSystem may not have
-        // initialized the global factory yet. Guard against that scenario so we
-        // do not dereference a null FACTORY pointer (was causing access
-        // violations when the audio system continued updating after the factory
-        // was torn down).
-        if (!FACTORY)
-            return;
-        // Iterate all game objects in the factory
+        if (!FACTORY) return;
+
+        // --- 1. Update listener to player position ---
+        GOC* player = nullptr;
         for (auto& [id, gocPtr] : FACTORY->Objects())
         {
             if (!gocPtr) continue;
             GOC* goc = gocPtr.get();
-            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+            if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent))
+            {
+                player = goc;
+                break;
+            }
+        }
 
-            if (!audio) continue;
+        if (player)
+        {
+            auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+            if (trPlayer)
+            {
+                // FMOD expects float[3] arrays for pos/forward/up
+                // Since your game is 2D, keep Z fixed at 0
+                float listenerPos[3] = { trPlayer->x, trPlayer->y, 0.0f };
+                float forward[3] = { 0.0f, 0.0f, -1.0f }; // into the screen
+                float up[3] = { 0.0f, 1.0f,  0.0f };
+
+                SoundManager::getInstance().setListenerPos(listenerPos, forward, up);
+            }
+        }
+
+        // --- 2. Iterate all objects and update audio positions ---
+        for (auto& [id, gocPtr] : FACTORY->Objects())
+        {
+            if (!gocPtr) continue;
+            GOC* goc = gocPtr.get();
+
+            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+            auto* tr = goc->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+
+            if (!audio || !tr) continue;
 
             if (audio->entityType == "player")
             {
                 HandlePlayerFootsteps(goc, dt);
             }
+            else if (audio->entityType == "enemy_fire" || audio->entityType == "enemy_water")
+            {
+                // Push the enemy's world position into FMOD so volume
+                // falls off naturally with distance from the listener
+                float enemyPos[3] = { tr->x, tr->y, 0.0f };
+                float zeroVel[3] = { 0.0f, 0.0f, 0.0f };
 
-            // other audio logic (enemy sounds, attacks, etc.)
+                // Update position for every sound this enemy could emit
+                // so FMOD attenuates correctly when TriggerSound fires
+                for (const auto& soundName : audio->attackClips) // adjust to your actual clip list member
+                {
+                    if (SoundManager::getInstance().isSoundPlaying(soundName))
+                        SoundManager::getInstance().setSoundPos(soundName, enemyPos, zeroVel);
+                }
+            }
         }
-
     }
 
     std::string AudioSystem::GetRandomClip(const std::vector<std::string>& clips)
