@@ -48,6 +48,7 @@
 #include "Component/ShadowComponent.h"
 
 #include "Component/PlayerComponent.h"
+#include "Component/BehaviourComponent.h"
 #include "Component/PlayerHealthComponent.h"
 #include "Component/PlayerAttackComponent.h"
 #include "Component/HitBoxComponent.h"
@@ -460,6 +461,11 @@ namespace Framework {
         }
         case ComponentTypeId::CT_PlayerHUDComponent:
             return json::object();
+        case ComponentTypeId::CT_BehaviourComponent:
+        {
+            auto const& behaviour = static_cast<BehaviourComponent const&>(component);
+            return json{ {"behaviourKey", behaviour.behaviourKey} };
+        }
         case ComponentTypeId::CT_EnemyComponent:
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
             return json::object();
@@ -1128,13 +1134,26 @@ namespace Framework {
         case ComponentTypeId::CT_EnemyComponent:
         case ComponentTypeId::CT_PlayerComponent:
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
+        {
+            break;
+        }
         case ComponentTypeId::CT_BehaviorTreeComponent:
         {
             auto& bt = static_cast<BehaviorTreeComponent&>(component);
             readString("treeType", bt.treeType);
             break;
         }
+        case ComponentTypeId::CT_BehaviourComponent:
+        {
+            auto& behaviour = static_cast<BehaviourComponent&>(component);
+            behaviour.started = false;
+            readString("behaviourKey", behaviour.behaviourKey);
+            break;
+        }
         case ComponentTypeId::CT_InputComponents:
+        {
+            break;
+        }
         case ComponentTypeId::CT_AudioComponent:
         {
             auto& audio = static_cast<AudioComponent&>(component);
