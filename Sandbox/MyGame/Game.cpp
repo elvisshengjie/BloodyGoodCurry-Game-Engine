@@ -130,6 +130,8 @@ namespace mygame {
         {
             std::cout << "[Allocator] Leak: block #" << blockIndex << " at " << block << "\n";
         }
+
+        std::shared_ptr<Framework::PlayerAudioController> gPlayerAudioController = nullptr;
     }
 
     // Transition timing helpers (file-local).
@@ -154,8 +156,6 @@ namespace mygame {
 
         gSystems.IntializeAll();
         RegisterMyGameScripts(*gLogicSystem);
-
-
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());

@@ -30,6 +30,7 @@
             All rights reserved.
 *********************************************************************************************/
 #pragma once
+#include "Composition/Composition.h"
 #include "Component/AudioComponent.h"
 #include <memory>
 #include <vector>
@@ -106,4 +107,4 @@ namespace Framework
         std::string GetRandom(const std::vector<std::string>& pool);
     };
 
-} // namespace MyGame
+} 

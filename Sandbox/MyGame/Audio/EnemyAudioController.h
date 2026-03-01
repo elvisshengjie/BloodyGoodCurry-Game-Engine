@@ -113,4 +113,4 @@ namespace Framework
         std::string GetRandom(const std::vector<std::string>& pool);
     };
 
-} // namespace MyGame
+} 

@@ -1,6 +1,6 @@
 /*********************************************************************************************
  \file      GameAudio.cpp
- \par       MyGame
+ \par       SofaSpuds
  \author    Choo Jian Wei - Primary Author
 
  \brief     Implementation of GameAudio.

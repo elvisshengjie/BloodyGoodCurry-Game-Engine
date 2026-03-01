@@ -334,17 +334,6 @@ namespace Framework
                     this component owns. Each key in the block becomes a logical action name;
                     its "id" and "loop" fields populate the SoundInfo entry.
 
-                    Example JSON structure:
-                    {
-                      "AudioComponent": {
-                        "volume": 1.0,
-                        "sounds": {
-                          "Slash1":             { "id": "Slash1",             "loop": false },
-                          "ConcreteFootsteps1": { "id": "ConcreteFootsteps1", "loop": false }
-                        }
-                      }
-                    }
-
           \param s  Reference to the serializer.
         *************************************************************************************/
         void Serialize(ISerializer& s) override
