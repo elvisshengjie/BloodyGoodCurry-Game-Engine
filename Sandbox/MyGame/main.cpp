@@ -8,7 +8,7 @@
               callbacks (init/update/draw/shutdown) exposed by Game.hpp.
             - On MSVC builds, enables CRT leak checking at program exit.
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -24,6 +24,12 @@
 #include <crtdbg.h>
 #endif
 
+/*************************************************************************************
+ \brief  Program entry point for the BloodyGoodCurry sandbox executable.
+ \details Resolves the runtime project root, loads window configuration, wires the
+          game lifecycle callbacks into Core, and starts the main loop.
+ \return Process exit code.
+*************************************************************************************/
 int main()
 {
 #ifdef _MSC_VER

@@ -28,7 +28,6 @@
 #include "LogicSystem.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
-#include "Systems/VfxHelpers.h"
 #include "Factory/Factory.h"
 
 #include <iostream>
@@ -49,6 +48,12 @@ namespace Framework
         {
             if (callback && source)
                 callback(source, event);
+        }
+
+        void EmitHitImpactVfx(const HitImpactVfxCallback& callback, const glm::vec2& worldPos)
+        {
+            if (callback)
+                callback(worldPos);
         }
 
         /*****************************************************************************************
@@ -411,7 +416,7 @@ namespace Framework
                         enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
                         hitEnemy = true;
-                        SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
+                        EmitHitImpactVfx(hitImpactVfxCallback, glm::vec2(tr->x, tr->y));
                         EmitCombatAudio(combatAudioCallback, obj, CombatAudioEvent::EnemyHurt);
                     }
                     else if (enemyHealth->enemyHealth > 0)

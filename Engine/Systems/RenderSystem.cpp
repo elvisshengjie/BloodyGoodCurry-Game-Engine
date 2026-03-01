@@ -44,6 +44,7 @@
 #endif
 
 #include "RenderSystem.h"
+#include "Core/ProjectContext.h"
 #include "Core/PathUtils.h"
 #include "Debug/Perf.h"
 #if SOFASPUDS_ENABLE_EDITOR
@@ -54,6 +55,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <fstream>
 #include <system_error>
 #include <vector>
 #include <limits>
@@ -482,6 +484,129 @@ namespace Framework {
         }
         return pick_newest(candidates);
     }
+
+#if SOFASPUDS_ENABLE_EDITOR
+    void RenderSystem::RefreshEditorProjectRoots()
+    {
+        assetsRoot = Framework::GetCurrentAssetsRoot();
+        if (assetsRoot.empty())
+            assetsRoot = FindAssetsRoot();
+
+        if (!assetsRoot.empty())
+        {
+            assetBrowser.Initialize(assetsRoot);
+            mygame::SetSpawnPanelAssetsRoot(assetsRoot);
+            AudioImGui::SetAssetsRoot(assetsRoot);
+        }
+
+        dataFilesRoot = Framework::GetCurrentDataRoot();
+        if (dataFilesRoot.empty())
+            dataFilesRoot = FindDataFilesRoot();
+
+        if (!dataFilesRoot.empty())
+            jsonEditor.Initialize(dataFilesRoot);
+        else
+            jsonEditor.Initialize({});
+
+        mygame::SetSpawnPanelLevelDefaults("level.json", "level.json");
+    }
+
+    bool RenderSystem::CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message)
+    {
+        namespace fs = std::filesystem;
+
+        fs::path gamesRoot;
+        if (Framework::HasCurrentProject())
+        {
+            const auto current = Framework::GetCurrentProjectRoot();
+            gamesRoot = current.empty() ? fs::path{} : current.parent_path();
+        }
+
+        if (gamesRoot.empty())
+            gamesRoot = AssetManager::ProjectRoot() / "..";
+
+        std::error_code ec;
+        gamesRoot = fs::weakly_canonical(gamesRoot, ec);
+        if (ec)
+            gamesRoot = fs::absolute(gamesRoot, ec);
+
+        if (gamesRoot.empty())
+        {
+            message = "Could not determine the Games directory.";
+            return false;
+        }
+
+        fs::path projectRoot;
+        std::string projectName;
+        for (int index = 0; index < 100; ++index)
+        {
+            projectName = (index == 0)
+                ? "NewGame"
+                : "NewGame" + std::to_string(index + 1);
+            projectRoot = gamesRoot / projectName;
+
+            if (!fs::exists(projectRoot, ec))
+                break;
+        }
+
+        if (projectRoot.empty() || fs::exists(projectRoot, ec))
+        {
+            message = "Could not find an available NewGame folder name.";
+            return false;
+        }
+
+        const fs::path assetsDir = projectRoot / "Assets";
+        const fs::path dataDir = projectRoot / "Data";
+        const fs::path savesDir = projectRoot / "Saves";
+        const fs::path prefabsDir = dataDir / "Prefabs";
+
+        if (!fs::create_directories(assetsDir, ec) || ec)
+        {
+            message = "Failed to create Assets directory: " + assetsDir.string();
+            return false;
+        }
+
+        fs::create_directories(prefabsDir, ec);
+        if (ec)
+        {
+            message = "Failed to create Data/Prefabs directory: " + prefabsDir.string();
+            return false;
+        }
+
+        fs::create_directories(savesDir, ec);
+        if (ec)
+        {
+            message = "Failed to create Saves directory: " + savesDir.string();
+            return false;
+        }
+
+        {
+            std::ofstream out(dataDir / "window.json", std::ios::trunc);
+            out << "{\n"
+                << "  \"window\": {\n"
+                << "    \"width\": 1280,\n"
+                << "    \"height\": 720,\n"
+                << "    \"title\": \"MyGame - " << projectName << "\",\n"
+                << "    \"fullscreen\": false\n"
+                << "  }\n"
+                << "}\n";
+        }
+
+        {
+            std::ofstream out(dataDir / "level.json", std::ios::trunc);
+            out << "{\n"
+                << "  \"Level\": {\n"
+                << "    \"GameObjects\": []\n"
+                << "  }\n"
+                << "}\n";
+        }
+
+        Framework::SetCurrentProjectRoot(projectRoot);
+        createdRoot = Framework::GetCurrentProjectRoot();
+        message = "Created project " + projectName;
+        return !createdRoot.empty();
+    }
+#endif
 
     /*************************************************************************************
       \brief  Choose the current player sprite texture (idle vs run) based on animation state.
@@ -1926,33 +2051,7 @@ namespace Framework {
             std::cerr << "[RenderSystem] Warning: window is null, skipping ImGui initialization.\n";
         }
 
-        assetsRoot = FindAssetsRoot();
-        if (assetsRoot.empty())
-        {
-            std::error_code ec;
-            auto cwdAssets = std::filesystem::current_path(ec) / "Assets";
-            if (!ec && std::filesystem::exists(cwdAssets, ec) && std::filesystem::is_directory(cwdAssets, ec))
-                assetsRoot = std::filesystem::weakly_canonical(cwdAssets, ec);
-            else
-            {
-                cwdAssets = std::filesystem::current_path(ec) / "assets";
-                if (!ec && std::filesystem::exists(cwdAssets, ec) && std::filesystem::is_directory(cwdAssets, ec))
-                    assetsRoot = std::filesystem::weakly_canonical(cwdAssets, ec);
-            }
-        }
-
-        if (!assetsRoot.empty())
-        {
-            assetBrowser.Initialize(assetsRoot);
-            mygame::SetSpawnPanelAssetsRoot(assetsRoot);
-            AudioImGui::SetAssetsRoot(assetsRoot);
-        }
-
-
-        auto jsonRoot = AssetManager::ProjectRoot() / "Data";
-        if (!std::filesystem::exists(jsonRoot))
-            jsonRoot = AssetManager::ProjectRoot() / "Data_Files";
-        jsonEditor.Initialize(jsonRoot);
+        RefreshEditorProjectRoots();
 
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);
@@ -2881,10 +2980,44 @@ namespace Framework {
             {
                 if (ImGui::BeginMainMenuBar())
                 {
+                    if (ImGui::BeginMenu("File"))
+                    {
+                        if (ImGui::MenuItem("New Game"))
+                        {
+                            std::filesystem::path createdRoot;
+                            std::string message;
+                            if (CreateNewGameProject(createdRoot, message))
+                            {
+                                RefreshEditorProjectRoots();
+                                projectMenuStatusMessage = message + ": " + createdRoot.string();
+                                projectMenuStatusIsError = false;
+                            }
+                            else
+                            {
+                                projectMenuStatusMessage = message;
+                                projectMenuStatusIsError = true;
+                            }
+                        }
+                        ImGui::EndMenu();
+                    }
+
                     if (ImGui::BeginMenu("View"))
                     {
                         ImGui::MenuItem("Animation Editor", nullptr, &showAnimationEditor);
                         ImGui::EndMenu();
+                    }
+                    if (Framework::HasCurrentProject())
+                    {
+                        const ImVec4 color = projectMenuStatusIsError
+                            ? ImVec4(0.95f, 0.35f, 0.35f, 1.0f)
+                            : ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
+                        ImGui::Separator();
+                        ImGui::TextUnformatted(Framework::GetCurrentProjectRoot().filename().string().c_str());
+                        if (!projectMenuStatusMessage.empty())
+                        {
+                            ImGui::Separator();
+                            ImGui::TextColored(color, "%s", projectMenuStatusMessage.c_str());
+                        }
                     }
                     ImGui::EndMainMenuBar();
                 }

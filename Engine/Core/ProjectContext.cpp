@@ -1,7 +1,13 @@
 /*********************************************************************************************
  \file      ProjectContext.cpp
  \par       SofaSpuds
- \brief     Stores the active game project root and resolves project-scoped folders.
+ \author
+ \brief     Declares the active game project context and project-scoped path accessors.
+ \details   Provides a small engine-level API for tracking the currently selected game
+            project root and resolving its asset, data, and save directories.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 
 #include "ProjectContext.h"
@@ -23,6 +29,11 @@ namespace Framework
         constexpr const char* kProjectRootMarker = "sofaspuds_project_root.txt";
         std::filesystem::path gProjectRoot;
 
+        /*************************************************************************************
+         \brief  Returns a weakly canonical version of the given path when possible.
+         \param  path  The input filesystem path to normalize.
+         \return A normalized path, or the original path if canonicalization fails.
+        *************************************************************************************/
         std::filesystem::path CanonicalIfPossible(const std::filesystem::path& path)
         {
             if (path.empty())
@@ -33,6 +44,12 @@ namespace Framework
             return ec ? path : canonical;
         }
 
+        /*************************************************************************************
+         \brief  Checks whether a named child directory exists under a root path.
+         \param  root   The parent directory to inspect.
+         \param  child  The child directory name to test for.
+         \return True if the child exists and is a directory.
+        *************************************************************************************/
         bool HasDirectory(const std::filesystem::path& root, const char* child)
         {
             std::error_code ec;
@@ -41,6 +58,13 @@ namespace Framework
                 std::filesystem::is_directory(candidate, ec);
         }
 
+        /*************************************************************************************
+         \brief  Chooses the preferred project subdirectory, with support for legacy names.
+         \param  root       The project root directory.
+         \param  preferred  The modern subdirectory name.
+         \param  legacy     The legacy fallback subdirectory name.
+         \return The resolved subdirectory path, or an empty path if root is empty.
+        *************************************************************************************/
         std::filesystem::path PickProjectSubdir(const std::filesystem::path& root,
             const char* preferred,
             const char* legacy)
@@ -57,6 +81,11 @@ namespace Framework
             return CanonicalIfPossible(root / preferred);
         }
 
+        /*************************************************************************************
+         \brief  Validates and adopts a candidate path as the current project root.
+         \param  candidate  The path to test as a project root.
+         \return True if the path matches either the modern or legacy project layout.
+        *************************************************************************************/
         bool TryUseProjectRoot(const std::filesystem::path& candidate)
         {
             if (candidate.empty())
@@ -71,6 +100,10 @@ namespace Framework
             return !gProjectRoot.empty();
         }
 
+        /*************************************************************************************
+         \brief  Trims leading and trailing ASCII whitespace from a string.
+         \param  value  The string to trim in place.
+        *************************************************************************************/
         void TrimAsciiWhitespace(std::string& value)
         {
             const auto first = value.find_first_not_of(" \t\r\n");
@@ -84,6 +117,11 @@ namespace Framework
             value = value.substr(first, last - first + 1);
         }
 
+        /*************************************************************************************
+         \brief  Searches upward for a project marker file and adopts its referenced root.
+         \param  start  The directory to begin probing from.
+         \return True if a valid project root marker is found and accepted.
+        *************************************************************************************/
         bool TryUseProjectMarker(const std::filesystem::path& start)
         {
             if (start.empty())
@@ -124,6 +162,10 @@ namespace Framework
         }
     }
 
+    /*************************************************************************************
+     \brief  Sets the active project root explicitly.
+     \param  root  The project root to store, or an empty path to clear the current project.
+    *************************************************************************************/
     void SetCurrentProjectRoot(const std::filesystem::path& root)
     {
         if (root.empty())
@@ -135,6 +177,10 @@ namespace Framework
         gProjectRoot = CanonicalIfPossible(root);
     }
 
+    /*************************************************************************************
+     \brief  Returns the active project root, initializing it from runtime layout if needed.
+     \return A reference to the current project root path.
+    *************************************************************************************/
     const std::filesystem::path& GetCurrentProjectRoot()
     {
         if (gProjectRoot.empty())
@@ -143,11 +189,21 @@ namespace Framework
         return gProjectRoot;
     }
 
+    /*************************************************************************************
+     \brief  Reports whether a project root is currently active.
+     \return True if a current project has been resolved or assigned.
+    *************************************************************************************/
     bool HasCurrentProject()
     {
         return !gProjectRoot.empty();
     }
 
+    /*************************************************************************************
+     \brief  Attempts to discover the active project root from the executable layout.
+     \details Checks for a project marker near the current working directory and executable,
+              then walks upward looking for either the modern or legacy project folder layout.
+     \return True if a project root is found and stored.
+    *************************************************************************************/
     bool InitializeProjectFromExecutableLayout()
     {
         if (!gProjectRoot.empty())
@@ -183,16 +239,28 @@ namespace Framework
         return false;
     }
 
+    /*************************************************************************************
+     \brief  Returns the active project's asset directory.
+     \return The modern `Assets` directory, or the legacy `assets` directory if present.
+    *************************************************************************************/
     std::filesystem::path GetCurrentAssetsRoot()
     {
         return PickProjectSubdir(GetCurrentProjectRoot(), "Assets", "assets");
     }
 
+    /*************************************************************************************
+     \brief  Returns the active project's data directory.
+     \return The modern `Data` directory, or the legacy `Data_Files` directory if present.
+    *************************************************************************************/
     std::filesystem::path GetCurrentDataRoot()
     {
         return PickProjectSubdir(GetCurrentProjectRoot(), "Data", "Data_Files");
     }
 
+    /*************************************************************************************
+     \brief  Returns the active project's save directory.
+     \return The `Saves` directory under the active project root, or an empty path.
+    *************************************************************************************/
     std::filesystem::path GetCurrentSavesRoot()
     {
         if (const auto root = GetCurrentProjectRoot(); !root.empty())

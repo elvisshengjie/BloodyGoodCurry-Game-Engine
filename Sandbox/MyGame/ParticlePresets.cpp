@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      ParticlePresets.cpp
+ \par       SofaSpuds
+ \author
+ \brief     Implements sandbox-specific particle effect presets.
+ \details   Defines reusable game-layer particle bursts and trails built on top of the
+            engine's generic ParticleSystem spawn primitives.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "ParticlePresets.hpp"
 
 #include "Systems/ParticleSystem.h"

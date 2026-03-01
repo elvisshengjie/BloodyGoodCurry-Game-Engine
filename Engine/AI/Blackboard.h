@@ -1,3 +1,15 @@
+/*********************************************************************************************
+ \file      Blackboard.h
+ \par       SofaSpuds
+ \author
+ \brief     Defines a lightweight key-value blackboard for AI state sharing.
+ \details   Stores arbitrary values by string key using std::any so behavior logic can
+            exchange simple state without tight coupling between nodes and systems.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
 #pragma once
 #include <any>
 #include <string>

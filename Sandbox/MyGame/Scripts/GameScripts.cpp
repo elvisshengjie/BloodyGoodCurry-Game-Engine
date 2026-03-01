@@ -32,7 +32,7 @@
 #include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/ParticleSystem.h"
-#include "Systems/VfxHelpers.h"
+#include "../VfxPresets.hpp"
 #include "../ParticlePresets.hpp"
 #include "../Audio/GameAudioSetup.h"
 
@@ -782,7 +782,7 @@ namespace {
         {
             (void)id;
             auto* obj = ptr.get();
-            if (!obj || !Framework::IsImpactVfxObject(obj))
+            if (!obj || !mygame::IsImpactVfxObject(obj))
                 continue;
 
             auto* anim = SafeGetComponent<Framework::SpriteAnimationComponent>(obj, Framework::ComponentTypeId::CT_SpriteAnimationComponent);

@@ -19,7 +19,7 @@
             - RegisterGameBehaviourFunctions(logic)
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #include "EngineCall.hpp"
@@ -66,6 +66,15 @@ namespace mygame {
         RegisterGameBehaviourFunctions(logic);
     }
 
+    /*************************************************************************************
+      \brief Binds this game's combat audio routing into engine combat event hooks.
+      \param logic  Reference to the engine LogicSystem that owns the hitbox system.
+      \param health Reference to the engine HealthSystem that emits health-related events.
+
+      \details
+      Installs a shared callback that translates generic combat events into MyGame's
+      concrete player/enemy audio responses through the GameAudio facade.
+    **************************************************************************************/
     void BindCombatAudio(Framework::LogicSystem& logic, Framework::HealthSystem& health)
     {
         const Framework::CombatAudioCallback callback =

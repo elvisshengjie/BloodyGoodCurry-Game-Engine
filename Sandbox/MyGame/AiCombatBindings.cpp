@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      AiCombatBindings.cpp
+ \par       SofaSpuds
+ \author
+ \brief     Binds sandbox enemy combat spawning hooks into the engine AI system.
+ \details   Connects game-specific enemy attack behaviour to the engine AI callback
+            interface so hitboxes and projectiles are spawned from the game layer.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "EngineCall.hpp"
 
 #include "Systems/AiSystem.h"

@@ -2,11 +2,11 @@
  \file      PhysicSystem.h
  \par       SofaSpuds
  \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
- \brief     Declares a lightweight 2D physics system (AABB moves/collisions + hitboxes).
+ \brief     Declares a lightweight 2D physics system for kinematic AABB movement.
  \details   Steps rigid bodies with velocity-based integration, resolves simple AABB
-            collisions (axis-separated) against scene geometry, and processes enemy
-            hitboxes against player AABBs for one-shot damage application. Designed as
-            an engine subsystem driven by SystemManager (Initialize → Update(dt) → Shutdown).
+            collisions (axis-separated) against same-layer scene geometry, and handles
+            zoom-trigger overlap checks. Designed as an engine subsystem driven by
+            SystemManager (Initialize → Update(dt) → Shutdown).
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
@@ -14,7 +14,6 @@
 
 #pragma once
 #include "Common/System.h"
-#include "LogicSystem.h"
 #include "Physics/Collision/Collision.h"
 #include "Composition/Component.h"
 #include "Serialization/Serialization.h"
@@ -23,19 +22,17 @@
 
 namespace Framework {
 
-    class LogicSystem;
-
     /*************************************************************************************
       \class  PhysicSystem
       \brief  Minimal physics step for 2D games: kinematic update + simple collisions.
-      \note   Works with LogicSystem/Factory to iterate objects and query components.
+      \note   Uses the shared Factory/component model to iterate scene bodies.
     *************************************************************************************/
     class PhysicSystem : public Framework::ISystem {
     public:
         /*************************************************************************
-          \brief  Construct with a reference to the game logic system.
+          \brief  Construct the physics system.
         *************************************************************************/
-        explicit PhysicSystem(LogicSystem& logic);
+        PhysicSystem();
 
         /*************************************************************************
           \brief  Initialize physics state/resources (no-op by default).
@@ -59,7 +56,6 @@ namespace Framework {
         std::string GetName() override { return "PhysicSystem"; }
 
     private:
-        LogicSystem& logic;  //!< Access to scene objects/components.
         UniformGrid m_grid; 
     };
 

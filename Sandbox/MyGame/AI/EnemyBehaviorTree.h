@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      EnemyBehaviorTree.h
+ \par       SofaSpuds
+ \author
+ \brief     Declares the sandbox enemy behaviour-tree construction helpers.
+ \details   Exposes the game-layer functions that assemble and configure enemy
+            behaviour trees using the engine AI framework.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "AI/BehaviorContext.h"
 #include "AI/DecisionNode.h"

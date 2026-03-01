@@ -186,6 +186,8 @@ namespace Framework {
         // --- Editor frame scaffolding -----------------------------------------------------
         void DrawDockspace();
         void DrawGameViewportWindow();
+        void RefreshEditorProjectRoots();
+        bool CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message);
 
         void HandleViewportPicking();
 #endif
@@ -233,6 +235,8 @@ namespace Framework {
 #if SOFASPUDS_ENABLE_EDITOR
         mygame::AssetBrowserPanel assetBrowser;
         mygame::JsonEditorPanel   jsonEditor;
+        std::string              projectMenuStatusMessage;
+        bool                     projectMenuStatusIsError = false;
 #endif
         // These paths are used in HandleFileDrop even if editor is off (checked for empty),
         // so we keep them available to avoid modifying the interface too heavily.

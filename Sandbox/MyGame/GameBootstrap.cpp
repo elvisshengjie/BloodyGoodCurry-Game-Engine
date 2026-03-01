@@ -1,13 +1,20 @@
 /*********************************************************************************************
  \file      GameBootstrap.cpp
  \par       SofaSpuds
- \author    OpenAI Codex - Refactor support
-
- \brief     Moves BloodyGoodCurry-specific startup content out of the engine LogicSystem.
+ \author
+ \brief     Installs BloodyGoodCurry-specific startup and render bootstrap defaults.
+ \details   Provides the game-side bootstrap hooks that configure startup levels, editor
+            defaults, save-time behaviour objects, fallback content spawns, and legacy
+            render resource setup for the current project.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
+
 #include "EngineCall.hpp"
 
 #include "Debug/Spawn.h"
+#include "Game.hpp"
 #include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
 #include "Core/PathUtils.h"
@@ -21,6 +28,11 @@
 
 namespace
 {
+    /*************************************************************************************
+     \brief  Ensures a named behaviour-only helper object exists in saved level data.
+     \param  gameObjects  The serialized level object array being finalized.
+     \param  name         The behaviour object name and behaviourKey to guarantee.
+    *************************************************************************************/
     void EnsureBehaviourObject(Framework::json& gameObjects, const char* name)
     {
         if (!name || !gameObjects.is_array())
@@ -59,6 +71,12 @@ namespace
         });
     }
 
+    /*************************************************************************************
+     \brief  Installs MyGame's save-finalization policy into the factory.
+     \param  logic  The active LogicSystem used to access the factory.
+     \details Ensures helper behaviour objects required by this game are present before
+              a level is written to disk.
+    *************************************************************************************/
     void InstallFactorySavePolicy(Framework::LogicSystem& logic)
     {
         auto* factory = logic.Factory();
@@ -72,6 +90,10 @@ namespace
         });
     }
 
+    /*************************************************************************************
+     \brief  Spawns the animated hawker store prefab if the current level lacks it.
+     \param  logic  The active LogicSystem used for level queries and object insertion.
+    *************************************************************************************/
     void EnsureAnimatedStore(Framework::LogicSystem& logic)
     {
         if (logic.HasLevelObjectNamed("HawkerStoreAnimated") ||
@@ -115,6 +137,9 @@ namespace
         logic.AddLevelObject(store);
     }
 
+    /*************************************************************************************
+     \brief  Preloads fire-enemy textures used by the current game.
+    *************************************************************************************/
     void PreloadFireEnemyTextures()
     {
         Resource_Manager::load(
@@ -134,6 +159,12 @@ namespace
             Framework::ResolveProjectAssetPath("Textures/Character/Fire Enemy_Sprite/Death_Sprite.png").string());
     }
 
+    /*************************************************************************************
+     \brief  Loads a texture by key and returns its renderer handle.
+     \param  key           Resource-manager key used to cache the texture.
+     \param  relativePath  Project-relative asset path for the texture file.
+     \return The loaded texture handle.
+    *************************************************************************************/
     unsigned LoadTextureHandle(const std::string& key, const std::string& relativePath)
     {
         const auto fullPath = Framework::ResolveProjectAssetPath(relativePath).string();
@@ -141,6 +172,10 @@ namespace
         return Resource_Manager::getTexture(key);
     }
 
+    /*************************************************************************************
+     \brief  Applies the current game's legacy fallback render textures.
+     \param  render  The RenderSystem receiving fallback texture defaults.
+    *************************************************************************************/
     void ConfigureMyGameRenderDefaults(Framework::RenderSystem& render)
     {
         render.SetLegacyPlayerTexture(
@@ -168,11 +203,16 @@ namespace
 
 namespace mygame
 {
+    /*************************************************************************************
+     \brief  Configures game-specific startup behavior for the LogicSystem.
+     \param  logic  The LogicSystem to receive startup and post-load hooks.
+    *************************************************************************************/
     void ConfigureGameBootstrap(Framework::LogicSystem& logic)
     {
         logic.SetStartupLevelPath(logic.ResolveDataPath("level_RealTutorial.json"));
 #if SOFASPUDS_ENABLE_EDITOR
         SetSpawnPanelLevelDefaults("level_RealTutorial.json", "RealLevel1.json");
+        SetSpawnPanelEditorCallbacks(IsEditorSimulationRunning, LoadLevelFromEditor);
 #endif
         logic.SetPostLevelLoadCallback([](Framework::LogicSystem& runtime)
         {
@@ -182,6 +222,10 @@ namespace mygame
         });
     }
 
+    /*************************************************************************************
+     \brief  Configures game-specific render bootstrap behavior.
+     \param  render  The RenderSystem to receive initialization callbacks.
+    *************************************************************************************/
     void ConfigureRenderBootstrap(Framework::RenderSystem& render)
     {
         render.SetInitializeCallback([](Framework::RenderSystem& runtime)

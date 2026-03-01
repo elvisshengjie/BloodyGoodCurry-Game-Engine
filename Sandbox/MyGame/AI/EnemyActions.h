@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      EnemyActions.h
+ \par       SofaSpuds
+ \author
+ \brief     Declares game-specific AI action helpers for enemy behaviour execution.
+ \details   Provides small action routines used by the sandbox enemy AI layer to
+            drive movement, attacks, and state changes through the engine AI context.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "AI/BehaviorContext.h"
 #include "Composition/Composition.h"

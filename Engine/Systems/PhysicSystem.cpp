@@ -2,12 +2,11 @@
  \file      PhysicSystem.cpp
  \par       SofaSpuds
  \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
- \brief     Lightweight 2D physics step: AABB moves/collisions + enemy hitbox damage.
+ \brief     Lightweight 2D physics step: AABB moves/collisions plus zoom-trigger checks.
  \details   Updates Transform by RigidBody velocity (dt) with axis-separated AABB tests
-            against same-layer rigidbodies (excluding zoom triggers), then checks active EnemyAttack hitboxes
-            against player AABBs to apply damage (via PlayerHealthComponent) and
-            deactivate the hitbox after a successful hit. Includes simple layer filtering
-            and case-insensitive wall name checks; printing to stdout for quick debugging.
+            against same-layer rigidbodies (excluding zoom triggers), then checks zoom
+            trigger overlap for eligible objects. Includes simple layer filtering and
+            knockback decay.
  \copyright
             All content ?025 DigiPen Institute of Technology Singapore.
             All rights reserved.
@@ -16,10 +15,9 @@
 #include "PhysicSystem.h"
 #include <iostream>
 #include <algorithm>
-#include <cctype>
-#include <string>
 #include <cmath>
 
+#include "Component/PlayerComponent.h"
 #include "Component/ZoomTriggerComponent.h"
 #include "RenderSystem.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
@@ -30,11 +28,9 @@
 namespace Framework {
 
     /*************************************************************************************
-      \brief  Construct the physics system with access to game logic/factory.
-      \param  logic  Reference to the LogicSystem for scene queries.
+      \brief  Construct the physics system.
     *************************************************************************************/
-    PhysicSystem::PhysicSystem(LogicSystem& logic)
-        : logic(logic) {
+    PhysicSystem::PhysicSystem() {
     }
 
     /*************************************************************************************
@@ -45,25 +41,14 @@ namespace Framework {
     }
 
     /*************************************************************************************
-      \brief  Advance physics one step: move bodies and resolve simple AABB collisions;
-              then process enemy hitboxes vs players and apply damage.
+      \brief  Advance physics one step: move bodies and resolve simple AABB collisions.
       \param  dt  Delta time (seconds).
       \note   Movement is axis-separated: X and Y are tested independently for wall hits.
                Solid collisions apply to any same-layer RigidBodyComponent (zoom triggers excluded).
-              Enemy hitboxes are one-shot: after a hit, the hurtbox is deactivated.
+              Zoom triggers only react to objects marked with PlayerComponent.
     *************************************************************************************/
     void PhysicSystem::Update(float dt)
     {
-        /*
-        // Example for future collision service usage:
-        // const auto& info = logic.Collision();
-        // if (info.playerValid && info.targetValid)
-        // {
-        //     if (Collision::CheckCollisionRectToRect(info.player, info.target))
-        //         std::cout << "Collision detected!\n";
-        // }
-        */
-
         auto& objects = FACTORY->Objects();
 
         // Build the uniform grid from the current frame snapshot so every body sees
@@ -98,16 +83,13 @@ namespace Framework {
             if (!layers.IsLayerEnabled(objectLayer))
                 continue;
 
-            // Determine if THIS object is the Player (by name)
-            std::string objName = obj->GetObjectName();
-            std::transform(objName.begin(), objName.end(), objName.begin(),
-                [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
-            const bool isPlayer = (objName == "player");
-
             auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
             auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
             if (!rb || !tr)
                 continue;
+
+            const bool canTriggerZoom = obj->GetComponentType<PlayerComponent>(
+                ComponentTypeId::CT_PlayerComponent) != nullptr;
 
 
             // ------------------------------
@@ -175,7 +157,7 @@ namespace Framework {
                     ComponentTypeId::CT_ZoomTriggerComponent);
                 if (zoom)
                 {
-                    if (isPlayer) // only player should trigger zoom
+                    if (canTriggerZoom)
                     {
                         // AABB for player at new position
                         AABB playerBoxTrigger(newX, newY, rb->width, rb->height);

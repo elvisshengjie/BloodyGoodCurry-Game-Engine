@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      HealthPresentation.cpp
+ \par       SofaSpuds
+ \author
+ \brief     Implements sandbox-specific health UI and defeat presentation logic.
+ \details   Owns the game-side player defeat latch, HUD rendering, and enemy health
+            bar drawing layered on top of the engine's generic HealthSystem.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #include "HealthPresentation.hpp"
 
 #include "Factory/Factory.h"
@@ -20,6 +31,15 @@ namespace mygame {
         bool gPlayerDefeated = false;
         float gLastHealthUiDt = 0.0f;
 
+        /*************************************************************************************
+         \brief  Converts a world-space position into UI-space screen coordinates.
+         \param  worldX     World-space x position.
+         \param  worldY     World-space y position.
+         \param  screenW    Target viewport width in pixels.
+         \param  screenH    Target viewport height in pixels.
+         \param  vpMatrix   World-view-projection matrix used for projection.
+         \return The projected screen-space position, or an off-screen fallback.
+        *************************************************************************************/
         std::pair<float, float> WorldToScreenUI(
             float worldX, float worldY, int screenW, int screenH, const glm::mat4& vpMatrix)
         {
@@ -35,26 +55,45 @@ namespace mygame {
         }
     } // namespace
 
+    /*************************************************************************************
+     \brief  Binds the game-side defeat latch to the engine HealthSystem.
+     \param  health  The HealthSystem that emits player-death completion events.
+    *************************************************************************************/
     void BindHealthPresentation(Framework::HealthSystem& health)
     {
         health.SetPlayerDeathCompleteCallback([]() { gPlayerDefeated = true; });
     }
 
+    /*************************************************************************************
+     \brief  Stores the latest UI delta time for HUD animation updates.
+     \param  dt  Delta time in seconds.
+    *************************************************************************************/
     void UpdateHealthPresentationDelta(float dt)
     {
         gLastHealthUiDt = dt;
     }
 
+    /*************************************************************************************
+     \brief  Reports whether the player defeat flow has been latched.
+     \return True once the player's death sequence has completed.
+    *************************************************************************************/
     bool IsPlayerDefeated()
     {
         return gPlayerDefeated;
     }
 
+    /*************************************************************************************
+     \brief  Clears the game-side player defeat latch.
+    *************************************************************************************/
     void ResetPlayerDefeat()
     {
         gPlayerDefeated = false;
     }
 
+    /*************************************************************************************
+     \brief  Draws the player HUD and enemy health bars for the current frame.
+     \param  render  The active RenderSystem used for viewport and matrix queries.
+    *************************************************************************************/
     void DrawHealthPresentation(Framework::RenderSystem& render)
     {
         if (!Framework::FACTORY)
