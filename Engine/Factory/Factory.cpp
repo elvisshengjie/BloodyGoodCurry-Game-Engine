@@ -494,7 +494,7 @@ namespace Framework {
             auto const& audio = static_cast<AudioComponent const&>(component);
             json soundMap = json::object();
 
-            for (auto const& [actionName, info] : audio.sounds) {
+            for (auto const& [actionName, info] : audio.GetSounds()) {
                 soundMap[actionName] = {
                     {"id", info.id},
                     {"loop", info.loop}
@@ -504,7 +504,6 @@ namespace Framework {
             return json{
                 {"sounds", soundMap},
                 {"volume", audio.volume},
-                {"entityType", audio.entityType} // <--- ADD THIS LINE
             };
         }
         default:
@@ -1139,7 +1138,6 @@ namespace Framework {
         case ComponentTypeId::CT_AudioComponent:
         {
             auto& audio = static_cast<AudioComponent&>(component);
-            readString("entityType", audio.entityType); //
             readFloat("volume", audio.volume);          // 
             // You may also want to read "sounds" map here if needed for snapshots
             break;

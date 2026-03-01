@@ -235,166 +235,93 @@ namespace Framework
                 gameObjectIds.end(),
                 [this, dt](GOCId id) -> bool
                 {
-                    // Re-resolve each frame; if gone, drop it safely.
                     GOC* goc = FACTORY->GetObjectWithId(id);
                     if (!goc)
                     {
-                        // Object was destroyed elsewhere; clean up any death timer.
                         deathTimers.erase(id);
                         return true;
                     }
 
-                    // ---------------------------------------------------------
-                    // Enemy health handling (plays death animation before destroy)
-                    // ---------------------------------------------------------
-                    if (auto* enemyHealth =
-                        goc->GetComponentType<EnemyHealthComponent>(
-                            ComponentTypeId::CT_EnemyHealthComponent))
+                    // ------------------------
+                    // Enemy health
+                    // ------------------------
+                    if (auto* enemyHealth = goc->GetComponentType<EnemyHealthComponent>(
+                        ComponentTypeId::CT_EnemyHealthComponent))
                     {
                         if (enemyHealth->enemyHealth <= 0)
                         {
-                            // Default death animation name; can be extended per-enemy type if
-                            // future enemies need unique death clips (e.g., "water_death").
-                            constexpr std::string_view deathAnimName = "death";
                             float& timer = deathTimers[id];
                             auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                                 ComponentTypeId::CT_SpriteAnimationComponent);
                             auto* audio = goc->GetComponentType<AudioComponent>(
                                 ComponentTypeId::CT_AudioComponent);
 
-                            // First frame after "death" �C trigger death animation and compute duration.
                             if (timer <= 0.0f)
                             {
-                                PlayAnimationIfAvailable(goc, deathAnimName);
-
-                                if (auto* tr = goc->GetComponentType<TransformComponent>(
-                                    ComponentTypeId::CT_TransformComponent))
-                                {
-                                    if (auto* particleSystem = ParticleSystem::Instance())
-                                    {
-                                        particleSystem->SpawnEnemyDeathParticles({ tr->x, tr->y });
-                                    }
-                                }
+                                PlayAnimationIfAvailable(goc, "death");
                                 if (audio)
                                 {
-                                    if (audio->entityType == "enemy_fire")
-                                        audio->Play("FireGhostExplosion");  // the death clip
-                                    else if (audio->entityType == "enemy_water")
-                                        audio->Play("WaterGhostExplosion"); // the death clip
+                                    if (audio->HasSound("Death"))
+                                        audio->TriggerSound("Death");
                                 }
-                                // Use animation length if available; otherwise fall back to a minimum.
-                                timer = std::max(AnimationDuration(anim, deathAnimName), 0.2f);
+                                timer = std::max(AnimationDuration(anim, "death"), 0.2f);
                             }
                             else
                             {
-                                // Count down until we actually destroy the object.
                                 timer = std::max(0.0f, timer - dt);
                             }
 
-                            const bool hasAnimation = anim && FindAnimationIndex(anim, deathAnimName) >= 0;
-                            const bool animationFinished = hasAnimation
-                                ? IsAnimationFinished(anim, deathAnimName)
-                                : true; // if no animation, rely on timer only
-
-                            // Destroy only after both the timer has elapsed and the animation has
-                            // completed its final frame (ensures death pose is visible briefly).
-                            if (timer <= 0.0f && animationFinished)
+                            const bool finished = anim ? IsAnimationFinished(anim, "death") : true;
+                            if (timer <= 0.0f && finished)
                             {
                                 FACTORY->Destroy(goc);
                                 deathTimers.erase(id);
-
-                                std::cout << "[HealthSystem] Enemy "
-                                    << goc->GetId()
-                                    << " destroyed.\n";
-                                return true; // remove from tracked IDs
+                                return true;
                             }
 
-                            // Keep the object for now so the death animation can finish.
                             return false;
                         }
-
-                        // Enemy is still alive; make sure we don't keep a stale timer.
                         deathTimers.erase(id);
                     }
 
-                    // ---------------------------------------------------------
-                    // Player health handling (plays death animation before destroy)
-                    // ---------------------------------------------------------
-                    if (auto* playerHealth =
-                        goc->GetComponentType<PlayerHealthComponent>(
-                            ComponentTypeId::CT_PlayerHealthComponent))
+                    // ------------------------
+                    // Player health
+                    // ------------------------
+                    if (auto* playerHealth = goc->GetComponentType<PlayerHealthComponent>(
+                        ComponentTypeId::CT_PlayerHealthComponent))
                     {
                         auto* audio = goc->GetComponentType<AudioComponent>(
                             ComponentTypeId::CT_AudioComponent);
 
-                        constexpr std::string_view deathAnimName = "death";
-                        auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
-                            ComponentTypeId::CT_SpriteAnimationComponent);
-
-                        if (!playerHealth->isDead)
+                        if (playerHealth->playerHealth <= 0 && !playerHealth->isDead)
                         {
-                            if (playerHealth->isInvulnerable)
-                            {
-                                playerHealth->invulnTime -= dt;
-                                if (playerHealth->invulnTime <= 0.0f)
-                                {
-                                    playerHealth->invulnTime = 0.0f;
-                                    playerHealth->isInvulnerable = false;
-                                    std::cout << "[PlayerHealthComponent] Invulnerability ended.\n";
-                                }
-                            }
-                        }
-
-                        if (playerHealth->playerHealth <= 0)
-                        {
-                            float& timer = deathTimers[id];
-
-                            playerDied = true;
-                            
-                            if (!playerHealth->deathSoundPlayed && audio)
-                            {
+                            playerHealth->isDead = true;
+                            PlayAnimationIfAvailable(goc, "death");
+                            if (audio && audio->HasSound("PlayerDead"))
                                 audio->TriggerSound("PlayerDead");
-                                playerHealth->deathSoundPlayed = true;
-                                std::cout << "[DEBUG] PlayerDead triggered\n";
-                            }
-                            if (!playerHealth->isDead)
-                            {
-                                audio->TriggerSound("PlayerDead");
-                                playerHealth->isDead = true;
-                                PlayAnimationIfAvailable(goc, deathAnimName);
-                                timer = std::max(AnimationDuration(anim, deathAnimName), 0.2f);
-                            }
-                            else
-                            {
-                                timer = std::max(0.0f, timer - dt);
-                            }
-
-                            const bool hasAnimation = anim && FindAnimationIndex(anim, deathAnimName) >= 0;
-                            const bool animationFinished = hasAnimation
-                                ? IsAnimationFinished(anim, deathAnimName)
-                                : true; // if no animation, rely on timer only
-
-                            if (timer <= 0.0f && animationFinished)
-                            {
-                                FACTORY->Destroy(goc);
-                                deathTimers.erase(id);
-
-                                std::cout << "[HealthSystem] Player "
-                                    << goc->GetId()
-                                    << " destroyed.\n";
-                                return true; // remove from tracked IDs
-                            }
-
-                            // Keep player around until animation finishes
+                            deathTimers[id] = std::max(AnimationDuration(
+                                goc->GetComponentType<SpriteAnimationComponent>(
+                                    ComponentTypeId::CT_SpriteAnimationComponent), "death"), 0.2f);
                             return false;
                         }
 
-                        // Player is alive; clear any stale death timers / flags.
-                        deathTimers.erase(id);
-                        
+                        if (playerHealth->isDead)
+                        {
+                            float& timer = deathTimers[id];
+                            timer = std::max(0.0f, timer - dt);
+                            auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
+                                ComponentTypeId::CT_SpriteAnimationComponent);
+                            const bool finished = anim ? IsAnimationFinished(anim, "death") : true;
+                            if (timer <= 0.0f && finished)
+                            {
+                                FACTORY->Destroy(goc);
+                                deathTimers.erase(id);
+                                return true;
+                            }
+                            return false;
+                        }
                     }
 
-                    // Keep tracking this ID.
                     return false;
                 }),
             gameObjectIds.end());

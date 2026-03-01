@@ -53,29 +53,16 @@ namespace Framework {
         with controls to visualize and manipulate sounds during runtime.
     *****************************************************************************************/
 	class AudioSystem :public Framework::ISystem {
-	public:
-        bool footstepPlaying = false;           
-        std::string currentFootstep;           
-
+	public:           
 		explicit AudioSystem(gfx::Window& window);
-
 		void Initialize() override;
-
 		void Update(float dt) override;
-
-		void draw();
-
+        void draw();
 		void Shutdown() override;
-        //Helper for footsteps
-        std::string GetRandomClip(const std::vector<std::string>& footstepClips);
-        void HandlePlayerFootsteps(GOC* player, float dt);
-
 		std::string GetName() override{ return "AudioSystem"; }
-
-
-
 	private:
 		gfx::Window* window;
+        void UpdateListener();
 
 	};
 }

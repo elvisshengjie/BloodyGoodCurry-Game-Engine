@@ -2977,7 +2977,6 @@
       {
         "Components": {
           "AudioComponent": {
-            "entityType": "enemy_fire",
             "sounds": {
               "FireGhostExplosion": {
                 "id": "FireGhostExplosion",
@@ -3143,7 +3142,6 @@
       {
         "Components": {
           "AudioComponent": {
-            "entityType": "enemy_fire",
             "sounds": {
               "FireGhostExplosion": {
                 "id": "FireGhostExplosion",
@@ -3309,7 +3307,6 @@
       {
         "Components": {
           "AudioComponent": {
-            "entityType": "enemy_water",
             "sounds": {
               "GhostHurt1": {
                 "id": "GhostHurt1",
@@ -3471,7 +3468,6 @@
       {
         "Components": {
           "AudioComponent": {
-            "entityType": "enemy_water",
             "sounds": {
               "GhostHurt1": {
                 "id": "GhostHurt1",
@@ -7444,7 +7440,6 @@
       {
         "Components": {
           "AudioComponent": {
-            "entityType": "player",
             "sounds": {
               "ConcreteFootsteps1": {
                 "id": "ConcreteFootsteps1",

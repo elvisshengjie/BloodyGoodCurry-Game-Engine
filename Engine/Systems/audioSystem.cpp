@@ -1,61 +1,69 @@
-﻿#include "audioSystem.h"
-#include "Core/PathUtils.h"
-#include "RenderSystem.h"
-#include "Resource_Asset_Manager/Resource_Manager.h"
-#include <iostream>
-#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
-
-#ifdef _DEBUG
-#define new DBG_NEW       // <- redefine new AFTER all includes
-#endif
-/*********************************************************************************************
+﻿/*********************************************************************************************
  \file      AudioSystem.cpp
  \par       SofaSpuds
  \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
- \brief     Implementation of the AudioSystem class, responsible for managing audio playback,
-            resource loading, and debug GUI integration.
+ \brief     Implementation of the AudioSystem class, responsible for ticking the FMOD
+            engine and keeping the spatial audio listener in sync with the player.
 
  \details
-            AudioSystem integrates the SoundManager and Resource_Manager to:
-            - Initialize and shutdown audio resources.
-            - Load audio assets at startup.
-            - Provide per-frame updates (currently empty, reserved for future logic).
-            - Render an ImGui-based debug panel for runtime audio management via AudioImGui.
-*********************************************************************************************/
-namespace Framework {
-    /*****************************************************************************************
-     \brief
-        Constructs the AudioSystem with a reference to the main window.
+            AudioSystem integrates SoundManager and Resource_Manager to:
+            - Initialise and shut down the audio backend.
+            - Load all audio assets at startup from the game's Audio asset folder.
+            - Each frame: update the FMOD listener position and tick SoundManager.
+            - Render an ImGui-based debug panel in editor builds via AudioImGui.
 
-     \param window
-        Reference to the graphics window for ImGui context.
-     *****************************************************************************************/
-    AudioSystem::AudioSystem(gfx::Window& window) :window(&window) {}
+            All game-specific audio logic (footstep timing, clip pool randomisation,
+            enemy 3D sound tracking) is handled by game-side controllers in MyGame
+            and is intentionally absent from this file.
+
+ \copyright
+            All content  2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+#include "AudioSystem.h"
+#include "Core/PathUtils.h"
+#include "RenderSystem.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
+#include "Audio/SoundManager.h"
+#include "Component/TransformComponent.h"
+#include <iostream>
+#include "Common/CRTDebug.h"
+
+#ifdef _DEBUG
+#define new DBG_NEW
+#endif
+
+namespace Framework
+{
     /*****************************************************************************************
-     \brief
-        Initializes the audio system and debug GUI.
+     \brief Construct with a reference to the main window (used for ImGui context).
+    *****************************************************************************************/
+    AudioSystem::AudioSystem(gfx::Window& window)
+        : window(&window)
+    {
+    }
+
+    /*****************************************************************************************
+     \brief Initialise the audio engine and load all audio assets.
 
      \details
-        - Initializes the SoundManager engine.
-        - Loads all audio assets from the assets directory.
-        - Sets the default master volume.
-        - Initializes the ImGui audio debug panel via AudioImGui.
-     *****************************************************************************************/
+        1. Starts the SoundManager (FMOD) backend.
+        2. Loads all audio files found under the game's Assets/Audio folder.
+        3. In editor builds, initialises the AudioImGui debug panel.
+    *****************************************************************************************/
     void AudioSystem::Initialize()
     {
-        // 1. Start audio engine
         if (!SoundManager::getInstance().initialize())
         {
             std::cerr << "[AudioSystem] Failed to initialize SoundManager!\n";
             return;
         }
 
-        // 2. Load all audio files under /Assets/Audio
         const std::string audioPath = Framework::ResolveAssetPath("Audio").string();
         Resource_Manager::loadAll(audioPath);
+
 #if SOFASPUDS_ENABLE_EDITOR
-        // 3. Debug UI
         AudioImGui::Initialize(*window);
 #endif
 
@@ -63,181 +71,93 @@ namespace Framework {
     }
 
     /*****************************************************************************************
-     \brief
-        Updates the audio system per frame.
+     \brief Per-frame update.
 
-     \param dt
-        Delta time since the last frame (currently unused, reserved for future logic).
-     *****************************************************************************************/
+     \details
+        1. Updates the FMOD listener position to the player's current world position
+           so spatial audio attenuation is correct.
+        2. Ticks SoundManager so FMOD processes channel events internally.
+
+        No game-specific audio logic runs here. Footstep timing, enemy 3D position
+        tracking, and clip-pool randomisation are handled by game-side controllers
+        (PlayerAudioController, EnemyAudioController) in MyGame.
+
+     \param dt  Delta time in seconds.
+    *****************************************************************************************/
     void AudioSystem::Update(float dt)
     {
         (void)dt;
-        if (!FACTORY) return;
 
-        // --- 1. Update listener to player position ---
-        GOC* player = nullptr;
-        for (auto& [id, gocPtr] : FACTORY->Objects())
-        {
-            if (!gocPtr) continue;
-            GOC* goc = gocPtr.get();
-            if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent))
-            {
-                player = goc;
-                break;
-            }
-        }
-
-        if (player)
-        {
-            auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-            if (trPlayer)
-            {
-                // FMOD expects float[3] arrays for pos/forward/up
-                // Since your game is 2D, keep Z fixed at 0
-                float listenerPos[3] = { trPlayer->x, trPlayer->y, 0.0f };
-                float forward[3] = { 0.0f, 0.0f, -1.0f }; // into the screen
-                float up[3] = { 0.0f, 1.0f,  0.0f };
-
-                SoundManager::getInstance().setListenerPos(listenerPos, forward, up);
-            }
-        }
-
-        // --- 2. Iterate all objects and update audio positions ---
-        for (auto& [id, gocPtr] : FACTORY->Objects())
-        {
-            if (!gocPtr) continue;
-            GOC* goc = gocPtr.get();
-
-            auto* audio = goc->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
-            auto* tr = goc->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-
-            if (!audio || !tr) continue;
-
-            if (audio->entityType == "player")
-            {
-                HandlePlayerFootsteps(goc, dt);
-            }
-            else if (audio->entityType == "enemy_fire" || audio->entityType == "enemy_water")
-            {
-                // Push the enemy's world position into FMOD so volume
-                // falls off naturally with distance from the listener
-                float enemyPos[3] = { tr->x, tr->y, 0.0f };
-                float zeroVel[3] = { 0.0f, 0.0f, 0.0f };
-
-                // Update position for every sound this enemy could emit
-                // so FMOD attenuates correctly when TriggerSound fires
-                for (const auto& soundName : audio->attackClips) // adjust to your actual clip list member
-                {
-                    if (SoundManager::getInstance().isSoundPlaying(soundName))
-                        SoundManager::getInstance().setSoundPos(soundName, enemyPos, zeroVel);
-                }
-            }
-        }
+        UpdateListener();
+        SoundManager::getInstance().update(dt);
     }
-
-    std::string AudioSystem::GetRandomClip(const std::vector<std::string>& clips)
-    {
-        if (clips.empty()) return "";
-        return clips[rand() % clips.size()];
-    }
-    void AudioSystem::HandlePlayerFootsteps(GOC* player, float dt)
-    {
-        if (!player) return;
-        auto* audio = player->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
-        auto* rb = player->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-        auto* health = player->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
-        if (!audio || !rb) return;
-
-        // Stop if dead
-        if (health && health->playerHealth <= 0)
-        {
-            if (audio->isFootstepPlaying)
-            {
-                audio->Stop(audio->currentFootstep);
-                audio->isFootstepPlaying = false;
-            }
-            audio->footstepTimer = 0.0f;
-            return;
-        }
-
-        // Check movement
-        const float moveThreshold = 0.01f;
-        bool moving = (fabs(rb->velX) > moveThreshold || fabs(rb->velY) > moveThreshold);
-
-        if (!moving)
-        {
-            if (audio->isFootstepPlaying)
-            {
-                audio->Stop(audio->currentFootstep);
-                audio->isFootstepPlaying = false;
-            }
-            audio->footstepTimer = 0.0f;
-            return;
-        }
-
-        // Update footstep timer
-        audio->footstepTimer -= dt; // or however you access delta time
-
-        // Wait for timer to expire
-        if (audio->footstepTimer > 0.0f)
-            return;
-
-        // Wait for previous step to finish
-        if (audio->isFootstepPlaying)
-        {
-            if (!SoundManager::getInstance().isSoundPlaying(audio->currentFootstep))
-                audio->isFootstepPlaying = false;
-            else
-                return; // still playing → do not start new
-        }
-
-        // Pick a random footstep and play it
-        audio->currentFootstep = GetRandomClip(audio->footstepClips);
-        if (!audio->currentFootstep.empty())
-        {
-            audio->Play(audio->currentFootstep);
-            audio->isFootstepPlaying = true;
-
-            // Reset timer for next footstep (adjust this value to match your animation)
-            audio->footstepTimer = 0.5f; // 500ms delay - tune this to match animation
-        }
-    }
-
-
 
     /*****************************************************************************************
-     \brief
-        Draws the ImGui-based audio debug panel.
-     *****************************************************************************************/
-    void AudioSystem::draw() {
+     \brief Locate the player and push its world position to the FMOD listener.
+
+     \details
+        Searches all active GameObjects for one that owns a PlayerComponent.
+        Reads its TransformComponent and calls SoundManager::setListenerPos().
+        If no player is found (e.g. during a loading screen) the listener is not moved.
+    *****************************************************************************************/
+    void AudioSystem::UpdateListener()
+    {
+        if (!FACTORY) return;
+
+        for (auto& [id, gocPtr] : FACTORY->Objects())
+        {
+            if (!gocPtr) continue;
+            GOC* goc = gocPtr.get();
+
+            if (!goc->GetComponent(ComponentTypeId::CT_PlayerComponent)) continue;
+
+            auto* tr = goc->GetComponentType<TransformComponent>(
+                ComponentTypeId::CT_TransformComponent);
+            if (!tr) break;
+
+            // Game is 2D — Z is fixed at 0. Forward points into the screen.
+            float listenerPos[3] = { tr->x,   tr->y,  0.0f };
+            float forward[3] = { 0.0f,    0.0f,  -1.0f };
+            float up[3] = { 0.0f,    1.0f,   0.0f };
+
+            SoundManager::getInstance().setListenerPos(listenerPos, forward, up);
+            break; // Only one player expected.
+        }
+    }
+
+    /*****************************************************************************************
+     \brief Render the ImGui audio debug panel (editor builds only).
+    *****************************************************************************************/
+    void AudioSystem::draw()
+    {
 #if SOFASPUDS_ENABLE_EDITOR
         if (!RenderSystem::IsEditorVisible())
             return;
 
         AudioImGui::Render();
 #endif
-    };
+    }
+
     /*****************************************************************************************
-     \brief
-        Shuts down the audio system and releases resources.
+     \brief Shut down the audio engine and release all resources.
 
      \details
-        - Unloads all loaded sounds from SoundManager.
-        - Shuts down the AudioImGui debug interface.
-        - Prints a confirmation message to the console.
-     *****************************************************************************************/
+        - Unloads all sounds from SoundManager.
+        - Shuts down the FMOD backend to release native allocations.
+        - Clears cached sound entries from Resource_Manager.
+        - In editor builds, shuts down AudioImGui.
+    *****************************************************************************************/
     void AudioSystem::Shutdown()
     {
-        // Unload all sounds
         SoundManager::getInstance().unloadAllSounds();
-        // Fully tear down the audio backend to release FMOD allocations
         SoundManager::getInstance().shutdown();
-        // Clear cached sound entries so CRT leak checks do not flag leftover map nodes
         Resource_Manager::unloadAll(Resource_Manager::Sound);
-        // Shutdown the audio ImGui UI
+
 #if SOFASPUDS_ENABLE_EDITOR
         AudioImGui::Shutdown();
 #endif
+
         std::cout << "[AudioSystem] Audio system shutdown completed.\n";
     }
-}
+
+} // namespace Framework

@@ -3,22 +3,27 @@
  \par       SofaSpuds
  \author    Choo Jian Wei - Primary Author
 
- \brief     Declares the AudioComponent class, which manages sound playback for game entities
-            such as players, enemies, or interactable objects.
+ \brief     Declares the AudioComponent class, a generic engine-side component that manages
+            sound registration and playback for any game entity.
 
  \details
-            The AudioComponent is responsible for registering, initializing, and controlling
-            audio cues associated with a specific entity type. This component automatically
-            configures different sound sets depending on whether the entity represents a player,
-            enemy, or other object type.
+            AudioComponent is a pure engine primitive. It knows nothing about players,
+            enemies, or any game-specific concept. Its only responsibilities are:
 
-            Responsibilities:
-            - Store metadata about each sound (ID and loop state).
+            - Store metadata about each sound (id + loop flag) loaded from prefab JSON.
             - Track whether individual sounds are currently playing.
-            - Provide methods to play one-shot, looping, or triggered sounds.
-            - Interface with the SoundManager to execute audio playback logic.
+            - Provide Play / Stop / TriggerSound / IsPlaying methods that forward to SoundManager.
+            - Expose GetSoundKeys() so game-side controllers can inspect what was loaded
+              and build their own randomisation pools without hardcoding clip names.
             - Support serialization for prefab and level loading.
-            - Support deep-copy functionality for object instancing.
+            - Support deep-copy (Clone) for object instancing.
+
+            Game-specific logic (which clips belong to a player, footstep timing,
+            random clip selection, enemy attack pools, etc.) belongs entirely in
+            game-side controllers (PlayerAudioController, EnemyAudioController)
+            that live in the MyGame project and call into this component's public API.
+
+ \note      This file must never reference any MyGame headers or game-specific concepts.
 
  \copyright
             All content  2025 DigiPen Institute of Technology Singapore.
@@ -29,231 +34,196 @@
 #include "Memory/ComponentPool.h"
 #include "Serialization/Serialization.h"
 #include "Audio/SoundManager.h"
-#include <memory>
 #include <string>
-#include <iostream>
 #include <vector>
-#include <fstream>
+#include <unordered_map>
+#include <iostream>
+
 namespace Framework
 {
     /*****************************************************************************************
       \struct SoundInfo
-      \brief Lightweight structure storing metadata for a specific sound.
+      \brief  Lightweight metadata for a single registered sound.
 
-      Contains an audio identifier and a flag indicating whether the sound should loop
-      when played (e.g., footsteps).
+      \var id    The asset identifier used by SoundManager to locate and play the sound.
+      \var loop  Whether the sound should loop on playback.
     *****************************************************************************************/
     struct SoundInfo
     {
         std::string id;
-        bool loop{ false };
+        bool        loop{ false };
     };
+
     /*****************************************************************************************
       \class AudioComponent
-      \brief Component that manages audio playback for entities.
+      \brief Generic engine component that owns a named sound registry and drives playback.
 
-      This component provides a flexible audio system for any GameObject. Depending on its
-      assigned entityType, it automatically loads the correct sound set on initialization.
-      It also tracks playback state, supports serialization, and ensures proper cleanup when
-      sounds are no longer needed.
-*****************************************************************************************/
+      Sounds are registered entirely from the prefab JSON via Serialize(). Game-side
+      controllers then call GetSoundKeys() to inspect what was loaded and sort keys into
+      their own pools (footsteps, slashes, etc.) without any clip names being hardcoded
+      in engine code.
+
+      Public API:
+        GetSoundKeys()          - iterate all registered keys (used by game-side controllers)
+        HasSound()              - check if a key is registered
+        AddSound()              - register a sound at runtime (optional, used by controllers)
+        RemoveSound()           - unregister a sound
+        ClearSounds()           - unregister all sounds
+        Play()                  - play a registered sound (optionally 3D)
+        Stop()                  - stop a registered sound
+        TriggerSound()          - fire-and-forget play
+        IsPlaying()             - query playback state
+        UpdateSoundPosition()   - reposition a 3D sound (call each frame from game side)
+    *****************************************************************************************/
     class AudioComponent : public GameComponent
     {
-        public:
-        bool initialized = false;
-        bool m_needs3DReload = false;
-        std::unordered_map<std::string, SoundInfo> sounds;
-        std::unordered_map<std::string, bool> playing;
-        //Footsteps
-        std::vector<std::string> footstepClips;
-        std::string currentFootstep;
-        //Footstep timer
-        float footstepTimer = 0.0f;
-        bool isFootstepPlaying = false;
-        //Slashes Sound
-        std::vector<std::string> slashClips;//Slashing Enemy
-        std::vector<std::string> punchClips;//Slashing Air
-        std::vector<std::string> ineffectiveClips;//Ineffective Slashes
-        //Grapple
-        std::vector<std::string> grappleClips;
-        //Enemy Sounds
-        std::vector<std::string> attackClips;
-        std::vector<std::string> hurtClips;
-        std::vector<std::string> deathClips;
+    public:
 
-        
-        float volume{ 1.0f }; 
-        std::string entityType;
-        
-        /*************************************************************************************
-          \brief Ensures that the AudioComponent is initialized.
+        float volume{ 1.0f };
 
-          \details
-              This function checks whether the AudioComponent has been initialized and
-              whether the entityType has been set. If the component is not yet initialized
-              and the entityType is valid, it calls initialize() to register the correct
-              sounds for this entity. This guarantees that all sound mappings are ready
-              for playback.
+    private:
 
-              In the context of prefabs, this can be called after cloning to ensure that
-              the AudioComponent correctly registers sounds even if the prefab was partially
-              initialized or serialized previously.
+        std::unordered_map<std::string, SoundInfo> m_sounds;   ///< Registered sound entries.
+        std::unordered_map<std::string, bool>      m_playing;  ///< Per-sound playback state.
 
-          \param force Optional boolean flag (default = false). If true, forces re-initialization
-                       even if the component was already initialized. Useful for prefab cloning
-                       scenarios.
+    public:
 
-          \note If entityType is empty, initialization is skipped and a warning is logged.
-        *************************************************************************************/
-        void ensureInitialized(bool force = false)
-        {
-            if (!force && initialized && !entityType.empty())
-                return;
-            if (entityType.empty()) {
-                std::cerr << "[AudioComponent] Warning: entityType not set, cannot initialize.\n";
-                return;
-            }
-            initialized = false; // reset just in case
-            sounds.clear();
-            playing.clear();
-            initialize();
-            initialized = true;
-        }
+        // ---------------------------------------------------------------------------------
+        // Construction / destruction
+        // ---------------------------------------------------------------------------------
 
-        /*************************************************************************************
-          \brief Default constructor.
-        *************************************************************************************/
         AudioComponent() = default;
-        /*************************************************************************************
-         \brief Initializes the component by registering sounds based on entity type.
 
-         \details
-             Clears existing maps, assigns default sounds depending on whether this object
-             represents a player or enemy, and initializes the playback tracking map.
-       *************************************************************************************/
-        void initialize() override
+        ~AudioComponent() override
         {
-            sounds.clear();
-            playing.clear();
-            footstepClips.clear();
-            if (entityType == "player")
+            // Stop all active sounds on destruction to avoid orphaned FMOD channels.
+            for (auto& [action, isPlaying] : m_playing)
             {
-                for (int i = 1; i <= 6; i++)
+                if (isPlaying)
                 {
-                    std::string clip = "ConcreteFootsteps" + std::to_string(i);
-                    sounds[clip] = { clip, false };
-                    playing[clip] = false;
-                    footstepClips.push_back(clip);
+                    auto it = m_sounds.find(action);
+                    if (it != m_sounds.end())
+                        SoundManager::getInstance().stopSound(it->second.id);
                 }
-                //Slashes on Enemy
-                for (int i = 1; i <= 3; i++)
-                {
-                    sounds["Slash" + std::to_string(i)] = { "Slash" + std::to_string(i), false };
-                    slashClips.push_back("Slash" + std::to_string(i));
-                }
-                //Slashes in Air
-                for (int i = 1; i <= 4; i++)
-                {
-                    sounds["Punch" + std::to_string(i)] = { "Punch" + std::to_string(i), false };
-                    punchClips.push_back("Punch" + std::to_string(i));
-                }
-                
-                //Ineffective Slashes
-                for (int i = 1; i <= 3; i++)
-                {
-                    sounds["Ineffective Boink" + std::to_string(i)] = { "Ineffective Boink" + std::to_string(i), false };
-                    ineffectiveClips.push_back("Ineffective Boink" + std::to_string(i));
-                }
-
-                for (int i = 1; i <= 4; i++)
-                {
-                    sounds["GrappleShoot" + std::to_string(i)] = { "GrappleShoot" + std::to_string(i), false };
-                    grappleClips.push_back("GrappleShoot" + std::to_string(i));
-                }
-                sounds["PlayerHit"] = { "PlayerHit", false };
-                sounds["PlayerDead"] = { "PlayerDead", false };
             }
-            else if (entityType == "enemy_fire")
-            {
-                // Projectile variants
-                for (int i = 1; i <= 2; i++)
-                {
-                    std::string id = "FireGhostProjectile" + std::to_string(i);
-                    sounds[id] = { id, false };
-                    attackClips.push_back(id);
-                    m_needs3DReload = true;
-                }
-
-                // Hurt variants
-                for (int i = 1; i <= 8; i++)
-                {
-                    std::string id = "GhostHurt" + std::to_string(i);
-                    sounds[id] = { id, false };
-                    hurtClips.push_back(id);
-                }
-
-                sounds["FireGhostExplosion"] = { "FireGhostExplosion", false };
-                deathClips.push_back("FireGhostExplosion");
-            }
-            else if (entityType == "enemy_water")
-            {
-                // Water ghost attack (1 only)
-                std::string atk = "WaterGhostAttack";
-                sounds[atk] = { atk, false };
-                attackClips.push_back(atk);
-
-                // Shared GhostHurt8
-                for (int i = 1; i <= 8; i++)
-                {
-                    std::string id = "GhostHurt" + std::to_string(i);
-                    sounds[id] = { id, false };
-                    hurtClips.push_back(id);
-                }
-
-                // Water ghost death  only 1 clip
-                sounds["WaterGhostExplosion"] = { "WaterGhostExplosion", false };
-                deathClips.push_back("WaterGhostExplosion");
-                m_needs3DReload = true;
-            }
-
-            // Build playing map
-            for (auto& [action, info] : sounds)
-                playing[action] = false;
-            
-            // Reload enemy sounds as 3D
-            if (m_needs3DReload)
-            {
-                for (auto& [action, info] : sounds)
-                {
-                    if (SoundManager::getInstance().isSoundLoaded(info.id))
-                        SoundManager::getInstance().unloadSound(info.id);
-                    SoundManager::getInstance().loadSound3D(info.id, info.id + ".wav");
-                }
-                m_needs3DReload = false;
-            }
-            std::cout << "[AudioComponent] initialize called, entityType='" << entityType << "'\n";
         }
 
- 
+        // ---------------------------------------------------------------------------------
+        // Registry API
+        // ---------------------------------------------------------------------------------
 
         /*************************************************************************************
-          \brief Plays a sound associated with the given action key.
+          \brief Return all registered sound keys.
 
-          \param action The identifier for the desired sound (e.g., "footsteps").
-          \details
-              Begins playback only if the sound exists and is loaded by the SoundManager.
+          \details  Called by game-side controllers in their initialize() to build
+                    randomisation pools from whatever the prefab JSON declared, without
+                    hardcoding any clip names in game code or engine code.
+
+          \return   A vector of every logical action name currently in the registry.
         *************************************************************************************/
-        void Play(const std::string& action, float posX = 0.0f, float posY = 0.0f, bool is3D = false)
+        std::vector<std::string> GetSoundKeys() const
         {
-            ensureInitialized();
-            auto it = sounds.find(action);
-            if (it == sounds.end()) return;
+            std::vector<std::string> keys;
+            keys.reserve(m_sounds.size());
+            for (const auto& [key, info] : m_sounds)
+                keys.push_back(key);
+            return keys;
+        }
+
+        /*************************************************************************************
+          \brief Return a const reference to the full sound registry.
+
+          \details  Used by game-side controllers that need both the key and the SoundInfo
+                    (e.g. to inspect the loop flag) when building pools. Prefer GetSoundKeys()
+                    when only the key names are needed.
+
+          \return   Const reference to the internal key -> SoundInfo map.
+        *************************************************************************************/
+        const std::unordered_map<std::string, SoundInfo>& GetSounds() const
+        {
+            return m_sounds;
+        }
+
+        /*************************************************************************************
+          \brief Check whether a logical sound name is registered.
+        *************************************************************************************/
+        bool HasSound(const std::string& action) const
+        {
+            return m_sounds.count(action) > 0;
+        }
+
+        /*************************************************************************************
+          \brief Register a named sound entry at runtime.
+
+          \details  Sounds are normally loaded from the prefab JSON via Serialize().
+                    This method is available for controllers that need to register
+                    additional sounds programmatically (e.g. dynamically loaded 3D clips).
+
+          \param action  Logical name used as a lookup key.
+          \param id      Asset identifier forwarded to SoundManager.
+          \param loop    True if the sound should loop when played.
+        *************************************************************************************/
+        void AddSound(const std::string& action, const std::string& id, bool loop = false)
+        {
+            m_sounds[action] = { id, loop };
+            m_playing[action] = false;
+        }
+
+        /*************************************************************************************
+          \brief Unregister a sound and stop it if currently playing.
+        *************************************************************************************/
+        void RemoveSound(const std::string& action)
+        {
+            auto it = m_sounds.find(action);
+            if (it != m_sounds.end())
+            {
+                SoundManager::getInstance().stopSound(it->second.id);
+                m_sounds.erase(it);
+                m_playing.erase(action);
+            }
+        }
+
+        /*************************************************************************************
+          \brief Unregister all sounds, stopping any that are currently playing.
+        *************************************************************************************/
+        void ClearSounds()
+        {
+            for (auto& [action, isPlaying] : m_playing)
+            {
+                if (isPlaying)
+                {
+                    auto it = m_sounds.find(action);
+                    if (it != m_sounds.end())
+                        SoundManager::getInstance().stopSound(it->second.id);
+                }
+            }
+            m_sounds.clear();
+            m_playing.clear();
+        }
+
+        // ---------------------------------------------------------------------------------
+        // Playback API
+        // ---------------------------------------------------------------------------------
+
+        /*************************************************************************************
+          \brief Play a registered sound by its logical name.
+
+          \param action  Logical name of the sound to play.
+          \param posX    World X position (used only when is3D == true).
+          \param posY    World Y position (used only when is3D == true).
+          \param is3D    If true, sets the FMOD 3D position immediately after play.
+        *************************************************************************************/
+        void Play(const std::string& action,
+            float posX = 0.0f, float posY = 0.0f,
+            bool  is3D = false)
+        {
+            auto it = m_sounds.find(action);
+            if (it == m_sounds.end())                                      return;
             if (!SoundManager::getInstance().isSoundLoaded(it->second.id)) return;
 
             SoundManager::getInstance().playSound(it->second.id, volume, 1.0f, it->second.loop);
-            playing[action] = true;
+            m_playing[action] = true;
 
-            // Set position immediately after play so FMOD has it before first render
             if (is3D)
             {
                 float pos[3] = { posX, posY, 0.0f };
@@ -261,80 +231,130 @@ namespace Framework
                 SoundManager::getInstance().setSoundPos(it->second.id, pos, vel);
             }
         }
-        /*************************************************************************************
-          \brief Stops a currently looping or active sound.
 
-          \param action The identifier for the sound to stop.
+        /*************************************************************************************
+          \brief Stop a currently active sound.
+
+          \param action  Logical name of the sound to stop.
         *************************************************************************************/
         void Stop(const std::string& action)
         {
-            ensureInitialized();
-            auto it = sounds.find(action);
-            if (it != sounds.end())
+            auto it = m_sounds.find(action);
+            if (it != m_sounds.end())
             {
                 SoundManager::getInstance().stopSound(it->second.id);
-                playing[action] = false;
+                m_playing[action] = false;
             }
         }
+
         /*************************************************************************************
-          \brief Triggers a sound without modifying playback state tracking.
+          \brief Fire-and-forget play. Does not modify playback-state tracking.
 
-          \param action Name of the sound.
-          \details
-              Useful for one-shot events such as effects, hits, UI sounds, or ambient cues.
+          \details  Intended for one-shot events (hit SFX, UI clicks, etc.) where the caller
+                    does not need to query or stop the sound afterwards. Clip-pool selection
+                    and randomisation are the caller's responsibility (see game-side controllers).
+
+          \param action  Logical name of the sound to trigger.
+          \param posX    World X position (used only when is3D == true).
+          \param posY    World Y position (used only when is3D == true).
+          \param is3D    If true, sets the FMOD 3D position immediately after play.
         *************************************************************************************/
-        void TriggerSound(const std::string& name, float posX = 0.0f, float posY = 0.0f, bool is3D = false)
+        void TriggerSound(const std::string& action,
+            float posX = 0.0f, float posY = 0.0f,
+            bool  is3D = false)
         {
-            ensureInitialized();
-            std::string clipToPlay = name;
-
-            if (name == "Slash")
-                clipToPlay = GetRandomFrom(slashClips);
-            else if (name == "Punch")
-                clipToPlay = GetRandomFrom(punchClips);
-            else if (name == "Ineffective")
-                clipToPlay = GetRandomFrom(ineffectiveClips);
-            else if (name == "GrappleShoot")
-                clipToPlay = GetRandomFrom(grappleClips);
-
-            // Enemy groups
-            else if (name == "EnemyAttack")
-                clipToPlay = GetRandomFrom(attackClips);
-            else if (name == "EnemyHit")
-                clipToPlay = GetRandomFrom(hurtClips);
-            else if (name == "EnemyDeath")
-                clipToPlay = GetRandomFrom(deathClips);
-
-            Play(clipToPlay, posX, posY, is3D);
-        }
-        /*************************************************************************************
-          \brief Selects a random element from a list of strings.
-
-          \param list A vector of strings to choose from.
-          \return A randomly selected string from the list. Returns an empty string if the list is empty.
-        *************************************************************************************/
-        std::string GetRandomFrom(const std::vector<std::string>& list)
-        {
-            if (list.empty()) return "";
-            int index = rand() % list.size();
-            return list[index];
+            Play(action, posX, posY, is3D);
         }
 
         /*************************************************************************************
-          \brief Serializes sound configuration and volume settings.
+          \brief Query whether a named sound is currently marked as playing.
 
-          \param s Reference to the serializer.
-          \details
-              Reads entityType, sound metadata, and volume if present in serialized data.
+          \param action  Logical name to query.
+          \return True if playing, false if stopped or not registered.
+        *************************************************************************************/
+        bool IsPlaying(const std::string& action) const
+        {
+            auto it = m_playing.find(action);
+            return (it != m_playing.end()) && it->second;
+        }
+
+        /*************************************************************************************
+          \brief Update the 3D position of a specific registered sound.
+
+          \details  Call each frame from a game-side controller or AudioSystem for any
+                    sound that should track a moving entity.
+
+          \param action  Logical name of the sound to reposition.
+          \param posX    New world X position.
+          \param posY    New world Y position.
+          \param velX    X velocity for Doppler simulation (pass 0 if unused).
+          \param velY    Y velocity for Doppler simulation (pass 0 if unused).
+        *************************************************************************************/
+        void UpdateSoundPosition(const std::string& action,
+            float posX, float posY,
+            float velX = 0.0f, float velY = 0.0f)
+        {
+            auto it = m_sounds.find(action);
+            if (it == m_sounds.end()) return;
+
+            float pos[3] = { posX, posY, 0.0f };
+            float vel[3] = { velX, velY, 0.0f };
+            SoundManager::getInstance().setSoundPos(it->second.id, pos, vel);
+        }
+
+        // ---------------------------------------------------------------------------------
+        // GameComponent interface
+        // ---------------------------------------------------------------------------------
+
+        /*************************************************************************************
+          \brief No engine-side initialization logic.
+
+          \details  Sound registration happens via Serialize() (prefab JSON load).
+                    Game-side controllers call GetSoundKeys() after this to build pools.
+        *************************************************************************************/
+        void initialize() override {}
+
+        /*************************************************************************************
+          \brief No per-frame engine-side audio logic.
+
+          \details  All per-frame behaviour (footstep timing, 3D position sync, etc.)
+                    is handled by game-side controllers. This override exists solely to
+                    satisfy the GameComponent interface.
+        *************************************************************************************/
+        void Update(float dt){ (void)dt; }
+
+        // ---------------------------------------------------------------------------------
+        // Serialization
+        // ---------------------------------------------------------------------------------
+
+        /*************************************************************************************
+          \brief Populate the sound registry from prefab JSON data.
+
+          \details  The JSON "sounds" block is the single source of truth for which clips
+                    this component owns. Each key in the block becomes a logical action name;
+                    its "id" and "loop" fields populate the SoundInfo entry.
+
+                    Example JSON structure:
+                    {
+                      "AudioComponent": {
+                        "volume": 1.0,
+                        "sounds": {
+                          "Slash1":             { "id": "Slash1",             "loop": false },
+                          "ConcreteFootsteps1": { "id": "ConcreteFootsteps1", "loop": false }
+                        }
+                      }
+                    }
+
+          \param s  Reference to the serializer.
         *************************************************************************************/
         void Serialize(ISerializer& s) override
         {
-            if (s.HasKey("entityType"))
-                StreamRead(s, "entityType", entityType);
+            if (s.HasKey("volume"))
+                StreamRead(s, "volume", volume);
 
             if (s.EnterObject("sounds"))
             {
-                for (auto& [action, info] : sounds)
+                for (auto& [action, info] : m_sounds)
                 {
                     if (s.EnterObject(action))
                     {
@@ -342,61 +362,35 @@ namespace Framework
                         int loopInt = info.loop ? 1 : 0;
                         StreamRead(s, "loop", loopInt);
                         info.loop = (loopInt != 0);
+                        m_playing[action] = false;   // ensure tracking entry exists
                         s.ExitObject();
                     }
                 }
                 s.ExitObject();
             }
-            if (s.HasKey("volume"))
-                StreamRead(s, "volume", volume);
-            if (!entityType.empty() && !initialized)
-            {
-                std::cout << "[AudioComponent] Auto-initializing after Serialize with entityType: "
-                    << entityType << "\n";
-                ensureInitialized(true);
-            }
         }
-        /*************************************************************************************
-          \brief Clones this AudioComponent and its internal data.
 
-          \return A unique_ptr containing a fully copied AudioComponent instance.
+        // ---------------------------------------------------------------------------------
+        // Cloning
+        // ---------------------------------------------------------------------------------
+
+        /*************************************************************************************
+          \brief Deep-copy this component for prefab instancing.
+
+          \details  Copies the full sound registry and volume. Game-side controllers
+                    will call GetSoundKeys() and rebuild their pools in their own
+                    initialize() after being attached to the cloned object.
+
+          \return   A ComponentHandle owning the new AudioComponent copy.
         *************************************************************************************/
         ComponentHandle Clone() const override
         {
             auto copy = ComponentPool<AudioComponent>::CreateTyped();
-            copy->entityType = entityType;
-            copy->sounds = sounds;
             copy->volume = volume;
-            copy->playing = playing;
-            if (!copy->entityType.empty())
-            {
-                copy->ensureInitialized(true);  // Force init
-            }
+            copy->m_sounds = m_sounds;
+            copy->m_playing = m_playing;
             return copy;
         }
-        /*************************************************************************************
-          \brief Frame update function for extended audio behavior.
-
-          \details Currently unused but reserved for future audio logic.
-        *************************************************************************************/
-        void Update(float dt) 
-        {(void)dt;}
-        /*************************************************************************************
-          \brief Destructor ensures all active sounds are stopped on component removal.
-        *************************************************************************************/
-        ~AudioComponent() override 
-        {
-            for (auto& [action, isPlaying] : playing)
-            {
-                if (isPlaying)
-                {
-                    auto it = sounds.find(action);
-                    if (it != sounds.end())
-                    {
-                        SoundManager::getInstance().stopSound(it->second.id);
-                    }
-                }
-            }
-        }
     };
-}
+
+} // namespace Framework

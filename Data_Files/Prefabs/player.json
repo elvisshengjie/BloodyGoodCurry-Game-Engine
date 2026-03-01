@@ -186,7 +186,6 @@
         "duration": 0.15
       },
       "AudioComponent": {
-        "entityType": "player",
         "sounds": {
           "GrappleShoot1": { "id": "GrappleShoot1", "loop": false },
           "GrappleShoot2": { "id": "GrappleShoot2", "loop": false },

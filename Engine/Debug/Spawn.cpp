@@ -499,12 +499,6 @@ namespace mygame {
                     }
                 }
 
-                if (auto it = comps.find("AudioComponent"); it != comps.end() && it->is_object()) {
-                    auto& audio = *it;
-                    if (!s.entityType.empty())
-                        SetJsonString(audio, "entityType", s.entityType, objectChanged);
-                }
-
                 if (objectChanged) {
                     changed = true;
                     ++outObjectsUpdated;
@@ -656,12 +650,6 @@ namespace mygame {
                 attack->damage = s.attackDamagep;
                 attack->attack_speed = s.attack_speedp;
             }
-        }
-        //Any audio component
-        if (auto* audio = obj.GetComponentType<Framework::AudioComponent>(ComponentTypeId::CT_AudioComponent)) {
-            if (!s.entityType.empty())
-                audio->entityType = s.entityType;
-            audio->ensureInitialized(true);
         }
 
         if (applyTransformAndLayer && gApplyGateTargetOnSpawn) {

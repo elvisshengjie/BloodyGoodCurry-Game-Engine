@@ -59,51 +59,27 @@ namespace
         ImGui::Separator();
         ImGui::TextDisabled("Sound Actions");
 
-        // 2. Gather all available sound resource IDs for the dropdown.
-        //    Start with empty/none option so actions can be unbound.
-        std::vector<std::string> availableSounds;
-        availableSounds.push_back(""); // Allow empty/none
-        for (auto& [id, res] : Resource_Manager::resources_map) {
-            if (res.type == Resource_Manager::Sound) {
-                availableSounds.push_back(id);
-            }
-        }
-
-        // 3. Iterate over existing actions (footsteps, Slash1, etc.)
-        // Note: We are modifying values only, so iterating over the map is safe here.
-        for (auto& [action, info] : audio.sounds)
+        // 2. Iterate via the public accessor — m_sounds is private.
+        //    GetSounds() returns a const ref so we can read keys and SoundInfo,
+        //    but we only mutate the loop flag which goes through AudioComponent's
+        //    own data (loop is stored inside SoundInfo which is value-type in the map).
+        //    To allow toggling loop in the inspector we need a mutable ref, so we use
+        //    a small helper: re-register the sound with the updated flag via AddSound().
+        for (const auto& [action, info] : audio.GetSounds())
         {
             if (ImGui::TreeNode(action.c_str()))
             {
-                // --- Sound ID Dropdown ----------------------------------------
-                // Find current selection index in availableSounds[].
-                int currentIdx = 0;
-                for (size_t i = 0; i < availableSounds.size(); ++i) {
-                    if (availableSounds[i] == info.id) {
-                        currentIdx = static_cast<int>(i);
-                        break;
-                    }
-                }
+                // Sound ID is data-driven from the prefab JSON — show as read-only.
+                ImGui::TextDisabled("ID: %s", info.id.c_str());
 
-                std::string comboLabel = "Sound Resource##" + action;
-          /*      if (ImGui::Combo(
-                    comboLabel.c_str(),
-                    &currentIdx,
-                    [](void* data, int idx, const char** out_text)
-                    {
-                        auto* vec = static_cast<std::vector<std::string>*>(data);
-                        *out_text = (*vec)[idx].c_str();
-                        return true;
-                    },
-                    &availableSounds,
-                    static_cast<int>(availableSounds.size())))
-                {
-                    info.id = availableSounds[currentIdx];
-                }*/
-
-                // --- Loop Checkbox ---------------------------------------------
+                // Loop toggle: copy current state, let user flip it, re-register.
+                bool loopFlag = info.loop;
                 std::string loopLabel = "Loop##" + action;
-                ImGui::Checkbox(loopLabel.c_str(), &info.loop);
+                if (ImGui::Checkbox(loopLabel.c_str(), &loopFlag))
+                {
+                    // AddSound() overwrites the existing entry with the new loop flag.
+                    audio.AddSound(action, info.id, loopFlag);
+                }
 
                 ImGui::TreePop();
             }
