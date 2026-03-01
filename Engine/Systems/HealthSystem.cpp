@@ -41,6 +41,12 @@ namespace Framework
 {
     namespace
     {
+        void EmitCombatAudio(const CombatAudioCallback& callback, GOC* source, CombatAudioEvent event)
+        {
+            if (callback && source)
+                callback(source, event);
+        }
+
         /*****************************************************************************************
          \brief  Find the index of a named animation on a SpriteAnimationComponent (case-insensitive).
 
@@ -253,17 +259,10 @@ namespace Framework
                             float& timer = deathTimers[id];
                             auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                                 ComponentTypeId::CT_SpriteAnimationComponent);
-                            auto* audio = goc->GetComponentType<AudioComponent>(
-                                ComponentTypeId::CT_AudioComponent);
-
                             if (timer <= 0.0f)
                             {
                                 PlayAnimationIfAvailable(goc, "death");
-                                if (audio)
-                                {
-                                    if (audio->HasSound("Death"))
-                                        audio->TriggerSound("Death");
-                                }
+                                EmitCombatAudio(combatAudioCallback, goc, CombatAudioEvent::EnemyDeath);
                                 timer = std::max(AnimationDuration(anim, "death"), 0.2f);
                             }
                             else
@@ -290,9 +289,6 @@ namespace Framework
                     if (auto* playerHealth = goc->GetComponentType<PlayerHealthComponent>(
                         ComponentTypeId::CT_PlayerHealthComponent))
                     {
-                        auto* audio = goc->GetComponentType<AudioComponent>(
-                            ComponentTypeId::CT_AudioComponent);
-
                         if (playerHealth->isInvulnerable)
                         {
                             playerHealth->invulnTime = std::max(0.0f, playerHealth->invulnTime - dt);
@@ -304,9 +300,9 @@ namespace Framework
                         {
                             playerHealth->isDead = true;
                             PlayAnimationIfAvailable(goc, "death");
-                            if (audio && audio->HasSound("PlayerDead") && !playerHealth->deathSoundPlayed)
+                            if (!playerHealth->deathSoundPlayed)
                             {
-                                audio->TriggerSound("PlayerDead");
+                                EmitCombatAudio(combatAudioCallback, goc, CombatAudioEvent::PlayerDeath);
                                 playerHealth->deathSoundPlayed = true;
                             }
                             deathTimers[id] = std::max(AnimationDuration(

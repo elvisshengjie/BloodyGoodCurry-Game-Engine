@@ -54,6 +54,7 @@
 
 
 #include "Component/AudioComponent.h"
+#include "CombatAudioEvents.h"
 #include <unordered_map>
 
 
@@ -87,6 +88,9 @@ namespace Framework {
         // Clear latched death state when restarting / reloading a level.
         void ClearPlayerDeathFlag() { playerDied = false; }
 
+        // Bind a game-side callback for combat audio routing.
+        void SetCombatAudioCallback(CombatAudioCallback callback) { combatAudioCallback = callback; }
+
 
     private:
         gfx::Window* window;          // Non-owning window handle used by the system.
@@ -95,6 +99,7 @@ namespace Framework {
         float lastDt = 0.0f;
 
         bool playerDied = false;      // Latched when the player hits 0 health.
+        CombatAudioCallback combatAudioCallback;
     };
 
 } // namespace Framework

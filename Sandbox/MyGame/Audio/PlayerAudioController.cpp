@@ -14,8 +14,8 @@
 
 namespace Framework
 {
-    PlayerAudioController::PlayerAudioController(std::shared_ptr<Framework::AudioComponent> audio)
-        : m_Audio(std::move(audio))
+    PlayerAudioController::PlayerAudioController(Framework::AudioComponent* audio)
+        : m_Audio(audio)
         , m_Rng(std::random_device{}())
     {
         if (!m_Audio)

@@ -50,10 +50,12 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <filesystem>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <memory>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace gfx { class Window; }
@@ -109,6 +111,11 @@ namespace Framework {
         void ReloadLevel();
         void LoadLevel(const std::filesystem::path& levelPath);
         void RegisterBehaviour(const std::string& key, BehaviourFCT fct);
+        void SetStartupLevelPath(std::filesystem::path levelPath) { startupLevelPath = std::move(levelPath); }
+        void SetPostLevelLoadCallback(std::function<void(LogicSystem&)> callback) { postLevelLoadCallback = std::move(callback); }
+        std::filesystem::path ResolveDataPath(std::string_view name) const { return resolveData(name); }
+        bool HasLevelObjectNamed(std::string_view name) const;
+        void AddLevelObject(GOC* obj);
 
         /*! \name Accessors */
         ///@{
@@ -157,6 +164,8 @@ namespace Framework {
         bool                                 crashTestLatched{ false };
         bool                                 pendingLevelTransition{ false };
         std::unique_ptr<CrashLogger>         crashLogger;
+        std::filesystem::path                startupLevelPath;
+        std::function<void(LogicSystem&)>    postLevelLoadCallback;
 
         std::unordered_map<std::string, BehaviourFCT> behaviours;
     };

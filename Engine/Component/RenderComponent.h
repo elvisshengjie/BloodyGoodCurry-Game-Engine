@@ -154,8 +154,25 @@ namespace Framework {
             if (texture_path.empty())
                 return;
 
-            const auto resolvedPath = Framework::ResolveAssetPath(std::filesystem::path(texture_path));
-            const std::string& pathStr = resolvedPath.empty() ? texture_path : resolvedPath.string();
+            std::string normalized = texture_path;
+            std::replace(normalized.begin(), normalized.end(), '\\', '/');
+
+            std::filesystem::path assetPath{ normalized };
+            if (!assetPath.is_absolute())
+            {
+                constexpr std::string_view kLegacyPrefix = "assets/";
+                constexpr std::string_view kProjectPrefix = "Assets/";
+
+                if (const auto pos = normalized.find(kLegacyPrefix); pos != std::string::npos)
+                    assetPath = normalized.substr(pos + kLegacyPrefix.size());
+                else if (const auto projectPos = normalized.find(kProjectPrefix); projectPos != std::string::npos)
+                    assetPath = normalized.substr(projectPos + kProjectPrefix.size());
+            }
+
+            const auto resolvedPath = assetPath.is_absolute()
+                ? assetPath
+                : Framework::ResolveAssetPath(assetPath);
+            const std::string pathStr = resolvedPath.empty() ? assetPath.string() : resolvedPath.string();
 
             if (Resource_Manager::load(texture_key, pathStr))
                 texture_id = Resource_Manager::getTexture(texture_key);

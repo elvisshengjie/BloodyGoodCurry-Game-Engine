@@ -33,6 +33,7 @@
 #include "Systems/RenderSystem.h"
 #include "Systems/ParticleSystem.h"
 #include "Systems/VfxHelpers.h"
+#include "../Audio/GameAudioSetup.h"
 
 #include "Component/AudioComponent.h"
 #include "Component/EnemyComponent.h"
@@ -53,6 +54,7 @@
 #include <cmath>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string_view>
 #include <unordered_map>
 #include <vector>
@@ -128,6 +130,7 @@ namespace {
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
         float footstepTimer{ 0.0f };                         ///< Timer for footstep sound cadence
+        std::unique_ptr<Framework::GameAudio> audio;         ///< Game-side audio facade
     };
 
     /*****************************************************************************************
@@ -389,7 +392,15 @@ namespace {
     {
         if (!obj)
             return;
-        gPlayerStates[obj->GetId()] = PlayerControllerState{};
+        auto& state = gPlayerStates[obj->GetId()];
+        state = PlayerControllerState{};
+
+        if (auto* audio = SafeGetComponent<Framework::AudioComponent>(
+            obj, Framework::ComponentTypeId::CT_AudioComponent))
+        {
+            state.audio = std::make_unique<Framework::GameAudio>(
+                audio, Framework::GameAudio::Entity::Player);
+        }
         std::cout << "[Behaviour] PlayerController init\n";
     }
 
@@ -421,6 +432,11 @@ namespace {
         auto* rb = SafeGetComponent<Framework::RigidBodyComponent>(obj, Framework::ComponentTypeId::CT_RigidBodyComponent);
         auto* attack = SafeGetComponent<Framework::PlayerAttackComponent>(obj, Framework::ComponentTypeId::CT_PlayerAttackComponent);
         auto* audio = SafeGetComponent<Framework::AudioComponent>(obj, Framework::ComponentTypeId::CT_AudioComponent);
+        if (!state.audio && audio)
+        {
+            state.audio = std::make_unique<Framework::GameAudio>(
+                audio, Framework::GameAudio::Entity::Player);
+        }
         auto* health = SafeGetComponent<Framework::PlayerHealthComponent>(obj, Framework::ComponentTypeId::CT_PlayerHealthComponent);
 
         if (!(tr && rc && rb && attack && health) || health->isDead)
@@ -519,9 +535,9 @@ namespace {
             }
             state.runParticleTimer = 0.08f;
         }
-        if (wantRun && isMoving && !isKnockback && !isThrowing && audio && state.footstepTimer <= 0.0f)
+        if (wantRun && isMoving && !isKnockback && !isThrowing && state.audio && state.footstepTimer <= 0.0f)
         {
-            audio->TriggerSound("ConcreteFootsteps");
+            state.audio->PlayFootstep();
             state.footstepTimer = 0.32f;
         }
 
@@ -663,8 +679,8 @@ namespace {
                     0.1f, 0.1f,
                     1.0f, 5.f, Framework::HitBoxComponent::Team::Thrown);
             }
-            if (audio)
-                audio->TriggerSound("GrappleShoot");
+            if (state.audio)
+                state.audio->PlayGrapple();
             state.pendingThrow.active = false;
         }
     }

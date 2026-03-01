@@ -32,7 +32,6 @@
 #pragma once
 #include "Composition/Composition.h"
 #include "Component/AudioComponent.h"
-#include <memory>
 #include <vector>
 #include <string>
 #include <random>
@@ -44,7 +43,7 @@ namespace Framework
       \class PlayerAudioController
       \brief Owns player sound pools and named play helpers.
 
-      Constructed with a shared_ptr to the player's AudioComponent. Pools are built
+      Constructed with a pointer to the player's AudioComponent. Pools are built
       immediately in the constructor by scanning the already-loaded sound keys.
     *************************************************************************************/
     class PlayerAudioController
@@ -54,10 +53,10 @@ namespace Framework
         /*************************************************************************************
           \brief Construct and build all sound pools from the AudioComponent's loaded keys.
 
-          \param audio  Shared pointer to the sibling AudioComponent on the player object.
+          \param audio  Pointer to the sibling AudioComponent on the player object.
                         Must not be null; asserted in debug.
         *************************************************************************************/
-        explicit PlayerAudioController(std::shared_ptr<Framework::AudioComponent> audio);
+        explicit PlayerAudioController(Framework::AudioComponent* audio);
 
         // ---------------------------------------------------------------------------------
         // Play helpers  (called by player behaviour scripts)
@@ -86,7 +85,7 @@ namespace Framework
 
     private:
 
-        std::shared_ptr<Framework::AudioComponent> m_Audio;
+        Framework::AudioComponent* m_Audio{ nullptr };
 
         // ---- Clip pools (populated from JSON keys in constructor) ----------------------
         std::vector<std::string> m_Footsteps;   // prefix: "ConcreteFootsteps"

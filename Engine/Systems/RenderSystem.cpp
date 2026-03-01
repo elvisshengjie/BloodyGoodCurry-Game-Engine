@@ -278,18 +278,34 @@ namespace Framework {
         namespace fs = std::filesystem;
 
         const char* rels[] = {
+            "Assets/Fonts/Roboto-Black.ttf",
+            "Assets/Fonts/Roboto-Regular.ttf",
+            "Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "assets/Fonts/Roboto-Black.ttf",
             "assets/Fonts/Roboto-Regular.ttf",
             "assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
             "assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
+            "../Assets/Fonts/Roboto-Black.ttf",
+            "../Assets/Fonts/Roboto-Regular.ttf",
+            "../Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "../assets/Fonts/Roboto-Black.ttf",
             "../assets/Fonts/Roboto-Regular.ttf",
             "../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
             "../assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
+            "../../Assets/Fonts/Roboto-Black.ttf",
+            "../../Assets/Fonts/Roboto-Regular.ttf",
+            "../../Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "../../assets/Fonts/Roboto-Black.ttf",
             "../../assets/Fonts/Roboto-Regular.ttf",
             "../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
             "../../assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
+            "../../../Assets/Fonts/Roboto-Black.ttf",
+            "../../../Assets/Fonts/Roboto-Regular.ttf",
+            "../../../Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../../Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "../../../assets/Fonts/Roboto-Black.ttf",
             "../../../assets/Fonts/Roboto-Regular.ttf",
             "../../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
@@ -332,7 +348,10 @@ namespace Framework {
             auto p = root;
             for (int up = 0; up < 7 && !p.empty(); ++up)
             {
-                auto base = p / "assets" / "Fonts";
+                auto base = p / "Assets" / "Fonts";
+                if (auto picked = try_pick(base); !picked.empty())
+                    return picked;
+                base = p / "assets" / "Fonts";
                 if (auto picked = try_pick(base); !picked.empty())
                     return picked;
                 p = p.parent_path();
@@ -360,8 +379,11 @@ namespace Framework {
             auto probe = root;
             for (int up = 0; up < 7 && !probe.empty(); ++up)
             {
-                fs::path candidate = probe / "assets";
+                fs::path candidate = probe / "Assets";
                 std::error_code ec;
+                if (fs::exists(candidate, ec) && fs::is_directory(candidate, ec))
+                    return fs::weakly_canonical(candidate, ec);
+                candidate = probe / "assets";
                 if (fs::exists(candidate, ec) && fs::is_directory(candidate, ec))
                     return fs::weakly_canonical(candidate, ec);
                 probe = probe.parent_path();
@@ -419,7 +441,14 @@ namespace Framework {
             auto probe = root;
             for (int up = 0; up < 7 && !probe.empty(); ++up)
             {
-                fs::path candidate = probe / "Data_Files";
+                fs::path candidate = probe / "Data";
+                if (directory_exists(candidate))
+                {
+                    std::error_code canonicalEc;
+                    auto canonical = fs::weakly_canonical(candidate, canonicalEc);
+                    candidates.emplace_back(canonicalEc ? candidate : canonical);
+                }
+                candidate = probe / "Data_Files";
                 if (directory_exists(candidate))
                 {
                     std::error_code canonicalEc;
@@ -431,6 +460,10 @@ namespace Framework {
         }
 
         static const char* rels[] = {
+            "Data",
+            "../Data",
+            "../../Data",
+            "../../../Data",
             "Data_Files",
             "../Data_Files",
             "../../Data_Files",
@@ -1874,27 +1907,8 @@ namespace Framework {
             textReadyTitle = textReadyHint = false;
         }
 
-        Resource_Manager::load("player_png", resolveAsset("Textures/player.png"));
-        playerTex = Resource_Manager::resources_map["player_png"].handle;
-
-        Resource_Manager::load("ming_idle", resolveAsset("Textures/Idle Sprite .png"));
-        Resource_Manager::load("ming_run", resolveAsset("Textures/Running Sprite .png"));
-        Resource_Manager::load("ming_attack1", resolveAsset("Textures/Character/Ming_Sprite/1st_Attack Sprite.png"));
-        Resource_Manager::load("ming_attack2", resolveAsset("Textures/Character/Ming_Sprite/2nd_Attack Sprite.png"));
-        Resource_Manager::load("ming_attack3", resolveAsset("Textures/Character/Ming_Sprite/3rd_Attack Sprite.png"));
-        Resource_Manager::load("ming_throw", resolveAsset("Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png"));
-        Resource_Manager::load("ming_knockback", resolveAsset("Textures/Character/Ming_Sprite/Knockback_Sprite.png"));
-        Resource_Manager::load("ming_knife", resolveAsset("Textures/Character/Ming_Sprite/Knife_Sprite.png"));
-        Resource_Manager::load("fire_projectile", resolveAsset("Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png"));
-        Resource_Manager::load("impact_vfx_sheet", resolveAsset("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png"));
-        idleTex = Resource_Manager::resources_map["ming_idle"].handle;
-        runTex = Resource_Manager::resources_map["ming_run"].handle;
-        attackTex[0] = Resource_Manager::resources_map["ming_attack1"].handle;
-        attackTex[1] = Resource_Manager::resources_map["ming_attack2"].handle;
-        attackTex[2] = Resource_Manager::resources_map["ming_attack3"].handle;
-        knockbackTex = Resource_Manager::resources_map["ming_knockback"].handle;
-        knifeTex = Resource_Manager::resources_map["ming_knife"].handle;
-        fireProjectileTex = Resource_Manager::resources_map["fire_projectile"].handle;
+        if (initializeCallback)
+            initializeCallback(*this);
 
 #if SOFASPUDS_ENABLE_EDITOR
         ImGuiLayerConfig config;
@@ -1916,9 +1930,15 @@ namespace Framework {
         if (assetsRoot.empty())
         {
             std::error_code ec;
-            auto cwdAssets = std::filesystem::current_path(ec) / "assets";
+            auto cwdAssets = std::filesystem::current_path(ec) / "Assets";
             if (!ec && std::filesystem::exists(cwdAssets, ec) && std::filesystem::is_directory(cwdAssets, ec))
                 assetsRoot = std::filesystem::weakly_canonical(cwdAssets, ec);
+            else
+            {
+                cwdAssets = std::filesystem::current_path(ec) / "assets";
+                if (!ec && std::filesystem::exists(cwdAssets, ec) && std::filesystem::is_directory(cwdAssets, ec))
+                    assetsRoot = std::filesystem::weakly_canonical(cwdAssets, ec);
+            }
         }
 
         if (!assetsRoot.empty())
@@ -1929,7 +1949,10 @@ namespace Framework {
         }
 
 
-        jsonEditor.Initialize(AssetManager::ProjectRoot() / "Data_Files");
+        auto jsonRoot = AssetManager::ProjectRoot() / "Data";
+        if (!std::filesystem::exists(jsonRoot))
+            jsonRoot = AssetManager::ProjectRoot() / "Data_Files";
+        jsonEditor.Initialize(jsonRoot);
 
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);

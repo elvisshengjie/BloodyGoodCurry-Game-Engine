@@ -10,12 +10,12 @@
         "loop": 1,
         "play": 1,
         "frames": [
-          { "texture_key": "flagf0", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Flag/flagf0.png" },
-          { "texture_key": "flagf1", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Flag/flagf1.png" },
-          { "texture_key": "flagf2", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Flag/flagf2.png" },
-          { "texture_key": "flagf3", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Flag/flagf3.png" },
-          { "texture_key": "flagf4", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Flag/flagf4.png" },
-          { "texture_key": "flagf5", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Flag/flagf5.png" }
+          { "texture_key": "flagf0", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Flag/flagf0.png" },
+          { "texture_key": "flagf1", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Flag/flagf1.png" },
+          { "texture_key": "flagf2", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Flag/flagf2.png" },
+          { "texture_key": "flagf3", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Flag/flagf3.png" },
+          { "texture_key": "flagf4", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Flag/flagf4.png" },
+          { "texture_key": "flagf5", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Flag/flagf5.png" }
         ]
       }
     }

@@ -57,7 +57,9 @@
 
 #include <array>
 #include <filesystem>
+#include <functional>
 #include <string>
+#include <utility>
 #if SOFASPUDS_ENABLE_EDITOR
 #include <imgui.h>
 #endif
@@ -123,6 +125,8 @@ namespace Framework {
         void RenderBrightnessOverlay();
         /// \brief Global accessor to the current RenderSystem instance.
         static RenderSystem* Get();
+        /// \brief Install a game-side initialization hook for game-specific render defaults.
+        void SetInitializeCallback(std::function<void(RenderSystem&)> callback) { initializeCallback = std::move(callback); }
 
         // Text accessors
         /// \brief  True if the hint text renderer is ready (font/atlas loaded).
@@ -153,6 +157,20 @@ namespace Framework {
         void ToggleFPS()
         {
             showFPS = !showFPS;
+        }
+
+        /// \brief Set legacy fallback player texture used by older render paths.
+        void SetLegacyPlayerTexture(unsigned handle) { playerTex = handle; }
+        /// \brief Set legacy fallback animation and projectile textures used by older render paths.
+        void SetLegacyAnimationTextures(unsigned idle, unsigned run, const std::array<unsigned, 3>& attacks,
+            unsigned knockback, unsigned knife, unsigned enemyProjectile)
+        {
+            idleTex = idle;
+            runTex = run;
+            attackTex = attacks;
+            knockbackTex = knockback;
+            knifeTex = knife;
+            fireProjectileTex = enemyProjectile;
         }
 
     private:
@@ -231,6 +249,7 @@ namespace Framework {
         bool textReadyTitle = false;     //!< True once title font is ready.
         bool textReadyHint = false;      //!< True once hint font is ready.
         bool showFPS = false;            //!< True to show FPS
+        std::function<void(RenderSystem&)> initializeCallback;
 
         // --- Demo textures (player / animation) ------------------------------------------
         unsigned playerTex = 0;               //!< Legacy fallback player texture.

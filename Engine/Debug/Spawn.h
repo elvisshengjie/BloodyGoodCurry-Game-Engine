@@ -118,6 +118,7 @@ namespace mygame {
     *****************************************************************************************/
     void DrawSpawnPanel();
     void SetSpawnPanelAssetsRoot(const std::filesystem::path& root);
+    void SetSpawnPanelLevelDefaults(std::string startLevel, std::string gateTargetLevel);
     void UseSpriteFromAsset(const std::filesystem::path& relativePath);
     void ClearSpriteTexture();
 

@@ -13,7 +13,7 @@
 
 namespace Framework
 {
-    GameAudio::GameAudio(std::shared_ptr<Framework::AudioComponent> audio, Entity entity)
+    GameAudio::GameAudio(Framework::AudioComponent* audio, Entity entity)
     {
         if (entity == Entity::Player)
             m_Player = std::make_unique<PlayerAudioController>(audio);
@@ -25,22 +25,22 @@ namespace Framework
     // Unified interface
     // ---------------------------------------------------------------------------------
 
-    void GameAudio::PlayAttack()
+    void GameAudio::PlayAttack(float posX, float posY, bool is3D)
     {
         if (m_Player) m_Player->PlaySlash();
-        else if (m_Enemy)  m_Enemy->PlayAttack();
+        else if (m_Enemy)  m_Enemy->PlayAttack(posX, posY, is3D);
     }
 
-    void GameAudio::PlayHurt()
+    void GameAudio::PlayHurt(float posX, float posY, bool is3D)
     {
         if (m_Player) m_Player->PlayPlayerHit();
-        else if (m_Enemy)  m_Enemy->PlayHurt();
+        else if (m_Enemy)  m_Enemy->PlayHurt(posX, posY, is3D);
     }
 
-    void GameAudio::PlayDeath()
+    void GameAudio::PlayDeath(float posX, float posY, bool is3D)
     {
         if (m_Player) m_Player->PlayPlayerDead();
-        else if (m_Enemy)  m_Enemy->PlayDeath();
+        else if (m_Enemy)  m_Enemy->PlayDeath(posX, posY, is3D);
     }
 
     void GameAudio::PlayFootstep()

@@ -611,7 +611,7 @@ namespace Framework {
           - If rawPath is empty, return as-is.
           - Normalize backslashes to forward slashes.
           - If the resulting path is absolute, return it directly.
-          - If it contains the "assets/" prefix, strip it and resolve relative to
+          - If it contains the "assets/" or "Assets/" prefix, strip it and resolve relative to
             the engine's asset root via Framework::ResolveAssetPath().
         *************************************************************************************/
         static std::string ResolveAnimationPath(const std::string& rawPath) {
@@ -625,10 +625,13 @@ namespace Framework {
             if (asPath.is_absolute())
                 return asPath.string();
 
-            constexpr std::string_view kPrefix = "assets/";
-            const auto pos = normalized.find(kPrefix);
-            if (pos != std::string::npos)
-                asPath = normalized.substr(pos + kPrefix.size());
+            constexpr std::string_view kLegacyPrefix = "assets/";
+            constexpr std::string_view kProjectPrefix = "Assets/";
+
+            if (const auto pos = normalized.find(kLegacyPrefix); pos != std::string::npos)
+                asPath = normalized.substr(pos + kLegacyPrefix.size());
+            else if (const auto projectPos = normalized.find(kProjectPrefix); projectPos != std::string::npos)
+                asPath = normalized.substr(projectPos + kProjectPrefix.size());
 
             return Framework::ResolveAssetPath(asPath).string();
         }

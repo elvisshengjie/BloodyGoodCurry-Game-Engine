@@ -37,10 +37,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <algorithm>
-#include <cctype>
-#include <iostream>
-#include <random>
 
 namespace Framework
 {
@@ -88,84 +84,6 @@ namespace Framework
 
         std::unordered_map<std::string, SoundInfo> m_sounds;   ///< Registered sound entries.
         std::unordered_map<std::string, bool>      m_playing;  ///< Per-sound playback state.
-
-        static std::string ToLowerCopy(std::string value)
-        {
-            std::transform(value.begin(), value.end(), value.begin(),
-                [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-            return value;
-        }
-
-        static bool ContainsInsensitive(const std::string& text, const std::string& token)
-        {
-            if (token.empty())
-                return false;
-
-            const std::string lowerText = ToLowerCopy(text);
-            const std::string lowerToken = ToLowerCopy(token);
-            return lowerText.find(lowerToken) != std::string::npos;
-        }
-
-        std::vector<std::string> FindCandidates(const std::string& action) const
-        {
-            std::vector<std::string> candidates;
-
-            auto appendMatches = [&](const std::vector<std::string>& tokens)
-            {
-                for (const auto& [key, info] : m_sounds)
-                {
-                    (void)info;
-                    bool matched = false;
-                    for (const auto& token : tokens)
-                    {
-                        if (ContainsInsensitive(key, token))
-                        {
-                            matched = true;
-                            break;
-                        }
-                    }
-
-                    if (matched &&
-                        std::find(candidates.begin(), candidates.end(), key) == candidates.end())
-                    {
-                        candidates.push_back(key);
-                    }
-                }
-            };
-
-            appendMatches({ action });
-            if (!candidates.empty())
-                return candidates;
-
-            if (ContainsInsensitive(action, "EnemyAttack"))
-                appendMatches({ "Attack", "Projectile" });
-            else if (ContainsInsensitive(action, "EnemyHit"))
-                appendMatches({ "Hurt", "Hit" });
-            else if (ContainsInsensitive(action, "Death"))
-                appendMatches({ "Death", "Explosion" });
-            else if (ContainsInsensitive(action, "Ineffective"))
-                appendMatches({ "Ineffective", "Boink" });
-
-            return candidates;
-        }
-
-        std::string ResolveAction(const std::string& action) const
-        {
-            auto it = m_sounds.find(action);
-            if (it != m_sounds.end())
-                return action;
-
-            auto candidates = FindCandidates(action);
-            if (candidates.empty())
-                return {};
-
-            if (candidates.size() == 1)
-                return candidates.front();
-
-            static thread_local std::mt19937 rng{ std::random_device{}() };
-            std::uniform_int_distribution<std::size_t> dist(0, candidates.size() - 1);
-            return candidates[dist(rng)];
-        }
 
     public:
 
@@ -230,7 +148,7 @@ namespace Framework
         *************************************************************************************/
         bool HasSound(const std::string& action) const
         {
-            return !ResolveAction(action).empty();
+            return m_sounds.find(action) != m_sounds.end();
         }
 
         /*************************************************************************************
@@ -298,15 +216,12 @@ namespace Framework
             float posX = 0.0f, float posY = 0.0f,
             bool  is3D = false)
         {
-            const std::string resolvedAction = ResolveAction(action);
-            if (resolvedAction.empty()) return;
-
-            auto it = m_sounds.find(resolvedAction);
+            auto it = m_sounds.find(action);
             if (it == m_sounds.end())                                      return;
             if (!SoundManager::getInstance().isSoundLoaded(it->second.id)) return;
 
             SoundManager::getInstance().playSound(it->second.id, volume, 1.0f, it->second.loop);
-            m_playing[resolvedAction] = true;
+            m_playing[action] = true;
 
             if (is3D)
             {
@@ -323,14 +238,11 @@ namespace Framework
         *************************************************************************************/
         void Stop(const std::string& action)
         {
-            const std::string resolvedAction = ResolveAction(action);
-            if (resolvedAction.empty()) return;
-
-            auto it = m_sounds.find(resolvedAction);
+            auto it = m_sounds.find(action);
             if (it != m_sounds.end())
             {
                 SoundManager::getInstance().stopSound(it->second.id);
-                m_playing[resolvedAction] = false;
+                m_playing[action] = false;
             }
         }
 
@@ -361,11 +273,7 @@ namespace Framework
         *************************************************************************************/
         bool IsPlaying(const std::string& action) const
         {
-            const std::string resolvedAction = ResolveAction(action);
-            if (resolvedAction.empty())
-                return false;
-
-            auto it = m_playing.find(resolvedAction);
+            auto it = m_playing.find(action);
             return (it != m_playing.end()) && it->second;
         }
 
@@ -385,10 +293,7 @@ namespace Framework
             float posX, float posY,
             float velX = 0.0f, float velY = 0.0f)
         {
-            const std::string resolvedAction = ResolveAction(action);
-            if (resolvedAction.empty()) return;
-
-            auto it = m_sounds.find(resolvedAction);
+            auto it = m_sounds.find(action);
             if (it == m_sounds.end()) return;
 
             float pos[3] = { posX, posY, 0.0f };

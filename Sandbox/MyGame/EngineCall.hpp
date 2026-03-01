@@ -20,6 +20,8 @@
 
 namespace Framework {
     class LogicSystem;
+    class HealthSystem;
+    class RenderSystem;
 }
 
 namespace mygame {
@@ -35,5 +37,24 @@ namespace mygame {
       - Register behaviour keys to their Init/Update/End callbacks.
     **************************************************************************************/
     void RegisterMyGameScripts(Framework::LogicSystem& logic);
+
+    /*************************************************************************************
+      \brief Configures game-specific startup content for the active LogicSystem.
+      \param logic Active engine LogicSystem prior to Initialize().
+    **************************************************************************************/
+    void ConfigureGameBootstrap(Framework::LogicSystem& logic);
+
+    /*************************************************************************************
+      \brief Configures game-specific render defaults for the active RenderSystem.
+      \param render Active engine RenderSystem prior to Initialize().
+    **************************************************************************************/
+    void ConfigureRenderBootstrap(Framework::RenderSystem& render);
+
+    /*************************************************************************************
+      \brief Binds game-side combat audio routing into engine combat systems.
+      \param logic   Active engine LogicSystem (owns HitBoxSystem).
+      \param health  Active engine HealthSystem.
+    **************************************************************************************/
+    void BindCombatAudio(Framework::LogicSystem& logic, Framework::HealthSystem& health);
 
 }

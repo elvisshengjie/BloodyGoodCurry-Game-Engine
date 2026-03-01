@@ -141,11 +141,13 @@ namespace mygame {
     {
         gInputSystem = gSystems.RegisterSystem<Framework::InputSystem>(win);
         gLogicSystem = gSystems.RegisterSystem<Framework::LogicSystem>(win, *gInputSystem);
+        ConfigureGameBootstrap(*gLogicSystem);
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
         gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win, *gLogicSystem);
         gNavSystem = gSystems.RegisterSystem<Framework::NavSystem>(win);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
+        ConfigureRenderBootstrap(*gRenderSystem);
         gHealthSystem = gSystems.RegisterSystem<Framework::HealthSystem>(win);
         gParticleSystem = gSystems.RegisterSystem<Framework::ParticleSystem>();
 
@@ -155,6 +157,7 @@ namespace mygame {
 
         gSystems.IntializeAll();
         RegisterMyGameScripts(*gLogicSystem);
+        BindCombatAudio(*gLogicSystem, *gHealthSystem);
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());

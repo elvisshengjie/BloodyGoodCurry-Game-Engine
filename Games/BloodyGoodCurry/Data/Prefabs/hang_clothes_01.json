@@ -10,12 +10,12 @@
         "loop": 1,
         "play": 1,
         "frames": [
-          { "texture_key": "clothes01f0", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f0.png" },
-          { "texture_key": "clothes01f1", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f1.png" },
-          { "texture_key": "clothes01f2", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f2.png" },
-          { "texture_key": "clothes01f3", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f3.png" },
-          { "texture_key": "clothes01f4", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f4.png" },
-          { "texture_key": "clothes01f5", "path": "../../assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f5.png" }
+          { "texture_key": "clothes01f0", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f0.png" },
+          { "texture_key": "clothes01f1", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f1.png" },
+          { "texture_key": "clothes01f2", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f2.png" },
+          { "texture_key": "clothes01f3", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f3.png" },
+          { "texture_key": "clothes01f4", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f4.png" },
+          { "texture_key": "clothes01f5", "path": "../../Assets/Textures/Environment/lvl 1_Hawker/Clothes 01/clothes01f5.png" }
         ]
       }
     }

@@ -24,6 +24,11 @@
 *********************************************************************************************/
 #include "EngineCall.hpp"
 
+#include "Audio/GameAudioSetup.h"
+#include "Composition/Composition.h"
+#include "Component/AudioComponent.h"
+#include "Systems/CombatAudioEvents.h"
+#include "Systems/HealthSystem.h"
 #include "Systems/LogicSystem.h"
 
 namespace mygame {
@@ -59,5 +64,71 @@ namespace mygame {
     {
         BindBehaviourContext(logic);
         RegisterGameBehaviourFunctions(logic);
+    }
+
+    void BindCombatAudio(Framework::LogicSystem& logic, Framework::HealthSystem& health)
+    {
+        const Framework::CombatAudioCallback callback =
+            [](Framework::GameObjectComposition* obj, Framework::CombatAudioEvent event)
+        {
+            if (!obj)
+                return;
+
+            auto* audio = obj->GetComponentType<Framework::AudioComponent>(
+                Framework::ComponentTypeId::CT_AudioComponent);
+            if (!audio)
+                return;
+
+            switch (event)
+            {
+            case Framework::CombatAudioEvent::PlayerHurt:
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                gameAudio.PlayHurt();
+                break;
+            }
+            case Framework::CombatAudioEvent::PlayerDeath:
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                gameAudio.PlayDeath();
+                break;
+            }
+            case Framework::CombatAudioEvent::EnemyHurt:
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                gameAudio.PlayHurt();
+                break;
+            }
+            case Framework::CombatAudioEvent::EnemyDeath:
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                gameAudio.PlayDeath();
+                break;
+            }
+            case Framework::CombatAudioEvent::PlayerAttackHit:
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                gameAudio.PlayAttack();
+                break;
+            }
+            case Framework::CombatAudioEvent::PlayerAttackBlocked:
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                gameAudio.PlayBoink();
+                break;
+            }
+            case Framework::CombatAudioEvent::PlayerAttackMiss:
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                gameAudio.PlayPunch();
+                break;
+            }
+            }
+        };
+
+        if (logic.hitBoxSystem)
+            logic.hitBoxSystem->SetCombatAudioCallback(callback);
+
+        health.SetCombatAudioCallback(callback);
     }
 }

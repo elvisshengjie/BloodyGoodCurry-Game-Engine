@@ -128,9 +128,9 @@ namespace mygame {
     /// Selected index for gate target level choice.
     static int gGateTargetLevelIndex = 0;
     /// Selected start level filename.
-    static std::string gStartLevelSelection = "level_RealTutorial.json";
+    static std::string gStartLevelSelection = "level.json";
     /// Selected gate target level filename.
-    static std::string gGateTargetLevelSelection = "RealLevel1.json";
+    static std::string gGateTargetLevelSelection = "level.json";
     /// If true, assign selected gate target level to newly spawned gates.
     static bool gApplyGateTargetOnSpawn = true;
 
@@ -700,6 +700,33 @@ namespace mygame {
         std::error_code ec;
         auto canonical = std::filesystem::weakly_canonical(root, ec);
         sAssetsRoot = ec ? root : canonical;
+    }
+
+    /*************************************************************************************
+ \brief     Override the spawn panel's default level selections from the game layer.
+      \param  startLevel      Default start level filename.
+      \param  gateTargetLevel Default gate target level filename.
+    *************************************************************************************/
+    void SetSpawnPanelLevelDefaults(std::string startLevel, std::string gateTargetLevel) {
+        if (!startLevel.empty())
+            gStartLevelSelection = std::move(startLevel);
+        if (!gateTargetLevel.empty())
+            gGateTargetLevelSelection = std::move(gateTargetLevel);
+
+        if (!gLevelFilesInitialized || gLevelFiles.empty())
+            return;
+
+        auto findIndex = [](const std::vector<std::string>& list, const std::string& value) {
+            auto it = std::find(list.begin(), list.end(), value);
+            if (it == list.end())
+                return 0;
+            return static_cast<int>(std::distance(list.begin(), it));
+            };
+
+        gStartLevelIndex = findIndex(gLevelFiles, gStartLevelSelection);
+        gGateTargetLevelIndex = findIndex(gLevelFiles, gGateTargetLevelSelection);
+        gStartLevelSelection = gLevelFiles[gStartLevelIndex];
+        gGateTargetLevelSelection = gLevelFiles[gGateTargetLevelIndex];
     }
 
     /*************************************************************************************
