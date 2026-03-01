@@ -1,3 +1,32 @@
+﻿/*********************************************************************************************
+ \file      GameScripts.cpp
+ \par       SofaSpuds
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+
+ \brief     Implements sandbox/game-layer behaviours (scripts) registered into the engine’s
+            LogicSystem via function-pointer tables (Init/Update/End).
+
+ \details
+            This file defines several behaviours used by level objects through
+            BehaviourComponent.behaviourKey:
+            - GameDirector    : Optional global gameplay director (debug/utility).
+            - PlayerController: Player input, movement, combat combo/throw, animation state,
+                               and run VFX spawning.
+            - CombatDirector  : Centralized hitbox vs enemy checks for melee interactions.
+            - VfxCleanup      : Cleans up one-shot impact VFX objects when animation finishes.
+            - GateLogic       : Handles level transition when player collides with gate and
+                               all enemies are cleared.
+
+            A small amount of shared state is stored in file-scope statics:
+            - gLogicSystem            : Bound from LogicSystem to access input/factory/level ops.
+            - gPendingGateTransition  : Prevents repeated level load triggers.
+            - gPlayerStates           : Per-player controller state keyed by object ID.
+
+ \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
+
 #include "Systems/LogicSystem.h"
 #include "Factory/Factory.h"
 #include "Core/PathUtils.h"
@@ -27,43 +56,90 @@
 #include <string_view>
 #include <unordered_map>
 #include <vector>
+#include <cstdint>
 
 namespace {
+
+    /*****************************************************************************************
+      \brief Pointer to the engine LogicSystem, bound once by the game layer.
+
+      \details
+      Behaviours use this pointer to access:
+      - Input manager
+      - Factory object list / spawning / destroying
+      - Level load / query helpers (e.g., FindAnyAlivePlayer)
+      This is set in mygame::BindBehaviourContext().
+    *****************************************************************************************/
     Framework::LogicSystem* gLogicSystem = nullptr;
+
+    /*****************************************************************************************
+      \brief Guards gate-triggered transitions to prevent multiple LoadLevel calls.
+    *****************************************************************************************/
     bool gPendingGateTransition = false;
 
+    /*****************************************************************************************
+      \enum PlayerAnimState
+      \brief High-level animation state machine used by PlayerController.
+    *****************************************************************************************/
     enum class PlayerAnimState { Idle, Run, Attack1, Attack2, Attack3, Throw, Knockback, Death };
 
+    /*****************************************************************************************
+      \struct PlayerAnimConfig
+      \brief Minimal extracted sprite-sheet configuration needed for timing and framing.
+    *****************************************************************************************/
     struct PlayerAnimConfig {
-        int cols{ 1 };
-        int rows{ 1 };
-        int frames{ 1 };
-        float fps{ 1.0f };
+        int cols{ 1 };      ///< Sprite-sheet columns
+        int rows{ 1 };      ///< Sprite-sheet rows
+        int frames{ 1 };    ///< Total frames for the animation
+        float fps{ 1.0f };  ///< Frames per second for playback
     };
 
+    /*****************************************************************************************
+      \struct PendingThrow
+      \brief Captures a queued projectile spawn (position + direction) to be fired later.
+
+      \details
+      Used so projectile spawns can be synchronized to the end of the Throw animation.
+    *****************************************************************************************/
     struct PendingThrow {
-        bool active{ false };
-        float spawnX{ 0.0f };
-        float spawnY{ 0.0f };
-        float dirX{ 0.0f };
-        float dirY{ 0.0f };
+        bool active{ false };   ///< Whether a throw is queued
+        float spawnX{ 0.0f };   ///< Projectile spawn world X
+        float spawnY{ 0.0f };   ///< Projectile spawn world Y
+        float dirX{ 0.0f };     ///< Normalized aim direction X
+        float dirY{ 0.0f };     ///< Normalized aim direction Y
     };
 
+    /*****************************************************************************************
+      \struct PlayerControllerState
+      \brief Per-player runtime state for movement/combat/animation control.
+
+      \details
+      Stored in gPlayerStates keyed by object ID so multiple players can be supported.
+    *****************************************************************************************/
     struct PlayerControllerState {
-        PlayerAnimState animState{ PlayerAnimState::Idle };
-        int frame{ 0 };
-        float frameClock{ 0.0f };
-        float attackTimer{ 0.0f };
-        int comboStep{ 0 };
-        float knockbackAnimTimer{ 0.0f };
-        PendingThrow pendingThrow{};
-        float throwCooldownTimer{ 0.0f };
-        bool throwRequestQueued{ false };
-        float runParticleTimer{ 0.0f };
+        PlayerAnimState animState{ PlayerAnimState::Idle }; ///< Current animation state
+        int frame{ 0 };                                     ///< Current frame index (local)
+        float frameClock{ 0.0f };                            ///< Accumulator for frame advance
+        float attackTimer{ 0.0f };                           ///< Remaining time for attack anim
+        int comboStep{ 0 };                                  ///< 1..3 combo cycle step
+        float knockbackAnimTimer{ 0.0f };                    ///< Remaining knockback anim time
+        PendingThrow pendingThrow{};                         ///< Queued throw spawn data
+        float throwCooldownTimer{ 0.0f };                    ///< Cooldown gate for throw
+        bool throwRequestQueued{ false };                    ///< RMB held/queued request
+        float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
     };
 
+    /*****************************************************************************************
+      \brief Global map of per-player controller state, keyed by object ID.
+    *****************************************************************************************/
     std::unordered_map<Framework::GOCId, PlayerControllerState> gPlayerStates;
 
+    /*****************************************************************************************
+      \brief Case-insensitive string equality check for ASCII strings.
+      \param a First string view.
+      \param b Second string view.
+      \return True if same length and equal ignoring case.
+    *****************************************************************************************/
     bool EqualsIgnoreCase(std::string_view a, std::string_view b)
     {
         if (a.size() != b.size())
@@ -78,6 +154,40 @@ namespace {
         return true;
     }
 
+    /*****************************************************************************************
+      \brief Safe wrapper for GetComponentType: treats nullptr and (T*)-1 as invalid.
+      \details Some frameworks or bugs can return sentinel pointer values (e.g., -1).
+               Dereferencing those causes AVs reading 0xFFFFFFFFFFFFFFFF.  This helper
+               centralizes detection and logs sentinel occurrences so they can be traced.
+    *****************************************************************************************/
+    template <typename T>
+    T* SafeGetComponent(Framework::GameObjectComposition* obj, Framework::ComponentTypeId id)
+    {
+        if (!obj)
+            return nullptr;
+        T* p = obj->GetComponentType<T>(id);
+        if (!p)
+            return nullptr;
+        const uintptr_t v = reinterpret_cast<uintptr_t>(p);
+        if (v == static_cast<uintptr_t>(-1))
+        {
+            std::cerr << "[Warning] SafeGetComponent detected sentinel (0xFFFFFFFFFFFFFFFF) for component id "
+                << static_cast<int>(id) << " on object " << obj->GetId() << "\n";
+            return nullptr;
+        }
+        return p;
+    }
+
+    /*****************************************************************************************
+      \brief Finds the animation index in SpriteAnimationComponent for a given PlayerAnimState.
+      \param comp SpriteAnimationComponent to search.
+      \param state Desired player state.
+      \return Animation index if found, otherwise -1.
+
+      \details
+      This maps PlayerAnimState → animation name string:
+      idle/run/attack1/attack2/attack3/throw/knockback/death.
+    *****************************************************************************************/
     int AnimationIndexForState(const Framework::SpriteAnimationComponent* comp, PlayerAnimState state)
     {
         if (!comp)
@@ -106,9 +216,22 @@ namespace {
         return -1;
     }
 
+    /*****************************************************************************************
+      \brief Extracts columns/rows/frames/fps for the given state from SpriteAnimationComponent.
+      \param comp SpriteAnimationComponent containing animation definitions.
+      \param state Desired player animation state.
+      \return PlayerAnimConfig with safe defaults if animation is missing.
+
+      \details
+      Defaults are kept conservative (1 frame @ 1 fps) so timing logic remains stable even
+      if an animation entry is missing or misconfigured.
+    *****************************************************************************************/
     PlayerAnimConfig ConfigFromSpriteSheet(const Framework::SpriteAnimationComponent* comp, PlayerAnimState state)
     {
         PlayerAnimConfig cfg{};
+        if (!comp)
+            return cfg;
+
         const int index = AnimationIndexForState(comp, state);
         if (index < 0 || index >= static_cast<int>(comp->animations.size()))
             return cfg;
@@ -121,6 +244,9 @@ namespace {
         return cfg;
     }
 
+    /*****************************************************************************************
+      \brief Returns true if the state is one of the attack-related states.
+    *****************************************************************************************/
     bool IsAttackState(PlayerAnimState state)
     {
         return state == PlayerAnimState::Attack1 ||
@@ -129,6 +255,11 @@ namespace {
             state == PlayerAnimState::Throw;
     }
 
+    /*****************************************************************************************
+      \brief Converts a 1..N combo step into Attack1/Attack2/Attack3, wrapping by 3.
+      \param comboIndex Combo step (1-based).
+      \return Corresponding attack animation state.
+    *****************************************************************************************/
     PlayerAnimState AttackStateForIndex(int comboIndex)
     {
         const int wrapped = ((comboIndex - 1) % 3 + 3) % 3;
@@ -140,16 +271,32 @@ namespace {
         }
     }
 
+    /*****************************************************************************************
+      \brief Computes the duration in seconds for a given attack state based on sprite-sheet fps.
+      \param player Player object composition.
+      \param state Attack/throw state to time.
+      \return Duration in seconds (frames / fps), using safe defaults if config missing.
+    *****************************************************************************************/
     float AttackDurationForState(Framework::GameObjectComposition* player, PlayerAnimState state)
     {
         auto* animComp = player
-            ? player->GetComponentType<Framework::SpriteAnimationComponent>(Framework::ComponentTypeId::CT_SpriteAnimationComponent)
+            ? SafeGetComponent<Framework::SpriteAnimationComponent>(player, Framework::ComponentTypeId::CT_SpriteAnimationComponent)
             : nullptr;
 
         const PlayerAnimConfig cfg = ConfigFromSpriteSheet(animComp, state);
         return static_cast<float>(cfg.frames) / cfg.fps;
     }
 
+    /*****************************************************************************************
+      \brief Updates the controller state to a new animation state and applies it to the component.
+      \param player Player object composition.
+      \param state PlayerControllerState to mutate.
+      \param next Next desired PlayerAnimState.
+
+      \details
+      - Resets local frame timers on state transition.
+      - Locates the corresponding animation entry by name and sets it active if needed.
+    *****************************************************************************************/
     void SetAnimState(Framework::GameObjectComposition* player, PlayerControllerState& state, PlayerAnimState next)
     {
         if (state.animState != next)
@@ -159,12 +306,23 @@ namespace {
             state.frameClock = 0.0f;
         }
 
-        auto* anim = player->GetComponentType<Framework::SpriteAnimationComponent>(Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+        auto* anim = SafeGetComponent<Framework::SpriteAnimationComponent>(player, Framework::ComponentTypeId::CT_SpriteAnimationComponent);
         const int index = AnimationIndexForState(anim, state.animState);
-        if (anim && index >= 0 && index != anim->ActiveAnimationIndex())
-            anim->SetActiveAnimation(index);
+        if (anim && index >= 0)
+        {
+            const int activeIdx = anim->ActiveAnimationIndex();
+            if (index != activeIdx)
+                anim->SetActiveAnimation(index);
+        }
     }
 
+    /*****************************************************************************************
+      \brief Counts the number of enemy objects that are currently alive.
+      \return Number of enemies with EnemyComponent and not marked dead.
+
+      \details
+      Iterates the factory object list and filters by EnemyComponent + EnemyHealthComponent.
+    *****************************************************************************************/
     int CountAliveEnemies()
     {
         if (!gLogicSystem || !gLogicSystem->Factory())
@@ -189,23 +347,43 @@ namespace {
         return count;
     }
 
+    /*****************************************************************************************
+      \brief True if at least one enemy is still alive in the current level.
+    *****************************************************************************************/
     bool HasRemainingEnemies()
     {
         return CountAliveEnemies() > 0;
     }
 
+    /*****************************************************************************************
+      \brief GameDirector behaviour: Init hook (optional global director).
+    *****************************************************************************************/
     void GameDirector_Init(Framework::GameObjectComposition*)
     {
         std::cout << "[Behaviour] GameDirector init\n";
     }
 
+    /*****************************************************************************************
+      \brief GameDirector behaviour: Update hook.
+      \details Currently polls enemy count (can be extended for objectives/UI).
+    *****************************************************************************************/
     void GameDirector_Update(Framework::GameObjectComposition*, float)
     {
         (void)CountAliveEnemies();
     }
 
+    /*****************************************************************************************
+      \brief GameDirector behaviour: End hook.
+    *****************************************************************************************/
     void GameDirector_End(Framework::GameObjectComposition*) {}
 
+    /*****************************************************************************************
+      \brief PlayerController behaviour: Init hook.
+      \param obj Player object composition.
+
+      \details
+      Initializes per-player controller state in gPlayerStates.
+    *****************************************************************************************/
     void PlayerController_Init(Framework::GameObjectComposition* obj)
     {
         if (!obj)
@@ -214,6 +392,21 @@ namespace {
         std::cout << "[Behaviour] PlayerController init\n";
     }
 
+    /*****************************************************************************************
+      \brief PlayerController behaviour: Update hook (movement, combat, animation, VFX).
+      \param obj Player object composition.
+      \param dt  Delta time in seconds.
+
+      \details
+      Responsibilities:
+      - Read input (WASD + mouse).
+      - Convert mouse screen position to world space for aiming.
+      - Update rigidbody velocity with dampening and lunge/knockback constraints.
+      - Spawn melee hitboxes on LMB (combo attack 1..3).
+      - Queue and spawn projectile on RMB (throw) with cooldown.
+      - Drive animation state machine (idle/run/attacks/throw/knockback/death).
+      - Spawn run particles on movement cadence.
+    *****************************************************************************************/
     void PlayerController_Update(Framework::GameObjectComposition* obj, float dt)
     {
         if (!gLogicSystem || !obj)
@@ -222,12 +415,12 @@ namespace {
         auto& input = gLogicSystem->Input();
         auto& state = gPlayerStates[obj->GetId()];
 
-        auto* tr = obj->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
-        auto* rc = obj->GetComponentType<Framework::RenderComponent>(Framework::ComponentTypeId::CT_RenderComponent);
-        auto* rb = obj->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
-        auto* attack = obj->GetComponentType<Framework::PlayerAttackComponent>(Framework::ComponentTypeId::CT_PlayerAttackComponent);
-        auto* audio = obj->GetComponentType<Framework::AudioComponent>(Framework::ComponentTypeId::CT_AudioComponent);
-        auto* health = obj->GetComponentType<Framework::PlayerHealthComponent>(Framework::ComponentTypeId::CT_PlayerHealthComponent);
+        auto* tr = SafeGetComponent<Framework::TransformComponent>(obj, Framework::ComponentTypeId::CT_TransformComponent);
+        auto* rc = SafeGetComponent<Framework::RenderComponent>(obj, Framework::ComponentTypeId::CT_RenderComponent);
+        auto* rb = SafeGetComponent<Framework::RigidBodyComponent>(obj, Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* attack = SafeGetComponent<Framework::PlayerAttackComponent>(obj, Framework::ComponentTypeId::CT_PlayerAttackComponent);
+        auto* audio = SafeGetComponent<Framework::AudioComponent>(obj, Framework::ComponentTypeId::CT_AudioComponent);
+        auto* health = SafeGetComponent<Framework::PlayerHealthComponent>(obj, Framework::ComponentTypeId::CT_PlayerHealthComponent);
 
         if (!(tr && rc && rb && attack && health) || health->isDead)
             return;
@@ -239,6 +432,10 @@ namespace {
         float aimDirX = 0.0f;
         float aimDirY = 0.0f;
 
+        /*************************************************************************************
+          \brief Convert mouse screen coordinates to world coordinates for aiming.
+          \details Also flips the sprite horizontally by flipping RenderComponent width sign.
+        **************************************************************************************/
         if (auto* rs = Framework::RenderSystem::Get())
         {
             if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport) && mouseInsideViewport)
@@ -257,6 +454,9 @@ namespace {
             }
         }
 
+        /*************************************************************************************
+          \brief Decrement knockback timers (physics + animation).
+        **************************************************************************************/
         if (rb->knockbackTime > 0.0f)
             rb->knockbackTime = std::max(0.0f, rb->knockbackTime - dt);
         if (state.knockbackAnimTimer > 0.0f)
@@ -265,6 +465,9 @@ namespace {
         const bool isKnockback = rb->knockbackTime > 0.0f || state.knockbackAnimTimer > 0.0f;
         const bool isThrowing = state.animState == PlayerAnimState::Throw;
 
+        /*************************************************************************************
+          \brief Movement integration (lunge > normal movement > locked during throw/knockback).
+        **************************************************************************************/
         if (rb->lungeTime > 0.0f)
         {
             rb->lungeTime -= dt;
@@ -295,6 +498,9 @@ namespace {
             rb->velY = 0.0f;
         }
 
+        /*************************************************************************************
+          \brief Run/idle intent used for animation and run particle spawning.
+        **************************************************************************************/
         const bool wantRun = input.IsKeyHeld(GLFW_KEY_A) || input.IsKeyHeld(GLFW_KEY_D) ||
             input.IsKeyHeld(GLFW_KEY_W) || input.IsKeyHeld(GLFW_KEY_S) ||
             input.IsKeyHeld(GLFW_KEY_LEFT) || input.IsKeyHeld(GLFW_KEY_RIGHT) ||
@@ -312,17 +518,29 @@ namespace {
             state.runParticleTimer = 0.08f;
         }
 
+        /*************************************************************************************
+          \brief Update player attack component (handles internal timers/logic).
+        **************************************************************************************/
         attack->Update(dt, tr);
 
+        /*************************************************************************************
+          \brief Throw cooldown ticking.
+        **************************************************************************************/
         if (state.throwCooldownTimer > 0.0f)
             state.throwCooldownTimer = std::max(0.0f, state.throwCooldownTimer - dt);
 
+        /*************************************************************************************
+          \brief Input: queue/hold throw request via RMB.
+        **************************************************************************************/
         const bool knockbackActive = rb->knockbackTime > 0.0f || state.knockbackAnimTimer > 0.0f;
         if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || (knockbackActive && input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT)))
             state.throwRequestQueued = true;
         if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
             state.throwRequestQueued = false;
 
+        /*************************************************************************************
+          \brief Input: LMB melee attack triggers lunge + hitbox + combo animation.
+        **************************************************************************************/
         if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && (aimDirX != 0.0f || aimDirY != 0.0f))
         {
             float dirX = (mouseWorldX > tr->x) ? 1.0f : -1.0f;
@@ -349,6 +567,9 @@ namespace {
             SetAnimState(obj, state, comboState);
             state.attackTimer = AttackDurationForState(obj, comboState);
         }
+        /*************************************************************************************
+          \brief Input: RMB throw request queues a projectile to be spawned after throw animation.
+        **************************************************************************************/
         else if (state.throwRequestQueued)
         {
             const bool canThrow = state.throwCooldownTimer <= 0.0f && !state.pendingThrow.active &&
@@ -372,6 +593,9 @@ namespace {
             }
         }
 
+        /*************************************************************************************
+          \brief State machine priority: Death > Knockback > Attack/Throw > Run/Idle.
+        **************************************************************************************/
         if (health->playerHealth <= 0)
         {
             state.knockbackAnimTimer = 0.0f;
@@ -406,7 +630,10 @@ namespace {
             SetAnimState(obj, state, wantRun ? PlayerAnimState::Run : PlayerAnimState::Idle);
         }
 
-        auto* animComp = obj->GetComponentType<Framework::SpriteAnimationComponent>(Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+        /*************************************************************************************
+          \brief Manual frame stepping (local) based on fps; SpriteAnimationComponent holds config.
+        **************************************************************************************/
+        auto* animComp = SafeGetComponent<Framework::SpriteAnimationComponent>(obj, Framework::ComponentTypeId::CT_SpriteAnimationComponent);
         const PlayerAnimConfig cfg = ConfigFromSpriteSheet(animComp, state.animState);
         state.frameClock += dt * cfg.fps;
         while (state.frameClock >= 1.0f)
@@ -415,6 +642,9 @@ namespace {
             state.frame = (state.frame + 1) % std::max(1, cfg.frames);
         }
 
+        /*************************************************************************************
+          \brief Spawn queued projectile when throw animation completes.
+        **************************************************************************************/
         if (state.pendingThrow.active && state.attackTimer <= 0.0f)
         {
             if (gLogicSystem->hitBoxSystem)
@@ -432,6 +662,10 @@ namespace {
         }
     }
 
+    /*****************************************************************************************
+      \brief PlayerController behaviour: End hook.
+      \details Removes per-player state entry from gPlayerStates.
+    *****************************************************************************************/
     void PlayerController_End(Framework::GameObjectComposition* obj)
     {
         if (!obj)
@@ -439,11 +673,22 @@ namespace {
         gPlayerStates.erase(obj->GetId());
     }
 
+    /*****************************************************************************************
+      \brief CombatDirector behaviour: Init hook.
+    *****************************************************************************************/
     void CombatDirector_Init(Framework::GameObjectComposition*)
     {
         std::cout << "[Behaviour] CombatDirector init\n";
     }
 
+    /*****************************************************************************************
+      \brief CombatDirector behaviour: Update hook (central melee hitbox vs enemy collision).
+      \details
+      - Finds a live player.
+      - Reads PlayerAttackComponent hitbox AABB (if active).
+      - Iterates level objects named "Enemy" and checks AABB overlap.
+      - Deactivates hurtbox on first confirmed hit to avoid multi-hit in one swing.
+    *****************************************************************************************/
     void CombatDirector_Update(Framework::GameObjectComposition*, float)
     {
         if (!gLogicSystem || !gLogicSystem->Factory())
@@ -453,7 +698,7 @@ namespace {
         if (!player)
             return;
 
-        auto* attack = player->GetComponentType<Framework::PlayerAttackComponent>(Framework::ComponentTypeId::CT_PlayerAttackComponent);
+        auto* attack = SafeGetComponent<Framework::PlayerAttackComponent>(player, Framework::ComponentTypeId::CT_PlayerAttackComponent);
         if (!attack || !attack->hitbox || !attack->hitbox->active)
             return;
 
@@ -468,8 +713,8 @@ namespace {
             if (!obj || obj->GetObjectName() != "Enemy")
                 continue;
 
-            auto* rb = obj->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
-            auto* tr = obj->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
+            auto* rb = SafeGetComponent<Framework::RigidBodyComponent>(obj, Framework::ComponentTypeId::CT_RigidBodyComponent);
+            auto* tr = SafeGetComponent<Framework::TransformComponent>(obj, Framework::ComponentTypeId::CT_TransformComponent);
             if (!(rb && tr))
                 continue;
 
@@ -482,13 +727,26 @@ namespace {
         }
     }
 
+    /*****************************************************************************************
+      \brief CombatDirector behaviour: End hook.
+    *****************************************************************************************/
     void CombatDirector_End(Framework::GameObjectComposition*) {}
 
+    /*****************************************************************************************
+      \brief VfxCleanup behaviour: Init hook.
+    *****************************************************************************************/
     void VfxCleanup_Init(Framework::GameObjectComposition*)
     {
         std::cout << "[Behaviour] VfxCleanup init\n";
     }
 
+    /*****************************************************************************************
+      \brief VfxCleanup behaviour: Update hook (destroy finished impact VFX objects).
+      \details
+      - Scans factory objects for impact VFX objects (Framework::IsImpactVfxObject).
+      - Checks active animation config to see if the non-looping "impact" animation ended.
+      - Collects finished objects, then destroys them via factory.
+    *****************************************************************************************/
     void VfxCleanup_Update(Framework::GameObjectComposition*, float)
     {
         if (!gLogicSystem || !gLogicSystem->Factory())
@@ -503,7 +761,7 @@ namespace {
             if (!obj || !Framework::IsImpactVfxObject(obj))
                 continue;
 
-            auto* anim = obj->GetComponentType<Framework::SpriteAnimationComponent>(Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+            auto* anim = SafeGetComponent<Framework::SpriteAnimationComponent>(obj, Framework::ComponentTypeId::CT_SpriteAnimationComponent);
             if (!anim)
                 continue;
 
@@ -528,14 +786,33 @@ namespace {
             gLogicSystem->Factory()->Destroy(vfx);
     }
 
+    /*****************************************************************************************
+      \brief VfxCleanup behaviour: End hook.
+    *****************************************************************************************/
     void VfxCleanup_End(Framework::GameObjectComposition*) {}
 
+    /*****************************************************************************************
+      \brief GateLogic behaviour: Init hook.
+      \details Resets gPendingGateTransition so the gate can trigger again in a new level.
+    *****************************************************************************************/
     void GateLogic_Init(Framework::GameObjectComposition*)
     {
         gPendingGateTransition = false;
         std::cout << "[Behaviour] GateLogic init\n";
     }
 
+    /*****************************************************************************************
+      \brief GateLogic behaviour: Update hook (level transition gate).
+      \param gateObject Gate object composition.
+      \param dt         Delta time (unused).
+      \details
+      Gate activates only when:
+      - No remaining enemies exist.
+      - Player is alive.
+      - Player AABB overlaps gate AABB.
+      Then it resolves GateTargetComponent.levelPath (relative → data path) and calls
+      LogicSystem::LoadLevel(). A guard flag prevents repeated triggers.
+    *****************************************************************************************/
     void GateLogic_Update(Framework::GameObjectComposition* gateObject, float)
     {
         if (!gLogicSystem || !gateObject || gPendingGateTransition)
@@ -548,11 +825,11 @@ namespace {
         if (!player)
             return;
 
-        auto* gateTr = gateObject->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
-        auto* gateRb = gateObject->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
-        auto* playerTr = player->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
-        auto* playerRb = player->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
-        auto* playerHealth = player->GetComponentType<Framework::PlayerHealthComponent>(Framework::ComponentTypeId::CT_PlayerHealthComponent);
+        auto* gateTr = SafeGetComponent<Framework::TransformComponent>(gateObject, Framework::ComponentTypeId::CT_TransformComponent);
+        auto* gateRb = SafeGetComponent<Framework::RigidBodyComponent>(gateObject, Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* playerTr = SafeGetComponent<Framework::TransformComponent>(player, Framework::ComponentTypeId::CT_TransformComponent);
+        auto* playerRb = SafeGetComponent<Framework::RigidBodyComponent>(player, Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* playerHealth = SafeGetComponent<Framework::PlayerHealthComponent>(player, Framework::ComponentTypeId::CT_PlayerHealthComponent);
 
         if (!gateTr || !gateRb || !playerTr || !playerRb || (playerHealth && playerHealth->isDead))
             return;
@@ -563,7 +840,7 @@ namespace {
         if (!Framework::Collision::CheckCollisionRectToRect(playerBox, gateBox))
             return;
 
-        auto* target = gateObject->GetComponentType<Framework::GateTargetComponent>(Framework::ComponentTypeId::CT_GateTargetComponent);
+        auto* target = SafeGetComponent<Framework::GateTargetComponent>(gateObject, Framework::ComponentTypeId::CT_GateTargetComponent);
         if (!target || target->levelPath.empty())
             return;
 
@@ -575,6 +852,10 @@ namespace {
         gLogicSystem->LoadLevel(targetPath);
     }
 
+    /*****************************************************************************************
+      \brief GateLogic behaviour: End hook.
+      \details Clears transition guard.
+    *****************************************************************************************/
     void GateLogic_End(Framework::GameObjectComposition*)
     {
         gPendingGateTransition = false;
@@ -583,11 +864,23 @@ namespace {
 
 namespace mygame {
 
+    /*****************************************************************************************
+      \brief Binds the engine LogicSystem pointer into this translation unit for behaviours.
+      \param logic Engine LogicSystem reference.
+    *****************************************************************************************/
     void BindBehaviourContext(Framework::LogicSystem& logic)
     {
         gLogicSystem = &logic;
     }
 
+    /*****************************************************************************************
+      \brief Registers all behaviour keys and their lifecycle callbacks into LogicSystem.
+      \param logic Engine LogicSystem reference used for registration.
+
+      \details
+      Objects with BehaviourComponent.behaviourKey matching these keys will have their
+      Init/Update/End functions dispatched by the engine.
+    *****************************************************************************************/
     void RegisterGameBehaviourFunctions(Framework::LogicSystem& logic)
     {
         logic.RegisterBehaviour("GameDirector", { GameDirector_Init, GameDirector_Update, GameDirector_End });
