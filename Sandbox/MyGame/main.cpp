@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      main.cpp
  \par       SofaSpuds
  \author    yimo kong (yimo.kong@digipen.edu) - Primary Author, 100%
@@ -8,11 +8,12 @@
               callbacks (init/update/draw/shutdown) exposed by Game.hpp.
             - On MSVC builds, enables CRT leak checking at program exit.
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content � 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
 #include "../Engine/Core/Core.hpp"
+#include "../Engine/Core/ProjectContext.h"
 #include "../Engine/Core/PathUtils.h"
 #include "Game.hpp"
 #include "Config/WindowConfig.h"
@@ -35,6 +36,8 @@ int main()
         std::error_code ec;
         std::filesystem::current_path(exeDir, ec);
     }
+
+    Framework::InitializeProjectFromExecutableLayout();
     // Load window config (falls back to some defaults if file is missing).
     WindowConfig cfg = LoadWindowConfig(Framework::ResolveDataPath("window.json").string());
     if (cfg.width <= 0)  cfg.width = 1280;

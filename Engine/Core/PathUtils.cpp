@@ -17,6 +17,7 @@
 *********************************************************************************************/
 #define _CRT_SECURE_NO_WARNINGS
 #include "PathUtils.h"
+#include "ProjectContext.h"
 
 #if defined(_WIN32)
 #ifndef WIN32_LEAN_AND_MEAN
@@ -338,6 +339,9 @@ namespace Framework
     {
         namespace fs = std::filesystem;
 
+        if (auto projectAssets = GetCurrentAssetsRoot(); !projectAssets.empty())
+            return CanonicalIfPossible(projectAssets);
+
         auto candidates = CollectNearbyDirectories("assets");
 
         // Pick the candidate that actually contains textures/fonts (likely the full repo
@@ -392,6 +396,9 @@ namespace Framework
     {
         namespace fs = std::filesystem;
 
+        if (auto projectData = GetCurrentDataRoot(); !projectData.empty())
+            return CanonicalIfPossible(projectData);
+
         auto candidates = CollectNearbyDirectories("Data_Files");
 
         int bestScore = -1;
@@ -438,6 +445,15 @@ namespace Framework
     *************************************************************************************/
     std::filesystem::path ResolveAssetPath(const std::filesystem::path& relative)
     {
+        return ResolveProjectAssetPath(relative);
+    }
+
+    std::filesystem::path ResolveProjectAssetPath(const std::filesystem::path& relative)
+    {
+        const auto root = GetCurrentAssetsRoot();
+        if (!root.empty())
+            return ResolveAgainstRoot(root, relative, root.filename().generic_string());
+
         return ResolveAgainstRoot(FindAssetsRoot(), relative, "assets");
     }
 
@@ -452,6 +468,15 @@ namespace Framework
     *************************************************************************************/
     std::filesystem::path ResolveDataPath(const std::filesystem::path& relative)
     {
+        return ResolveProjectDataPath(relative);
+    }
+
+    std::filesystem::path ResolveProjectDataPath(const std::filesystem::path& relative)
+    {
+        const auto root = GetCurrentDataRoot();
+        if (!root.empty())
+            return ResolveAgainstRoot(root, relative, root.filename().generic_string());
+
         return ResolveAgainstRoot(FindDataFilesRoot(), relative, "Data_Files");
     }
 

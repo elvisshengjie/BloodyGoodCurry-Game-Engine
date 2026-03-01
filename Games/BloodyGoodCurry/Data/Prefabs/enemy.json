@@ -19,7 +19,7 @@
             },
             "currentFrame": 0,
             "name": "idle",
-            "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+            "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
             "textureKey": "water_idle"
           },
           {
@@ -34,7 +34,7 @@
             },
             "currentFrame": 0,
             "name": "slashattack",
-            "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+            "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Attack.png",
             "textureKey": "water_slashattack"
           },
           {
@@ -49,7 +49,7 @@
             },
             "currentFrame": 0,
             "name": "knockback",
-            "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+            "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
             "textureKey": "water_knockback"
           },
           {
@@ -64,7 +64,7 @@
             },
             "currentFrame": 0,
             "name": "death",
-            "spriteSheetPath": "../../assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+            "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
             "textureKey": "water_death"
           }
         ],

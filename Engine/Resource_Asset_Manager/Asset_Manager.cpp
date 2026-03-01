@@ -1,4 +1,5 @@
 #include "Asset_Manager.h"
+#include "Core/ProjectContext.h"
 /*********************************************************************************
 *\file    Asset_Manager.cpp
  \par       SofaSpuds
@@ -11,6 +12,8 @@
 *********************************************************************************/
 std::filesystem::path AssetManager::ProjectRoot()
 {
+    if (Framework::HasCurrentProject() || Framework::InitializeProjectFromExecutableLayout())
+        return Framework::GetCurrentProjectRoot();
 	static std::filesystem::path cachedRoot; // Cache it so we only search once
 	static bool initialized = false;
 	if (initialized)
@@ -27,14 +30,13 @@ std::filesystem::path AssetManager::ProjectRoot()
 		}
 
 		if (std::filesystem::exists(path / "assets") &&
-			std::filesystem::exists(path / "Data_Files"))
-		{
-			// Found the root - change working directory to it
-			std::filesystem::current_path(path);
-			cachedRoot = path;
-			initialized = true;
-			return path;
-		}
+            std::filesystem::exists(path / "Data_Files"))
+        {
+            Framework::SetCurrentProjectRoot(path);
+            cachedRoot = Framework::HasCurrentProject() ? Framework::GetCurrentProjectRoot() : path;
+            initialized = true;
+            return cachedRoot;
+        }
 		if (path == path.root_path()) // Reached filesystem root
 			break;
 		path = path.parent_path(); // Move up one directory
@@ -124,7 +126,7 @@ AssetManager::AssetType AssetManager::IdentifyAssetType(const std::filesystem::p
 *********************************************************************************/
 bool AssetManager::ImportAsset(const std::filesystem::path& sourceFile) 
 {
-	std::filesystem::path target = ProjectRoot() / "assets" / sourceFile.filename();
+	std::filesystem::path target = Framework::GetCurrentAssetsRoot() / sourceFile.filename();
 	if (std::filesystem::exists(target)) return false;
 	std::filesystem::copy_file(sourceFile, target, std::filesystem::copy_options::overwrite_existing);
 	return true;
@@ -162,7 +164,7 @@ bool AssetManager::CreateEnemyAsset(
     if (extension != "json")
         return false;
     // Destination path in Data_Files
-    std::filesystem::path basePath = ProjectRoot() / "Data_Files";
+    std::filesystem::path basePath = Framework::GetCurrentDataRoot();
     std::filesystem::create_directories(basePath);
     std::filesystem::path path = basePath / (name + ".json");
     // Do not overwrite existing prefabs
@@ -197,7 +199,7 @@ bool AssetManager::CreateObjectAsset(
 	if (extension != "json")
 		return false;
 	// Destination path in Data_Files
-	std::filesystem::path basePath = ProjectRoot() / "Data_Files";
+	std::filesystem::path basePath = Framework::GetCurrentDataRoot();
 	std::filesystem::create_directories(basePath);
 	std::filesystem::path path = basePath / (name + ".json");
 	// Do not overwrite existing prefabs
@@ -223,7 +225,7 @@ bool AssetManager::CreateObjectAsset(
 bool AssetManager::DeletePrefab(const std::string& prefabName)
 {
 	std::filesystem::path prefabPath =
-		ProjectRoot() / "Data_Files" / (prefabName + ".json");
+		Framework::GetCurrentDataRoot() / (prefabName + ".json");
 	if (!std::filesystem::exists(prefabPath))
 	{
 		std::cout << "Prefab not found at: " << prefabPath << std::endl;
@@ -246,7 +248,7 @@ const std::vector<AssetManager::Asset>& AssetManager::GetAllAssets()
 {
 	static std::vector<Asset> allAssets;
 	allAssets.clear();
-	std::filesystem::path assetsRoot = ProjectRoot() / "assets";
+	std::filesystem::path assetsRoot = Framework::GetCurrentAssetsRoot();
 	if (std::filesystem::exists(assetsRoot) && std::filesystem::is_directory(assetsRoot))
 	{
 		for (auto& p : std::filesystem::recursive_directory_iterator(assetsRoot))
@@ -266,7 +268,7 @@ const std::vector<AssetManager::Asset>& AssetManager::GetAllAssets()
 	}
 
 	// Scan Data_Files for prefabs and animations
-	std::filesystem::path dataRoot = ProjectRoot() / "Data_Files";
+	std::filesystem::path dataRoot = Framework::GetCurrentDataRoot();
 	if (std::filesystem::exists(dataRoot) && std::filesystem::is_directory(dataRoot))
 	{
 		for (auto& p : std::filesystem::recursive_directory_iterator(dataRoot))

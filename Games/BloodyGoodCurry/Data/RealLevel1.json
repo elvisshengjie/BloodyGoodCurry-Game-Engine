@@ -2326,7 +2326,7 @@
                 },
                 "currentFrame": 4,
                 "name": "idle",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
               },
               {
@@ -2341,7 +2341,7 @@
                 },
                 "currentFrame": 2,
                 "name": "run",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
               },
               {
@@ -2356,7 +2356,7 @@
                 },
                 "currentFrame": 0,
                 "name": "attack1",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
               },
               {
@@ -2371,7 +2371,7 @@
                 },
                 "currentFrame": 7,
                 "name": "attack2",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/2nd_Attack Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/2nd_Attack Sprite.png",
                 "textureKey": "attack2_sheet"
               },
               {
@@ -2386,7 +2386,7 @@
                 },
                 "currentFrame": 0,
                 "name": "attack3",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
                 "textureKey": "attack3_sheet"
               },
               {
@@ -2401,7 +2401,7 @@
                 },
                 "currentFrame": 0,
                 "name": "throw",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png",
                 "textureKey": "throw_sheet"
               },
               {
@@ -2416,7 +2416,7 @@
                 },
                 "currentFrame": 0,
                 "name": "knockback",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Knockback_Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Knockback_Sprite.png",
                 "textureKey": "knockback_sheet"
               },
               {
@@ -2431,7 +2431,7 @@
                 },
                 "currentFrame": 0,
                 "name": "death",
-                "spriteSheetPath": "../../assets/Textures/Character/Ming_Sprite/Death_Sprite.png",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Death_Sprite.png",
                 "textureKey": "death_sheet"
               }
             ],

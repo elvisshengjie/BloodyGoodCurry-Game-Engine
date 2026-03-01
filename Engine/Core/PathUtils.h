@@ -91,6 +91,7 @@ namespace Framework
       \return Resolved path to the asset, or a best-effort combination if no candidate exists.
     *************************************************************************************/
     std::filesystem::path ResolveAssetPath(const std::filesystem::path& relative);
+    std::filesystem::path ResolveProjectAssetPath(const std::filesystem::path& relative);
 
     /*************************************************************************************
       \brief Resolve a relative path inside the \c Data_Files/ tree with fallback probing.
@@ -103,6 +104,7 @@ namespace Framework
       \return Resolved path to the data file, or a best-effort combination if no candidate exists.
     *************************************************************************************/
     std::filesystem::path ResolveDataPath(const std::filesystem::path& relative);
+    std::filesystem::path ResolveProjectDataPath(const std::filesystem::path& relative);
     /*************************************************************************************
        \brief Locate a user-writable Documents directory to store runtime data/logs.
 
