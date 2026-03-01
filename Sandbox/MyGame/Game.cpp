@@ -37,6 +37,7 @@
 #include <PauseMenuPage.hpp>
 #include <DefeatScreenPage.hpp>
 #include "EngineCall.hpp"
+#include "HealthPresentation.hpp"
 
 #include "Common/CRTDebug.h"   
 
@@ -143,7 +144,7 @@ namespace mygame {
         gLogicSystem = gSystems.RegisterSystem<Framework::LogicSystem>(win, *gInputSystem);
         ConfigureGameBootstrap(*gLogicSystem);
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
-        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win, *gLogicSystem);
+        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
         gNavSystem = gSystems.RegisterSystem<Framework::NavSystem>(win);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
@@ -158,6 +159,8 @@ namespace mygame {
         gSystems.IntializeAll();
         RegisterMyGameScripts(*gLogicSystem);
         BindCombatAudio(*gLogicSystem, *gHealthSystem);
+        BindAiCombat(*gAiSystem, *gLogicSystem);
+        BindHealthPresentation(*gHealthSystem);
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
@@ -240,8 +243,7 @@ namespace mygame {
                     }
                     editorSimulationRunning = false;
                     pauseMenu.ResetLatches();
-                    if (gHealthSystem)
-                        gHealthSystem->ClearPlayerDeathFlag();
+                    ResetPlayerDefeat();
                 }
                 if (mainMenu.ConsumeExit())
                 {
@@ -278,6 +280,7 @@ namespace mygame {
             case GameState::PLAYING:
                 if (editorSimulationRunning)
                 {
+                    UpdateHealthPresentationDelta(dt);
                     gSystems.UpdateAll(dt);
                 }
                 // When simulation is not running we already refreshed input above.
@@ -291,7 +294,7 @@ namespace mygame {
                     gameplayBGMPlaying = true;
                 }
      
-                if (!editorMode && gHealthSystem && gHealthSystem->HasPlayerDied())
+                if (!editorMode && IsPlayerDefeated())
                 {
                     defeatScreen.ResetLatches();
                     if (gRenderSystem)
@@ -345,8 +348,7 @@ namespace mygame {
                     {
                         gLogicSystem->ReloadLevel();
                     }
-                    if (gHealthSystem)
-                        gHealthSystem->ClearPlayerDeathFlag();
+                    ResetPlayerDefeat();
 
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
@@ -416,8 +418,7 @@ namespace mygame {
                     {
                         gLogicSystem->ReloadLevel();
                     }
-                    if (gHealthSystem)
-                        gHealthSystem->ClearPlayerDeathFlag();
+                    ResetPlayerDefeat();
 
                     editorSimulationRunning = true;
                     currentState = GameState::PLAYING;
@@ -454,6 +455,7 @@ namespace mygame {
             case GameState::PLAYING:
                 gSystems.DrawAll();
                 if (gRenderSystem) {
+                    DrawHealthPresentation(*gRenderSystem);
                     gRenderSystem->RenderBrightnessOverlay();
                 }
                 break;
@@ -489,6 +491,7 @@ namespace mygame {
             case GameState::PAUSED:
                 gSystems.DrawAll();
                 if (gRenderSystem) {
+                    DrawHealthPresentation(*gRenderSystem);
                     gRenderSystem->BeginMenuFrame();
                     pauseMenu.Draw(gRenderSystem);
                     gRenderSystem->EndMenuFrame();
@@ -500,6 +503,7 @@ namespace mygame {
                 gSystems.DrawAll();
                 if (gRenderSystem)
                 {
+                    DrawHealthPresentation(*gRenderSystem);
                     gRenderSystem->BeginMenuFrame();
                     defeatScreen.Draw(gRenderSystem);
                     gRenderSystem->EndMenuFrame();
@@ -574,8 +578,7 @@ namespace mygame {
 
         gLogicSystem->LoadLevel(levelPath);
 
-        if (gHealthSystem)
-            gHealthSystem->ClearPlayerDeathFlag();
+        ResetPlayerDefeat();
 
         return true;
     }

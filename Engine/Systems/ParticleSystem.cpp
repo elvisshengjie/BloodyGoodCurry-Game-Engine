@@ -2,12 +2,12 @@
  \file      ParticleSystem.cpp
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
- \brief     Implements a lightweight particle system for one-off gameplay effects.
- \details   Spawns and updates short-lived circle particles for effects such as
-            enemy death bursts. Uses Transform + CircleRender components and
-            Factory-managed lifetime.
+ \brief     Implements a lightweight particle system for one-off particles.
+ \details   Spawns and updates short-lived circle/sprite particles with
+            Factory-managed lifetime. Game-specific presets are owned by the
+            sandbox/game layer.
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content (c) 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -23,48 +23,31 @@
 #include "Core/PathUtils.h"
 
 #include <algorithm>
-#include <cmath>
-#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+#include "Common/CRTDebug.h"
 
 #ifdef _DEBUG
-#define new DBG_NEW       // <- redefine new AFTER all includes
+#define new DBG_NEW
 #endif
 
 namespace Framework {
 
     ParticleSystem* ParticleSystem::instance = nullptr;
 
-    /*************************************************************************************
-      \brief  Construct the particle system and initialize RNG.
-    *************************************************************************************/
     ParticleSystem::ParticleSystem()
-        : rng(std::random_device{}())
     {
         instance = this;
     }
 
-    /*************************************************************************************
-      \brief  Get the current ParticleSystem instance.
-      \return Pointer to the ParticleSystem instance (or nullptr).
-    *************************************************************************************/
     ParticleSystem* ParticleSystem::Instance()
     {
         return instance;
     }
 
-    /*************************************************************************************
-      \brief  Initialize the particle system state.
-      \details Clears all currently tracked particles.
-    *************************************************************************************/
     void ParticleSystem::Initialize()
     {
         particles.clear();
     }
 
-    /*************************************************************************************
-      \brief  Shutdown the particle system and clear all particles.
-      \details Resets the singleton instance pointer if this system owns it.
-    *************************************************************************************/
     void ParticleSystem::Shutdown()
     {
         particles.clear();
@@ -74,10 +57,6 @@ namespace Framework {
         }
     }
 
-    /*************************************************************************************
-      \brief  Update all active particles (movement, fade/size interpolation, cleanup).
-      \param  dt  Delta time in seconds.
-    *************************************************************************************/
     void ParticleSystem::Update(float dt)
     {
         if (!FACTORY)
@@ -151,134 +130,93 @@ namespace Framework {
         }
     }
 
-    /*************************************************************************************
-      \brief  Spawn enemy death burst particles (circle-based).
-      \param  worldPos  Spawn position in world space.
-      \param  count     Number of particles to spawn.
-    *************************************************************************************/
-    void ParticleSystem::SpawnEnemyDeathParticles(const glm::vec2& worldPos, std::size_t count)
+    void ParticleSystem::SpawnCircleParticle(const CircleParticleSpec& spec)
     {
-        if (!FACTORY || count == 0)
+        if (!FACTORY || spec.life <= 0.0f)
             return;
 
-        std::uniform_real_distribution<float> angleDist(0.0f, 6.283185f);
-        std::uniform_real_distribution<float> speedDist(0.15f, 0.45f);
-        std::uniform_real_distribution<float> lifeDist(0.35f, 0.6f);
-        std::uniform_real_distribution<float> radiusDist(0.02f, 0.05f);
-        std::uniform_real_distribution<float> hueJitter(-0.05f, 0.05f);
+        GOC* particleObj = FACTORY->CreateEmptyComposition();
+        if (!particleObj)
+            return;
 
-        for (std::size_t i = 0; i < count; ++i)
-        {
-            GOC* particleObj = FACTORY->CreateEmptyComposition();
-            if (!particleObj)
-                continue;
+        particleObj->SetObjectName(spec.objectName.empty() ? "Particle" : spec.objectName);
 
-            particleObj->SetObjectName("EnemyDeathParticle");
+        auto* tr = particleObj->EmplaceComponent<TransformComponent>(
+            ComponentTypeId::CT_TransformComponent);
+        tr->x = spec.position.x;
+        tr->y = spec.position.y;
 
-            auto* tr = particleObj->EmplaceComponent<TransformComponent>(
-                ComponentTypeId::CT_TransformComponent);
-            tr->x = worldPos.x;
-            tr->y = worldPos.y;
+        auto* circle = particleObj->EmplaceComponent<CircleRenderComponent>(
+            ComponentTypeId::CT_CircleRenderComponent);
+        circle->radius = spec.startRadius;
+        circle->r = spec.r;
+        circle->g = spec.g;
+        circle->b = spec.b;
+        circle->a = spec.startAlpha;
 
-            auto* circle = particleObj->EmplaceComponent<CircleRenderComponent>(
-                ComponentTypeId::CT_CircleRenderComponent);
+        Particle particle{};
+        particle.id = particleObj->GetId();
+        particle.visual = ParticleVisual::Circle;
+        particle.velocity = spec.velocity;
+        particle.totalLife = spec.life;
+        particle.life = spec.life;
+        particle.startRadius = spec.startRadius;
+        particle.endRadius = spec.endRadius;
+        particle.startAlpha = spec.startAlpha;
+        particle.endAlpha = spec.endAlpha;
 
-            const float baseRadius = radiusDist(rng);
-            circle->radius = baseRadius;
-            circle->r = 1.0f;
-            circle->g = 0.45f + hueJitter(rng);
-            circle->b = 0.1f;
-            circle->a = 0.95f;
-
-            const float angle = angleDist(rng);
-            const float speed = speedDist(rng);
-
-            Particle particle{};
-            particle.id = particleObj->GetId();
-            particle.visual = ParticleVisual::Circle;
-            particle.velocity = { std::cos(angle) * speed, std::sin(angle) * speed + 0.05f };
-            particle.totalLife = lifeDist(rng);
-            particle.life = particle.totalLife;
-            particle.startRadius = baseRadius;
-            particle.endRadius = baseRadius * 0.2f;
-            particle.startAlpha = circle->a;
-            particle.endAlpha = 0.0f;
-
-            particles.push_back(particle);
-        }
+        particles.push_back(particle);
     }
 
-    /*************************************************************************************
-      \brief  Spawn run trail particles (sprite-based).
-      \param  worldPos    Spawn position in world space.
-      \param  facingDir   Facing direction sign (mirrors spawn/velocity).
-      \param  count       Number of particles to spawn.
-    *************************************************************************************/
-    void ParticleSystem::SpawnRunParticles(const glm::vec2& worldPos, float facingDir, std::size_t count)
+    void ParticleSystem::SpawnSpriteParticle(const SpriteParticleSpec& spec)
     {
-        if (!FACTORY || count == 0)
+        if (!FACTORY || spec.life <= 0.0f || spec.textureKey.empty())
             return;
 
-        constexpr const char* kRunParticleKey = "particle_ui";
-        constexpr const char* kRunParticlePath = "Textures/UI/Particle.png";
-
-        if (!Resource_Manager::getTexture(kRunParticleKey))
+        if (!Resource_Manager::getTexture(spec.textureKey) && !spec.texturePath.empty())
         {
-            const auto resolved = ResolveAssetPath(kRunParticlePath);
-            const std::string pathStr = resolved.empty() ? std::string(kRunParticlePath) : resolved.string();
-            Resource_Manager::load(kRunParticleKey, pathStr);
+            const auto resolved = ResolveAssetPath(spec.texturePath);
+            const std::string pathStr = resolved.empty() ? spec.texturePath : resolved.string();
+            Resource_Manager::load(spec.textureKey, pathStr);
         }
 
-        const float dir = (facingDir >= 0.0f) ? 1.0f : -1.0f;
-        std::uniform_real_distribution<float> speedDist(0.05f, 0.18f);
-        std::uniform_real_distribution<float> lifeDist(0.2f, 0.35f);
-        std::uniform_real_distribution<float> sizeDist(0.04f, 0.07f);
-        std::uniform_real_distribution<float> jitterDist(-0.015f, 0.015f);
-        std::uniform_real_distribution<float> riseDist(0.01f, 0.06f);
+        GOC* particleObj = FACTORY->CreateEmptyComposition();
+        if (!particleObj)
+            return;
 
-        for (std::size_t i = 0; i < count; ++i)
-        {
-            GOC* particleObj = FACTORY->CreateEmptyComposition();
-            if (!particleObj)
-                continue;
+        particleObj->SetObjectName(spec.objectName.empty() ? "Particle" : spec.objectName);
 
-            particleObj->SetObjectName("RunParticle");
+        auto* tr = particleObj->EmplaceComponent<TransformComponent>(
+            ComponentTypeId::CT_TransformComponent);
+        tr->x = spec.position.x;
+        tr->y = spec.position.y;
 
-            auto* tr = particleObj->EmplaceComponent<TransformComponent>(
-                ComponentTypeId::CT_TransformComponent);
-            tr->x = worldPos.x + (-dir * 0.08f) + jitterDist(rng);
-            tr->y = worldPos.y - 0.03f + jitterDist(rng);
+        auto* rc = particleObj->EmplaceComponent<RenderComponent>(
+            ComponentTypeId::CT_RenderComponent);
+        rc->w = spec.startSize;
+        rc->h = spec.startSize;
+        rc->r = spec.r;
+        rc->g = spec.g;
+        rc->b = spec.b;
+        rc->a = spec.startAlpha;
 
-            auto* rc = particleObj->EmplaceComponent<RenderComponent>(
-                ComponentTypeId::CT_RenderComponent);
-            const float baseSize = sizeDist(rng);
-            rc->w = baseSize;
-            rc->h = baseSize;
-            rc->r = 1.0f;
-            rc->g = 1.0f;
-            rc->b = 1.0f;
-            rc->a = 0.7f;
+        auto* sp = particleObj->EmplaceComponent<SpriteComponent>(
+            ComponentTypeId::CT_SpriteComponent);
+        sp->texture_key = spec.textureKey;
+        sp->texture_id = Resource_Manager::getTexture(spec.textureKey);
 
-            auto* sp = particleObj->EmplaceComponent<SpriteComponent>(
-                ComponentTypeId::CT_SpriteComponent);
-            sp->texture_key = kRunParticleKey;
-            sp->texture_id = Resource_Manager::getTexture(kRunParticleKey);
+        Particle particle{};
+        particle.id = particleObj->GetId();
+        particle.visual = ParticleVisual::Sprite;
+        particle.velocity = spec.velocity;
+        particle.totalLife = spec.life;
+        particle.life = spec.life;
+        particle.startSize = spec.startSize;
+        particle.endSize = spec.endSize;
+        particle.startAlpha = spec.startAlpha;
+        particle.endAlpha = spec.endAlpha;
 
-            const float speed = speedDist(rng);
-
-            Particle particle{};
-            particle.id = particleObj->GetId();
-            particle.visual = ParticleVisual::Sprite;
-            particle.velocity = { -dir * speed + jitterDist(rng), riseDist(rng) };
-            particle.totalLife = lifeDist(rng);
-            particle.life = particle.totalLife;
-            particle.startSize = baseSize;
-            particle.endSize = baseSize * 1.5f;
-            particle.startAlpha = rc->a;
-            particle.endAlpha = 0.0f;
-
-            particles.push_back(particle);
-        }
+        particles.push_back(particle);
     }
 
 } // namespace Framework

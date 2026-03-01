@@ -19,6 +19,7 @@
 #pragma once
 
 namespace Framework {
+    class AiSystem;
     class LogicSystem;
     class HealthSystem;
     class RenderSystem;
@@ -56,5 +57,12 @@ namespace mygame {
       \param health  Active engine HealthSystem.
     **************************************************************************************/
     void BindCombatAudio(Framework::LogicSystem& logic, Framework::HealthSystem& health);
+
+    /*************************************************************************************
+      \brief Binds game-side AI combat spawning into the engine AI system.
+      \param ai     Active engine AiSystem.
+      \param logic  Active engine LogicSystem (owns HitBoxSystem).
+    **************************************************************************************/
+    void BindAiCombat(Framework::AiSystem& ai, Framework::LogicSystem& logic);
 
 }

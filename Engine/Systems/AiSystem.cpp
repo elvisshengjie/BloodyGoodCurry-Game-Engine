@@ -34,10 +34,8 @@ namespace Framework
      \param window
         Reference to the game's graphics window, used for optional debug rendering.
     *****************************************************************************************/
-    AiSystem::AiSystem(gfx::Window& window,
-        LogicSystem& logicSystem)
-        : window(&window),
-        logic(&logicSystem)
+    AiSystem::AiSystem(gfx::Window& window)
+        : window(&window)
     {}
 
    /*****************************************************************************************
@@ -95,17 +93,8 @@ namespace Framework
                 }
             }
             if (!btComp->tree) continue;
-            btComp->spawnHitBoxFn = [this](GOC* owner, float x, float y, float w, float h, float dmg, float dur, float /*knockback*/)
-            {
-                    if (logic && logic->hitBoxSystem)
-                    logic->hitBoxSystem->SpawnHitBox(owner, x, y, w, h, dmg, dur, HitBoxComponent::Team::Enemy, 0.0f);
-            };
-
-            btComp->spawnProjectileFn = [this](GOC* owner, float x, float y, float dirX, float dirY, float speed, float w, float h, float dmg, float lifetime)
-            {
-                    if (logic && logic->hitBoxSystem)
-                    logic->hitBoxSystem->SpawnProjectile(owner, x, y, dirX, dirY, speed, w, h, dmg, lifetime, HitBoxComponent::Team::Enemy);
-            };
+            if (behaviorBindingCallback)
+                behaviorBindingCallback(*btComp, gocPtr.get());
 
             try {
                 btComp->Update(dt, gocPtr.get());

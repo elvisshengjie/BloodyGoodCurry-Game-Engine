@@ -33,6 +33,7 @@
 #include "Systems/RenderSystem.h"
 #include "Systems/ParticleSystem.h"
 #include "Systems/VfxHelpers.h"
+#include "../ParticlePresets.hpp"
 #include "../Audio/GameAudioSetup.h"
 
 #include "Component/AudioComponent.h"
@@ -531,7 +532,7 @@ namespace {
             if (auto* particleSystem = Framework::ParticleSystem::Instance())
             {
                 const float facingDir = (rc->w >= 0.0f) ? 1.0f : -1.0f;
-                particleSystem->SpawnRunParticles({ tr->x, tr->y }, facingDir);
+                mygame::SpawnRunParticles(*particleSystem, { tr->x, tr->y }, facingDir);
             }
             state.runParticleTimer = 0.08f;
         }

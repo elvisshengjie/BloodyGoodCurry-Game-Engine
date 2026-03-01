@@ -8,6 +8,7 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
+#include <iostream>
 namespace Framework
 {
     class BehaviorTreeComponent : public GameComponent
