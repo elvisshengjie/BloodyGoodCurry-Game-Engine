@@ -304,8 +304,11 @@ namespace Framework
                         {
                             playerHealth->isDead = true;
                             PlayAnimationIfAvailable(goc, "death");
-                            if (audio && audio->HasSound("PlayerDead"))
+                            if (audio && audio->HasSound("PlayerDead") && !playerHealth->deathSoundPlayed)
+                            {
                                 audio->TriggerSound("PlayerDead");
+                                playerHealth->deathSoundPlayed = true;
+                            }
                             deathTimers[id] = std::max(AnimationDuration(
                                 goc->GetComponentType<SpriteAnimationComponent>(
                                     ComponentTypeId::CT_SpriteAnimationComponent), "death"), 0.2f);
