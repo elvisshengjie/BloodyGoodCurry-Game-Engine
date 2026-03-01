@@ -95,7 +95,6 @@
       },
       "AudioComponent": 
       {
-        "entityType": "enemy_fire",
         "sounds": {
           "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
           "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },

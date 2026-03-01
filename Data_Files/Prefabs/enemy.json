@@ -93,7 +93,6 @@
         "type": "physical"
       },
       "AudioComponent": {
-        "entityType": "enemy_water",
         "sounds": {
             "WaterGhostAttack": { "id": "WaterGhostAttack", "loop": false },
             "GhostHurt1": { "id": "GhostHurt1", "loop": false },
