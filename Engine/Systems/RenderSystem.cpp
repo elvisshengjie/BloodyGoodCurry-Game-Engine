@@ -44,6 +44,7 @@
 #endif
 
 #include "RenderSystem.h"
+#include "Core/ProjectContext.h"
 #include "Core/PathUtils.h"
 #include "Debug/Perf.h"
 #if SOFASPUDS_ENABLE_EDITOR
@@ -54,6 +55,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cmath>
+#include <fstream>
 #include <system_error>
 #include <vector>
 #include <limits>
@@ -278,18 +280,34 @@ namespace Framework {
         namespace fs = std::filesystem;
 
         const char* rels[] = {
+            "Assets/Fonts/Roboto-Black.ttf",
+            "Assets/Fonts/Roboto-Regular.ttf",
+            "Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "assets/Fonts/Roboto-Black.ttf",
             "assets/Fonts/Roboto-Regular.ttf",
             "assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
             "assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
+            "../Assets/Fonts/Roboto-Black.ttf",
+            "../Assets/Fonts/Roboto-Regular.ttf",
+            "../Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "../assets/Fonts/Roboto-Black.ttf",
             "../assets/Fonts/Roboto-Regular.ttf",
             "../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
             "../assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
+            "../../Assets/Fonts/Roboto-Black.ttf",
+            "../../Assets/Fonts/Roboto-Regular.ttf",
+            "../../Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "../../assets/Fonts/Roboto-Black.ttf",
             "../../assets/Fonts/Roboto-Regular.ttf",
             "../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
             "../../assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
+            "../../../Assets/Fonts/Roboto-Black.ttf",
+            "../../../Assets/Fonts/Roboto-Regular.ttf",
+            "../../../Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
+            "../../../Assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf",
             "../../../assets/Fonts/Roboto-Black.ttf",
             "../../../assets/Fonts/Roboto-Regular.ttf",
             "../../../assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
@@ -332,7 +350,10 @@ namespace Framework {
             auto p = root;
             for (int up = 0; up < 7 && !p.empty(); ++up)
             {
-                auto base = p / "assets" / "Fonts";
+                auto base = p / "Assets" / "Fonts";
+                if (auto picked = try_pick(base); !picked.empty())
+                    return picked;
+                base = p / "assets" / "Fonts";
                 if (auto picked = try_pick(base); !picked.empty())
                     return picked;
                 p = p.parent_path();
@@ -360,8 +381,11 @@ namespace Framework {
             auto probe = root;
             for (int up = 0; up < 7 && !probe.empty(); ++up)
             {
-                fs::path candidate = probe / "assets";
+                fs::path candidate = probe / "Assets";
                 std::error_code ec;
+                if (fs::exists(candidate, ec) && fs::is_directory(candidate, ec))
+                    return fs::weakly_canonical(candidate, ec);
+                candidate = probe / "assets";
                 if (fs::exists(candidate, ec) && fs::is_directory(candidate, ec))
                     return fs::weakly_canonical(candidate, ec);
                 probe = probe.parent_path();
@@ -419,7 +443,14 @@ namespace Framework {
             auto probe = root;
             for (int up = 0; up < 7 && !probe.empty(); ++up)
             {
-                fs::path candidate = probe / "Data_Files";
+                fs::path candidate = probe / "Data";
+                if (directory_exists(candidate))
+                {
+                    std::error_code canonicalEc;
+                    auto canonical = fs::weakly_canonical(candidate, canonicalEc);
+                    candidates.emplace_back(canonicalEc ? candidate : canonical);
+                }
+                candidate = probe / "Data_Files";
                 if (directory_exists(candidate))
                 {
                     std::error_code canonicalEc;
@@ -431,6 +462,10 @@ namespace Framework {
         }
 
         static const char* rels[] = {
+            "Data",
+            "../Data",
+            "../../Data",
+            "../../../Data",
             "Data_Files",
             "../Data_Files",
             "../../Data_Files",
@@ -449,6 +484,129 @@ namespace Framework {
         }
         return pick_newest(candidates);
     }
+
+#if SOFASPUDS_ENABLE_EDITOR
+    void RenderSystem::RefreshEditorProjectRoots()
+    {
+        assetsRoot = Framework::GetCurrentAssetsRoot();
+        if (assetsRoot.empty())
+            assetsRoot = FindAssetsRoot();
+
+        if (!assetsRoot.empty())
+        {
+            assetBrowser.Initialize(assetsRoot);
+            mygame::SetSpawnPanelAssetsRoot(assetsRoot);
+            AudioImGui::SetAssetsRoot(assetsRoot);
+        }
+
+        dataFilesRoot = Framework::GetCurrentDataRoot();
+        if (dataFilesRoot.empty())
+            dataFilesRoot = FindDataFilesRoot();
+
+        if (!dataFilesRoot.empty())
+            jsonEditor.Initialize(dataFilesRoot);
+        else
+            jsonEditor.Initialize({});
+
+        mygame::SetSpawnPanelLevelDefaults("level.json", "level.json");
+    }
+
+    bool RenderSystem::CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message)
+    {
+        namespace fs = std::filesystem;
+
+        fs::path gamesRoot;
+        if (Framework::HasCurrentProject())
+        {
+            const auto current = Framework::GetCurrentProjectRoot();
+            gamesRoot = current.empty() ? fs::path{} : current.parent_path();
+        }
+
+        if (gamesRoot.empty())
+            gamesRoot = AssetManager::ProjectRoot() / "..";
+
+        std::error_code ec;
+        gamesRoot = fs::weakly_canonical(gamesRoot, ec);
+        if (ec)
+            gamesRoot = fs::absolute(gamesRoot, ec);
+
+        if (gamesRoot.empty())
+        {
+            message = "Could not determine the Games directory.";
+            return false;
+        }
+
+        fs::path projectRoot;
+        std::string projectName;
+        for (int index = 0; index < 100; ++index)
+        {
+            projectName = (index == 0)
+                ? "NewGame"
+                : "NewGame" + std::to_string(index + 1);
+            projectRoot = gamesRoot / projectName;
+
+            if (!fs::exists(projectRoot, ec))
+                break;
+        }
+
+        if (projectRoot.empty() || fs::exists(projectRoot, ec))
+        {
+            message = "Could not find an available NewGame folder name.";
+            return false;
+        }
+
+        const fs::path assetsDir = projectRoot / "Assets";
+        const fs::path dataDir = projectRoot / "Data";
+        const fs::path savesDir = projectRoot / "Saves";
+        const fs::path prefabsDir = dataDir / "Prefabs";
+
+        if (!fs::create_directories(assetsDir, ec) || ec)
+        {
+            message = "Failed to create Assets directory: " + assetsDir.string();
+            return false;
+        }
+
+        fs::create_directories(prefabsDir, ec);
+        if (ec)
+        {
+            message = "Failed to create Data/Prefabs directory: " + prefabsDir.string();
+            return false;
+        }
+
+        fs::create_directories(savesDir, ec);
+        if (ec)
+        {
+            message = "Failed to create Saves directory: " + savesDir.string();
+            return false;
+        }
+
+        {
+            std::ofstream out(dataDir / "window.json", std::ios::trunc);
+            out << "{\n"
+                << "  \"window\": {\n"
+                << "    \"width\": 1280,\n"
+                << "    \"height\": 720,\n"
+                << "    \"title\": \"MyGame - " << projectName << "\",\n"
+                << "    \"fullscreen\": false\n"
+                << "  }\n"
+                << "}\n";
+        }
+
+        {
+            std::ofstream out(dataDir / "level.json", std::ios::trunc);
+            out << "{\n"
+                << "  \"Level\": {\n"
+                << "    \"GameObjects\": []\n"
+                << "  }\n"
+                << "}\n";
+        }
+
+        Framework::SetCurrentProjectRoot(projectRoot);
+        createdRoot = Framework::GetCurrentProjectRoot();
+        message = "Created project " + projectName;
+        return !createdRoot.empty();
+    }
+#endif
 
     /*************************************************************************************
       \brief  Choose the current player sprite texture (idle vs run) based on animation state.
@@ -1874,27 +2032,8 @@ namespace Framework {
             textReadyTitle = textReadyHint = false;
         }
 
-        Resource_Manager::load("player_png", resolveAsset("Textures/player.png"));
-        playerTex = Resource_Manager::resources_map["player_png"].handle;
-
-        Resource_Manager::load("ming_idle", resolveAsset("Textures/Idle Sprite .png"));
-        Resource_Manager::load("ming_run", resolveAsset("Textures/Running Sprite .png"));
-        Resource_Manager::load("ming_attack1", resolveAsset("Textures/Character/Ming_Sprite/1st_Attack Sprite.png"));
-        Resource_Manager::load("ming_attack2", resolveAsset("Textures/Character/Ming_Sprite/2nd_Attack Sprite.png"));
-        Resource_Manager::load("ming_attack3", resolveAsset("Textures/Character/Ming_Sprite/3rd_Attack Sprite.png"));
-        Resource_Manager::load("ming_throw", resolveAsset("Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png"));
-        Resource_Manager::load("ming_knockback", resolveAsset("Textures/Character/Ming_Sprite/Knockback_Sprite.png"));
-        Resource_Manager::load("ming_knife", resolveAsset("Textures/Character/Ming_Sprite/Knife_Sprite.png"));
-        Resource_Manager::load("fire_projectile", resolveAsset("Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png"));
-        Resource_Manager::load("impact_vfx_sheet", resolveAsset("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png"));
-        idleTex = Resource_Manager::resources_map["ming_idle"].handle;
-        runTex = Resource_Manager::resources_map["ming_run"].handle;
-        attackTex[0] = Resource_Manager::resources_map["ming_attack1"].handle;
-        attackTex[1] = Resource_Manager::resources_map["ming_attack2"].handle;
-        attackTex[2] = Resource_Manager::resources_map["ming_attack3"].handle;
-        knockbackTex = Resource_Manager::resources_map["ming_knockback"].handle;
-        knifeTex = Resource_Manager::resources_map["ming_knife"].handle;
-        fireProjectileTex = Resource_Manager::resources_map["fire_projectile"].handle;
+        if (initializeCallback)
+            initializeCallback(*this);
 
 #if SOFASPUDS_ENABLE_EDITOR
         ImGuiLayerConfig config;
@@ -1912,24 +2051,7 @@ namespace Framework {
             std::cerr << "[RenderSystem] Warning: window is null, skipping ImGui initialization.\n";
         }
 
-        assetsRoot = FindAssetsRoot();
-        if (assetsRoot.empty())
-        {
-            std::error_code ec;
-            auto cwdAssets = std::filesystem::current_path(ec) / "assets";
-            if (!ec && std::filesystem::exists(cwdAssets, ec) && std::filesystem::is_directory(cwdAssets, ec))
-                assetsRoot = std::filesystem::weakly_canonical(cwdAssets, ec);
-        }
-
-        if (!assetsRoot.empty())
-        {
-            assetBrowser.Initialize(assetsRoot);
-            mygame::SetSpawnPanelAssetsRoot(assetsRoot);
-            AudioImGui::SetAssetsRoot(assetsRoot);
-        }
-
-
-        jsonEditor.Initialize(AssetManager::ProjectRoot() / "Data_Files");
+        RefreshEditorProjectRoots();
 
         if (window && window->raw())
             glfwSetDropCallback(window->raw(), &RenderSystem::GlfwDropCallback);
@@ -2858,10 +2980,44 @@ namespace Framework {
             {
                 if (ImGui::BeginMainMenuBar())
                 {
+                    if (ImGui::BeginMenu("File"))
+                    {
+                        if (ImGui::MenuItem("New Game"))
+                        {
+                            std::filesystem::path createdRoot;
+                            std::string message;
+                            if (CreateNewGameProject(createdRoot, message))
+                            {
+                                RefreshEditorProjectRoots();
+                                projectMenuStatusMessage = message + ": " + createdRoot.string();
+                                projectMenuStatusIsError = false;
+                            }
+                            else
+                            {
+                                projectMenuStatusMessage = message;
+                                projectMenuStatusIsError = true;
+                            }
+                        }
+                        ImGui::EndMenu();
+                    }
+
                     if (ImGui::BeginMenu("View"))
                     {
                         ImGui::MenuItem("Animation Editor", nullptr, &showAnimationEditor);
                         ImGui::EndMenu();
+                    }
+                    if (Framework::HasCurrentProject())
+                    {
+                        const ImVec4 color = projectMenuStatusIsError
+                            ? ImVec4(0.95f, 0.35f, 0.35f, 1.0f)
+                            : ImVec4(0.75f, 0.75f, 0.75f, 1.0f);
+                        ImGui::Separator();
+                        ImGui::TextUnformatted(Framework::GetCurrentProjectRoot().filename().string().c_str());
+                        if (!projectMenuStatusMessage.empty())
+                        {
+                            ImGui::Separator();
+                            ImGui::TextColored(color, "%s", projectMenuStatusMessage.c_str());
+                        }
                     }
                     ImGui::EndMainMenuBar();
                 }

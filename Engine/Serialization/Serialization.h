@@ -118,6 +118,13 @@ namespace Framework
           \return true if index is valid and the scope moved into that element.
         *************************************************************************************/
         virtual bool EnterIndex(size_t i) = 0;
+
+        /*************************************************************************************
+          \brief Returns the keys in the current object scope.
+          \return A vector containing the current object's property names, or an empty vector
+                  if the current scope is not an object.
+        *************************************************************************************/
+        virtual std::vector<std::string> CurrentKeys() const = 0;
     };
 
     /*****************************************************************************************

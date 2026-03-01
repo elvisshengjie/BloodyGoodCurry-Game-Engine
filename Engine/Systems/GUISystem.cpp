@@ -137,11 +137,16 @@ void GUISystem::Update(Framework::InputSystem* /*input*/) {
     // Rising-edge click dispatch.
     const bool mouseNow = (glfwGetMouseButton(w, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
     if (RisingEdgeLeftClick(mouseNow, prevMouseDown_)) {
-        for (auto& b : buttons_) {
+        std::function<void()> onClick;
+        for (const auto& b : buttons_) {
             if (b.hovered && b.onClick) {
-                b.onClick();
+                onClick = b.onClick;
                 break; // one click -> one button
             }
+        }
+
+        if (onClick) {
+            onClick();
         }
     }
 }

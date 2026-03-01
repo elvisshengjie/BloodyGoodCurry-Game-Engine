@@ -17,7 +17,7 @@
         "layer": -1,
         "visible": true,
         "texture_key": "store_left_sheet",
-        "texture_path": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png"
+        "texture_path": "../../Assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png"
       },
       "SpriteComponent": { "texture_key": "store_left_sheet" },
       "SpriteAnimationComponent": {
@@ -35,7 +35,7 @@
             },
             "currentFrame": 0,
             "name": "idle",
-            "spriteSheetPath": "../../assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
+            "spriteSheetPath": "../../Assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
             "textureKey": "store_left_sheet"
           }
         ],

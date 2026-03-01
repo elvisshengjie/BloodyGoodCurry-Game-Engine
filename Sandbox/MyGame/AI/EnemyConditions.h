@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      EnemyConditions.h
+ \par       SofaSpuds
+ \author
+ \brief     Declares game-specific condition helpers for enemy AI decision logic.
+ \details   Contains condition predicates used by the sandbox enemy AI to evaluate
+            player distance, line-of-sight, attack readiness, and similar gameplay checks.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "Composition/Composition.h"              // defines Framework::GOC
 #include "AI/BehaviorContext.h"

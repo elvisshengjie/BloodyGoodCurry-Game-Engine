@@ -527,8 +527,12 @@ std::string AudioManager::getFullPath(const std::string& fileName) const
     // Try to find the audio file in the game-assets directory
     std::filesystem::path currentPath = std::filesystem::current_path();
 
-    // Try different possible paths
+    // Prefer the new project-local layout, then fall back to the legacy one.
     std::vector<std::filesystem::path> possiblePaths = {
+        currentPath / "Assets" / "Audio" / fileName,
+        currentPath / ".." / "Assets" / "Audio" / fileName,
+        currentPath / ".." / ".." / "Assets" / "Audio" / fileName,
+        currentPath / ".." / ".." / ".." / "Assets" / "Audio" / fileName,
         currentPath / "assets" / "Audio" / fileName,
         currentPath / ".." / "assets" / "Audio" / fileName,
         currentPath / ".." / ".." / "assets" / "Audio" / fileName,

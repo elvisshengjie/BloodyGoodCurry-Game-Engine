@@ -24,14 +24,11 @@
 #include "HealthSystem.h"
 #include "Factory/Factory.h"
 #include "Component/SpriteAnimationComponent.h"
-#include "RenderSystem.h"
-#include "Systems/ParticleSystem.h"
 #include <algorithm>
 #include <cmath>
 #include <cctype>
 #include <iostream>
 #include <string_view>
-#include <glad/glad.h>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
 #ifdef _DEBUG
@@ -41,6 +38,12 @@ namespace Framework
 {
     namespace
     {
+        void EmitCombatAudio(const CombatAudioCallback& callback, GOC* source, CombatAudioEvent event)
+        {
+            if (callback && source)
+                callback(source, event);
+        }
+
         /*****************************************************************************************
          \brief  Find the index of a named animation on a SpriteAnimationComponent (case-insensitive).
 
@@ -218,7 +221,6 @@ namespace Framework
         // Track by ID instead of raw pointers to avoid dangling references.
         gameObjectIds.clear();
         deathTimers.clear();
-        playerDied = false;
 
         RefreshTrackedObjects();
     }
@@ -227,7 +229,6 @@ namespace Framework
 
     void HealthSystem::Update(float dt)
     {
-        lastDt = dt;
         RefreshTrackedObjects();
         gameObjectIds.erase(
             std::remove_if(
@@ -253,17 +254,10 @@ namespace Framework
                             float& timer = deathTimers[id];
                             auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                                 ComponentTypeId::CT_SpriteAnimationComponent);
-                            auto* audio = goc->GetComponentType<AudioComponent>(
-                                ComponentTypeId::CT_AudioComponent);
-
                             if (timer <= 0.0f)
                             {
                                 PlayAnimationIfAvailable(goc, "death");
-                                if (audio)
-                                {
-                                    if (audio->HasSound("Death"))
-                                        audio->TriggerSound("Death");
-                                }
+                                EmitCombatAudio(combatAudioCallback, goc, CombatAudioEvent::EnemyDeath);
                                 timer = std::max(AnimationDuration(anim, "death"), 0.2f);
                             }
                             else
@@ -290,15 +284,22 @@ namespace Framework
                     if (auto* playerHealth = goc->GetComponentType<PlayerHealthComponent>(
                         ComponentTypeId::CT_PlayerHealthComponent))
                     {
-                        auto* audio = goc->GetComponentType<AudioComponent>(
-                            ComponentTypeId::CT_AudioComponent);
+                        if (playerHealth->isInvulnerable)
+                        {
+                            playerHealth->invulnTime = std::max(0.0f, playerHealth->invulnTime - dt);
+                            if (playerHealth->invulnTime <= 0.0f)
+                                playerHealth->isInvulnerable = false;
+                        }
 
-                        if (playerHealth->playerHealth <= 0 && !playerHealth->isDead)
+                        if (playerHealth->playerHealth <= 0 && deathTimers.find(id) == deathTimers.end())
                         {
                             playerHealth->isDead = true;
                             PlayAnimationIfAvailable(goc, "death");
-                            if (audio && audio->HasSound("PlayerDead"))
-                                audio->TriggerSound("PlayerDead");
+                            if (!playerHealth->deathSoundPlayed)
+                            {
+                                EmitCombatAudio(combatAudioCallback, goc, CombatAudioEvent::PlayerDeath);
+                                playerHealth->deathSoundPlayed = true;
+                            }
                             deathTimers[id] = std::max(AnimationDuration(
                                 goc->GetComponentType<SpriteAnimationComponent>(
                                     ComponentTypeId::CT_SpriteAnimationComponent), "death"), 0.2f);
@@ -314,6 +315,8 @@ namespace Framework
                             const bool finished = anim ? IsAnimationFinished(anim, "death") : true;
                             if (timer <= 0.0f && finished)
                             {
+                                if (playerDeathCompleteCallback)
+                                    playerDeathCompleteCallback();
                                 FACTORY->Destroy(goc);
                                 deathTimers.erase(id);
                                 return true;
@@ -326,136 +329,15 @@ namespace Framework
                 }),
             gameObjectIds.end());
     }
-    auto WorldToScreenUI = [](float worldX, float worldY, int screenW, int screenH, const glm::mat4& vpMatrix)
-    {
-            glm::vec4 clipPos = vpMatrix * glm::vec4(worldX, worldY, 0.0f, 1.0f);
-
-            if (clipPos.w == 0.0f)
-                return std::make_pair(-100.0f, -100.0f); // off-screen fallback
-
-            glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w; // normalized device coords [-1,1]
-
-            float x = (ndc.x * 0.5f + 0.5f) * screenW;
-            float y = (ndc.y * 0.5f + 0.5f) * screenH;
-
-            return std::make_pair(x, y);
-    };
     void HealthSystem::draw()
     {
-        if (!window)
-            return;
-
-        int viewportX = 0;
-        int viewportY = 0;
-        int viewportW = 0;
-        int viewportH = 0;
-        bool hasViewport = false;
-        auto* renderer = RenderSystem::Get();
-        if (renderer)
-        {
-            hasViewport = renderer->GetGameViewportRect(viewportX, viewportY, viewportW, viewportH);
-        }
-        if (!hasViewport)
-        {
-            viewportX = 0;
-            viewportY = 0;
-            viewportW = window->Width();
-            viewportH = window->Height();
-        }
-        if (viewportW <= 0 || viewportH <= 0)
-            return;
-
-        glViewport(viewportX, viewportY, viewportW, viewportH);
-
-        for (GOCId id : gameObjectIds)
-        {
-            GOC* goc = FACTORY->GetObjectWithId(id);
-            if (!goc)
-                continue;
-
-            auto* playerHealth =
-                goc->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent);
-            if (!playerHealth)
-                continue;
-
-            auto* hud = goc->GetComponentType<PlayerHUDComponent>(ComponentTypeId::CT_PlayerHUDComponent);
-            if (!hud)
-                continue;
-
-            hud->Update(lastDt);
-            hud->Draw(viewportW, viewportH);
-     
-        }
-        
-        for (GOCId id : gameObjectIds)
-        {
-            GOC* goc = FACTORY->GetObjectWithId(id);
-            if (!goc)
-                continue;
-            auto* enemyHealth =
-                goc->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
-            auto* transform =
-                goc->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-            auto* render =
-                goc->GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent);
-
-            if (!enemyHealth || !transform)
-                continue;
-            // Offset above enemy head (pixels)
-            const float scaleY = std::max(1.0f, std::fabs(transform->scaleY));
-            float baseHeight = scaleY;
-            if (render)
-            {
-                baseHeight = std::max(1.0f, std::fabs(render->h * transform->scaleY));
-            }
-  
-            const float halfHeight = baseHeight * 0.5f;
-
-            // reduce distance (try 0.30f ~ 0.45f)
-            float worldOffsetY = halfHeight * 0.35f;
-            float worldY = transform->y + worldOffsetY;
-            float worldX = transform->x;
-            const glm::mat4& viewProjection =
-                renderer ? renderer->GetWorldViewProjectionMatrix() : gfx::Graphics::GetViewProjectionMatrix();
-            auto screenPos = WorldToScreenUI(worldX, worldY, viewportW, viewportH,
-                viewProjection);
-            float screenX = screenPos.first;
-            float screenY = screenPos.second;
-
-            // Health bar dimensions
-            float barWidth = viewportW * 0.05f;  // 5% of screen width
-            float barHeight = viewportH * 0.015f; // 1.5% of screen height
-
-            float healthRatio = 0.0f;
-            if (enemyHealth->enemyMaxhealth > 0)
-            {
-                healthRatio = float(enemyHealth->enemyHealth) / float(enemyHealth->enemyMaxhealth);
-            }
-            if (healthRatio < 0.0f) healthRatio = 0.0f;
-            if (healthRatio > 1.0f) healthRatio = 1.0f;
-
-            // Background (grey)
-            gfx::Graphics::renderRectangleUI(screenX - barWidth / 2, screenY - barHeight / 2,
-                barWidth, barHeight,
-                0.2f, 0.2f, 0.2f, 1.0f,
-                viewportW, viewportH);
-
-            // Foreground (green)
-            gfx::Graphics::renderRectangleUI(screenX - barWidth / 2, screenY - barHeight / 2,
-                barWidth * healthRatio, barHeight,
-                0.0f, 1.0f, 0.0f, 1.0f,
-                viewportW, viewportH);
-
-        }
-       
-        glViewport(0, 0, window->Width(), window->Height());
+        // Health presentation (HUD / enemy bars) is game-specific and now lives in Sandbox/MyGame.
     }
 
     void HealthSystem::Shutdown()
     {
         gameObjectIds.clear();
         deathTimers.clear();
-        playerDied = false;
     }
 
 } // namespace Framework

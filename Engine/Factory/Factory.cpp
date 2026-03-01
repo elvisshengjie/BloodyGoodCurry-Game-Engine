@@ -48,6 +48,7 @@
 #include "Component/ShadowComponent.h"
 
 #include "Component/PlayerComponent.h"
+#include "Component/BehaviourComponent.h"
 #include "Component/PlayerHealthComponent.h"
 #include "Component/PlayerAttackComponent.h"
 #include "Component/HitBoxComponent.h"
@@ -460,6 +461,11 @@ namespace Framework {
         }
         case ComponentTypeId::CT_PlayerHUDComponent:
             return json::object();
+        case ComponentTypeId::CT_BehaviourComponent:
+        {
+            auto const& behaviour = static_cast<BehaviourComponent const&>(component);
+            return json{ {"behaviourKey", behaviour.behaviourKey} };
+        }
         case ComponentTypeId::CT_EnemyComponent:
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
             return json::object();
@@ -578,47 +584,8 @@ namespace Framework {
             array.push_back(std::move(objJson));      // Append object to "GameObjects" array
         }
 
-        auto hasNamedBehaviour = [&](const char* name) {
-            for (const auto& go : array) {
-                if (!go.is_object()) continue;
-                const auto nameIt = go.find("name");
-                if (nameIt == go.end() || !nameIt->is_string() || nameIt->get<std::string>() != name)
-                    continue;
-
-                const auto compsIt = go.find("Components");
-                if (compsIt == go.end() || !compsIt->is_object())
-                    continue;
-
-                const auto behaviourIt = compsIt->find("BehaviourComponent");
-                if (behaviourIt == compsIt->end() || !behaviourIt->is_object())
-                    continue;
-
-                const auto keyIt = behaviourIt->find("behaviourKey");
-                if (keyIt != behaviourIt->end() && keyIt->is_string() && keyIt->get<std::string>() == name)
-                    return true;
-            }
-            return false;
-            };
-
-        auto injectGlobalBehaviourObject = [&](const char* name) {
-            if (hasNamedBehaviour(name))
-                return;
-
-            array.push_back(json{
-                {"Components", json{
-                    {"BehaviourComponent", json{
-                        {"behaviourKey", name}
-                    }}
-                }},
-                {"layer", "Gameplay:0"},
-                {"name", name}
-            });
-        };
-
-        // Ensure global gameplay behaviour entities exist even for brand-new levels
-        // saved from editor tooling (e.g., Spawn panel level creation).
-        injectGlobalBehaviourObject("CombatDirector");
-        injectGlobalBehaviourObject("VfxCleanup");
+        if (levelSaveFinalizeCallback)
+            levelSaveFinalizeCallback(array);
 
         std::filesystem::path outputPath(filename);   // Normalize/hold output path
         std::error_code ec;                           // Non-throwing error code holder
@@ -1128,18 +1095,59 @@ namespace Framework {
         case ComponentTypeId::CT_EnemyComponent:
         case ComponentTypeId::CT_PlayerComponent:
         case ComponentTypeId::CT_EnemyDecisionTreeComponent:
+        {
+            break;
+        }
         case ComponentTypeId::CT_BehaviorTreeComponent:
         {
             auto& bt = static_cast<BehaviorTreeComponent&>(component);
             readString("treeType", bt.treeType);
             break;
         }
+        case ComponentTypeId::CT_BehaviourComponent:
+        {
+            auto& behaviour = static_cast<BehaviourComponent&>(component);
+            behaviour.started = false;
+            readString("behaviourKey", behaviour.behaviourKey);
+            break;
+        }
         case ComponentTypeId::CT_InputComponents:
+        {
+            break;
+        }
         case ComponentTypeId::CT_AudioComponent:
         {
             auto& audio = static_cast<AudioComponent&>(component);
-            readFloat("volume", audio.volume);          // 
-            // You may also want to read "sounds" map here if needed for snapshots
+            readFloat("volume", audio.volume);
+            audio.ClearSounds();
+
+            auto soundsIt = data.find("sounds");
+            if (soundsIt != data.end() && soundsIt->is_object())
+            {
+                for (auto& [actionName, soundData] : soundsIt->items())
+                {
+                    if (!soundData.is_object())
+                        continue;
+
+                    std::string soundId = actionName;
+                    bool loop = false;
+
+                    auto idIt = soundData.find("id");
+                    if (idIt != soundData.end() && idIt->is_string())
+                        soundId = idIt->get<std::string>();
+
+                    auto loopIt = soundData.find("loop");
+                    if (loopIt != soundData.end())
+                    {
+                        if (loopIt->is_boolean())
+                            loop = loopIt->get<bool>();
+                        else if (loopIt->is_number_integer())
+                            loop = (loopIt->get<int>() != 0);
+                    }
+
+                    audio.AddSound(actionName, soundId, loop);
+                }
+            }
             break;
         }
         default:

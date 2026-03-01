@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      Game.cpp
  \par       SofaSpuds
  \author    All TEAM MEMBERS
@@ -37,6 +37,8 @@
 #include <PauseMenuPage.hpp>
 #include <DefeatScreenPage.hpp>
 #include "EngineCall.hpp"
+#include "HealthPresentation.hpp"
+#include "VfxPresets.hpp"
 
 #include "Common/CRTDebug.h"   
 
@@ -74,12 +76,21 @@ namespace mygame {
             "BGM"
         };
 
+        /*************************************************************************************
+         \brief  Checks whether a loaded sound id belongs to background music.
+         \param  name  The sound id to test.
+         \return True if the id is one of the registered BGM tracks.
+        *************************************************************************************/
         bool IsBgmSoundId(const std::string& name)
         {
             return std::any_of(kBgmSoundIds.begin(), kBgmSoundIds.end(),
                 [&name](const char* id) { return name == id; });
         }
 
+        /*************************************************************************************
+         \brief  Applies the current music volume to all registered BGM sounds.
+         \param  volume  Target music volume scalar.
+        *************************************************************************************/
         void ApplyBgmVolume(float volume)
         {
             SoundManager& sm = SoundManager::getInstance();
@@ -90,6 +101,10 @@ namespace mygame {
             }
         }
 
+        /*************************************************************************************
+         \brief  Applies the current SFX volume to all non-BGM loaded sounds.
+         \param  volume  Target sound-effects volume scalar.
+        *************************************************************************************/
         void ApplySfxVolume(float volume)
         {
             SoundManager& sm = SoundManager::getInstance();
@@ -126,6 +141,12 @@ namespace mygame {
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
+
+        /*************************************************************************************
+         \brief  Receives allocator leak records during shutdown diagnostics.
+         \param  block       Address of the still-live allocation.
+         \param  blockIndex  Allocator block index for the leaked allocation.
+        *************************************************************************************/
         void allocatorDumpCallback(const void* block, unsigned int blockIndex)
         {
             std::cout << "[Allocator] Leak: block #" << blockIndex << " at " << block << "\n";
@@ -137,15 +158,21 @@ namespace mygame {
     static float transitionTimer = 0.0f;
     static constexpr float kStartTransitionDuration = 1.0f;
 
+    /*************************************************************************************
+     \brief  Initializes engine systems and game-side bindings for the current session.
+     \param  win  The main application window used by window-dependent systems.
+    *************************************************************************************/
     void init(gfx::Window& win)
     {
         gInputSystem = gSystems.RegisterSystem<Framework::InputSystem>(win);
         gLogicSystem = gSystems.RegisterSystem<Framework::LogicSystem>(win, *gInputSystem);
-        gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>(*gLogicSystem);
-        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win, *gLogicSystem);
+        ConfigureGameBootstrap(*gLogicSystem);
+        gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>();
+        gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
         gNavSystem = gSystems.RegisterSystem<Framework::NavSystem>(win);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
+        ConfigureRenderBootstrap(*gRenderSystem);
         gHealthSystem = gSystems.RegisterSystem<Framework::HealthSystem>(win);
         gParticleSystem = gSystems.RegisterSystem<Framework::ParticleSystem>();
 
@@ -155,6 +182,10 @@ namespace mygame {
 
         gSystems.IntializeAll();
         RegisterMyGameScripts(*gLogicSystem);
+        BindCombatAudio(*gLogicSystem, *gHealthSystem);
+        BindCombatVfx(*gLogicSystem);
+        BindAiCombat(*gAiSystem, *gLogicSystem);
+        BindHealthPresentation(*gHealthSystem);
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
@@ -173,6 +204,12 @@ namespace mygame {
         editorSimulationRunning = false;
     }
 
+    /*************************************************************************************
+     \brief  Advances the active game state for one simulation tick.
+     \param  dt  Fixed-step delta time in seconds.
+     \details Handles state transitions, menu flow, cutscene playback, editor simulation,
+              global audio volume updates, and system updates during gameplay.
+    *************************************************************************************/
     void update(float dt)
     {
         TryGuard::Run([&] {
@@ -237,8 +274,7 @@ namespace mygame {
                     }
                     editorSimulationRunning = false;
                     pauseMenu.ResetLatches();
-                    if (gHealthSystem)
-                        gHealthSystem->ClearPlayerDeathFlag();
+                    ResetPlayerDefeat();
                 }
                 if (mainMenu.ConsumeExit())
                 {
@@ -275,6 +311,7 @@ namespace mygame {
             case GameState::PLAYING:
                 if (editorSimulationRunning)
                 {
+                    UpdateHealthPresentationDelta(dt);
                     gSystems.UpdateAll(dt);
                 }
                 // When simulation is not running we already refreshed input above.
@@ -288,7 +325,7 @@ namespace mygame {
                     gameplayBGMPlaying = true;
                 }
      
-                if (!editorMode && gHealthSystem && gHealthSystem->HasPlayerDied())
+                if (!editorMode && IsPlayerDefeated())
                 {
                     defeatScreen.ResetLatches();
                     if (gRenderSystem)
@@ -342,8 +379,7 @@ namespace mygame {
                     {
                         gLogicSystem->ReloadLevel();
                     }
-                    if (gHealthSystem)
-                        gHealthSystem->ClearPlayerDeathFlag();
+                    ResetPlayerDefeat();
 
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
@@ -413,8 +449,7 @@ namespace mygame {
                     {
                         gLogicSystem->ReloadLevel();
                     }
-                    if (gHealthSystem)
-                        gHealthSystem->ClearPlayerDeathFlag();
+                    ResetPlayerDefeat();
 
                     editorSimulationRunning = true;
                     currentState = GameState::PLAYING;
@@ -433,6 +468,11 @@ namespace mygame {
             }, "mygame::update");
     }
 
+    /*************************************************************************************
+     \brief  Draws the current game state and any state-specific UI overlays.
+     \details Renders menus, gameplay systems, health presentation, cutscenes, and
+              brightness overlays according to the active top-level game state.
+    *************************************************************************************/
     void draw()
     {
         TryGuard::Run([&] {
@@ -451,6 +491,7 @@ namespace mygame {
             case GameState::PLAYING:
                 gSystems.DrawAll();
                 if (gRenderSystem) {
+                    DrawHealthPresentation(*gRenderSystem);
                     gRenderSystem->RenderBrightnessOverlay();
                 }
                 break;
@@ -486,6 +527,7 @@ namespace mygame {
             case GameState::PAUSED:
                 gSystems.DrawAll();
                 if (gRenderSystem) {
+                    DrawHealthPresentation(*gRenderSystem);
                     gRenderSystem->BeginMenuFrame();
                     pauseMenu.Draw(gRenderSystem);
                     gRenderSystem->EndMenuFrame();
@@ -497,6 +539,7 @@ namespace mygame {
                 gSystems.DrawAll();
                 if (gRenderSystem)
                 {
+                    DrawHealthPresentation(*gRenderSystem);
                     gRenderSystem->BeginMenuFrame();
                     defeatScreen.Draw(gRenderSystem);
                     gRenderSystem->EndMenuFrame();
@@ -511,6 +554,10 @@ namespace mygame {
             }, "mygame::draw");
     }
 
+    /*************************************************************************************
+     \brief  Handles application focus changes reported by the Core.
+     \param  suspended  True when the app loses focus or is minimized, false on resume.
+    *************************************************************************************/
     void onAppFocusChanged(bool suspended)
     {
         // Halt/resume audio cleanly and flush transient input so keys do not stick.
@@ -521,6 +568,9 @@ namespace mygame {
         }
     }
 
+    /*************************************************************************************
+     \brief  Shuts down game systems and prints allocator leak diagnostics.
+    *************************************************************************************/
     void shutdown()
     {
         std::cout << "[Game] Shutting down systems...\n";
@@ -530,7 +580,7 @@ namespace mygame {
 
         const unsigned leaks = Framework::GameObjectPool::Storage().Allocator().DumpMemoryInUse(&allocatorDumpCallback);
         std::cout << "[Allocator] DumpMemoryInUse found " << leaks << " live blocks at shutdown.\n";
-        // Null out global pointers so you don’t accidentally access them later
+        // Null out global pointers so you donâ€™t accidentally access them later
         gEnemySystem = nullptr;
         gAiSystem = nullptr;
         gRenderSystem = nullptr;
@@ -542,11 +592,18 @@ namespace mygame {
         std::cout << "[Game] Shutdown complete.\n";
     }
 
+    /*************************************************************************************
+     \brief  Reports whether editor-driven simulation is currently running.
+     \return True when the editor is allowing gameplay systems to update.
+    *************************************************************************************/
     bool IsEditorSimulationRunning()
     {
         return editorSimulationRunning;
     }
 
+    /*************************************************************************************
+     \brief  Starts simulation from the editor bridge.
+    *************************************************************************************/
     void EditorPlaySimulation()
     {
         editorSimulationRunning = true;
@@ -556,6 +613,9 @@ namespace mygame {
             Framework::FACTORY->Layers().LogVisibilitySummary("EditorPlaySimulation");
     }
 
+    /*************************************************************************************
+     \brief  Stops simulation from the editor bridge.
+    *************************************************************************************/
     void EditorStopSimulation()
     {
 
@@ -564,6 +624,11 @@ namespace mygame {
             Framework::FACTORY->Layers().LogVisibilitySummary("EditorStopSimulation");
     }
 
+    /*************************************************************************************
+     \brief  Loads a level selected through the editor bridge.
+     \param  levelPath  The level file to load.
+     \return True if the request is valid and the level is passed to LogicSystem.
+    *************************************************************************************/
     bool LoadLevelFromEditor(const std::filesystem::path& levelPath)
     {
         if (!gLogicSystem || levelPath.empty())
@@ -571,8 +636,7 @@ namespace mygame {
 
         gLogicSystem->LoadLevel(levelPath);
 
-        if (gHealthSystem)
-            gHealthSystem->ClearPlayerDeathFlag();
+        ResetPlayerDefeat();
 
         return true;
     }

@@ -197,6 +197,7 @@ namespace {
         std::vector<std::filesystem::path> candidates;
         candidates.emplace_back(Framework::ResolveDataPath("howto_popup.json"));
         candidates.emplace_back(Framework::ResolveDataPath("HowToPopup.json"));
+        candidates.emplace_back(std::filesystem::path("Data") / "howto_popup.json");
         candidates.emplace_back(std::filesystem::path("Data_Files") / "howto_popup.json");
 
         for (const auto& path : candidates)
@@ -274,7 +275,7 @@ namespace {
 
         std::vector<std::filesystem::path> candidates;
         candidates.emplace_back(Framework::ResolveDataPath("exit_popup.json"));
-        candidates.emplace_back(std::filesystem::path("assets/data/exit_popup.json"));
+        candidates.emplace_back(std::filesystem::path("Data") / "exit_popup.json");
         candidates.emplace_back(std::filesystem::path("Data_Files") / "exit_popup.json");
 
         for (const auto& path : candidates)

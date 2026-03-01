@@ -28,7 +28,6 @@
 #include "LogicSystem.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
-#include "Systems/VfxHelpers.h"
 #include "Factory/Factory.h"
 
 #include <iostream>
@@ -45,6 +44,18 @@ namespace Framework
 {
     namespace
     {
+        void EmitCombatAudio(const CombatAudioCallback& callback, GOC* source, CombatAudioEvent event)
+        {
+            if (callback && source)
+                callback(source, event);
+        }
+
+        void EmitHitImpactVfx(const HitImpactVfxCallback& callback, const glm::vec2& worldPos)
+        {
+            if (callback)
+                callback(worldPos);
+        }
+
         /*****************************************************************************************
          \brief  Find the index of a named animation on a SpriteAnimationComponent (case-insensitive).
 
@@ -370,15 +381,14 @@ namespace Framework
                         playerHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
 
-                        if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
+                        if (!playerHealth->isDead)
                         {
-                            if (!playerHealth->isDead)
-                                audio->TriggerSound("PlayerHit");
-                            else if (!playerHealth->deathSoundPlayed)
-                            {
-                                audio->TriggerSound("PlayerDead");
-                                playerHealth->deathSoundPlayed = true;
-                            }
+                            EmitCombatAudio(combatAudioCallback, obj, CombatAudioEvent::PlayerHurt);
+                        }
+                        else if (!playerHealth->deathSoundPlayed)
+                        {
+                            EmitCombatAudio(combatAudioCallback, obj, CombatAudioEvent::PlayerDeath);
+                            playerHealth->deathSoundPlayed = true;
                         }
                     }
                 }
@@ -406,9 +416,8 @@ namespace Framework
                         enemyHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
                         hitEnemy = true;
-                        SpawnHitImpactVFX(glm::vec2(tr->x, tr->y));
-                        if (auto* audio = obj->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
-                        {audio->TriggerSound("EnemyHit");}
+                        EmitHitImpactVfx(hitImpactVfxCallback, glm::vec2(tr->x, tr->y));
+                        EmitCombatAudio(combatAudioCallback, obj, CombatAudioEvent::EnemyHurt);
                     }
                     else if (enemyHealth->enemyHealth > 0)
                     {
@@ -455,15 +464,12 @@ namespace Framework
                 HB->soundDelay -= dt;
                 if (HB->soundDelay <= 0.0f)
                 {
-                    if (auto* audio = attacker->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent))
-                    {
-                        if (hitEnemy)
-                            audio->TriggerSound("Slash");
-                        if (ineffectiveHit)
-                            audio->TriggerSound("Ineffective"); // Blocked or no effect
-                        if (!hitAnything)
-                            audio->TriggerSound("Punch");       // Missed swing
-                    }
+                    if (hitEnemy)
+                        EmitCombatAudio(combatAudioCallback, attacker, CombatAudioEvent::PlayerAttackHit);
+                    if (ineffectiveHit)
+                        EmitCombatAudio(combatAudioCallback, attacker, CombatAudioEvent::PlayerAttackBlocked);
+                    if (!hitAnything)
+                        EmitCombatAudio(combatAudioCallback, attacker, CombatAudioEvent::PlayerAttackMiss);
                 }
                 HB->soundTriggered = true;
             }

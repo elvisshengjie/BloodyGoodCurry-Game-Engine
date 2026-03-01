@@ -39,7 +39,6 @@
 *********************************************************************************************/
 #pragma once
 #include "Component/AudioComponent.h"
-#include <memory>
 #include <vector>
 #include <string>
 #include <random>
@@ -51,7 +50,7 @@ namespace Framework
       \class EnemyAudioController
       \brief Owns enemy sound pools and named play helpers.
 
-      Constructed with a shared_ptr to the enemy's AudioComponent. Pools are built
+      Constructed with a pointer to the enemy's AudioComponent. Pools are built
       immediately in the constructor by scanning the already-loaded sound keys.
       All enemies (melee, ranged) share this single controller class.
     *************************************************************************************/
@@ -62,23 +61,23 @@ namespace Framework
         /*************************************************************************************
           \brief Construct and build all sound pools from the AudioComponent's loaded keys.
 
-          \param audio  Shared pointer to the sibling AudioComponent on the enemy object.
+          \param audio  Pointer to the sibling AudioComponent on the enemy object.
                         Must not be null.
         *************************************************************************************/
-        explicit EnemyAudioController(std::shared_ptr<Framework::AudioComponent> audio);
+        explicit EnemyAudioController(Framework::AudioComponent* audio);
 
         // ---------------------------------------------------------------------------------
         // Play helpers  (called by enemy behaviour scripts)
         // ---------------------------------------------------------------------------------
 
         /// Play a random attack clip (projectile or melee depending on prefab).
-        void PlayAttack();
+        void PlayAttack(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
 
         /// Play a random hurt clip.
-        void PlayHurt();
+        void PlayHurt(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
 
         /// Play a random death / explosion clip.
-        void PlayDeath();
+        void PlayDeath(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
 
         /*************************************************************************************
           \brief Update 3D sound positions to track the enemy's world position.
@@ -94,7 +93,7 @@ namespace Framework
 
     private:
 
-        std::shared_ptr<Framework::AudioComponent> m_Audio;
+        Framework::AudioComponent* m_Audio{ nullptr };
 
         // ---- Clip pools (populated from JSON keys in constructor) ----------------------
         std::vector<std::string> m_AttackClips;  // "WaterGhostAttack" | "FireGhostProjectile*"

@@ -32,7 +32,6 @@
 #include "Core/PathUtils.h"
 #include "Selection.h"
 #include "Debug/UndoStack.h"
-#include "../../Sandbox/MyGame/Game.hpp"
 #include "imgui.h"
 
 // #include "Debug/Perf.h"
@@ -88,6 +87,7 @@
 #include <fstream>
 #include <iomanip>
 #include <system_error>
+#include <utility>
 
 #include <string_view>
 #include <cstdio>
@@ -128,9 +128,9 @@ namespace mygame {
     /// Selected index for gate target level choice.
     static int gGateTargetLevelIndex = 0;
     /// Selected start level filename.
-    static std::string gStartLevelSelection = "level_RealTutorial.json";
+    static std::string gStartLevelSelection = "level.json";
     /// Selected gate target level filename.
-    static std::string gGateTargetLevelSelection = "RealLevel1.json";
+    static std::string gGateTargetLevelSelection = "level.json";
     /// If true, assign selected gate target level to newly spawned gates.
     static bool gApplyGateTargetOnSpawn = true;
 
@@ -139,8 +139,8 @@ namespace mygame {
     /// Transient status line (text + isError flag) for level operations.
     static std::string gLevelStatusMessage;
     static bool gLevelStatusIsError = false;
-    /// Directory where level JSON files are located (relative to executable).
-    static const std::filesystem::path kLevelDirectory(Framework::ResolveDataPath(""));
+    static EditorSimulationQueryCallback gIsEditorSimulationRunning;
+    static EditorLoadLevelCallback gLoadLevelFromEditor;
 
 
 
@@ -205,6 +205,13 @@ namespace mygame {
 
 
         /*************************************************************************************
+ \brief     Resolve the current project data directory for level JSON files.
+        *************************************************************************************/
+        std::filesystem::path LevelDirectory() {
+            return Framework::ResolveDataPath("");
+        }
+
+        /*************************************************************************************
  \brief     Scan level directory to refresh file list and per-file layer cache.
         *************************************************************************************/
         void RefreshLevelFileList() {
@@ -212,10 +219,11 @@ namespace mygame {
 
 
             std::error_code ec;
-            if (!std::filesystem::exists(kLevelDirectory, ec))
+            const auto levelDirectory = LevelDirectory();
+            if (!std::filesystem::exists(levelDirectory, ec))
                 return;
 
-            for (auto const& entry : std::filesystem::directory_iterator(kLevelDirectory, ec)) {
+            for (auto const& entry : std::filesystem::directory_iterator(levelDirectory, ec)) {
                 if (ec) break;
                 if (!entry.is_regular_file()) continue;
                 const auto& path = entry.path();
@@ -251,7 +259,7 @@ namespace mygame {
  \brief     Construct absolute path to a level JSON from a filename.
         *************************************************************************************/
         std::filesystem::path LevelFilePath(const std::string& filename) {
-            return kLevelDirectory / filename;
+            return LevelDirectory() / filename;
         }
 
         /*************************************************************************************
@@ -288,7 +296,7 @@ namespace mygame {
  \brief     Destroy an object while recording the deletion for undo.
          \param  obj Pointer to the object to delete (ignored if null).
        *************************************************************************************/
-        void DestroyWithUndo(GOC* obj)
+        void DestroyWithUndo(GOC* obj, bool flushImmediately = true)
         {
             if (!obj)
                 return;
@@ -299,7 +307,8 @@ namespace mygame {
             if (Framework::FACTORY)
             {
                 Framework::FACTORY->Destroy(obj);
-                if (!mygame::IsEditorSimulationRunning())
+                const bool isSimulationRunning = gIsEditorSimulationRunning ? gIsEditorSimulationRunning() : false;
+                if (flushImmediately && !isSimulationRunning)
                     Framework::FACTORY->Update(0.0f);
             }
             else
@@ -695,11 +704,48 @@ namespace mygame {
     void SetSpawnPanelAssetsRoot(const std::filesystem::path& root) {
         if (root.empty()) {
             sAssetsRoot.clear();
+            gLevelFilesInitialized = false;
             return;
         }
         std::error_code ec;
         auto canonical = std::filesystem::weakly_canonical(root, ec);
         sAssetsRoot = ec ? root : canonical;
+        gLevelFilesInitialized = false;
+        gLevelFiles.clear();
+        gSelectedLevelIndex = 0;
+    }
+
+    /*************************************************************************************
+ \brief     Override the spawn panel's default level selections from the game layer.
+      \param  startLevel      Default start level filename.
+      \param  gateTargetLevel Default gate target level filename.
+    *************************************************************************************/
+    void SetSpawnPanelLevelDefaults(std::string startLevel, std::string gateTargetLevel) {
+        if (!startLevel.empty())
+            gStartLevelSelection = std::move(startLevel);
+        if (!gateTargetLevel.empty())
+            gGateTargetLevelSelection = std::move(gateTargetLevel);
+
+        if (!gLevelFilesInitialized || gLevelFiles.empty())
+            return;
+
+        auto findIndex = [](const std::vector<std::string>& list, const std::string& value) {
+            auto it = std::find(list.begin(), list.end(), value);
+            if (it == list.end())
+                return 0;
+            return static_cast<int>(std::distance(list.begin(), it));
+            };
+
+        gStartLevelIndex = findIndex(gLevelFiles, gStartLevelSelection);
+        gGateTargetLevelIndex = findIndex(gLevelFiles, gGateTargetLevelSelection);
+        gStartLevelSelection = gLevelFiles[gStartLevelIndex];
+        gGateTargetLevelSelection = gLevelFiles[gGateTargetLevelIndex];
+    }
+
+    void SetSpawnPanelEditorCallbacks(EditorSimulationQueryCallback isSimulationRunning,
+        EditorLoadLevelCallback loadLevelFromEditor) {
+        gIsEditorSimulationRunning = std::move(isSimulationRunning);
+        gLoadLevelFromEditor = std::move(loadLevelFromEditor);
     }
 
     /*************************************************************************************
@@ -1310,7 +1356,7 @@ namespace mygame {
                     gLevelStatusIsError = true;
                 }
                 else {
-                    if (mygame::LoadLevelFromEditor(levelPath)) {
+                    if (gLoadLevelFromEditor && gLoadLevelFromEditor(levelPath)) {
                         size_t count = FACTORY->LastLevelObjects().size();
                         gLevelStatusMessage = "Loaded level from " + levelPath.string() +
                             " (" + std::to_string(count) + " objects)";
@@ -1324,7 +1370,8 @@ namespace mygame {
             }
         }
         else {
-            ImGui::TextDisabled("No level files found in %s", kLevelDirectory.string().c_str());
+            const auto levelDirectory = LevelDirectory();
+            ImGui::TextDisabled("No level files found in %s", levelDirectory.string().c_str());
         }
 
         // Status line (green for success/info, red for error)
@@ -1418,16 +1465,19 @@ namespace mygame {
                 [](GOC* obj) { return obj->GetObjectName() != gSelectedPrefabToClear; }),
                 toKill.end());
 
-            for (auto* o : toKill) DestroyWithUndo(o);
+            mygame::ClearSelection();
+            mygame::SetHoverObjectId(0);
+            for (auto* o : toKill) DestroyWithUndo(o, false);
             FACTORY->Update(0.0f);
         }
 
         ImGui::SameLine();
         if (ImGui::Button("Clear All (keep masters)")) {
             auto toKill = CollectNonMasterObjects();
-            for (auto* o : toKill) DestroyWithUndo(o);
-            FACTORY->Update(0.0f);
             mygame::ClearSelection();
+            mygame::SetHoverObjectId(0);
+            for (auto* o : toKill) DestroyWithUndo(o, false);
+            FACTORY->Update(0.0f);
         }
 
         // === Object Count ===
@@ -1440,3 +1490,4 @@ namespace mygame {
 } // namespace mygame
 
 #endif // SOFASPUDS_ENABLE_EDITOR
+

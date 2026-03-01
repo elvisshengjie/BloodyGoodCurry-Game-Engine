@@ -57,7 +57,9 @@
 
 #include <array>
 #include <filesystem>
+#include <functional>
 #include <string>
+#include <utility>
 #if SOFASPUDS_ENABLE_EDITOR
 #include <imgui.h>
 #endif
@@ -123,6 +125,8 @@ namespace Framework {
         void RenderBrightnessOverlay();
         /// \brief Global accessor to the current RenderSystem instance.
         static RenderSystem* Get();
+        /// \brief Install a game-side initialization hook for game-specific render defaults.
+        void SetInitializeCallback(std::function<void(RenderSystem&)> callback) { initializeCallback = std::move(callback); }
 
         // Text accessors
         /// \brief  True if the hint text renderer is ready (font/atlas loaded).
@@ -155,6 +159,20 @@ namespace Framework {
             showFPS = !showFPS;
         }
 
+        /// \brief Set legacy fallback player texture used by older render paths.
+        void SetLegacyPlayerTexture(unsigned handle) { playerTex = handle; }
+        /// \brief Set legacy fallback animation and projectile textures used by older render paths.
+        void SetLegacyAnimationTextures(unsigned idle, unsigned run, const std::array<unsigned, 3>& attacks,
+            unsigned knockback, unsigned knife, unsigned enemyProjectile)
+        {
+            idleTex = idle;
+            runTex = run;
+            attackTex = attacks;
+            knockbackTex = knockback;
+            knifeTex = knife;
+            fireProjectileTex = enemyProjectile;
+        }
+
     private:
         // --- Filesystem / asset resolution ------------------------------------------------
         std::string             FindRoboto() const;
@@ -168,6 +186,8 @@ namespace Framework {
         // --- Editor frame scaffolding -----------------------------------------------------
         void DrawDockspace();
         void DrawGameViewportWindow();
+        void RefreshEditorProjectRoots();
+        bool CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message);
 
         void HandleViewportPicking();
 #endif
@@ -215,6 +235,8 @@ namespace Framework {
 #if SOFASPUDS_ENABLE_EDITOR
         mygame::AssetBrowserPanel assetBrowser;
         mygame::JsonEditorPanel   jsonEditor;
+        std::string              projectMenuStatusMessage;
+        bool                     projectMenuStatusIsError = false;
 #endif
         // These paths are used in HandleFileDrop even if editor is off (checked for empty),
         // so we keep them available to avoid modifying the interface too heavily.
@@ -231,6 +253,7 @@ namespace Framework {
         bool textReadyTitle = false;     //!< True once title font is ready.
         bool textReadyHint = false;      //!< True once hint font is ready.
         bool showFPS = false;            //!< True to show FPS
+        std::function<void(RenderSystem&)> initializeCallback;
 
         // --- Demo textures (player / animation) ------------------------------------------
         unsigned playerTex = 0;               //!< Legacy fallback player texture.

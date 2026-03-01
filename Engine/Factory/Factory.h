@@ -44,6 +44,7 @@
 #include <string_view>
 #include <vector>
 #include <filesystem>
+#include <functional>
 #include "Common/System.h"
 #include "Composition/Component.h"
 #include "Composition/ComponentCreator.h"
@@ -52,6 +53,7 @@
 #include "Serialization/JsonSerialization.h"
 #include "Core/Layer.h"
 #include <optional>
+#include <utility>
 
 // Factory responsibilities (summary)
 // - Create GOCs and assign unique IDs
@@ -117,6 +119,11 @@ namespace Framework {
 
         /// Convenience overload that saves all currently active objects tracked by the factory.
         bool SaveLevel(const std::string& filename, const std::string& levelName = "");
+        /// Install a game-side callback that can amend the serialized GameObjects array before write.
+        void SetLevelSaveFinalizeCallback(std::function<void(json& gameObjects)> callback)
+        {
+            levelSaveFinalizeCallback = std::move(callback);
+        }
 
         // --- Object ID & Lookup ---
         /// Assigns a unique ID (or reuses a requested one) and **transfers ownership**
@@ -173,6 +180,7 @@ namespace Framework {
         std::string           LastLevelNameCache;  ///< Cached level name (if provided)
         std::filesystem::path LastLevelPathCache;  ///< Cached level file path
         LayerManager           LayerData;
+        std::function<void(json& gameObjects)> levelSaveFinalizeCallback;
 
         std::string ComponentNameFromId(ComponentTypeId id) const;
         json SerializeComponentToJson(const GameComponent& component) const;

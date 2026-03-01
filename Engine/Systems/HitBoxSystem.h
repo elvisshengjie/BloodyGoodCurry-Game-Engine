@@ -16,9 +16,14 @@
 #include "Composition/Component.h"
 #include "LogicSystem.h"
 #include "Component/HitBoxComponent.h"
+#include "CombatAudioEvents.h"
+#include <functional>
+#include <glm/vec2.hpp>
 
 namespace Framework
 {
+    using HitImpactVfxCallback = std::function<void(const glm::vec2&)>;
+
 	/*************************************************************************************
 	  \class  HitBoxSystem
 	  \brief  Manages active attack hitboxes and applies damage when collisions occur.
@@ -75,6 +80,16 @@ namespace Framework
 		void Shutdown();
 
 		/*************************************************************************
+		  \brief  Bind a game-side callback for combat audio events.
+		*************************************************************************/
+		void SetCombatAudioCallback(CombatAudioCallback callback) { combatAudioCallback = callback; }
+
+		/*************************************************************************
+		  \brief  Bind a game-side callback for impact VFX spawning.
+		*************************************************************************/
+		void SetHitImpactVfxCallback(HitImpactVfxCallback callback) { hitImpactVfxCallback = callback; }
+
+		/*************************************************************************
 		  \brief  Spawn a new attack hitbox at a given target position.
 		  \param  attacker  Object creating the hitbox.
 		  \param  targetX   X position of the hitbox origin.
@@ -108,6 +123,8 @@ namespace Framework
 	private:
 		LogicSystem& logic;							//!< Access to objects and scene queries.
 		std::vector<ActiveHitBox> activeHitBoxes;	//!< List of currently active hitboxes.
+		CombatAudioCallback combatAudioCallback;    //!< Game-side audio routing hook.
+		HitImpactVfxCallback hitImpactVfxCallback;  //!< Game-side hit impact VFX hook.
 	};
 
 

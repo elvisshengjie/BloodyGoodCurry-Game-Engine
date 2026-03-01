@@ -13,8 +13,8 @@
 
 namespace Framework
 {
-    EnemyAudioController::EnemyAudioController(std::shared_ptr<Framework::AudioComponent> audio)
-        : m_Audio(std::move(audio))
+    EnemyAudioController::EnemyAudioController(Framework::AudioComponent* audio)
+        : m_Audio(audio)
         , m_Rng(std::random_device{}())
     {
         if (!m_Audio)
@@ -40,22 +40,22 @@ namespace Framework
     // Play helpers
     // ---------------------------------------------------------------------------------
 
-    void EnemyAudioController::PlayAttack()
+    void EnemyAudioController::PlayAttack(float posX, float posY, bool is3D)
     {
         std::string clip = GetRandom(m_AttackClips);
-        if (!clip.empty()) m_Audio->Play(clip);
+        if (!clip.empty()) m_Audio->Play(clip, posX, posY, is3D);
     }
 
-    void EnemyAudioController::PlayHurt()
+    void EnemyAudioController::PlayHurt(float posX, float posY, bool is3D)
     {
         std::string clip = GetRandom(m_HurtClips);
-        if (!clip.empty()) m_Audio->Play(clip);
+        if (!clip.empty()) m_Audio->Play(clip, posX, posY, is3D);
     }
 
-    void EnemyAudioController::PlayDeath()
+    void EnemyAudioController::PlayDeath(float posX, float posY, bool is3D)
     {
         std::string clip = GetRandom(m_DeathClips);
-        if (!clip.empty()) m_Audio->Play(clip);
+        if (!clip.empty()) m_Audio->Play(clip, posX, posY, is3D);
     }
 
     // ---------------------------------------------------------------------------------

@@ -30,11 +30,11 @@
 #pragma once
 #include "Common/System.h"
 #include "Factory/Factory.h"
-#include "Systems/LogicSystem.h"
 #include "Component/BehaviorTreeComponent.h"
 #include "../../Engine/Graphics/Window.hpp"
+#include <utility>
 namespace Framework {
-    class LogicSystem;
+    using AiBehaviorBindingCallback = std::function<void(BehaviorTreeComponent&, GOC*)>;
     /*****************************************************************************************
     \class AiSystem
     \brief
@@ -48,15 +48,19 @@ namespace Framework {
     *****************************************************************************************/
 	class AiSystem :public Framework::ISystem {
 	public:
-        explicit AiSystem(gfx::Window& window,LogicSystem& logicSystem);
+        explicit AiSystem(gfx::Window& window);
 		void Initialize() override;
 		void Update(float dt) override;
 		void draw() override;
 		void Shutdown() override;
 		std::string GetName() override{ return "AiSystem"; }
+        void SetBehaviorBindingCallback(AiBehaviorBindingCallback callback)
+        {
+            behaviorBindingCallback = std::move(callback);
+        }
 	private:
 		gfx::Window* window;
-        LogicSystem* logic;
+        AiBehaviorBindingCallback behaviorBindingCallback;
 	};
 
 }

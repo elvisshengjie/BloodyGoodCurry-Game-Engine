@@ -3,6 +3,19 @@ cmake_minimum_required(VERSION 3.20)
 # Create the game executable
 add_executable(BloodyGoodCurry)
 
+set(GAME_NAME BloodyGoodCurry)
+set(GAME_PROJECT_ROOT "${CMAKE_SOURCE_DIR}/Games/${GAME_NAME}")
+set(GAME_PROJECT_METADATA_FILE "${CMAKE_CURRENT_BINARY_DIR}/${GAME_NAME}.project_root.txt")
+file(GENERATE OUTPUT "${GAME_PROJECT_METADATA_FILE}" CONTENT "${GAME_PROJECT_ROOT}\n")
+
+if (EXISTS "${GAME_PROJECT_ROOT}/Assets" AND EXISTS "${GAME_PROJECT_ROOT}/Data")
+  set(GAME_ASSETS_SOURCE "${GAME_PROJECT_ROOT}/Assets")
+  set(GAME_DATA_SOURCE "${GAME_PROJECT_ROOT}/Data")
+else()
+  set(GAME_ASSETS_SOURCE "${CMAKE_SOURCE_DIR}/assets")
+  set(GAME_DATA_SOURCE "${CMAKE_SOURCE_DIR}/Data_Files")
+endif()
+
 # Automatically collect source files from MyGame folder
 file(GLOB_RECURSE MYGAME_SRC
   CONFIGURE_DEPENDS
@@ -79,29 +92,39 @@ add_custom_command(TARGET BloodyGoodCurry POST_BUILD
     VERBATIM
 )
 
+add_custom_command(TARGET BloodyGoodCurry POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${GAME_PROJECT_METADATA_FILE}"
+    "$<TARGET_FILE_DIR:BloodyGoodCurry>/sofaspuds_project_root.txt"
+    COMMENT "Copying project root metadata"
+    VERBATIM
+)
+
 # Copy runtime folders next to exe
 add_custom_command(TARGET BloodyGoodCurry POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/assets"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Assets"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data_Files"
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data"
     COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/logs"
 
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/assets"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data_Files"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Assets"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data"
     COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/logs"
 
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_SOURCE_DIR}/assets"
-            "$<TARGET_FILE_DIR:BloodyGoodCurry>/assets"
+            "${GAME_ASSETS_SOURCE}"
+            "$<TARGET_FILE_DIR:BloodyGoodCurry>/Assets"
 
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-            "${CMAKE_SOURCE_DIR}/Data_Files"
-            "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data_Files"
+            "${GAME_DATA_SOURCE}"
+            "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data"
 
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             "${CMAKE_SOURCE_DIR}/logs"
             "$<TARGET_FILE_DIR:BloodyGoodCurry>/logs"
 
-    COMMENT "Reset & Copy assets, Data_Files, logs"
+    COMMENT "Reset & Copy Assets, Data, logs"
     VERBATIM
 )
 

@@ -37,7 +37,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <iostream>
 
 namespace Framework
 {
@@ -149,7 +148,7 @@ namespace Framework
         *************************************************************************************/
         bool HasSound(const std::string& action) const
         {
-            return m_sounds.count(action) > 0;
+            return m_sounds.find(action) != m_sounds.end();
         }
 
         /*************************************************************************************
@@ -343,17 +342,22 @@ namespace Framework
 
             if (s.EnterObject("sounds"))
             {
-                for (auto& [action, info] : m_sounds)
+                m_sounds.clear();
+                m_playing.clear();
+
+                for (const auto& action : s.CurrentKeys())
                 {
-                    if (s.EnterObject(action))
-                    {
-                        StreamRead(s, "id", info.id);
-                        int loopInt = info.loop ? 1 : 0;
-                        StreamRead(s, "loop", loopInt);
-                        info.loop = (loopInt != 0);
-                        m_playing[action] = false;   // ensure tracking entry exists
-                        s.ExitObject();
-                    }
+                    if (!s.EnterObject(action))
+                        continue;
+
+                    SoundInfo info{};
+                    StreamRead(s, "id", info.id);
+                    if (s.HasKey("loop"))
+                        StreamRead(s, "loop", info.loop);
+
+                    m_sounds[action] = std::move(info);
+                    m_playing[action] = false;
+                    s.ExitObject();
                 }
                 s.ExitObject();
             }

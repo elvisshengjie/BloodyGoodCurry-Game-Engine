@@ -13,7 +13,9 @@
 *********************************************************************************************/
 
 #pragma once
+#include <algorithm>
 #include <filesystem>
+#include <string_view>
 #include "Composition/Component.h"
 #include "Memory/ComponentPool.h"
 #include "Serialization/Serialization.h"
@@ -72,10 +74,26 @@ namespace Framework {
             if (loadPath.empty())
                 return;
 
-            const auto resolvedPath =
-                Framework::ResolveAssetPath(std::filesystem::path(loadPath));
-            const std::string& pathStr =
-                resolvedPath.empty() ? loadPath : resolvedPath.string();
+            std::string normalized = loadPath;
+            std::replace(normalized.begin(), normalized.end(), '\\', '/');
+
+            std::filesystem::path assetPath{ normalized };
+            if (!assetPath.is_absolute())
+            {
+                constexpr std::string_view kLegacyPrefix = "assets/";
+                constexpr std::string_view kProjectPrefix = "Assets/";
+
+                if (const auto pos = normalized.find(kLegacyPrefix); pos != std::string::npos)
+                    assetPath = normalized.substr(pos + kLegacyPrefix.size());
+                else if (const auto projectPos = normalized.find(kProjectPrefix); projectPos != std::string::npos)
+                    assetPath = normalized.substr(projectPos + kProjectPrefix.size());
+            }
+
+            const auto resolvedPath = assetPath.is_absolute()
+                ? assetPath
+                : Framework::ResolveAssetPath(assetPath);
+            const std::string pathStr =
+                resolvedPath.empty() ? assetPath.string() : resolvedPath.string();
 
             // load file and re-fetch id
             if (Resource_Manager::load(texture_key, pathStr)) {

@@ -27,8 +27,8 @@
 #include "Debug/Spawn.h"
 #include "Systems/VfxHelpers.h"
 #include "Memory/GameObjectPool.h"
-#include "Resource_Asset_Manager/Resource_Manager.h"
 #include "Systems/ParticleSystem.h"
+#include "Component/AudioComponent.h"
 #include <cctype>
 #include <string>
 #include <string_view>
@@ -44,6 +44,79 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
+
+namespace
+{
+    void RestoreAudioFromPrefab(Framework::GOC* obj, const char* prefabKey)
+    {
+        if (!obj || !prefabKey)
+            return;
+
+        auto prefabIt = Framework::master_copies.find(prefabKey);
+        if (prefabIt == Framework::master_copies.end() || !prefabIt->second)
+            return;
+
+        auto* prefabAudio = prefabIt->second->GetComponentType<Framework::AudioComponent>(
+            Framework::ComponentTypeId::CT_AudioComponent);
+        if (!prefabAudio)
+            return;
+
+        auto* audio = obj->GetComponentType<Framework::AudioComponent>(
+            Framework::ComponentTypeId::CT_AudioComponent);
+        if (!audio)
+        {
+            auto clone = prefabAudio->Clone();
+            if (!clone)
+                return;
+
+            obj->AddComponent(Framework::ComponentTypeId::CT_AudioComponent, std::move(clone));
+            audio = obj->GetComponentType<Framework::AudioComponent>(
+                Framework::ComponentTypeId::CT_AudioComponent);
+        }
+
+        if (!audio || !audio->GetSounds().empty())
+            return;
+
+        audio->volume = prefabAudio->volume;
+        for (const auto& [action, info] : prefabAudio->GetSounds())
+            audio->AddSound(action, info.id, info.loop);
+    }
+
+    void RestoreMissingLevelAudio(const std::vector<Framework::GOC*>& objects)
+    {
+        for (auto* obj : objects)
+        {
+            if (!obj)
+                continue;
+
+            auto* audio = obj->GetComponentType<Framework::AudioComponent>(
+                Framework::ComponentTypeId::CT_AudioComponent);
+            if (audio && !audio->GetSounds().empty())
+                continue;
+
+            if (obj->GetComponentType<Framework::PlayerComponent>(
+                Framework::ComponentTypeId::CT_PlayerComponent))
+            {
+                RestoreAudioFromPrefab(obj, "player");
+                continue;
+            }
+
+            auto* enemyType = obj->GetComponentType<Framework::EnemyTypeComponent>(
+                Framework::ComponentTypeId::CT_EnemyTypeComponent);
+            if (enemyType && enemyType->Etype == Framework::EnemyTypeComponent::EnemyType::ranged)
+            {
+                RestoreAudioFromPrefab(obj, "enemyranged");
+                continue;
+            }
+
+            if (obj->GetComponentType<Framework::EnemyComponent>(
+                Framework::ComponentTypeId::CT_EnemyComponent))
+            {
+                RestoreAudioFromPrefab(obj, "enemy");
+            }
+        }
+    }
+}
 
 namespace Framework {
 
@@ -200,6 +273,21 @@ namespace Framework {
         return Framework::ResolveDataPath(std::filesystem::path(name));
     }
 
+    bool LogicSystem::HasLevelObjectNamed(std::string_view name) const
+    {
+        return std::any_of(levelObjects.begin(), levelObjects.end(),
+            [name](Framework::GOC* obj)
+            {
+                return obj && obj->GetObjectName() == name;
+            });
+    }
+
+    void LogicSystem::AddLevelObject(GOC* obj)
+    {
+        if (obj)
+            levelObjects.push_back(obj);
+    }
+
     /*****************************************************************************************
       \brief Initialize the game logic systems and world.
              - Sets up crash logging (file + logcat mirror).
@@ -252,52 +340,13 @@ namespace Framework {
         gateController.SetFactory(factory.get());
         LoadPrefabs();
 
-        auto playerPrefab = resolveData("player.json");
-        std::cout << "[Prefab] Player path = " << std::filesystem::absolute(playerPrefab)
-            << "  exists=" << std::filesystem::exists(playerPrefab) << "\n";
-        std::filesystem::path startLevelPath = resolveData("level_RealTutorial.json");
+        std::filesystem::path startLevelPath = startupLevelPath.empty()
+            ? resolveData("level.json")
+            : startupLevelPath;
+        if (startLevelPath.is_relative())
+            startLevelPath = resolveData(startLevelPath.generic_string());
 
-        levelObjects = factory->CreateLevel(startLevelPath.string());
-
-        const bool hasAnimatedStore = std::any_of(levelObjects.begin(), levelObjects.end(), [](Framework::GOC* obj) {
-            if (!obj)
-                return false;
-
-            const std::string& name = obj->GetObjectName();
-            return name == "HawkerStoreAnimated" || name == "Hawker_Store_Animated";
-            });
-
-        if (!hasAnimatedStore)
-        {
-            auto storePath = resolveData("hawker_store_animated.json");
-            if (!std::filesystem::exists(storePath))
-            {
-                std::cerr << "[Prefab] Missing hawker_store_animated.json at " << storePath << "\n";
-            }
-            else if (auto* store = factory->Create(storePath.string()))
-            {
-                if (auto* tr = store->GetComponentType<Framework::TransformComponent>(
-                    Framework::ComponentTypeId::CT_TransformComponent))
-                {
-                    tr->x = -0.5f;
-                    tr->y = -0.9f;
-                    tr->rot = 0.0f;
-                }
-
-                if (auto* render = store->GetComponentType<Framework::RenderComponent>(
-                    Framework::ComponentTypeId::CT_RenderComponent))
-                {
-                    render->visible = true;
-                }
-
-                levelObjects.push_back(store);
-            }
-            else
-            {
-                std::cerr << "[Prefab] Failed to spawn Hawker_Store_Animated from " << storePath << "\n";
-            }
-        }
-        RefreshLevelReferences();
+        LoadLevelAndResetState(startLevelPath);
 
         WindowConfig cfg = LoadWindowConfig(resolveData("window.json").string());
         screenW = cfg.width;
@@ -314,30 +363,6 @@ namespace Framework {
         // Build HitBoxSystem after references are valid.
         hitBoxSystem = new HitBoxSystem(*this);
         hitBoxSystem->Initialize();
-
-        // ---------------------------------------------------------------------
-        // Preload Fire Enemy textures to avoid hitches when they first spawn.
-        // ---------------------------------------------------------------------
-        Resource_Manager::load(
-            "fire_idle",
-            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png").string()
-        );
-        Resource_Manager::load(
-            "fire_attack",
-            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Fire Attack_Sprite.png").string()
-        );
-        Resource_Manager::load(
-            "fire_projectile",
-            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png").string()
-        );
-        Resource_Manager::load(
-            "fire_knockback",
-            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png").string()
-        );
-        Resource_Manager::load(
-            "fire_death",
-            Framework::ResolveAssetPath("Textures/Character/Fire Enemy_Sprite/Death_Sprite.png").string()
-        );
 
         std::cout << "\n=== Controls ===\n"
             << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
@@ -457,6 +482,9 @@ namespace Framework {
         }
 
         levelObjects = factory->CreateLevel(levelPath.string());
+        RestoreMissingLevelAudio(levelObjects);
+        if (postLevelLoadCallback)
+            postLevelLoadCallback(*this);
 
         player = nullptr;
         collisionTarget = nullptr;

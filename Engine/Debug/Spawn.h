@@ -20,6 +20,7 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
 #include <string>
 #include "Component/RenderComponent.h" 
 
@@ -118,6 +119,12 @@ namespace mygame {
     *****************************************************************************************/
     void DrawSpawnPanel();
     void SetSpawnPanelAssetsRoot(const std::filesystem::path& root);
+    void SetSpawnPanelLevelDefaults(std::string startLevel, std::string gateTargetLevel);
+    using EditorSimulationQueryCallback = std::function<bool()>;
+    using EditorLoadLevelCallback = std::function<bool(const std::filesystem::path&)>;
+    void SetSpawnPanelEditorCallbacks(
+        EditorSimulationQueryCallback isSimulationRunning,
+        EditorLoadLevelCallback loadLevelFromEditor);
     void UseSpriteFromAsset(const std::filesystem::path& relativePath);
     void ClearSpriteTexture();
 

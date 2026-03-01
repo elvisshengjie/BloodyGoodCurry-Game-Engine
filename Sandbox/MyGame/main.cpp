@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      main.cpp
  \par       SofaSpuds
  \author    yimo kong (yimo.kong@digipen.edu) - Primary Author, 100%
@@ -13,6 +13,7 @@
 *********************************************************************************************/
 
 #include "../Engine/Core/Core.hpp"
+#include "../Engine/Core/ProjectContext.h"
 #include "../Engine/Core/PathUtils.h"
 #include "Game.hpp"
 #include "Config/WindowConfig.h"
@@ -23,6 +24,12 @@
 #include <crtdbg.h>
 #endif
 
+/*************************************************************************************
+ \brief  Program entry point for the BloodyGoodCurry sandbox executable.
+ \details Resolves the runtime project root, loads window configuration, wires the
+          game lifecycle callbacks into Core, and starts the main loop.
+ \return Process exit code.
+*************************************************************************************/
 int main()
 {
 #ifdef _MSC_VER
@@ -35,6 +42,8 @@ int main()
         std::error_code ec;
         std::filesystem::current_path(exeDir, ec);
     }
+
+    Framework::InitializeProjectFromExecutableLayout();
     // Load window config (falls back to some defaults if file is missing).
     WindowConfig cfg = LoadWindowConfig(Framework::ResolveDataPath("window.json").string());
     if (cfg.width <= 0)  cfg.width = 1280;

@@ -1,3 +1,14 @@
+/*********************************************************************************************
+ \file      EnemyActions.h
+ \par       SofaSpuds
+ \author
+ \brief     Declares game-specific AI action helpers for enemy behaviour execution.
+ \details   Provides small action routines used by the sandbox enemy AI layer to
+            drive movement, attacks, and state changes through the engine AI context.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
+*********************************************************************************************/
 #pragma once
 #include "AI/BehaviorContext.h"
 #include "Composition/Composition.h"
@@ -13,6 +24,7 @@
 #include "Component/HitBoxComponent.h"
 #include "Physics/System/Physics.h"
 #include "Factory/Factory.h"
+#include "../Audio/GameAudioSetup.h"
 #include <cmath>
 #include <algorithm>
 #include <cctype>
@@ -223,7 +235,11 @@ namespace Framework
                     static_cast<float>(attack->damage),
                     attack->hitbox->duration, 0.0f);
 
-                if (audio) audio->TriggerSound("EnemyAttack", tr->x, tr->y, true);
+                if (audio)
+                {
+                    Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                    gameAudio.PlayAttack(tr->x, tr->y, true);
+                }
                 PlayAnim(enemy, "slashattack");
             }
         }
@@ -322,7 +338,11 @@ namespace Framework
             ctx.spawnProjectile(enemy, spawnX, spawnY, dirX, dirY, 0.5f, 0.3f, 0.15f,
                 static_cast<float>(attack->damage), 3.0f);
 
-            if (audio) audio->TriggerSound("EnemyAttack", tr->x, tr->y, true);
+            if (audio)
+            {
+                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                gameAudio.PlayAttack(tr->x, tr->y, true);
+            }
             PlayAnim(enemy, "rangeattack");
             retreatTimer = retreatDuration;
         }

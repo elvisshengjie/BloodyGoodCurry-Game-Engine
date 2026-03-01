@@ -37,7 +37,6 @@
 #include "PlayerAudioController.h"
 #include "EnemyAudioController.h"
 #include <memory>
-
 namespace Framework
 {
     /*************************************************************************************
@@ -64,10 +63,10 @@ namespace Framework
         /*************************************************************************************
           \brief Construct GameAudio and create the appropriate internal controller.
 
-          \param audio   Shared pointer to the game object's AudioComponent.
+          \param audio   Pointer to the game object's AudioComponent.
           \param entity  Whether this object is a player or enemy.
         *************************************************************************************/
-        GameAudio(std::shared_ptr<Framework::AudioComponent> audio, Entity entity);
+        GameAudio(Framework::AudioComponent* audio, Entity entity);
 
         // ---------------------------------------------------------------------------------
         // Unified audio interface  (behaviour scripts call these)
@@ -79,7 +78,7 @@ namespace Framework
           \details  Player  → PlaySlash()
                     Enemy   → PlayAttack()
         *************************************************************************************/
-        void PlayAttack();
+        void PlayAttack(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
 
         /*************************************************************************************
           \brief Play a hurt / damage-received sound.
@@ -87,7 +86,7 @@ namespace Framework
           \details  Player  → PlayPlayerHit()
                     Enemy   → PlayHurt()
         *************************************************************************************/
-        void PlayHurt();
+        void PlayHurt(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
 
         /*************************************************************************************
           \brief Play a death sound.
@@ -95,7 +94,7 @@ namespace Framework
           \details  Player  → PlayPlayerDead()
                     Enemy   → PlayDeath()
         *************************************************************************************/
-        void PlayDeath();
+        void PlayDeath(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
 
         /*************************************************************************************
           \brief Play a footstep sound (player only; no-op for enemies).
