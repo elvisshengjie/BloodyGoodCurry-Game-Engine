@@ -293,7 +293,14 @@ namespace Framework
                         auto* audio = goc->GetComponentType<AudioComponent>(
                             ComponentTypeId::CT_AudioComponent);
 
-                        if (playerHealth->playerHealth <= 0 && !playerHealth->isDead)
+                        if (playerHealth->isInvulnerable)
+                        {
+                            playerHealth->invulnTime = std::max(0.0f, playerHealth->invulnTime - dt);
+                            if (playerHealth->invulnTime <= 0.0f)
+                                playerHealth->isInvulnerable = false;
+                        }
+
+                        if (playerHealth->playerHealth <= 0 && deathTimers.find(id) == deathTimers.end())
                         {
                             playerHealth->isDead = true;
                             PlayAnimationIfAvailable(goc, "death");
@@ -314,6 +321,7 @@ namespace Framework
                             const bool finished = anim ? IsAnimationFinished(anim, "death") : true;
                             if (timer <= 0.0f && finished)
                             {
+                                playerDied = true;
                                 FACTORY->Destroy(goc);
                                 deathTimers.erase(id);
                                 return true;
