@@ -7,6 +7,8 @@
 #include "ProjectContext.h"
 #include "PathUtils.h"
 
+#include <fstream>
+#include <string>
 #include <system_error>
 #include "Common/CRTDebug.h"
 
@@ -18,6 +20,7 @@ namespace Framework
 {
     namespace
     {
+        constexpr const char* kProjectRootMarker = "sofaspuds_project_root.txt";
         std::filesystem::path gProjectRoot;
 
         std::filesystem::path CanonicalIfPossible(const std::filesystem::path& path)
@@ -67,6 +70,58 @@ namespace Framework
             gProjectRoot = CanonicalIfPossible(candidate);
             return !gProjectRoot.empty();
         }
+
+        void TrimAsciiWhitespace(std::string& value)
+        {
+            const auto first = value.find_first_not_of(" \t\r\n");
+            if (first == std::string::npos)
+            {
+                value.clear();
+                return;
+            }
+
+            const auto last = value.find_last_not_of(" \t\r\n");
+            value = value.substr(first, last - first + 1);
+        }
+
+        bool TryUseProjectMarker(const std::filesystem::path& start)
+        {
+            if (start.empty())
+                return false;
+
+            auto probe = start;
+            for (int up = 0; up < 4 && !probe.empty(); ++up)
+            {
+                std::error_code ec;
+                const auto marker = probe / kProjectRootMarker;
+                if (std::filesystem::exists(marker, ec) &&
+                    std::filesystem::is_regular_file(marker, ec))
+                {
+                    std::ifstream in(marker);
+                    std::string rootLine;
+                    if (std::getline(in, rootLine))
+                    {
+                        TrimAsciiWhitespace(rootLine);
+                        if (!rootLine.empty())
+                        {
+                            std::filesystem::path candidate(rootLine);
+                            if (candidate.is_relative())
+                                candidate = probe / candidate;
+
+                            if (TryUseProjectRoot(candidate))
+                                return true;
+                        }
+                    }
+                }
+
+                if (probe == probe.root_path())
+                    break;
+
+                probe = probe.parent_path();
+            }
+
+            return false;
+        }
     }
 
     void SetCurrentProjectRoot(const std::filesystem::path& root)
@@ -108,6 +163,9 @@ namespace Framework
         {
             if (start.empty())
                 continue;
+
+            if (TryUseProjectMarker(start))
+                return true;
 
             auto probe = start;
             for (int up = 0; up < 8 && !probe.empty(); ++up)

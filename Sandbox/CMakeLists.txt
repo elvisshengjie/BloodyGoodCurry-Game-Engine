@@ -5,6 +5,8 @@ add_executable(BloodyGoodCurry)
 
 set(GAME_NAME BloodyGoodCurry)
 set(GAME_PROJECT_ROOT "${CMAKE_SOURCE_DIR}/Games/${GAME_NAME}")
+set(GAME_PROJECT_METADATA_FILE "${CMAKE_CURRENT_BINARY_DIR}/${GAME_NAME}.project_root.txt")
+file(GENERATE OUTPUT "${GAME_PROJECT_METADATA_FILE}" CONTENT "${GAME_PROJECT_ROOT}\n")
 
 if (EXISTS "${GAME_PROJECT_ROOT}/Assets" AND EXISTS "${GAME_PROJECT_ROOT}/Data")
   set(GAME_ASSETS_SOURCE "${GAME_PROJECT_ROOT}/Assets")
@@ -87,6 +89,14 @@ add_custom_command(TARGET BloodyGoodCurry POST_BUILD
     "${FMOD_DLL_FILE}"
     "$<TARGET_FILE_DIR:BloodyGoodCurry>/"
     COMMENT "Copying FMOD DLL to build directory"
+    VERBATIM
+)
+
+add_custom_command(TARGET BloodyGoodCurry POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${GAME_PROJECT_METADATA_FILE}"
+    "$<TARGET_FILE_DIR:BloodyGoodCurry>/sofaspuds_project_root.txt"
+    COMMENT "Copying project root metadata"
     VERBATIM
 )
 

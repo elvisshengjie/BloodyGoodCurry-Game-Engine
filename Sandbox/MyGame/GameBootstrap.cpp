@@ -21,6 +21,57 @@
 
 namespace
 {
+    void EnsureBehaviourObject(Framework::json& gameObjects, const char* name)
+    {
+        if (!name || !gameObjects.is_array())
+            return;
+
+        for (const auto& go : gameObjects)
+        {
+            if (!go.is_object())
+                continue;
+
+            const auto nameIt = go.find("name");
+            if (nameIt == go.end() || !nameIt->is_string() || nameIt->get<std::string>() != name)
+                continue;
+
+            const auto compsIt = go.find("Components");
+            if (compsIt == go.end() || !compsIt->is_object())
+                continue;
+
+            const auto behaviourIt = compsIt->find("BehaviourComponent");
+            if (behaviourIt == compsIt->end() || !behaviourIt->is_object())
+                continue;
+
+            const auto keyIt = behaviourIt->find("behaviourKey");
+            if (keyIt != behaviourIt->end() && keyIt->is_string() && keyIt->get<std::string>() == name)
+                return;
+        }
+
+        gameObjects.push_back(Framework::json{
+            {"Components", Framework::json{
+                {"BehaviourComponent", Framework::json{
+                    {"behaviourKey", name}
+                }}
+            }},
+            {"layer", "Gameplay:0"},
+            {"name", name}
+        });
+    }
+
+    void InstallFactorySavePolicy(Framework::LogicSystem& logic)
+    {
+        auto* factory = logic.Factory();
+        if (!factory)
+            return;
+
+        factory->SetLevelSaveFinalizeCallback([](Framework::json& gameObjects)
+        {
+            EnsureBehaviourObject(gameObjects, "CombatDirector");
+            EnsureBehaviourObject(gameObjects, "VfxCleanup");
+        });
+    }
+
     void EnsureAnimatedStore(Framework::LogicSystem& logic)
     {
         if (logic.HasLevelObjectNamed("HawkerStoreAnimated") ||
@@ -125,6 +176,7 @@ namespace mygame
 #endif
         logic.SetPostLevelLoadCallback([](Framework::LogicSystem& runtime)
         {
+            InstallFactorySavePolicy(runtime);
             EnsureAnimatedStore(runtime);
             PreloadFireEnemyTextures();
         });
