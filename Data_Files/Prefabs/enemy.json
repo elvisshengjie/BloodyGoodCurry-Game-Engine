@@ -104,7 +104,7 @@
             "GhostHurt6": { "id": "GhostHurt6", "loop": false },
             "GhostHurt7": { "id": "GhostHurt7", "loop": false },
             "GhostHurt8": { "id": "GhostHurt8", "loop": false },
-            "WaterGhostExplosion1": { "id": "WaterGhostExplosion1", "loop": false }
+            "WaterGhostExplosion": { "id": "WaterGhostExplosion", "loop": false }
         },
         "volume": 0.4
       }

@@ -29,6 +29,7 @@
 #include "Memory/GameObjectPool.h"
 #include "Resource_Asset_Manager/Resource_Manager.h"
 #include "Systems/ParticleSystem.h"
+#include "Component/AudioComponent.h"
 #include <cctype>
 #include <string>
 #include <string_view>
@@ -44,6 +45,79 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
+
+namespace
+{
+    void RestoreAudioFromPrefab(Framework::GOC* obj, const char* prefabKey)
+    {
+        if (!obj || !prefabKey)
+            return;
+
+        auto prefabIt = Framework::master_copies.find(prefabKey);
+        if (prefabIt == Framework::master_copies.end() || !prefabIt->second)
+            return;
+
+        auto* prefabAudio = prefabIt->second->GetComponentType<Framework::AudioComponent>(
+            Framework::ComponentTypeId::CT_AudioComponent);
+        if (!prefabAudio)
+            return;
+
+        auto* audio = obj->GetComponentType<Framework::AudioComponent>(
+            Framework::ComponentTypeId::CT_AudioComponent);
+        if (!audio)
+        {
+            auto clone = prefabAudio->Clone();
+            if (!clone)
+                return;
+
+            obj->AddComponent(Framework::ComponentTypeId::CT_AudioComponent, std::move(clone));
+            audio = obj->GetComponentType<Framework::AudioComponent>(
+                Framework::ComponentTypeId::CT_AudioComponent);
+        }
+
+        if (!audio || !audio->GetSounds().empty())
+            return;
+
+        audio->volume = prefabAudio->volume;
+        for (const auto& [action, info] : prefabAudio->GetSounds())
+            audio->AddSound(action, info.id, info.loop);
+    }
+
+    void RestoreMissingLevelAudio(const std::vector<Framework::GOC*>& objects)
+    {
+        for (auto* obj : objects)
+        {
+            if (!obj)
+                continue;
+
+            auto* audio = obj->GetComponentType<Framework::AudioComponent>(
+                Framework::ComponentTypeId::CT_AudioComponent);
+            if (audio && !audio->GetSounds().empty())
+                continue;
+
+            if (obj->GetComponentType<Framework::PlayerComponent>(
+                Framework::ComponentTypeId::CT_PlayerComponent))
+            {
+                RestoreAudioFromPrefab(obj, "player");
+                continue;
+            }
+
+            auto* enemyType = obj->GetComponentType<Framework::EnemyTypeComponent>(
+                Framework::ComponentTypeId::CT_EnemyTypeComponent);
+            if (enemyType && enemyType->Etype == Framework::EnemyTypeComponent::EnemyType::ranged)
+            {
+                RestoreAudioFromPrefab(obj, "enemyranged");
+                continue;
+            }
+
+            if (obj->GetComponentType<Framework::EnemyComponent>(
+                Framework::ComponentTypeId::CT_EnemyComponent))
+            {
+                RestoreAudioFromPrefab(obj, "enemy");
+            }
+        }
+    }
+}
 
 namespace Framework {
 
@@ -258,6 +332,7 @@ namespace Framework {
         std::filesystem::path startLevelPath = resolveData("level_RealTutorial.json");
 
         levelObjects = factory->CreateLevel(startLevelPath.string());
+        RestoreMissingLevelAudio(levelObjects);
 
         const bool hasAnimatedStore = std::any_of(levelObjects.begin(), levelObjects.end(), [](Framework::GOC* obj) {
             if (!obj)
@@ -457,6 +532,7 @@ namespace Framework {
         }
 
         levelObjects = factory->CreateLevel(levelPath.string());
+        RestoreMissingLevelAudio(levelObjects);
 
         player = nullptr;
         collisionTarget = nullptr;

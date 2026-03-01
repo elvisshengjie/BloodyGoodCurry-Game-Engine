@@ -181,6 +181,22 @@ namespace Framework
         return false;
     }
 
+    std::vector<std::string> JsonSerializer::CurrentKeys() const
+    {
+        std::vector<std::string> keys;
+        if (objectStack.empty())
+            return keys;
+
+        json* cur = objectStack.top();
+        if (!cur || !cur->is_object())
+            return keys;
+
+        keys.reserve(cur->size());
+        for (auto it = cur->begin(); it != cur->end(); ++it)
+            keys.push_back(it.key());
+
+        return keys;
+    }
     void JsonSerializer::ReadBool(const std::string& key, bool& out)
     {
         json* current = objectStack.top();

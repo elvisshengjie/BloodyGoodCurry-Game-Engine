@@ -105,6 +105,7 @@ namespace Framework
         void   ExitArray() override;                         ///< Pop current node if nested
         size_t ArraySize() const override;                   ///< Size if current is array
         bool   EnterIndex(size_t i) override;                ///< Push element i if valid
+        std::vector<std::string> CurrentKeys() const override; ///< Keys in current object scope
         ///@}
 
     private:

@@ -127,6 +127,7 @@ namespace {
         float throwCooldownTimer{ 0.0f };                    ///< Cooldown gate for throw
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
+        float footstepTimer{ 0.0f };                         ///< Timer for footstep sound cadence
     };
 
     /*****************************************************************************************
@@ -507,6 +508,7 @@ namespace {
             input.IsKeyHeld(GLFW_KEY_UP) || input.IsKeyHeld(GLFW_KEY_DOWN);
 
         state.runParticleTimer = std::max(0.0f, state.runParticleTimer - dt);
+        state.footstepTimer = std::max(0.0f, state.footstepTimer - dt);
         const bool isMoving = std::fabs(rb->velX) > 0.01f || std::fabs(rb->velY) > 0.01f;
         if (wantRun && isMoving && state.runParticleTimer <= 0.0f)
         {
@@ -516,6 +518,11 @@ namespace {
                 particleSystem->SpawnRunParticles({ tr->x, tr->y }, facingDir);
             }
             state.runParticleTimer = 0.08f;
+        }
+        if (wantRun && isMoving && !isKnockback && !isThrowing && audio && state.footstepTimer <= 0.0f)
+        {
+            audio->TriggerSound("ConcreteFootsteps");
+            state.footstepTimer = 0.32f;
         }
 
         /*************************************************************************************

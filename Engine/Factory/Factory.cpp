@@ -1157,8 +1157,36 @@ namespace Framework {
         case ComponentTypeId::CT_AudioComponent:
         {
             auto& audio = static_cast<AudioComponent&>(component);
-            readFloat("volume", audio.volume);          // 
-            // You may also want to read "sounds" map here if needed for snapshots
+            readFloat("volume", audio.volume);
+            audio.ClearSounds();
+
+            auto soundsIt = data.find("sounds");
+            if (soundsIt != data.end() && soundsIt->is_object())
+            {
+                for (auto& [actionName, soundData] : soundsIt->items())
+                {
+                    if (!soundData.is_object())
+                        continue;
+
+                    std::string soundId = actionName;
+                    bool loop = false;
+
+                    auto idIt = soundData.find("id");
+                    if (idIt != soundData.end() && idIt->is_string())
+                        soundId = idIt->get<std::string>();
+
+                    auto loopIt = soundData.find("loop");
+                    if (loopIt != soundData.end())
+                    {
+                        if (loopIt->is_boolean())
+                            loop = loopIt->get<bool>();
+                        else if (loopIt->is_number_integer())
+                            loop = (loopIt->get<int>() != 0);
+                    }
+
+                    audio.AddSound(actionName, soundId, loop);
+                }
+            }
             break;
         }
         default:
