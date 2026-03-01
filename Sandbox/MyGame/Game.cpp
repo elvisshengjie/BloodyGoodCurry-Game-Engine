@@ -131,7 +131,6 @@ namespace mygame {
             std::cout << "[Allocator] Leak: block #" << blockIndex << " at " << block << "\n";
         }
 
-        std::shared_ptr<Framework::PlayerAudioController> gPlayerAudioController = nullptr;
     }
 
     // Transition timing helpers (file-local).
