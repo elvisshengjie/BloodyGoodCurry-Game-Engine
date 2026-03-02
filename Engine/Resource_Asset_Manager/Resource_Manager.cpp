@@ -103,7 +103,16 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
     }
     else if (isSound(ext))
     {
-        bool success = SoundManager::getInstance().loadSound(id, path);
+        bool is3D = (path.find("/Spatial/") != std::string::npos ||
+            path.find("\\Spatial\\") != std::string::npos);
+
+        bool success = is3D
+            ? SoundManager::getInstance().loadSound3D(id, path)
+            : SoundManager::getInstance().loadSound(id, path);
+        std::cout << "[Resource_Manager] Loading sound: " << id
+            << " is3D=" << is3D
+            << " path=" << path << "\n";
+
         if (success)
         {
             resources_map[id] = { id, Resource_Type::Sound ,0 };

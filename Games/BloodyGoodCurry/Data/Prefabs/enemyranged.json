@@ -97,17 +97,17 @@
       {
         "entityType": "enemy_fire",
         "sounds": {
-          "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false },
-          "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false },
+          "FireGhostProjectile1": { "id": "FireGhostProjectile1", "loop": false,"spatial": true },
+          "FireGhostProjectile2": { "id": "FireGhostProjectile2", "loop": false,"spatial": true},
           
-          "GhostHurt1": { "id": "GhostHurt1", "loop": false },
-          "GhostHurt2": { "id": "GhostHurt2", "loop": false },
-          "GhostHurt3": { "id": "GhostHurt3", "loop": false },
-          "GhostHurt4": { "id": "GhostHurt4", "loop": false },
-          "GhostHurt5": { "id": "GhostHurt5", "loop": false },
-          "GhostHurt6": { "id": "GhostHurt6", "loop": false },
-          "GhostHurt7": { "id": "GhostHurt7", "loop": false },
-          "GhostHurt8": { "id": "GhostHurt8", "loop": false },
+          "GhostHurt1": { "id": "GhostHurt1", "loop": false,"spatial": true},
+          "GhostHurt2": { "id": "GhostHurt2", "loop": false,"spatial": true},
+          "GhostHurt3": { "id": "GhostHurt3", "loop": false,"spatial": true},
+          "GhostHurt4": { "id": "GhostHurt4", "loop": false ,"spatial": true},
+          "GhostHurt5": { "id": "GhostHurt5", "loop": false,"spatial": true },
+          "GhostHurt6": { "id": "GhostHurt6", "loop": false ,"spatial": true},
+          "GhostHurt7": { "id": "GhostHurt7", "loop": false ,"spatial": true},
+          "GhostHurt8": { "id": "GhostHurt8", "loop": false ,"spatial": true},
 
           "FireGhostExplosion": { "id": "FireGhostExplosion", "loop": false }
         },

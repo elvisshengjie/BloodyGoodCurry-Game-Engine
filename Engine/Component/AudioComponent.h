@@ -51,6 +51,7 @@ namespace Framework
     {
         std::string id;
         bool        loop{ false };
+        bool spatial { false };
     };
 
     /*****************************************************************************************
@@ -340,7 +341,7 @@ namespace Framework
             if (s.HasKey("volume"))
                 StreamRead(s, "volume", volume);
 
-            if (s.EnterObject("sounds"))
+            if (s.EnterObject("sounds"))  // ← this was missing
             {
                 m_sounds.clear();
                 m_playing.clear();
@@ -352,14 +353,14 @@ namespace Framework
 
                     SoundInfo info{};
                     StreamRead(s, "id", info.id);
-                    if (s.HasKey("loop"))
-                        StreamRead(s, "loop", info.loop);
+                    if (s.HasKey("loop"))    StreamRead(s, "loop", info.loop);
+                    if (s.HasKey("spatial")) StreamRead(s, "spatial", info.spatial);
 
                     m_sounds[action] = std::move(info);
                     m_playing[action] = false;
                     s.ExitObject();
                 }
-                s.ExitObject();
+                s.ExitObject();  // ← and this
             }
         }
 
