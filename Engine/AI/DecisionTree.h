@@ -39,12 +39,14 @@
       ownership of the nodes.
     - Use `run(float dt)` each frame or AI update cycle to evaluate the tree.
 *********************************************************************************************/
-class DecisionTree
+namespace Framework
 {
-    public:
-    DecisionTree(std::unique_ptr<DecisionNode> startNode);
-    void run(BehaviorContext& ctx);
-    private:
-    std::unique_ptr<DecisionNode> rootNode; 
-   
-};
+    class DecisionTree
+    {
+        public:
+            DecisionTree(std::unique_ptr<DecisionNode> startNode);
+            void run(BehaviorContext& ctx);
+        private:
+            std::unique_ptr<DecisionNode> rootNode;
+    };
+}

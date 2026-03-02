@@ -23,24 +23,28 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
-/*********************************************************************************************
- \brief
-    Constructs a DecisionTree with the specified root DecisionNode.
+namespace Framework
+{
+    /*********************************************************************************************
+     \brief
+        Constructs a DecisionTree with the specified root DecisionNode.
 
- \param startNode
-    Unique pointer to the root DecisionNode that serves as the starting point for evaluation.
-*********************************************************************************************/
-DecisionTree::DecisionTree(std::unique_ptr<DecisionNode> startNode):rootNode(std::move(startNode)){}
-/*********************************************************************************************
- \brief
-    Executes the decision tree starting from the root node.
+     \param startNode
+        Unique pointer to the root DecisionNode that serves as the starting point for evaluation.
+    *********************************************************************************************/
+    DecisionTree::DecisionTree(std::unique_ptr<DecisionNode> startNode) :rootNode(std::move(startNode)) {}
+    /*********************************************************************************************
+     \brief
+        Executes the decision tree starting from the root node.
 
- \param dt
-    Floating-point input parameter, typically representing delta time or a contextual value
-    used by the DecisionNode evaluation logic.
+     \param dt
+        Floating-point input parameter, typically representing delta time or a contextual value
+        used by the DecisionNode evaluation logic.
 
- \details
-    If the root node exists, the evaluation process begins by calling its evaluate() method.
-*********************************************************************************************/
-void DecisionTree::run(BehaviorContext& ctx){if (rootNode){rootNode->evaluate(ctx);}}
+     \details
+        If the root node exists, the evaluation process begins by calling its evaluate() method.
+    *********************************************************************************************/
+    void DecisionTree::run(BehaviorContext& ctx) { if (rootNode) { rootNode->evaluate(ctx); } }
+}
+
 

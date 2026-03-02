@@ -25,32 +25,36 @@
 #include <memory>
 #include <functional>
 #include "BehaviorContext.h"
-class DecisionNode
+namespace Framework
 {
+    class DecisionNode
+    {
     public:
-    using Condition = std::function<bool(BehaviorContext&)>;
-    using Action = std::function<void(BehaviorContext&)>;
-    Condition mainqns;
-    std::unique_ptr<DecisionNode> ifTrue;
-    std::unique_ptr<DecisionNode> ifFalse;
-    Action action;
-     
-     DecisionNode(
-         Condition condition,
-         std::unique_ptr<DecisionNode> trueNode,
-         std::unique_ptr<DecisionNode> falseNode,
-         Action action
-     );
+        using Condition = std::function<bool(Framework::BehaviorContext&)>;
+        using Action = std::function<void(Framework::BehaviorContext&)>;
+        Condition mainqns;
+        std::unique_ptr<DecisionNode> ifTrue;
+        std::unique_ptr<DecisionNode> ifFalse;
+        Action action;
 
-     // Delete copy constructor and copy assignment
-     DecisionNode(const DecisionNode&) = delete;
-     DecisionNode& operator=(const DecisionNode&) = delete;
+        DecisionNode(
+            Condition condition,
+            std::unique_ptr<DecisionNode> trueNode,
+            std::unique_ptr<DecisionNode> falseNode,
+            Action action
+        );
 
-     // Explicitly default move constructor and move assignment
-     DecisionNode(DecisionNode&&) = default;
-     DecisionNode& operator=(DecisionNode&&) = default;
+        // Delete copy constructor and copy assignment
+        DecisionNode(const DecisionNode&) = delete;
+        DecisionNode& operator=(const DecisionNode&) = delete;
 
-     void evaluate(BehaviorContext& ctx);
+        // Explicitly default move constructor and move assignment
+        DecisionNode(DecisionNode&&) = default;
+        DecisionNode& operator=(DecisionNode&&) = default;
 
-};
+        void evaluate(Framework::BehaviorContext& ctx);
+
+    };
+}
+
 

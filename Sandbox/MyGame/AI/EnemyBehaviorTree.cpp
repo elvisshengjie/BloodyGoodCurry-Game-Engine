@@ -33,7 +33,7 @@
 #define new DBG_NEW
 #endif
 
-namespace Framework
+namespace mygame
 {
         // --------------------------------------------------------
         // Shared Alive Guard Wrapper
@@ -41,10 +41,10 @@ namespace Framework
         template<typename T>
         auto AliveGuardedAction(T&& action)
         {
-            return [action = std::forward<T>(action)](BehaviorContext& ctx)
+            return [action = std::forward<T>(action)](Framework::BehaviorContext& ctx)
                 {
-                    auto* healthComp = ctx.owner->GetComponentType<EnemyHealthComponent>(
-                        ComponentTypeId::CT_EnemyHealthComponent);
+                    auto* healthComp = ctx.owner->GetComponentType<Framework::EnemyHealthComponent>(
+                        Framework::ComponentTypeId::CT_EnemyHealthComponent);
 
                     if (!healthComp || healthComp->enemyHealth <= 0)
                         return;
@@ -55,13 +55,13 @@ namespace Framework
         // ========================================================
         // MELEE TREE
         // ========================================================
-        std::unique_ptr<DecisionTree> BuildMeleeEnemyTree(GOC* enemy)
+        std::unique_ptr<Framework::DecisionTree> BuildMeleeEnemyTree(GOC* enemy)
         {
             if (!enemy) return nullptr;
 
-            auto patrolLeaf = std::make_unique<DecisionNode>(
+            auto patrolLeaf = std::make_unique<Framework::DecisionNode>(
                 nullptr, nullptr, nullptr,
-                AliveGuardedAction([](BehaviorContext& ctx)
+                AliveGuardedAction([](Framework::BehaviorContext& ctx)
                 {
                         std::cout << "[AI] Melee Patrol: "
                             << ctx.owner->GetObjectName() << "\n";
@@ -69,9 +69,9 @@ namespace Framework
                 })
             );
 
-            auto attackLeaf = std::make_unique<DecisionNode>(
+            auto attackLeaf = std::make_unique<Framework::DecisionNode>(
                 nullptr, nullptr, nullptr,
-                AliveGuardedAction([](BehaviorContext& ctx)
+                AliveGuardedAction([](Framework::BehaviorContext& ctx)
                 {
                         std::cout << "[AI] Melee Attack: "
                             << ctx.owner->GetObjectName() << "\n";
@@ -79,8 +79,8 @@ namespace Framework
                 })
             );
 
-            auto root = std::make_unique<DecisionNode>(
-                [](BehaviorContext& ctx)
+            auto root = std::make_unique<Framework::DecisionNode>(
+                [](Framework::BehaviorContext& ctx)
                 {
                     return HasTargetInRange(ctx);
                 },
@@ -89,19 +89,19 @@ namespace Framework
                 nullptr
             );
 
-            return std::make_unique<DecisionTree>(std::move(root));
+            return std::make_unique<Framework::DecisionTree>(std::move(root));
         }
 
         // ========================================================
         // RANGED TREE
         // ========================================================
-        std::unique_ptr<DecisionTree> BuildRangedEnemyTree(GOC* enemy)
+        std::unique_ptr<Framework::DecisionTree> BuildRangedEnemyTree(GOC* enemy)
         {
             if (!enemy) return nullptr;
 
-            auto patrolLeaf = std::make_unique<DecisionNode>(
+            auto patrolLeaf = std::make_unique<Framework::DecisionNode>(
                 nullptr, nullptr, nullptr,
-                AliveGuardedAction([](BehaviorContext& ctx)
+                AliveGuardedAction([](Framework::BehaviorContext& ctx)
                     {
                         std::cout << "[AI] Ranged Patrol: "
                             << ctx.owner->GetObjectName() << "\n";
@@ -109,9 +109,9 @@ namespace Framework
                     })
             );
 
-            auto attackLeaf = std::make_unique<DecisionNode>(
+            auto attackLeaf = std::make_unique<Framework::DecisionNode>(
                 nullptr, nullptr, nullptr,
-                AliveGuardedAction([](BehaviorContext& ctx)
+                AliveGuardedAction([](Framework::BehaviorContext& ctx)
                     {
                         std::cout << "[AI] Ranged Attack: "
                             << ctx.owner->GetObjectName() << "\n";
@@ -119,8 +119,8 @@ namespace Framework
                     })
             );
 
-            auto root = std::make_unique<DecisionNode>(
-                [](BehaviorContext& ctx)
+            auto root = std::make_unique<Framework::DecisionNode>(
+                [](Framework::BehaviorContext& ctx)
                 {
                     return HasTargetInRange(ctx);
                 },
@@ -129,7 +129,7 @@ namespace Framework
                 nullptr
             );
 
-            return std::make_unique<DecisionTree>(std::move(root));
+            return std::make_unique<Framework::DecisionTree>(std::move(root));
         }
 }
 
@@ -141,11 +141,11 @@ namespace
         {
             Framework::BehaviorTreeComponent::Registry()["enemy_melee"] =
                 [](Framework::GOC* owner)
-                { return Framework::BuildMeleeEnemyTree(owner); };
+                { return mygame::BuildMeleeEnemyTree(owner); };
 
             Framework::BehaviorTreeComponent::Registry()["enemy_ranged"] =
                 [](Framework::GOC* owner)
-                { return Framework::BuildRangedEnemyTree(owner); };
+                { return mygame::BuildRangedEnemyTree(owner); };
         }
     };
     const EnemyTreeRegistrar gRegistrar;

@@ -25,57 +25,62 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
-/*********************************************************************************************
- \brief
-    Constructs a DecisionNode with a condition, true/false branches, and an optional action.
 
- \param condition
-    Function that takes a float and returns a boolean to guide branching.
- \param trueNode
-    Unique pointer to the node evaluated if the condition is true.
- \param falseNode
-    Unique pointer to the node evaluated if the condition is false.
- \param leafAction
-    Optional function executed if the node has no branches.
-*********************************************************************************************/
-DecisionNode::DecisionNode
-(
-    Condition condition,
-    std::unique_ptr<DecisionNode> trueNode,
-    std::unique_ptr<DecisionNode> falseNode,
-    Action leafAction
-)
-    : mainqns(std::move(condition)),
-    ifTrue(std::move(trueNode)),
-    ifFalse(std::move(falseNode)),
-    action(std::move(leafAction))
-{}
-
-/*********************************************************************************************
- \brief
-    Evaluates the node and determines which branch or action to execute.
-
- \param dt
-    Floating-point input parameter, often used as delta time or context value.
-
- \details
-    - If a condition exists, it is evaluated to decide between true or false branches.
-    - If no branches exist, the node�s action is executed instead.
-    - If no condition is defined, the node directly performs its action.
-*********************************************************************************************/
-void DecisionNode::evaluate(BehaviorContext& ctx)
+namespace Framework
 {
-    if (mainqns) {
-        if (mainqns(ctx)) {
-            if (ifTrue) ifTrue->evaluate(ctx);
-            else if (action) action(ctx);
-        }
-        else {
-            if (ifFalse) ifFalse->evaluate(ctx);
-            else if (action) action(ctx);
-        }
+     /*********************************************************************************************
+     \brief
+        Constructs a DecisionNode with a condition, true/false branches, and an optional action.
+
+     \param condition
+        Function that takes a float and returns a boolean to guide branching.
+     \param trueNode
+        Unique pointer to the node evaluated if the condition is true.
+     \param falseNode
+        Unique pointer to the node evaluated if the condition is false.
+     \param leafAction
+        Optional function executed if the node has no branches.
+    *********************************************************************************************/
+    DecisionNode::DecisionNode
+    (
+        Condition condition,
+        std::unique_ptr<DecisionNode> trueNode,
+        std::unique_ptr<DecisionNode> falseNode,
+        Action leafAction
+    )
+        : mainqns(std::move(condition)),
+        ifTrue(std::move(trueNode)),
+        ifFalse(std::move(falseNode)),
+        action(std::move(leafAction))
+    {
     }
-    else if (action) {
-        action(ctx);
+
+    /*********************************************************************************************
+     \brief
+        Evaluates the node and determines which branch or action to execute.
+
+     \param dt
+        Floating-point input parameter, often used as delta time or context value.
+
+     \details
+        - If a condition exists, it is evaluated to decide between true or false branches.
+        - If no branches exist, the node�s action is executed instead.
+        - If no condition is defined, the node directly performs its action.
+    *********************************************************************************************/
+    void DecisionNode::evaluate(Framework::BehaviorContext& ctx)
+    {
+        if (mainqns) {
+            if (mainqns(ctx)) {
+                if (ifTrue) ifTrue->evaluate(ctx);
+                else if (action) action(ctx);
+            }
+            else {
+                if (ifFalse) ifFalse->evaluate(ctx);
+                else if (action) action(ctx);
+            }
+        }
+        else if (action) {
+            action(ctx);
+        }
     }
 }

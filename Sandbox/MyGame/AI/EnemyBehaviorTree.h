@@ -17,9 +17,9 @@
 #include "Factory/Factory.h"
 #include <memory>
 
-namespace Framework
+namespace mygame
 {
 	
-	std::unique_ptr<DecisionTree> BuildMeleeEnemyTree(GOC* enemy);
-	std::unique_ptr<DecisionTree> BuildRangedEnemyTree(GOC* enemy);
+	std::unique_ptr<Framework::DecisionTree> BuildMeleeEnemyTree(Framework::GOC* enemy);
+	std::unique_ptr<Framework::DecisionTree> BuildRangedEnemyTree(Framework::GOC* enemy);
 }

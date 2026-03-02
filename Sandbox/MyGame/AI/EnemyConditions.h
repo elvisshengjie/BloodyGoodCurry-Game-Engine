@@ -18,18 +18,18 @@
 #include "Factory/Factory.h"
 #include <cmath>
 
-namespace Framework
+namespace mygame
 {
-    using GOC = GameObjectComposition;
-    inline bool HasTargetInRange(BehaviorContext& ctx)
+    using GOC = Framework::GameObjectComposition;
+    inline bool HasTargetInRange(Framework::BehaviorContext& ctx)
     {
         if (!ctx.owner) return false;
 
-        EnemyDecisionTreeComponent* ai = nullptr;
-        TransformComponent* enemyTr = nullptr;
-        TransformComponent* playerTr = nullptr;
+        Framework::EnemyDecisionTreeComponent* ai = nullptr;
+        Framework::TransformComponent* enemyTr = nullptr;
+        Framework::TransformComponent* playerTr = nullptr;
 
-        for (auto& [id, gocPtr] : FACTORY->Objects())
+        for (auto& [id, gocPtr] : Framework::FACTORY->Objects())
         {
             if (!gocPtr) continue;
             Framework::GameObjectComposition* goc = gocPtr.get(); // Full type
@@ -37,17 +37,17 @@ namespace Framework
             // Is this our enemy?
             if (goc == ctx.owner)
             {
-                ai = goc->GetComponentType<EnemyDecisionTreeComponent>(
-                    ComponentTypeId::CT_EnemyDecisionTreeComponent);
-                enemyTr = goc->GetComponentType<TransformComponent>(
-                    ComponentTypeId::CT_TransformComponent);
+                ai = goc->GetComponentType<Framework::EnemyDecisionTreeComponent>(
+                    Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
+                enemyTr = goc->GetComponentType<Framework::TransformComponent>(
+                    Framework::ComponentTypeId::CT_TransformComponent);
             }
 
             // Is this the player?
-            if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent) != nullptr)
+            if (goc->GetComponent(Framework::ComponentTypeId::CT_PlayerComponent) != nullptr)
             {
-                playerTr = goc->GetComponentType<TransformComponent>(
-                    ComponentTypeId::CT_TransformComponent);
+                playerTr = goc->GetComponentType<Framework::TransformComponent>(
+                    Framework::ComponentTypeId::CT_TransformComponent);
             }
 
             if (ai && enemyTr && playerTr) break;

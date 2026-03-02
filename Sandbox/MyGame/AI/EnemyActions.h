@@ -30,10 +30,10 @@
 #include <cctype>
 #include <string_view>
 
-namespace Framework
+namespace mygame
 {
     
-    inline int FindAnimationIndex(SpriteAnimationComponent* anim, std::string_view desired)
+    inline int FindAnimationIndex(Framework::SpriteAnimationComponent* anim, std::string_view desired)
     {
         if (!anim) return -1;
         for (std::size_t i = 0; i < anim->animations.size(); ++i)
@@ -59,7 +59,8 @@ namespace Framework
     inline void PlayAnim(Framework::GOC* goc, std::string_view name)
     {
         if (!goc) return;
-        auto* anim = goc->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
+        auto* anim = goc->GetComponentType<Framework::SpriteAnimationComponent>
+        (Framework::ComponentTypeId::CT_SpriteAnimationComponent);
         if (!anim) return;
         int idx = FindAnimationIndex(anim, name);
         if (idx >= 0 && idx != anim->ActiveAnimationIndex())
@@ -69,7 +70,8 @@ namespace Framework
     inline float GetAnimDuration(Framework::GOC* goc, const std::string& name)
     {
         if (!goc) return 0.2f;
-        auto* anim = goc->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
+        auto* anim = goc->GetComponentType<Framework::SpriteAnimationComponent>
+        (Framework::ComponentTypeId::CT_SpriteAnimationComponent);
         if (!anim) return 0.2f;
 
         for (const auto& a : anim->animations)
@@ -79,13 +81,13 @@ namespace Framework
         return 0.2f;
     }
 
-    inline GameObjectComposition* FindPlayer()
+    inline Framework::GOC* FindPlayer()
     {
-        for (auto& pair : FACTORY->Objects())
+        for (auto& pair : Framework::FACTORY->Objects())
         {
             if (!pair.second) continue;
             GOC* goc = pair.second.get();
-            if (goc->GetComponent(ComponentTypeId::CT_PlayerComponent) != nullptr)
+            if (goc->GetComponent(Framework::ComponentTypeId::CT_PlayerComponent) != nullptr)
                 return goc;
         }
         return nullptr;
@@ -93,14 +95,14 @@ namespace Framework
     
 
     // ------------------------ PATROL ------------------------
-    inline void Patrol(BehaviorContext& ctx)
+    inline void Patrol(Framework::BehaviorContext& ctx)
     {
         GOC* enemy = ctx.owner;
         if (!enemy) return;
 
-        auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-        auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-        auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
+        auto* rb = enemy->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* tr = enemy->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
+        auto* ai = enemy->GetComponentType<Framework::EnemyDecisionTreeComponent>(Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
         
 
         if (!rb || !tr || !ai) return;
@@ -131,16 +133,16 @@ namespace Framework
         rb->velY = 0.0f;
 
         float futureX = tr->x + rb->velX * ctx.dt;
-        AABB futureBox(futureX, tr->y, rb->width, rb->height);
+        Framework::AABB futureBox(futureX, tr->y, rb->width, rb->height);
 
         bool collisionDetected = false;
-        for (auto& pair : FACTORY->Objects())
+        for (auto& pair : Framework::FACTORY->Objects())
         {
             if (!pair.second) continue;
             GOC* goc = pair.second.get();
 
-            auto* rbO = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-            auto* trO = goc->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+            auto* rbO = goc->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
+            auto* trO = goc->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
             if (!rbO || !trO) continue;
 
             std::string name = goc->GetObjectName();
@@ -149,8 +151,8 @@ namespace Framework
 
             if (name == "rect")
             {
-                AABB wallBox(trO->x, trO->y, rbO->width, rbO->height);
-                if (Collision::CheckCollisionRectToRect(futureBox, wallBox))
+                Framework::AABB wallBox(trO->x, trO->y, rbO->width, rbO->height);
+                if (Framework::Collision::CheckCollisionRectToRect(futureBox, wallBox))
                 {
                     collisionDetected = true;
                     break;
@@ -171,22 +173,22 @@ namespace Framework
     }
 
     // ------------------------ MELEE ATTACK ------------------------
-    inline void MeleeAttack(BehaviorContext& ctx)
+    inline void MeleeAttack(Framework::BehaviorContext& ctx)
     {
-        GameObjectComposition* enemy = ctx.owner;
+        Framework::GameObjectComposition* enemy = ctx.owner;
         if (!enemy) return;
 
-        auto* attack = enemy->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
-        auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-        auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-        auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
-        auto* audio = enemy->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+        auto* attack = enemy->GetComponentType<Framework::EnemyAttackComponent>(Framework::ComponentTypeId::CT_EnemyAttackComponent);
+        auto* rb = enemy->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* tr = enemy->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
+        auto* ai = enemy->GetComponentType<Framework::EnemyDecisionTreeComponent>(Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
+        auto* audio = enemy->GetComponentType<Framework::AudioComponent>(Framework::ComponentTypeId::CT_AudioComponent);
         auto* player = FindPlayer();
         std::cout << "[MeleeAttack] attack=" << attack << " rb=" << rb
             << " tr=" << tr << " ai=" << ai << " player=" << player << "\n";
         if (!attack || !rb || !tr || !ai || !player) return;
 
-        auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+        auto* trPlayer = player->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
         if (!trPlayer) return;
 
         float dx = trPlayer->x - tr->x;
@@ -211,7 +213,7 @@ namespace Framework
             rb->velY *= 0.5f;
         }
 
-        ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
+        ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
         attack->attack_timer += ctx.dt;
         std::cout << "[Melee] distance=" << distance
             << " timer=" << attack->attack_timer
@@ -224,7 +226,7 @@ namespace Framework
             if (ctx.spawnHitBox)  // check callback is valid first
             {
                 attack->hitbox->active = true;
-                float direction = (ai->facing == Facing::LEFT) ? -1.0f : 1.0f;
+                float direction = (ai->facing == Framework::Facing::LEFT) ? -1.0f : 1.0f;
                 float hbWidth = rb->width * 1.2f;
                 float hbHeight = rb->height * 0.8f;
                 float spawnX = tr->x + (direction * hbWidth * 0.25f);
@@ -273,22 +275,23 @@ namespace Framework
     }
 
     // ------------------------ RANGED ATTACK ------------------------
-    inline void RangedAttack(BehaviorContext& ctx)
+    inline void RangedAttack(Framework::BehaviorContext& ctx)
     {
         std::cout << "Projectile func valid: " << (bool)ctx.spawnProjectile << "\n";
         GOC* enemy = ctx.owner;
         if (!enemy) return;
 
-        auto* attack = enemy->GetComponentType<EnemyAttackComponent>(ComponentTypeId::CT_EnemyAttackComponent);
-        auto* rb = enemy->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-        auto* tr = enemy->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
-        auto* ai = enemy->GetComponentType<EnemyDecisionTreeComponent>(ComponentTypeId::CT_EnemyDecisionTreeComponent);
-        auto* audio = enemy->GetComponentType<AudioComponent>(ComponentTypeId::CT_AudioComponent);
+        auto* attack = enemy->GetComponentType<Framework::EnemyAttackComponent>(Framework::ComponentTypeId::CT_EnemyAttackComponent);
+        auto* rb = enemy->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* tr = enemy->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
+        auto* ai = enemy->GetComponentType<Framework::EnemyDecisionTreeComponent>(Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
+        auto* audio = enemy->GetComponentType<Framework::AudioComponent>(Framework::ComponentTypeId::CT_AudioComponent);
 
         auto* player = FindPlayer();
         if (!attack || !rb || !tr || !ai || !player) return;
 
-        auto* trPlayer = player->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+        auto* trPlayer = player->GetComponentType<Framework::TransformComponent>
+        (Framework::ComponentTypeId::CT_TransformComponent);
         if (!trPlayer) return;
 
         float dx = trPlayer->x - tr->x;
@@ -325,7 +328,7 @@ namespace Framework
             rb->velX *= 0.85f;
         }
 
-        ai->facing = (dx < 0.0f) ? Facing::LEFT : Facing::RIGHT;
+        ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
         attack->attack_timer += ctx.dt;
 
         if (attack->attack_timer >= attack->attack_speed && retreatTimer <= 0.0f && distance < 3.5f)
