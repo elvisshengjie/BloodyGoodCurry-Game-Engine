@@ -58,6 +58,18 @@ public:
     void setListenerPos(const void* pos, const void* forward, const void* up);
     void setSoundPos(const std::string& name, const void* pos, const void* vel = nullptr);
     std::vector<std::string> getLoadedSounds() const;
+    std::shared_ptr<AudioManager> getAudioManager() const { return m_audioManager; }
+
+    //For 3D Sounds
+    AudioManager::ChannelID playSound3DChannel(
+        const std::string& name,
+        float volume = 1.0f,
+        float pitch = 1.0f,
+        bool loop = false,
+        const FMOD_VECTOR* pos = nullptr,
+        const FMOD_VECTOR* vel = nullptr);
+    void setChannel3DPosition(AudioManager::ChannelID id, const FMOD_VECTOR* pos, const FMOD_VECTOR* vel = nullptr);
+    bool isChannelPlaying(AudioManager::ChannelID id);
 
 private:
     // Private constructor

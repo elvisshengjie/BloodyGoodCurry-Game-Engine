@@ -629,5 +629,70 @@ void AudioManager::updateFades(float deltaTime)
             ++it;
         }
     }
+
 }
 
+AudioManager::ChannelID AudioManager::playSoundChannel(
+    const std::string& name,
+    float volume,
+    float pitch,
+    bool loop,
+    const FMOD_VECTOR* pos,
+    const FMOD_VECTOR* vel)
+{
+    auto it = pImpl->sounds.find(name);
+    if (it == pImpl->sounds.end()) return 0;
+
+    FMOD_SOUND* sound = it->second;
+    FMOD_CHANNEL* channel = nullptr;
+
+    FMOD_RESULT result = FMOD_System_PlaySound(pImpl->system, sound, nullptr, false, &channel);
+    checkFMODError(result, "playSoundChannel");
+
+    if (!channel) return 0;
+
+    // Set 3D attributes if available
+    FMOD_VECTOR defaultPos = { 0,0,0 };
+    FMOD_VECTOR defaultVel = { 0,0,0 };
+    FMOD_Channel_Set3DAttributes(channel, pos ? pos : &defaultPos, vel ? vel : &defaultVel);
+    FMOD_Channel_SetVolume(channel, volume);
+    FMOD_Channel_SetPitch(channel, pitch);
+    FMOD_Channel_SetMode(channel, loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
+
+    // Set 3D min/max distance for attenuation
+    FMOD_MODE mode;
+    FMOD_Sound_GetMode(sound, &mode);
+    if (mode & FMOD_3D)
+        FMOD_Channel_Set3DMinMaxDistance(channel, 1.0f, 5.0f);
+    // Assign unique ID
+    ChannelID id = m_nextChannelId++;
+    m_channelLookup[id] = channel;
+    // Store for name-based lookup if needed
+    m_channels[name].push_back(channel);
+    return id;
+}
+
+void AudioManager::setChannel3DPosition(ChannelID id, const FMOD_VECTOR* pos, const FMOD_VECTOR* vel)
+{
+    auto it = m_channelLookup.find(id);
+    if (it == m_channelLookup.end()) return;
+
+    FMOD_CHANNEL* channel = it->second;
+    if (!channel) return;
+
+    FMOD_VECTOR defaultVel = { 0,0,0 };
+    FMOD_Channel_Set3DAttributes(channel, pos, vel ? vel : &defaultVel);
+}
+
+bool AudioManager::isChannelPlaying(ChannelID id)
+{
+    auto it = m_channelLookup.find(id);
+    if (it == m_channelLookup.end()) return false;
+
+    FMOD_CHANNEL* channel = it->second;
+    if (!channel) return false;
+
+    FMOD_BOOL playing = false;
+    FMOD_Channel_IsPlaying(channel, &playing);
+    return playing != 0;
+}

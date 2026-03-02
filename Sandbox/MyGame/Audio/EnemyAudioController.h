@@ -69,15 +69,15 @@ namespace Framework
         // ---------------------------------------------------------------------------------
         // Play helpers  (called by enemy behaviour scripts)
         // ---------------------------------------------------------------------------------
-
+        void PlayClip3D(const std::string& clip, float posX, float posY);
         /// Play a random attack clip (projectile or melee depending on prefab).
-        void PlayAttack(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
+        void PlayAttack(float posX = 0.0f, float posY = 0.0f);
 
         /// Play a random hurt clip.
-        void PlayHurt(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
+        void PlayHurt(float posX = 0.0f, float posY = 0.0f);
 
         /// Play a random death / explosion clip.
-        void PlayDeath(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
+        void PlayDeath(float posX = 0.0f, float posY = 0.0f);
 
         /*************************************************************************************
           \brief Update 3D sound positions to track the enemy's world position.
@@ -89,7 +89,7 @@ namespace Framework
           \param posX  Current world X position of the enemy.
           \param posY  Current world Y position of the enemy.
         *************************************************************************************/
-        void Update(float posX, float posY, float listenerX, float listenerY);
+        void Update(float posX, float posY);
 
     private:
 
@@ -102,7 +102,9 @@ namespace Framework
 
         // ---- RNG -----------------------------------------------------------------------
         std::mt19937 m_Rng;
-
+       
+        // Active 3D sound channels
+        std::vector<AudioManager::ChannelID> m_ActiveChannels;
         /*************************************************************************************
           \brief Return a uniformly random element from a pool.
 

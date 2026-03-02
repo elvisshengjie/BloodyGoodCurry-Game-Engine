@@ -25,22 +25,22 @@ namespace Framework
     // Unified interface
     // ---------------------------------------------------------------------------------
 
-    void GameAudio::PlayAttack(float posX, float posY, bool is3D)
+    void GameAudio::PlayAttack(float posX, float posY)
     {
         if (m_Player) m_Player->PlaySlash();
-        else if (m_Enemy)  m_Enemy->PlayAttack(posX, posY, is3D);
+        else if (m_Enemy)  m_Enemy->PlayAttack(posX, posY);
     }
 
-    void GameAudio::PlayHurt(float posX, float posY, bool is3D)
+    void GameAudio::PlayHurt(float posX, float posY)
     {
         if (m_Player) m_Player->PlayPlayerHit();
-        else if (m_Enemy)  m_Enemy->PlayHurt(posX, posY, is3D);
+        else if (m_Enemy)  m_Enemy->PlayHurt(posX, posY);
     }
 
-    void GameAudio::PlayDeath(float posX, float posY, bool is3D)
+    void GameAudio::PlayDeath(float posX, float posY)
     {
         if (m_Player) m_Player->PlayPlayerDead();
-        else if (m_Enemy)  m_Enemy->PlayDeath(posX, posY, is3D);
+        else if (m_Enemy)  m_Enemy->PlayDeath(posX, posY);
     }
 
     void GameAudio::PlayFootstep()
@@ -67,9 +67,9 @@ namespace Framework
         // No-op for enemies.
     }
 
-    void GameAudio::Update(float posX, float posY, float listenerX, float listenerY)
+    void GameAudio::Update(float posX, float posY)
     {
-        if (m_Enemy) m_Enemy->Update(posX, posY, listenerX, listenerY);
+        if (m_Enemy) m_Enemy->Update(posX, posY);
         // No 3D tracking needed for the player.
     }
 

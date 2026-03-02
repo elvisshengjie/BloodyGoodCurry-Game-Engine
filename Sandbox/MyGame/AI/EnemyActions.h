@@ -240,7 +240,7 @@ namespace mygame
                 if (audio)
                 {
                     Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
-                    gameAudio.PlayAttack(tr->x, tr->y, true);
+                    gameAudio.PlayAttack(tr->x, tr->x);
                 }
                 PlayAnim(enemy, "slashattack");
             }
@@ -344,7 +344,7 @@ namespace mygame
             if (audio)
             {
                 Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
-                gameAudio.PlayAttack(tr->x, tr->y, true);
+                gameAudio.PlayAttack(tr->x, tr->y);
             }
             PlayAnim(enemy, "rangeattack");
             retreatTimer = retreatDuration;

@@ -78,7 +78,7 @@ namespace Framework
           \details  Player  → PlaySlash()
                     Enemy   → PlayAttack()
         *************************************************************************************/
-        void PlayAttack(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
+        void PlayAttack(float posX = 0.0f, float posY = 0.0f);
 
         /*************************************************************************************
           \brief Play a hurt / damage-received sound.
@@ -86,7 +86,7 @@ namespace Framework
           \details  Player  → PlayPlayerHit()
                     Enemy   → PlayHurt()
         *************************************************************************************/
-        void PlayHurt(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
+        void PlayHurt(float posX = 0.0f, float posY = 0.0f);
 
         /*************************************************************************************
           \brief Play a death sound.
@@ -94,7 +94,7 @@ namespace Framework
           \details  Player  → PlayPlayerDead()
                     Enemy   → PlayDeath()
         *************************************************************************************/
-        void PlayDeath(float posX = 0.0f, float posY = 0.0f, bool is3D = false);
+        void PlayDeath(float posX = 0.0f, float posY = 0.0f);
 
         /*************************************************************************************
           \brief Play a footstep sound (player only; no-op for enemies).
@@ -124,7 +124,7 @@ namespace Framework
           \param posY  World Y position of the owner.
           \note        No-op for players (player sounds are not spatialised).
         *************************************************************************************/
-        void Update(float posX, float posY, float listenerX, float listenerY);
+        void Update(float posX, float posY);
 
         // ---------------------------------------------------------------------------------
         // Direct controller access (for behaviour scripts that need specific calls)

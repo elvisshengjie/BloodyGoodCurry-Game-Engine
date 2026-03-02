@@ -17,7 +17,7 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
-#include "fmod.h"
+#include "fmod.hpp"
 
 struct FadeData
 {
@@ -38,6 +38,7 @@ struct FadeData
 class AudioManager 
 {
     public:
+    using ChannelID = uint16_t;
     AudioManager();
     ~AudioManager();
     bool initialize();
@@ -61,8 +62,17 @@ class AudioManager
     bool isSoundPlaying(const std::string& name) const;
     void fadeInSound(const std::string& name, float duration, float targetVolume = 1.0f);
     void fadeOutSound(const std::string& name, float duration);
+    
+    //3D implementation
+    ChannelID playSoundChannel(const std::string& name, float volume = 1.0f, float pitch = 1.0f, bool loop = false, const FMOD_VECTOR* pos = nullptr, const FMOD_VECTOR* vel = nullptr);
+    void setChannel3DPosition(ChannelID id, const FMOD_VECTOR* pos, const FMOD_VECTOR* vel = nullptr);
+    bool isChannelPlaying(ChannelID id);
+
     std::vector<std::string> getLoadedSounds() const;
+    
     private:
+    ChannelID m_nextChannelId = 1;
+    std::unordered_map<ChannelID, FMOD_CHANNEL*> m_channelLookup;
     std::unordered_map<std::string, FMOD_SOUND*> m_sounds;///Map of loaded sounds by name.
     std::unordered_map<std::string, std::vector<FMOD_CHANNEL*>> m_channels;///Map of channels for each sound.
     std::vector<FadeData> m_fades;

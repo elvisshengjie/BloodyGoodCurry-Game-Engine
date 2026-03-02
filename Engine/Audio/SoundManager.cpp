@@ -502,3 +502,31 @@ std::vector<std::string> SoundManager::getLoadedSounds() const
 
     return local->getLoadedSounds();
 }
+
+//3D Sounds
+AudioManager::ChannelID SoundManager::playSound3DChannel(
+    const std::string& name,
+    float volume,
+    float pitch,
+    bool loop,
+    const FMOD_VECTOR* pos,
+    const FMOD_VECTOR* vel)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_audioManager) return 0;
+    return m_audioManager->playSoundChannel(name, volume, pitch, loop, pos, vel);
+}
+
+void SoundManager::setChannel3DPosition(AudioManager::ChannelID id, const FMOD_VECTOR* pos, const FMOD_VECTOR* vel)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_audioManager) return;
+    m_audioManager->setChannel3DPosition(id, pos, vel);
+}
+
+bool SoundManager::isChannelPlaying(AudioManager::ChannelID id)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_audioManager) return false;
+    return m_audioManager->isChannelPlaying(id);
+}

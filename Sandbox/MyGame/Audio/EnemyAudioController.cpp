@@ -36,58 +36,68 @@ namespace Framework
         }
     }
 
+    void EnemyAudioController::PlayClip3D(const std::string& clip, float posX, float posY)
+    {
+        if (clip.empty()) return;
+
+        FMOD_VECTOR pos = { posX, 0.0f, posY };
+        FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
+
+        auto channelId = SoundManager::getInstance().playSound3DChannel(clip, 1.0f, 1.0f, false, &pos, &vel);
+        if (channelId != 0)
+        {
+            // Optional: store for per-frame update
+            m_ActiveChannels.push_back(channelId);
+
+            // Configure 3D spatial settings
+            auto& audio = *SoundManager::getInstance().getAudioManager();
+            audio.setChannel3DPosition(channelId, &pos, &vel);
+        }
+    }
     // ---------------------------------------------------------------------------------
     // Play helpers
     // ---------------------------------------------------------------------------------
 
-    void EnemyAudioController::PlayAttack(float posX, float posY, bool is3D)
+    void EnemyAudioController::PlayAttack(float posX, float posY)
     {
         std::string clip = GetRandom(m_AttackClips);
-        if (!clip.empty()) m_Audio->Play(clip, posX, posY, is3D);
+        PlayClip3D(clip, posX, posY);
     }
 
-    void EnemyAudioController::PlayHurt(float posX, float posY, bool is3D)
+    void EnemyAudioController::PlayHurt(float posX, float posY)
     {
         std::string clip = GetRandom(m_HurtClips);
-        if (!clip.empty()) m_Audio->Play(clip, posX, posY, is3D);
+        PlayClip3D(clip, posX, posY);
     }
 
-    void EnemyAudioController::PlayDeath(float posX, float posY, bool is3D)
+    void EnemyAudioController::PlayDeath(float posX, float posY)
     {
         std::string clip = GetRandom(m_DeathClips);
-        if (!clip.empty()) m_Audio->Play(clip, posX, posY, is3D);
+        PlayClip3D(clip, posX, posY);
     }
 
     // ---------------------------------------------------------------------------------
     // Per-frame 3D position update
     // ---------------------------------------------------------------------------------
-
-    void EnemyAudioController::Update(float posX, float posY, float listenerX, float listenerY)
+    void EnemyAudioController::Update(float posX, float posY)
     {
-        float dx = posX - listenerX;
-        float dy = posY - listenerY;
-        float dist = std::sqrt(dx * dx + dy * dy);
+        FMOD_VECTOR enemyPos = { posX, 0.0f, posY };
+        FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
 
-        constexpr float minDist = 2.0f;
-        constexpr float maxDist = 20.0f;
-        float t = std::clamp((dist - minDist) / (maxDist - minDist), 0.0f, 1.0f);
-        float volume = 1.0f - t;
+        // Update all active channels for this enemy
+        for (auto channelId : m_ActiveChannels)
+        {
+            SoundManager::getInstance().setChannel3DPosition(channelId, &enemyPos, &vel);
+        }
 
-        for (const auto& clip : m_AttackClips)
-        {
-            m_Audio->UpdateSoundPosition(clip, posX, posY);
-            SoundManager::getInstance().setSoundVolume(clip, volume);
-        }
-        for (const auto& clip : m_HurtClips)
-        {
-            m_Audio->UpdateSoundPosition(clip, posX, posY);
-            SoundManager::getInstance().setSoundVolume(clip, volume);
-        }
-        for (const auto& clip : m_DeathClips)
-        {
-            m_Audio->UpdateSoundPosition(clip, posX, posY);
-            SoundManager::getInstance().setSoundVolume(clip, volume);
-        }
+        // Optional: prune stopped channels
+        m_ActiveChannels.erase(
+            std::remove_if(m_ActiveChannels.begin(), m_ActiveChannels.end(),
+                [](AudioManager::ChannelID id)
+                {
+                    return !SoundManager::getInstance().isChannelPlaying(id);
+                }),
+            m_ActiveChannels.end());
     }
 
     // ---------------------------------------------------------------------------------
