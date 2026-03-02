@@ -89,7 +89,7 @@ namespace Framework
           \param posX  Current world X position of the enemy.
           \param posY  Current world Y position of the enemy.
         *************************************************************************************/
-        void Update(float posX, float posY);
+        void Update(float posX, float posY, float listenerX, float listenerY);
 
     private:
 

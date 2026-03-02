@@ -67,10 +67,10 @@ namespace Framework
         // No-op for enemies.
     }
 
-    void GameAudio::Update(float posX, float posY)
+    void GameAudio::Update(float posX, float posY, float listenerX, float listenerY)
     {
-        if (m_Enemy) m_Enemy->Update(posX, posY);
+        if (m_Enemy) m_Enemy->Update(posX, posY, listenerX, listenerY);
         // No 3D tracking needed for the player.
     }
 
-} // namespace MyGame
+} // namespace Framework

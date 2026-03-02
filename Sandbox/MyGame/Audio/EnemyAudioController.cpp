@@ -62,20 +62,32 @@ namespace Framework
     // Per-frame 3D position update
     // ---------------------------------------------------------------------------------
 
-    void EnemyAudioController::Update(float posX, float posY)
+    void EnemyAudioController::Update(float posX, float posY, float listenerX, float listenerY)
     {
-        // Reposition every active sound so FMOD spatial audio tracks the enemy.
+        float dx = posX - listenerX;
+        float dy = posY - listenerY;
+        float dist = std::sqrt(dx * dx + dy * dy);
+
+        constexpr float minDist = 2.0f;
+        constexpr float maxDist = 20.0f;
+        float t = std::clamp((dist - minDist) / (maxDist - minDist), 0.0f, 1.0f);
+        float volume = 1.0f - t;
+
         for (const auto& clip : m_AttackClips)
-            if (m_Audio->IsPlaying(clip))
-                m_Audio->UpdateSoundPosition(clip, posX, posY);
-
+        {
+            m_Audio->UpdateSoundPosition(clip, posX, posY);
+            SoundManager::getInstance().setSoundVolume(clip, volume);
+        }
         for (const auto& clip : m_HurtClips)
-            if (m_Audio->IsPlaying(clip))
-                m_Audio->UpdateSoundPosition(clip, posX, posY);
-
+        {
+            m_Audio->UpdateSoundPosition(clip, posX, posY);
+            SoundManager::getInstance().setSoundVolume(clip, volume);
+        }
         for (const auto& clip : m_DeathClips)
-            if (m_Audio->IsPlaying(clip))
-                m_Audio->UpdateSoundPosition(clip, posX, posY);
+        {
+            m_Audio->UpdateSoundPosition(clip, posX, posY);
+            SoundManager::getInstance().setSoundVolume(clip, volume);
+        }
     }
 
     // ---------------------------------------------------------------------------------

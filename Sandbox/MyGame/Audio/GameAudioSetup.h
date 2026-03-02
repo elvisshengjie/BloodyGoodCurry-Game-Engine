@@ -124,7 +124,7 @@ namespace Framework
           \param posY  World Y position of the owner.
           \note        No-op for players (player sounds are not spatialised).
         *************************************************************************************/
-        void Update(float posX, float posY);
+        void Update(float posX, float posY, float listenerX, float listenerY);
 
         // ---------------------------------------------------------------------------------
         // Direct controller access (for behaviour scripts that need specific calls)
