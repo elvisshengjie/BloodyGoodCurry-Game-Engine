@@ -117,7 +117,7 @@ namespace Framework
 
             // Game is 2D — Z is fixed at 0. Forward points into the screen.
             float listenerPos[3] = { tr->x,   tr->y,  0.0f };
-            float forward[3] = { 0.0f,    0.0f,  -1.0f };
+            float forward[3] = { 0.0f, 0.0f, 1.0f };
             float up[3] = { 0.0f,    1.0f,   0.0f };
 
             SoundManager::getInstance().setListenerPos(listenerPos, forward, up);

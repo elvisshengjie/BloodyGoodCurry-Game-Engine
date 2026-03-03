@@ -40,7 +40,7 @@ namespace mygame
     {
         if (clip.empty()) return;
 
-        FMOD_VECTOR pos = { posX, 0.0f, posY };
+        FMOD_VECTOR pos = { posX, posY, 0.0f };
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
 
         auto channelId = SoundManager::getInstance().playSound3DChannel(clip, 1.0f, 1.0f, false, &pos, &vel);
@@ -81,7 +81,7 @@ namespace mygame
     // ---------------------------------------------------------------------------------
     void EnemyAudioController::Update(float posX, float posY)
     {
-        FMOD_VECTOR enemyPos = { posX, 0.0f, posY };
+        FMOD_VECTOR enemyPos = { posX, posY, 0.0f };
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
 
         // Update all active channels for this enemy
