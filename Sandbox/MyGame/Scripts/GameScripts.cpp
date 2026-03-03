@@ -424,7 +424,7 @@ namespace {
         if (!gLogicSystem || !obj)
             return;
 
-        auto& input = gLogicSystem->Input();
+        auto& input = gLogicSystem->Input(); 
         auto& state = gPlayerStates[obj->GetId()];
 
         auto* tr = SafeGetComponent<Framework::TransformComponent>(obj, Framework::ComponentTypeId::CT_TransformComponent);
@@ -450,25 +450,61 @@ namespace {
         float aimDirY = 0.0f;
 
         /*************************************************************************************
+          \brief For controller aiming
+          \details Also flips the sprite horizontally by flipping RenderComponent width sign.
+        **************************************************************************************/
+        float stickX = input.Manager().GetGamepadAxis(GLFW_GAMEPAD_AXIS_RIGHT_X);
+        float stickY = input.Manager().GetGamepadAxis(GLFW_GAMEPAD_AXIS_RIGHT_Y);
+
+        // Invert the Y because gamepad Y is usually opposite of screen Y, but remove if it isnt.
+        stickY = -stickY;
+
+        const float stickDeadzone = 0.2f;
+        bool usingControllerAim = false;
+
+        if (std::fabs(stickX) > stickDeadzone || std::fabs(stickY) > stickDeadzone)
+        {
+            const float len = std::sqrt(stickX * stickX + stickY * stickY);
+            if (len > 0.0001f)
+            {
+                aimDirX = stickX / len;
+                aimDirY = stickY / len;
+                usingControllerAim = true;
+            }
+        }
+
+        /*************************************************************************************
           \brief Convert mouse screen coordinates to world coordinates for aiming.
           \details Also flips the sprite horizontally by flipping RenderComponent width sign.
         **************************************************************************************/
-        if (auto* rs = Framework::RenderSystem::Get())
+        if (!usingControllerAim)
         {
-            if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport) && mouseInsideViewport)
+            if (auto* rs = Framework::RenderSystem::Get())
             {
-                const float dx = mouseWorldX - tr->x;
-                const float dy = mouseWorldY - tr->y;
-                const float lenSq = dx * dx + dy * dy;
-                if (lenSq > 1e-6f)
+                if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport) && mouseInsideViewport)
                 {
-                    const float invLen = 1.0f / std::sqrt(lenSq);
-                    aimDirX = dx * invLen;
-                    aimDirY = dy * invLen;
+                    const float dx = mouseWorldX - tr->x;
+                    const float dy = mouseWorldY - tr->y;
+                    const float lenSq = dx * dx + dy * dy;
+                    if (lenSq > 1e-6f)
+                    {
+                        const float invLen = 1.0f / std::sqrt(lenSq);
+                        aimDirX = dx * invLen;
+                        aimDirY = dy * invLen;
+                    }
                 }
-                if (aimDirX >= 0.0f) rc->w = std::abs(rc->w);
-                else rc->w = -std::abs(rc->w);
             }
+        }
+        
+        /*************************************************************************************
+          \brief Flips the sprite based on final aim direction, for both mouse and controller
+        **************************************************************************************/
+        if (std::fabs(aimDirX) > 0.001f)
+        {
+            if (aimDirX >= 0.0f)
+                rc->w = std::abs(rc->w);
+            else
+                rc->w = -std::abs(rc->w);
         }
 
         /*************************************************************************************
@@ -501,16 +537,16 @@ namespace {
         {
             const float forwardX = (rc->w >= 0.0f) ? 1.0f : -1.0f;
             float speedModifier = 1.0f;
-            if ((input.IsKeyHeld(GLFW_KEY_D) && forwardX < 0) || (input.IsKeyHeld(GLFW_KEY_A) && forwardX > 0))
+            if ((input.MoveRight() && forwardX < 0) || (input.MoveLeft() && forwardX > 0))
                 speedModifier = 0.75f;
 
-            if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f * speedModifier);
-            if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f * speedModifier);
-            if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D)) rb->velX *= rb->dampening;
+            if (input.MoveRight()) rb->velX = std::max(rb->velX, 1.f * speedModifier);
+            if (input.MoveLeft()) rb->velX = std::min(rb->velX, -1.f * speedModifier);
+            if (!input.MoveLeft() && !input.MoveRight()) rb->velX *= rb->dampening;
 
-            if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY, 1.f);
-            if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
-            if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S)) rb->velY *= rb->dampening;
+            if (input.MoveUp()) rb->velY = std::max(rb->velY, 1.f);
+            if (input.MoveDown()) rb->velY = std::min(rb->velY, -1.f);
+            if (!input.MoveUp() && !input.MoveDown()) rb->velY *= rb->dampening;
         }
         else if ((isThrowing || isMeleeAttacking) && !isKnockback)
         {
@@ -521,10 +557,12 @@ namespace {
         /*************************************************************************************
           \brief Run/idle intent used for animation and run particle spawning.
         **************************************************************************************/
-        const bool wantRun = input.IsKeyHeld(GLFW_KEY_A) || input.IsKeyHeld(GLFW_KEY_D) ||
+        /*const bool wantRun = input.IsKeyHeld(GLFW_KEY_A) || input.IsKeyHeld(GLFW_KEY_D) ||
             input.IsKeyHeld(GLFW_KEY_W) || input.IsKeyHeld(GLFW_KEY_S) ||
             input.IsKeyHeld(GLFW_KEY_LEFT) || input.IsKeyHeld(GLFW_KEY_RIGHT) ||
-            input.IsKeyHeld(GLFW_KEY_UP) || input.IsKeyHeld(GLFW_KEY_DOWN);
+            input.IsKeyHeld(GLFW_KEY_UP) || input.IsKeyHeld(GLFW_KEY_DOWN);*/
+
+        const bool wantRun = input.MoveUp() || input.MoveDown() || input.MoveLeft() || input.MoveRight();
 
         state.runParticleTimer = std::max(0.0f, state.runParticleTimer - dt);
         state.footstepTimer = std::max(0.0f, state.footstepTimer - dt);
@@ -559,16 +597,16 @@ namespace {
           \brief Input: queue/hold throw request via RMB.
         **************************************************************************************/
         const bool knockbackActive = rb->knockbackTime > 0.0f || state.knockbackAnimTimer > 0.0f;
-        if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || (knockbackActive && input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT)))
+        if (input.RangedAttack() || (knockbackActive && input.RangedHeld()))
             state.throwRequestQueued = true;
-        if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
+        if (input.RangedReleased())
             state.throwRequestQueued = false;
 
         /*************************************************************************************
           \brief Input: LMB melee attack triggers hitbox + combo animation.
         **************************************************************************************/
         const bool canStartMelee = !IsAttackState(state.animState) && !knockbackActive;
-        if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && canStartMelee &&
+        if (input.MeleeAttack() && canStartMelee &&
             (aimDirX != 0.0f || aimDirY != 0.0f))
         {
             const float offset = 0.05f;
