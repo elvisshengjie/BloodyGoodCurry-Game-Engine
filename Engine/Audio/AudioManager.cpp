@@ -178,9 +178,14 @@ void AudioManager::setListenerPosition(const void* pos, const void* forward, con
     if (!pImpl->system) return;
 
     FMOD_VECTOR* p = (FMOD_VECTOR*)pos;
-    FMOD_VECTOR* f = (FMOD_VECTOR*)forward;
-    FMOD_VECTOR* u = (FMOD_VECTOR*)up;
     FMOD_VECTOR velocity = { 0.0f, 0.0f, 0.0f };
+
+    // Use correct 2D-friendly orientation if caller doesn't supply vectors
+    FMOD_VECTOR defaultForward = { 0.0f, 0.0f, 1.0f }; // into screen (unchanged, still correct)
+    FMOD_VECTOR defaultUp = { 0.0f, 1.0f, 0.0f }; // world up   (unchanged, still correct)
+
+    FMOD_VECTOR* f = forward ? (FMOD_VECTOR*)forward : &defaultForward;
+    FMOD_VECTOR* u = up ? (FMOD_VECTOR*)up : &defaultUp;
 
     FMOD_RESULT result = FMOD_System_Set3DListenerAttributes(pImpl->system, 0, p, &velocity, f, u);
     checkFMODError(result, "set3DListenerAttributes");
@@ -648,26 +653,27 @@ AudioManager::ChannelID AudioManager::playSoundChannel(
 
     FMOD_RESULT result = FMOD_System_PlaySound(pImpl->system, sound, nullptr, false, &channel);
     checkFMODError(result, "playSoundChannel");
-
     if (!channel) return 0;
 
-    // Set 3D attributes if available
-    FMOD_VECTOR defaultPos = { 0,0,0 };
-    FMOD_VECTOR defaultVel = { 0,0,0 };
+    FMOD_VECTOR defaultPos = { 0, 0, 0 };
+    FMOD_VECTOR defaultVel = { 0, 0, 0 };
     FMOD_Channel_Set3DAttributes(channel, pos ? pos : &defaultPos, vel ? vel : &defaultVel);
     FMOD_Channel_SetVolume(channel, volume);
     FMOD_Channel_SetPitch(channel, pitch);
     FMOD_Channel_SetMode(channel, loop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF);
 
-    // Set 3D min/max distance for attenuation
     FMOD_MODE mode;
     FMOD_Sound_GetMode(sound, &mode);
+
+    // -----------------------------------------------------------------
+    // FIX (Jian Wei): Matched range to playSound fix above.
+    // Was 1.0f–5.0f which was far too close; increased to 1.0f–50.0f.
+    // -----------------------------------------------------------------
     if (mode & FMOD_3D)
-        FMOD_Channel_Set3DMinMaxDistance(channel, 1.0f, 5.0f);
-    // Assign unique ID
+        FMOD_Channel_Set3DMinMaxDistance(channel, 1.0f, 50.0f);
+
     ChannelID id = m_nextChannelId++;
     m_channelLookup[id] = channel;
-    // Store for name-based lookup if needed
     m_channels[name].push_back(channel);
     return id;
 }

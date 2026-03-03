@@ -481,9 +481,12 @@ namespace {
 
         const bool isKnockback = rb->knockbackTime > 0.0f || state.knockbackAnimTimer > 0.0f;
         const bool isThrowing = state.animState == PlayerAnimState::Throw;
+        const bool isMeleeAttacking = state.animState == PlayerAnimState::Attack1 ||
+            state.animState == PlayerAnimState::Attack2 ||
+            state.animState == PlayerAnimState::Attack3;
 
         /*************************************************************************************
-          \brief Movement integration (lunge > normal movement > locked during throw/knockback).
+          \brief Movement integration (normal movement > locked during melee/throw/knockback).
         **************************************************************************************/
         if (rb->lungeTime > 0.0f)
         {
@@ -494,7 +497,7 @@ namespace {
                 rb->lungeTime = 0.0f;
             }
         }
-        else if (!isKnockback && !isThrowing)
+        else if (!isKnockback && !isThrowing && !isMeleeAttacking)
         {
             const float forwardX = (rc->w >= 0.0f) ? 1.0f : -1.0f;
             float speedModifier = 1.0f;
@@ -509,7 +512,7 @@ namespace {
             if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
             if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S)) rb->velY *= rb->dampening;
         }
-        else if (isThrowing && !isKnockback)
+        else if ((isThrowing || isMeleeAttacking) && !isKnockback)
         {
             rb->velX = 0.0f;
             rb->velY = 0.0f;
@@ -562,14 +565,12 @@ namespace {
             state.throwRequestQueued = false;
 
         /*************************************************************************************
-          \brief Input: LMB melee attack triggers lunge + hitbox + combo animation.
+          \brief Input: LMB melee attack triggers hitbox + combo animation.
         **************************************************************************************/
-        if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && (aimDirX != 0.0f || aimDirY != 0.0f))
+        const bool canStartMelee = !IsAttackState(state.animState) && !knockbackActive;
+        if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && canStartMelee &&
+            (aimDirX != 0.0f || aimDirY != 0.0f))
         {
-            float dirX = (mouseWorldX > tr->x) ? 1.0f : -1.0f;
-            rb->velX = dirX * 0.1f;
-            rb->lungeTime = 0.15f;
-
             const float offset = 0.05f;
             const float halfW = std::abs(rc->w) * 0.5f;
             const float halfH = rc->h * 0.5f;
