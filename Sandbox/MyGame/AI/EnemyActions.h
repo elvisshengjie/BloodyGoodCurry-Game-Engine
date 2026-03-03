@@ -195,6 +195,20 @@ namespace mygame
         float dy = trPlayer->y - tr->y;
         float distance = std::sqrt(dx * dx + dy * dy);
 
+        if (attack->hitbox->active)
+        {
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            attack->hitboxElapsed += ctx.dt;
+            if (attack->hitboxElapsed >= attack->hitbox->duration)
+            {
+                attack->hitbox->active = false;
+                attack->hitboxElapsed = 0.0f;
+                PlayAnim(enemy, "idle");
+            }
+            return;
+        }
+
         constexpr float speed = 1.0f;
         constexpr float accel = 2.0f;
         constexpr float stopDist = 0.1f;
@@ -226,6 +240,9 @@ namespace mygame
             if (ctx.spawnHitBox)  // check callback is valid first
             {
                 attack->hitbox->active = true;
+                attack->hitboxElapsed = 0.0f;
+                rb->velX = 0.0f;
+                rb->velY = 0.0f;
                 float direction = (ai->facing == Framework::Facing::LEFT) ? -1.0f : 1.0f;
                 float hbWidth = rb->width * 1.2f;
                 float hbHeight = rb->height * 0.8f;
@@ -243,17 +260,6 @@ namespace mygame
                     gameAudio.PlayAttack(tr->x, tr->x);
                 }
                 PlayAnim(enemy, "slashattack");
-            }
-        }
-
-        if (attack->hitbox->active)
-        {
-            attack->hitboxElapsed += ctx.dt;
-            if (attack->hitboxElapsed >= attack->hitbox->duration)
-            {
-                attack->hitbox->active = false;
-                attack->hitboxElapsed = 0.0f;
-                PlayAnim(enemy, "idle");
             }
         }
 
@@ -297,6 +303,22 @@ namespace mygame
         float dx = trPlayer->x - tr->x;
         float dy = trPlayer->y - tr->y;
         float distance = std::sqrt(dx * dx + dy * dy);
+
+        if (ai->rangedAttackActive)
+        {
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            ai->rangedAttackTimer += ctx.dt;
+            if (ai->rangedAttackTimer >= ai->rangedAttackDuration)
+            {
+                ai->rangedAttackActive = false;
+                ai->rangedAttackTimer = 0.0f;
+                ai->rangedAttackDuration = 0.0f;
+                PlayAnim(enemy, "idle");
+            }
+            return;
+        }
+
         float norm = distance > 0.001f ? distance : 1.0f;
         float dirX = dx / norm;
         float dirY = dy / norm;
@@ -347,6 +369,11 @@ namespace mygame
                 gameAudio.PlayAttack(tr->x, tr->y);
             }
             PlayAnim(enemy, "rangeattack");
+            ai->rangedAttackActive = true;
+            ai->rangedAttackTimer = 0.0f;
+            ai->rangedAttackDuration = GetAnimDuration(enemy, "rangeattack");
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
             retreatTimer = retreatDuration;
         }
 
