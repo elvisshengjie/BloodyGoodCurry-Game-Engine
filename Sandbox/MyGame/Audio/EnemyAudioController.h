@@ -44,7 +44,7 @@
 #include <random>
 #include <iostream>
 
-namespace Framework
+namespace mygame
 {
     /*************************************************************************************
       \class EnemyAudioController

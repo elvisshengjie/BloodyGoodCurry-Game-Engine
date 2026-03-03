@@ -92,43 +92,43 @@ namespace mygame {
             {
             case Framework::CombatAudioEvent::PlayerHurt:
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Player);
                 gameAudio.PlayHurt();
                 break;
             }
             case Framework::CombatAudioEvent::PlayerDeath:
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Player);
                 gameAudio.PlayDeath();
                 break;
             }
             case Framework::CombatAudioEvent::EnemyHurt:
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Enemy);
                 gameAudio.PlayHurt();
                 break;
             }
             case Framework::CombatAudioEvent::EnemyDeath:
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Enemy);
                 gameAudio.PlayDeath();
                 break;
             }
             case Framework::CombatAudioEvent::PlayerAttackHit:
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Player);
                 gameAudio.PlayAttack();
                 break;
             }
             case Framework::CombatAudioEvent::PlayerAttackBlocked:
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Player);
                 gameAudio.PlayBoink();
                 break;
             }
             case Framework::CombatAudioEvent::PlayerAttackMiss:
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Player);
+                mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Player);
                 gameAudio.PlayPunch();
                 break;
             }

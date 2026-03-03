@@ -239,7 +239,7 @@ namespace mygame
 
                 if (audio)
                 {
-                    Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                    GameAudio gameAudio(audio, GameAudio::Entity::Enemy);
                     gameAudio.PlayAttack(tr->x, tr->x);
                 }
                 PlayAnim(enemy, "slashattack");
@@ -343,7 +343,7 @@ namespace mygame
 
             if (audio)
             {
-                Framework::GameAudio gameAudio(audio, Framework::GameAudio::Entity::Enemy);
+                GameAudio gameAudio(audio, GameAudio::Entity::Enemy);
                 gameAudio.PlayAttack(tr->x, tr->y);
             }
             PlayAnim(enemy, "rangeattack");

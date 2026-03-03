@@ -131,7 +131,7 @@ namespace {
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
         float footstepTimer{ 0.0f };                         ///< Timer for footstep sound cadence
-        std::unique_ptr<Framework::GameAudio> audio;         ///< Game-side audio facade
+        std::unique_ptr<mygame::GameAudio> audio;         ///< Game-side audio facade
     };
 
     /*****************************************************************************************
@@ -399,12 +399,11 @@ namespace {
         if (auto* audio = SafeGetComponent<Framework::AudioComponent>(
             obj, Framework::ComponentTypeId::CT_AudioComponent))
         {
-            state.audio = std::make_unique<Framework::GameAudio>(
-                audio, Framework::GameAudio::Entity::Player);
+            state.audio = std::make_unique<mygame::GameAudio>(
+                audio, mygame::GameAudio::Entity::Player);
         }
         std::cout << "[Behaviour] PlayerController init\n";
     }
-
     /*****************************************************************************************
       \brief PlayerController behaviour: Update hook (movement, combat, animation, VFX).
       \param obj Player object composition.
@@ -435,8 +434,8 @@ namespace {
         auto* audio = SafeGetComponent<Framework::AudioComponent>(obj, Framework::ComponentTypeId::CT_AudioComponent);
         if (!state.audio && audio)
         {
-            state.audio = std::make_unique<Framework::GameAudio>(
-                audio, Framework::GameAudio::Entity::Player);
+            state.audio = std::make_unique<mygame::GameAudio>(
+                audio, mygame::GameAudio::Entity::Player);
         }
         auto* health = SafeGetComponent<Framework::PlayerHealthComponent>(obj, Framework::ComponentTypeId::CT_PlayerHealthComponent);
 

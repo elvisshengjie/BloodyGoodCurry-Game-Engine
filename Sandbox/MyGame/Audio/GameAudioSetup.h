@@ -37,7 +37,7 @@
 #include "PlayerAudioController.h"
 #include "EnemyAudioController.h"
 #include <memory>
-namespace Framework
+namespace mygame
 {
     /*************************************************************************************
       \class GameAudio

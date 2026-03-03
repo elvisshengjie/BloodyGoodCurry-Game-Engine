@@ -11,7 +11,7 @@
 *********************************************************************************************/
 #include "GameAudioSetup.h"
 
-namespace Framework
+namespace mygame
 {
     GameAudio::GameAudio(Framework::AudioComponent* audio, Entity entity)
     {

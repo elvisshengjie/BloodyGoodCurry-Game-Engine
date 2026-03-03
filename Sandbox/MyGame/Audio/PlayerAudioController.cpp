@@ -12,7 +12,7 @@
 #include "PlayerAudioController.h"
 #include <iostream>
 
-namespace Framework
+namespace mygame
 {
     PlayerAudioController::PlayerAudioController(Framework::AudioComponent* audio)
         : m_Audio(audio)

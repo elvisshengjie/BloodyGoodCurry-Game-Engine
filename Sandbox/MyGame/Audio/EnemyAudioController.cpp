@@ -11,7 +11,7 @@
 *********************************************************************************************/
 #include "EnemyAudioController.h"
 
-namespace Framework
+namespace mygame
 {
     EnemyAudioController::EnemyAudioController(Framework::AudioComponent* audio)
         : m_Audio(audio)
