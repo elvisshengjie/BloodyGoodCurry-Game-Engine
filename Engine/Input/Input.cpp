@@ -37,7 +37,11 @@ namespace Framework
         m_keyReleased(GLFW_KEY_LAST + 1, false),
         m_mouseHeld(GLFW_MOUSE_BUTTON_LAST + 1, false),
         m_mousePressed(GLFW_MOUSE_BUTTON_LAST + 1, false),
-        m_mouseReleased(GLFW_MOUSE_BUTTON_LAST + 1, false)
+        m_mouseReleased(GLFW_MOUSE_BUTTON_LAST + 1, false),
+        m_gamepadHeld(GLFW_GAMEPAD_BUTTON_LAST + 1, false),
+        m_gamepadPressed(GLFW_GAMEPAD_BUTTON_LAST + 1, false),
+        m_gamepadReleased(GLFW_GAMEPAD_BUTTON_LAST + 1, false),
+        m_gamepadAxes(GLFW_GAMEPAD_AXIS_LAST + 1, 0.0f)
     {
     }
 
@@ -51,6 +55,8 @@ namespace Framework
         std::fill(m_keyReleased.begin(), m_keyReleased.end(), false);
         std::fill(m_mousePressed.begin(), m_mousePressed.end(), false);
         std::fill(m_mouseReleased.begin(), m_mouseReleased.end(), false);
+        std::fill(m_gamepadPressed.begin(), m_gamepadPressed.end(), false);
+        std::fill(m_gamepadReleased.begin(), m_gamepadReleased.end(), false);
 
         if (!m_window)
             return;
@@ -119,10 +125,10 @@ namespace Framework
             return false;
         return m_keyPressed[key];
     }
-   /*****************************************************************************************
-   \brief A boolean to check if the key is being held
-   \return True if it's being held, false if it isn't
-   *****************************************************************************************/
+    /*****************************************************************************************
+    \brief A boolean to check if the key is being held
+    \return True if it's being held, false if it isn't
+    *****************************************************************************************/
     bool InputManager::IsKeyHeld(int key) const
     {
         if (key < 0 || key >= static_cast<int>(m_keyHeld.size()))
@@ -160,6 +166,10 @@ namespace Framework
         std::fill(m_mouseHeld.begin(), m_mouseHeld.end(), false);
         std::fill(m_mousePressed.begin(), m_mousePressed.end(), false);
         std::fill(m_mouseReleased.begin(), m_mouseReleased.end(), false);
+        std::fill(m_gamepadHeld.begin(), m_gamepadHeld.end(), false);
+        std::fill(m_gamepadPressed.begin(), m_gamepadPressed.end(), false);
+        std::fill(m_gamepadReleased.begin(), m_gamepadReleased.end(), false);
+        std::fill(m_gamepadAxes.begin(), m_gamepadAxes.end(), 0.0f);
         m_mouseState = MouseState{};
     }
     /*****************************************************************************************
@@ -191,5 +201,33 @@ namespace Framework
         if (button < 0 || button >= static_cast<int>(m_mouseReleased.size()))
             return false;
         return m_mouseReleased[button];
+    }
+
+    bool InputManager::IsGamepadButtonPressed(int button) const
+    {
+        if (button < 0 || button >= static_cast<int>(m_gamepadPressed.size()))
+            return false;
+        return m_gamepadPressed[button];
+    }
+
+    bool InputManager::IsGamepadButtonHeld(int button) const
+    {
+        if (button < 0 || button >= static_cast<int>(m_gamepadHeld.size()))
+            return false;
+        return m_gamepadHeld[button];
+    }
+
+    bool InputManager::IsGamepadButtonReleased(int button) const
+    {
+        if (button < 0 || button >= static_cast<int>(m_gamepadReleased.size()))
+            return false;
+        return m_gamepadReleased[button];
+    }
+
+    float InputManager::GetGamepadAxis(int axis) const
+    {
+        if (axis < 0 || axis >= static_cast<int>(m_gamepadAxes.size()))
+            return 0.0f;
+        return m_gamepadAxes[axis];
     }
 }

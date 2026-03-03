@@ -78,6 +78,33 @@ namespace Framework
 		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT)) std::cout << "LMB released!" << std::endl;
 		*/
 		
+		// Reset action flag each frame
+		m_moveUp = false;
+		m_moveDown = false;
+		m_moveLeft = false;
+		m_moveRight = false;
+		m_attack = false;
+
+		// Keyboard Movement
+		if (input.IsKeyHeld(GLFW_KEY_W)) m_moveUp = true;
+		if (input.IsKeyHeld(GLFW_KEY_S)) m_moveDown = true;
+		if (input.IsKeyHeld(GLFW_KEY_A)) m_moveLeft = true;
+		if (input.IsKeyHeld(GLFW_KEY_D)) m_moveRight = true;
+
+		// Controller Movement (Left Stick)
+		float lx = input.GetGamepadAxis(GLFW_GAMEPAD_AXIS_LEFT_X);
+		float ly = input.GetGamepadAxis(GLFW_GAMEPAD_AXIS_LEFT_Y);
+
+		if (ly < -0.2f) m_moveUp = true;
+		if (ly > 0.2f) m_moveDown = true;
+		if (lx < -0.2f) m_moveLeft = true;
+		if (lx > 0.2f) m_moveRight = true;
+
+		// Attack mapping
+		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_A)) 
+		{
+			m_attack = true;
+		}
 	}
 
 	/*************************************************************************************
