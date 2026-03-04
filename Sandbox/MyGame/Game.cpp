@@ -9,6 +9,7 @@
 #include "Systems/SystemManager.h"
 #include "Systems/InputSystem.h"
 #include "Systems/LogicSystem.h"
+#include "Systems/HitBoxSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Factory/Factory.h"
@@ -161,6 +162,11 @@ namespace mygame {
     /*************************************************************************************
      \brief  Initializes engine systems and game-side bindings for the current session.
      \param  win  The main application window used by window-dependent systems.
+     \details
+             - Creates and initializes the shared engine systems through SystemManager.
+             - Creates the game-owned HitBoxSystem after LogicSystem is initialized so
+               combat behavior remains on the game side.
+             - Binds BloodyGoodCurry scripts, combat audio, combat VFX, and UI flow.
     *************************************************************************************/
     void init(gfx::Window& win)
     {
@@ -181,6 +187,19 @@ namespace mygame {
         //(void)gRenderSystem;
 
         gSystems.IntializeAll();
+        if (gLogicSystem && !gLogicSystem->hitBoxSystem)
+        {
+            // HitBoxSystem remains a shared runtime service, but this game now owns its lifetime.
+            gLogicSystem->hitBoxSystem = new Framework::HitBoxSystem(*gLogicSystem);
+            gLogicSystem->hitBoxSystem->Initialize();
+            // Keep hitbox timing aligned with the old engine behavior, but route the update
+            // through a generic game callback instead of a hardcoded LogicSystem dependency.
+            gLogicSystem->SetPostUpdateCallback([](float dt)
+            {
+                if (gLogicSystem && gLogicSystem->hitBoxSystem)
+                    gLogicSystem->hitBoxSystem->Update(dt);
+            });
+        }
         RegisterMyGameScripts(*gLogicSystem);
         BindCombatAudio(*gLogicSystem, *gHealthSystem);
         BindCombatVfx(*gLogicSystem);
@@ -570,10 +589,22 @@ namespace mygame {
 
     /*************************************************************************************
      \brief  Shuts down game systems and prints allocator leak diagnostics.
+     \details
+             - Destroys the game-owned HitBoxSystem before engine systems are released.
+             - Shuts down all registered systems through SystemManager.
+             - Prints allocator leak information after shutdown for debugging.
     *************************************************************************************/
     void shutdown()
     {
         std::cout << "[Game] Shutting down systems...\n";
+
+        if (gLogicSystem && gLogicSystem->hitBoxSystem)
+        {
+            gLogicSystem->SetPostUpdateCallback({});
+            gLogicSystem->hitBoxSystem->Shutdown();
+            delete gLogicSystem->hitBoxSystem;
+            gLogicSystem->hitBoxSystem = nullptr;
+        }
 
         // Only call ShutdownAll(), do NOT manually delete gEnemySystem etc.
         gSystems.ShutdownAll();

@@ -59,7 +59,6 @@
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
 #include "Component/GateTargetComponent.h"
-#include "Graphics/PlayerHUD.h"
 
 #include "Physics/Dynamics/RigidBodyComponent.h"
 

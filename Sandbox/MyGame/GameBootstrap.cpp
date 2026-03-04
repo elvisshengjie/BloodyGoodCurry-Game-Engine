@@ -13,6 +13,8 @@
 
 #include "EngineCall.hpp"
 
+#include "Components/PlayerHUD.h"
+#include "Composition/ComponentCreator.h"
 #include "Debug/Spawn.h"
 #include "Game.hpp"
 #include "Component/RenderComponent.h"
@@ -206,9 +208,20 @@ namespace mygame
     /*************************************************************************************
      \brief  Configures game-specific startup behavior for the LogicSystem.
      \param  logic  The LogicSystem to receive startup and post-load hooks.
+     \details
+             - Registers game-only ECS components after the engine factory is created.
+             - Sets the startup level for BloodyGoodCurry.
+             - Installs editor-only startup helpers and post-load content hooks.
     *************************************************************************************/
     void ConfigureGameBootstrap(Framework::LogicSystem& logic)
     {
+        logic.SetFactorySetupCallback([](Framework::GameObjectFactory& factory)
+        {
+            factory.AddComponentCreator(
+                "PlayerHUDComponent",
+                std::make_unique<Framework::ComponentCreatorType<Framework::PlayerHUDComponent>>(
+                    Framework::ComponentTypeId::CT_PlayerHUDComponent));
+        });
         logic.SetStartupLevelPath(logic.ResolveDataPath("level_RealTutorial.json"));
 #if SOFASPUDS_ENABLE_EDITOR
         SetSpawnPanelLevelDefaults("level_RealTutorial.json", "RealLevel1.json");

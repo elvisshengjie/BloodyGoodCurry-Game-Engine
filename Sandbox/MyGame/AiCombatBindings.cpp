@@ -12,6 +12,7 @@
 #include "EngineCall.hpp"
 
 #include "Systems/AiSystem.h"
+#include "Systems/HitBoxSystem.h"
 #include "Systems/LogicSystem.h"
 
 namespace mygame {

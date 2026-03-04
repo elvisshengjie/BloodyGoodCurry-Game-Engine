@@ -74,6 +74,7 @@
 #include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
 #include <glm/gtc/matrix_transform.hpp>
 #include "Physics/Dynamics/RigidBodyComponent.h"
+#include "Systems/HitBoxSystem.h"
 #include "../../Sandbox/MyGame/Game.hpp"
 #include "Component/HitBoxComponent.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW

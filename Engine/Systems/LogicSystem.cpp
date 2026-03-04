@@ -11,7 +11,7 @@
             - Factory lifetime: component registration, prefab loading, level create/reload.
             - Player state: discovery and animation state (idle/run/melee combo/throw/knockback/death).
             - Input mapping: WASD move, LMB melee combo, RMB throw projectile, F1 overlay.
-            - HitBoxSystem: spawns melee hitboxes and deferred projectile throws (after throw animation).
+            - Game hooks: exposes callbacks for project-specific runtime work owned by the game layer.
             - Editor hooks (when enabled): selection/spawn/debug tooling integration.
             - Crash logging: writes crash logs and supports a debug-only crash test.
 
@@ -294,7 +294,7 @@ namespace Framework {
              - Installs terminate/signal handlers.
              - Instantiates factory; registers components; loads prefabs; creates initial level.
              - Discovers player and caches initial size; loads window config.
-             - Builds HitBoxSystem and prints control help.
+             - Leaves any game-specific combat runtime to be attached by the game layer.
     *****************************************************************************************/
     void LogicSystem::Initialize()
     {
@@ -335,9 +335,10 @@ namespace Framework {
         RegisterComponent(ZoomTriggerComponent);
         RegisterComponent(GateTargetComponent);
         RegisterComponent(BehaviourComponent);
-        RegisterComponent(PlayerHUDComponent);
         FACTORY = factory.get();
         gateController.SetFactory(factory.get());
+        if (factorySetupCallback)
+            factorySetupCallback(*factory);
         LoadPrefabs();
 
         std::filesystem::path startLevelPath = startupLevelPath.empty()
@@ -352,18 +353,6 @@ namespace Framework {
         screenW = cfg.width;
         screenH = cfg.height;
 
-        // Build HitBoxSystem after references are valid.
-        if (hitBoxSystem)
-        {
-            hitBoxSystem->Shutdown();
-            delete hitBoxSystem;
-            hitBoxSystem = nullptr;
-        }
-
-        // Build HitBoxSystem after references are valid.
-        hitBoxSystem = new HitBoxSystem(*this);
-        hitBoxSystem->Initialize();
-
         std::cout << "\n=== Controls ===\n"
             << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
@@ -374,7 +363,7 @@ namespace Framework {
     }
 
     /*****************************************************************************************
-      \brief Per-frame update: input handling, physics intent, animation stepping, hitbox spawn,
+      \brief Per-frame update: input handling, physics intent, animation stepping, and game hook dispatch,
              collision AABB bookkeeping, and crash-test handling.
       \param dt Delta time (seconds).
     *****************************************************************************************/
@@ -453,8 +442,8 @@ namespace Framework {
                 }
             }
 
-            if (hitBoxSystem)
-                hitBoxSystem->Update(dt);
+            if (postUpdateCallback)
+                postUpdateCallback(dt);
         }, "LogicSystem::Update");
     }
 
@@ -522,7 +511,7 @@ namespace Framework {
     /*****************************************************************************************
       \brief Shutdown and release owned systems/resources.
              - Clears references, shuts down factory and unloads prefabs.
-             - Tears down crash logger and HitBoxSystem.
+             - Tears down crash logger. Game-owned combat runtime is released by the game layer.
     *****************************************************************************************/
     void LogicSystem::Shutdown()
     {
@@ -545,12 +534,6 @@ namespace Framework {
             crashLogger.reset();
         }
 
-        if (hitBoxSystem)
-        {
-            hitBoxSystem->Shutdown();
-            delete hitBoxSystem;
-            hitBoxSystem = nullptr;
-        }
     }
 
 
