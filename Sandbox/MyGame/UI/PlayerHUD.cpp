@@ -1,23 +1,14 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      PlayerHUD.cpp
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
- \brief     Implements the PlayerHUDComponent responsible for rendering the player UI including
-            health splash, facial expression icons, and animated health bottles.
- \details   Responsibilities:
-            - Loads UI textures (health splash, happy/upset face, full/empty bottle sprites).
-            - Tracks player health via PlayerHealthComponent and maps it to 0–5 bottle count.
-            - Handles break animations when health decreases and restores bottles when health
-              increases.
-            - Draws HUD in screen-space using orthographic projection.
-            - Supports prefab cloning and integrates with the ECS component architecture.
-            - Used by HealthSystem::draw() to render HUD per player each frame.
- \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
-            All rights reserved.
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Author, adapted for game-side build ownership
+ \brief     Game-side implementation of Framework::PlayerHUDComponent.
+ \details   The component declaration remains in Engine/ for serialization and ECS
+            registration, but BloodyGoodCurry now owns the HUD behavior/render code so
+            project-specific UI logic is not compiled into the engine target.
 *********************************************************************************************/
 
-#include "PlayerHUD.h"
+#include "Components/PlayerHUD.h"
 
 #include "Component/PlayerHealthComponent.h"
 #include "Core/PathUtils.h"
@@ -26,20 +17,25 @@
 #include <algorithm>
 #include <iostream>
 #include <glm/gtc/matrix_transform.hpp>
-#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+#include "Common/CRTDebug.h"
 
 #ifdef _DEBUG
-#define new DBG_NEW       // <- redefine new AFTER all includes
+#define new DBG_NEW
 #endif
+
 namespace Framework
 {
     namespace
     {
         /*****************************************************************************************
-         \brief Helper to load a texture through Resource_Manager using a resolved asset path.
-         \param name  Key used to store/retrieve the texture.
-         \param path  Relative path inside the assets directory.
-         \return The loaded OpenGL texture ID, or 0 if loading failed.
+         \brief Loads a HUD texture from the active game project's asset folder.
+         \param name Cache key used by Resource_Manager.
+         \param path Relative asset path inside the project's Assets directory.
+         \return Loaded texture handle, or 0 if the texture could not be loaded.
+         \details
+            - Resolves the path through the current project asset root.
+            - Loads the texture through Resource_Manager so repeated calls reuse the cache.
+            - Prints a debug message when loading fails.
         *****************************************************************************************/
         unsigned LoadTexture(const char* name, const char* path)
         {
@@ -54,8 +50,13 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Called when the HUD component is first attached to its owner.
-            Initializes references, loads textures, and synchronizes bottle state to health.
+     \brief Initializes the HUD component for its owning player object.
+     \details
+        - Caches the owner's PlayerHealthComponent.
+        - Loads all HUD textures from the active game project.
+        - Resets bottle animation state and syncs the initial display to current health.
+     \note
+        If the owner has no PlayerHealthComponent, the HUD stays inactive until one exists.
     *****************************************************************************************/
     void PlayerHUDComponent::initialize()
     {
@@ -69,7 +70,10 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Receives messages from other components or systems. Not used for HUD.
+     \brief Receives ECS messages for the HUD component.
+     \param m Incoming message.
+     \note
+        The current HUD implementation does not react to messages, so the argument is ignored.
     *****************************************************************************************/
     void PlayerHUDComponent::SendMessage(Message& m)
     {
@@ -77,7 +81,10 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Deserialize HUD data from JSON. Currently unused since HUD is static.
+     \brief Serializes or deserializes HUD state.
+     \param s Active serializer.
+     \note
+        The HUD is currently configured entirely in code, so no fields are read or written here.
     *****************************************************************************************/
     void PlayerHUDComponent::Serialize(ISerializer& s)
     {
@@ -85,8 +92,12 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Clone this HUD component when duplicating a prefab or GameObjectComposition.
-     \return A new PlayerHUDComponent instance with copied bottle + health display state.
+     \brief Clones the HUD component for prefab duplication or copied objects.
+     \return A new PlayerHUDComponent with the current display state copied over.
+     \details
+        - Preserves the displayed health snapshot.
+        - Preserves bottle animation and broken-state flags.
+        - Runtime pointers such as the owner health cache are re-established during initialize().
     *****************************************************************************************/
     ComponentHandle PlayerHUDComponent::Clone() const
     {
@@ -97,7 +108,10 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Loads all HUD textures: splash, faces, full bottle, broken bottle animation sheet.
+     \brief Loads all textures required by the health HUD.
+     \details
+        - Loads the splash background, face icons, full bottle, broken bottle, and break VFX.
+        - Uses project-relative asset paths so each game can own its own HUD art.
     *****************************************************************************************/
     void PlayerHUDComponent::LoadTextures()
     {
@@ -110,7 +124,11 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Resets the internal bottle states (used when HUD initializes or full sync occurs).
+     \brief Resets all bottle display state to the default healthy state.
+     \details
+        - Marks every bottle visible.
+        - Clears broken-state flags.
+        - Clears any active break-animation timers.
     *****************************************************************************************/
     void PlayerHUDComponent::ResetBottles()
     {
@@ -123,8 +141,13 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Synchronizes bottle visibility based on current player health.
-            Converts numeric health → number of filled bottles (0–5).
+     \brief Rebuilds bottle visibility from the player's current health value.
+     \details
+        - Clamps health to a valid range using the player's max health.
+        - Converts numeric health into a 0-5 bottle count.
+        - Reinitializes bottle state so the display matches health immediately.
+     \note
+        This is used for initial sync, not animated transitions.
     *****************************************************************************************/
     void PlayerHUDComponent::SyncFromHealth()
     {
@@ -134,7 +157,7 @@ namespace Framework
         const int maxHealth = std::max(1, health->playerMaxhealth);
         const int currentHealth = std::clamp(health->playerHealth, 0, maxHealth);
 
-        int bottleCount = (currentHealth * 5) / maxHealth;  // 5 bottles total
+        const int bottleCount = (currentHealth * 5) / maxHealth;
 
         displayedHealth = currentHealth;
         ResetBottles();
@@ -147,8 +170,14 @@ namespace Framework
     }
 
     /*****************************************************************************************
-     \brief Updates the HUD each frame: bottle break animations, regains, and visibility.
+     \brief Updates the HUD's animated response to health changes.
      \param dt Delta time in seconds.
+     \details
+        - Detects health loss and starts bottle-break animations.
+        - Detects health gain and restores bottles immediately.
+        - Advances break-animation timers and hides bottles when their break animation completes.
+     \note
+        If no PlayerHealthComponent is cached, this function does nothing.
     *****************************************************************************************/
     void PlayerHUDComponent::Update(float dt)
     {
@@ -158,10 +187,9 @@ namespace Framework
         const int maxHealth = std::max(1, health->playerMaxhealth);
         const int currentHealth = std::clamp(health->playerHealth, 0, maxHealth);
 
-        int oldBottleCount = (displayedHealth * 5) / maxHealth;
-        int newBottleCount = (currentHealth * 5) / maxHealth;
+        const int oldBottleCount = (displayedHealth * 5) / maxHealth;
+        const int newBottleCount = (currentHealth * 5) / maxHealth;
 
-        // Player lost health → break bottles with animation
         if (newBottleCount < oldBottleCount)
         {
             for (int i = oldBottleCount - 1; i >= newBottleCount; --i)
@@ -175,7 +203,6 @@ namespace Framework
             }
         }
 
-        // Player regained health → restore bottles immediately
         if (newBottleCount > oldBottleCount)
         {
             for (int i = 0; i < newBottleCount; ++i)
@@ -189,7 +216,6 @@ namespace Framework
 
         displayedHealth = currentHealth;
 
-        // Update bottle break timers → hide bottle after animation finishes
         for (auto& b : bottles)
         {
             if (b.breakAnimTimer > 0.0f)
@@ -205,7 +231,6 @@ namespace Framework
 
         displayedHealth = currentHealth;
 
-        // Update bottle break timers
         for (auto& b : bottles)
         {
             if (b.breakAnimTimer > 0.0f)
@@ -214,137 +239,120 @@ namespace Framework
                 if (b.breakAnimTimer <= 0.0f)
                 {
                     b.breakAnimTimer = 0.0f;
-                    // [REMOVED] b.isVisible = false;  <-- Delete this line so it keeps drawing
                 }
             }
         }
     }
 
     /*****************************************************************************************
-     \brief Draws the HUD in screen-space: health splash, facial icon, and bottle indicators.
-     \param screenW Window width in pixels.
-     \param screenH Window height in pixels.
+     \brief Draws the player's health HUD in screen-space.
+     \param screenW Current viewport width in pixels.
+     \param screenH Current viewport height in pixels.
+     \details
+        - Scales HUD positions and sizes against a 720p reference height.
+        - Draws the splash background, mood face, and bottle icons.
+        - Uses the break sprite sheet while bottles are animating.
+        - Restores the graphics view/projection state after UI drawing.
     *****************************************************************************************/
     void PlayerHUDComponent::Draw(int screenW, int screenH)
     {
         using namespace gfx;
 
-        // 1. DEFINE REFERENCE RESOLUTION (The resolution you designed the numbers for)
-        //const float refWidth = 1280.0f;
         const float refHeight = 720.0f;
+        const float scaleFactor = static_cast<float>(screenH) / refHeight;
 
-        // 2. CALCULATE SCALE FACTOR
-        // We scale based on height to maintain aspect ratio even if width changes
-        float scaleFactor = static_cast<float>(screenH) / refHeight;
-
-        // Optional: Clamp scale so it doesn't get too tiny or too massive
-        // scaleFactor = std::clamp(scaleFactor, 0.5f, 2.0f);
-
-        // 3. APPLY SCALE TO VARIABLES
-        // Multiply all your hardcoded positions and sizes by scaleFactor
-
-        float startX = 20.0f * scaleFactor;
-        float startY = static_cast<float>(screenH) - (150.0f * scaleFactor); // Offset scaled from bottom
-        float splashW = 250.0f * scaleFactor;
-        float splashH = 120.0f * scaleFactor;
-        float splashX = startX + (90.0f * scaleFactor);
-
-        float splashY = startY  -(10.0f * scaleFactor);
+        const float startX = 20.0f * scaleFactor;
+        const float startY = static_cast<float>(screenH) - (150.0f * scaleFactor);
+        const float splashW = 250.0f * scaleFactor;
+        const float splashH = 120.0f * scaleFactor;
+        const float splashX = startX + (90.0f * scaleFactor);
+        const float splashY = startY - (10.0f * scaleFactor);
 
         if (texSplash)
         {
-            // Use 'splashX' and 'splashY' here
             Graphics::renderSpriteUI(texSplash, splashX, splashY, splashW, splashH, 1, 1, 1, 1, screenW, screenH);
         }
-        // Compute health percentage
+
         float healthPercent = 0.0f;
         if (health && health->playerMaxhealth > 0)
             healthPercent = (static_cast<float>(displayedHealth) / health->playerMaxhealth) * 100.0f;
-        unsigned faceTex = (healthPercent >= 50.0f) ? texFaceHappy : texFaceUpset;
+        const unsigned faceTex = (healthPercent >= 50.0f) ? texFaceHappy : texFaceUpset;
 
-        float faceW = 110.0f * scaleFactor;  // Adjust this for Width
-        float faceH = 100.0f * scaleFactor;  // Adjust this for Height (try 110.0f or 120.0f if it looks short)
-
-        float faceX = startX + (10.0f * scaleFactor);
-        float faceY = startY + (20.0f * scaleFactor);
+        const float faceW = 110.0f * scaleFactor;
+        const float faceH = 100.0f * scaleFactor;
+        const float faceX = startX + (10.0f * scaleFactor);
+        const float faceY = startY + (20.0f * scaleFactor);
 
         if (faceTex)
             Graphics::renderSpriteUI(faceTex, faceX, faceY, faceW, faceH, 1, 1, 1, 1, screenW, screenH);
 
+        const float bottleW = 45.0f * scaleFactor;
+        const float bottleH = 70.0f * scaleFactor;
+        const float bottleSpacing = -10.0f * scaleFactor;
+        const float bottleStartX = faceX + faceW - (10.0f * scaleFactor);
+        const float bottleY = faceY + (5.0f * scaleFactor);
 
-        // Bottle scaling
-        float bottleW = 45.0f * scaleFactor;
-        float bottleH = 70.0f * scaleFactor;
-        float bottleSpacing = -10.0f * scaleFactor;
-       
-        float bottleStartX = faceX + faceW - (10.0f * scaleFactor) ;
-        float bottleY = faceY + (5.0f * scaleFactor);
-
-        // Setup screen-space ortho projection
         glm::mat4 uiOrtho = glm::ortho(0.0f, static_cast<float>(screenW),
             0.0f, static_cast<float>(screenH),
             -1.0f, 1.0f);
 
         Graphics::setViewProjection(glm::mat4(1.0f), uiOrtho);
 
-        // -------------------------------------------------------------------------
-     // DEBUG DRAW LOOP
-     // -------------------------------------------------------------------------
-        for (int i = 0; i < static_cast<int>(bottles.size()); i++)
+        for (int i = 0; i < static_cast<int>(bottles.size()); ++i)
         {
-            float xPos = bottleStartX + (i * (bottleW + bottleSpacing));
+            const float xPos = bottleStartX + (i * (bottleW + bottleSpacing));
             const auto& b = bottles[static_cast<std::size_t>(i)];
 
-            // Only debug the 3rd bottle (index 2) which seems to be the broken one
-            bool debugThisBottle = (i == 2);
+            const bool debugThisBottle = (i == 2);
             float yPos = bottleY;
 
-            //  If it's the 3rd, 4th, or 5th bottle (index 2+), move it down.
             if (i >= 2)
             {
-                yPos -= (5.0f * scaleFactor); // Change 15.0f to adjust how far down it goes
+                yPos -= (5.0f * scaleFactor);
             }
-            // CASE A: ANIMATION
+
             if (b.breakAnimTimer > 0.0f)
             {
-                if (debugThisBottle) std::cout << "[HUD] Bottle 2 is ANIMATING. Timer: " << b.breakAnimTimer << "\n";
+                if (debugThisBottle)
+                    std::cout << "[HUD] Bottle 2 is ANIMATING. Timer: " << b.breakAnimTimer << "\n";
 
                 float timePercent = 1.0f - (b.breakAnimTimer / BREAK_ANIM_DURATION);
                 int frame = static_cast<int>(timePercent * BREAK_FRAMES);
                 frame = std::clamp(frame, 0, BREAK_FRAMES - 1);
 
                 if (texBottleBreak)
-                    Graphics::renderSpriteFrame(texBottleBreak, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, frame, 3, 1);
+                {
+                    Graphics::renderSpriteFrame(
+                        texBottleBreak, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, frame, 3, 1);
+                }
             }
-            // CASE B: BROKEN (STATIC)
             else if (b.isBroken)
             {
-                if (debugThisBottle) std::cout << "[HUD] Bottle 2 is BROKEN. Texture ID: " << texBottleBroken << "\n";
+                if (debugThisBottle)
+                    std::cout << "[HUD] Bottle 2 is BROKEN. Texture ID: " << texBottleBroken << "\n";
 
                 if (texBottleBroken != 0)
                 {
-                    // Normal Draw
-                    Graphics::renderSpriteFrame(texBottleBroken, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
+                    Graphics::renderSpriteFrame(
+                        texBottleBroken, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
                 }
-                else
+                else if (texBottleFull)
                 {
-                    // FALLBACK: Draw a MAGENTA square if texture is missing/failed to load
-                    // (Assuming you have a function to draw a simple rect, or re-use another texture with color mod)
-                    // If not, we will use the Full Bottle but Tint it RED to prove logic works.
-                    if (texBottleFull)
-                        Graphics::renderSpriteFrame(texBottleFull, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1, 1.0f, 0.0f, 1.0f, 1.0f); // Magenta Tint
+                    Graphics::renderSpriteFrame(
+                        texBottleFull, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH,
+                        0, 1, 1, 1.0f, 0.0f, 1.0f, 1.0f);
                 }
             }
-            // CASE C: HEALTHY
             else
             {
-                // if (debugThisBottle) std::cout << "[HUD] Bottle 2 is HEALTHY.\n";
                 if (texBottleFull)
-                    Graphics::renderSpriteFrame(texBottleFull, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
+                {
+                    Graphics::renderSpriteFrame(
+                        texBottleFull, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
+                }
             }
         }
 
         Graphics::resetViewProjection();
     }
-
-} // namespace Framework
+}

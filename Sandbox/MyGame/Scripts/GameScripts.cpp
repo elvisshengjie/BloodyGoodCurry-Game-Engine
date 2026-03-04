@@ -28,6 +28,7 @@
 *********************************************************************************************/
 
 #include "Systems/LogicSystem.h"
+#include "Systems/HitBoxSystem.h"
 #include "Factory/Factory.h"
 #include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"

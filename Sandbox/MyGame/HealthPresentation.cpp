@@ -12,7 +12,7 @@
 #include "HealthPresentation.hpp"
 
 #include "Factory/Factory.h"
-#include "Graphics/PlayerHUD.h"
+#include "Components/PlayerHUD.h"
 #include "Graphics/Graphics.hpp"
 #include "Systems/HealthSystem.h"
 #include "Systems/RenderSystem.h"

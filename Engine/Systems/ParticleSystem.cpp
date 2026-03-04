@@ -33,21 +33,47 @@ namespace Framework {
 
     ParticleSystem* ParticleSystem::instance = nullptr;
 
+    /*****************************************************************************************
+     \brief Constructs the particle system and registers the global singleton pointer.
+     \details
+        Assigns ParticleSystem::instance to this object so callers can access the
+        system via ParticleSystem::Instance().
+     \note
+        This assumes only one ParticleSystem instance exists at a time.
+    *****************************************************************************************/
     ParticleSystem::ParticleSystem()
     {
         instance = this;
     }
 
+    /*****************************************************************************************
+     \brief Returns the active ParticleSystem singleton instance.
+     \return Pointer to the current ParticleSystem, or nullptr if none exists.
+    *****************************************************************************************/
     ParticleSystem* ParticleSystem::Instance()
     {
         return instance;
     }
 
+    /*****************************************************************************************
+     \brief Initializes particle runtime state.
+     \details
+        Clears any previously tracked particles so the system starts empty for the
+        current scene/run.
+    *****************************************************************************************/
     void ParticleSystem::Initialize()
     {
         particles.clear();
     }
 
+    /*****************************************************************************************
+     \brief Shuts down the particle system and clears runtime state.
+     \details
+        - Clears all tracked particles.
+        - Releases the singleton pointer if it points to this instance.
+     \note
+        Particle GameObjects are Factory-owned; the system only tracks IDs.
+    *****************************************************************************************/
     void ParticleSystem::Shutdown()
     {
         particles.clear();
@@ -57,6 +83,20 @@ namespace Framework {
         }
     }
 
+    /*****************************************************************************************
+     \brief Updates all active particles (movement, fading, and lifetime).
+     \param dt Delta time in seconds.
+     \details
+        For each tracked particle:
+        - Fetch the particle GameObject from the Factory.
+        - Decrease lifetime and destroy the object when expired.
+        - Validate required components exist (Transform + CircleRender or Render+Sprite).
+        - Integrate velocity into position and interpolate size/alpha over lifetime.
+        - Apply simple damping to velocity.
+     \note
+        Particles are implemented as normal GameObjects created/destroyed via Factory,
+        with this system maintaining a lightweight list of IDs + per-particle state.
+    *****************************************************************************************/
     void ParticleSystem::Update(float dt)
     {
         if (!FACTORY)
@@ -130,6 +170,17 @@ namespace Framework {
         }
     }
 
+    /*****************************************************************************************
+     \brief Spawns a circle-rendered particle GameObject.
+     \param spec Circle particle specification (position, color, velocity, lifetime, etc.).
+     \details
+        - Creates an empty GameObject via Factory.
+        - Attaches TransformComponent + CircleRenderComponent.
+        - Initializes rendering values (radius + RGBA).
+        - Records a Particle entry so Update() can drive lifetime and interpolation.
+     \note
+        If the Factory is unavailable or spec.life <= 0, this function does nothing.
+    *****************************************************************************************/
     void ParticleSystem::SpawnCircleParticle(const CircleParticleSpec& spec)
     {
         if (!FACTORY || spec.life <= 0.0f)
@@ -168,6 +219,19 @@ namespace Framework {
         particles.push_back(particle);
     }
 
+    /*****************************************************************************************
+     \brief Spawns a sprite-rendered particle GameObject.
+     \param spec Sprite particle specification (texture, size/alpha ranges, lifetime, etc.).
+     \details
+        - Ensures the referenced texture is loaded (loads from texturePath if needed).
+        - Creates an empty GameObject via Factory.
+        - Attaches TransformComponent + RenderComponent + SpriteComponent.
+        - Initializes render size/color/alpha and sprite texture bindings.
+        - Records a Particle entry so Update() can drive lifetime and interpolation.
+     \note
+        If the Factory is unavailable, spec.life <= 0, or spec.textureKey is empty,
+        this function does nothing.
+    *****************************************************************************************/
     void ParticleSystem::SpawnSpriteParticle(const SpriteParticleSpec& spec)
     {
         if (!FACTORY || spec.life <= 0.0f || spec.textureKey.empty())

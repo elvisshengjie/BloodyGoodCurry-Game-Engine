@@ -33,14 +33,12 @@
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
 #include "Component/BehaviourComponent.h"
-#include "Graphics/PlayerHUD.h"
 #include "Component/GateTargetComponent.h"
 #include "Component/ZoomTriggerComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include <Serialization/JsonSerialization.h>
 #include "Logic/GateController.h"
 #include "InputSystem.h"
-#include "HitBoxSystem.h"
 #include "Config/WindowConfig.h"
 #include "Debug/CrashLogger.hpp"
 #include "Graphics/Window.hpp"
@@ -113,6 +111,38 @@ namespace Framework {
         void RegisterBehaviour(const std::string& key, BehaviourFCT fct);
         void SetStartupLevelPath(std::filesystem::path levelPath) { startupLevelPath = std::move(levelPath); }
         void SetPostLevelLoadCallback(std::function<void(LogicSystem&)> callback) { postLevelLoadCallback = std::move(callback); }
+        /*****************************************************************************************
+         \brief Registers a game-layer callback that runs at the end of LogicSystem::Update().
+         \param callback Callback invoked once per logic tick with delta time in seconds.
+         \details
+            - Runs after factory updates, behaviour dispatch, and animation advancement.
+            - Lets the game attach project-specific runtime work without hardcoding that work
+              into the engine's LogicSystem.
+            - Used by BloodyGoodCurry to update its game-owned HitBoxSystem at the same
+              point in the frame where the engine used to update it directly.
+         \note
+            If no callback is set, LogicSystem simply skips this hook.
+        *****************************************************************************************/
+        void SetPostUpdateCallback(std::function<void(float)> callback)
+        {
+            postUpdateCallback = std::move(callback);
+        }
+        /*****************************************************************************************
+         \brief Registers a game-layer hook that runs after the factory is created.
+         \param callback Callback invoked with the active GameObjectFactory.
+         \details
+            - Runs during Initialize() after the engine registers engine-owned components.
+            - Lets the current game register game-only components without moving that
+              registration code into the engine target.
+            - Intended for project-specific ECS types such as BloodyGoodCurry's HUD component.
+         \note
+            If no callback is set, factory initialization proceeds normally with engine-only
+            component registration.
+        *****************************************************************************************/
+        void SetFactorySetupCallback(std::function<void(GameObjectFactory&)> callback)
+        {
+            factorySetupCallback = std::move(callback);
+        }
         std::filesystem::path ResolveDataPath(std::string_view name) const { return resolveData(name); }
         bool HasLevelObjectNamed(std::string_view name) const;
         void AddLevelObject(GOC* obj);
@@ -166,6 +196,8 @@ namespace Framework {
         std::unique_ptr<CrashLogger>         crashLogger;
         std::filesystem::path                startupLevelPath;
         std::function<void(LogicSystem&)>    postLevelLoadCallback;
+        std::function<void(float)>           postUpdateCallback;
+        std::function<void(GameObjectFactory&)> factorySetupCallback;
 
         std::unordered_map<std::string, BehaviourFCT> behaviours;
     };

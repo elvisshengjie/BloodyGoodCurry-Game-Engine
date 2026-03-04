@@ -1,31 +1,16 @@
 /*********************************************************************************************
  \file      HitBoxSystem.cpp
  \par       SofaSpuds
- \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
- \brief     Spawns and updates short-lived hit boxes for attack interactions.
- \details   This lightweight system manages transient attack volumes (HitBoxComponent):
-            - Creation: SpawnHitBox() attaches owner/context and a lifetime timer.
-            - Lifetime: Each active hit box counts down; removed when it expires or hits.
-            - Collision: On each Update(), checks hit box vs. world hurt boxes (other objs'
-              HitBoxComponent flagged active) via AABB overlap.
-            - Integration: Driven by LogicSystem (e.g., mouse click creates a hit box in
-              the player's facing direction).
-
-            Notes:
-            * The same HitBoxComponent struct is reused for both "hit" and "hurt" roles:
-              - Newly spawned (this system) is used as the "hit" volume.
-              - Other objects expose their "hurt" volume when HitBoxComponent::active == true.
-            * Collision uses AABB vs AABB through Collision::CheckCollisionRectToRect.
-            * This module stores hit boxes internally (not added to factory); they are
-              ephemeral gameplay helpers rather than persistent game objects.
- \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
-            All rights reserved.
+ \author    Ho Jun (h.jun@digipen.edu) - Author, adapted for game-side build ownership
+ \brief     Game-side implementation of Framework::HitBoxSystem.
+ \details   The public HitBoxSystem interface remains in Engine/, but BloodyGoodCurry now
+            owns the concrete implementation so game combat behavior is not compiled into
+            the engine target.
 *********************************************************************************************/
 
-#include "HitBoxSystem.h"
+#include "Systems/HitBoxSystem.h"
 #include "Composition/Component.h"
-#include "LogicSystem.h"
+#include "Systems/LogicSystem.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Factory/Factory.h"
@@ -35,21 +20,35 @@
 #include <string_view>
 #include <cmath>
 #include <glm/vec2.hpp>
-#include "Common/CRTDebug.h"   // <- bring in DBG_NEW
+#include "Common/CRTDebug.h"
 
 #ifdef _DEBUG
-#define new DBG_NEW       // <- redefine new AFTER all includes
+#define new DBG_NEW
 #endif
+
 namespace Framework
 {
     namespace
     {
+        /*****************************************************************************************
+         \brief Forwards a combat-audio event to the bound game callback.
+         \param callback Game-provided combat-audio handler.
+         \param source Object associated with the event.
+         \param event Audio event to emit.
+         \note
+            If no callback is bound or the source object is null, nothing is emitted.
+        *****************************************************************************************/
         void EmitCombatAudio(const CombatAudioCallback& callback, GOC* source, CombatAudioEvent event)
         {
             if (callback && source)
                 callback(source, event);
         }
 
+        /*****************************************************************************************
+         \brief Forwards a hit-impact VFX event to the bound game callback.
+         \param callback Game-provided VFX handler.
+         \param worldPos World-space impact position.
+        *****************************************************************************************/
         void EmitHitImpactVfx(const HitImpactVfxCallback& callback, const glm::vec2& worldPos)
         {
             if (callback)
@@ -57,15 +56,12 @@ namespace Framework
         }
 
         /*****************************************************************************************
-         \brief  Find the index of a named animation on a SpriteAnimationComponent (case-insensitive).
-
-         \param anim
-                Pointer to the SpriteAnimationComponent.
-         \param desired
-                Name of the animation we want to find.
-
-         \return
-                Index of the animation if found, otherwise -1.
+         \brief Finds a named animation on a SpriteAnimationComponent.
+         \param anim Animation component to search.
+         \param desired Animation name to match.
+         \return Matching animation index, or -1 if no match exists.
+         \details
+            The comparison is case-insensitive so animation authoring is more forgiving.
         *****************************************************************************************/
         int FindAnimationIndex(SpriteAnimationComponent* anim, std::string_view desired)
         {
@@ -96,15 +92,11 @@ namespace Framework
         }
 
         /*****************************************************************************************
-         \brief  Helper to safely switch an animation by name if it exists on the given object.
-
-         \param goc
-                Game object that owns the SpriteAnimationComponent.
-         \param name
-                Animation name we want to set as active.
-
-         \details
-                Does nothing if the animation component or requested animation is missing.
+         \brief Switches an object's active animation if the requested animation exists.
+         \param goc Target object.
+         \param name Animation name to activate.
+         \note
+            Missing objects, missing animation components, and missing animation names are ignored.
         *****************************************************************************************/
         void PlayAnimationIfAvailable(GOC* goc, std::string_view name)
         {
@@ -122,26 +114,30 @@ namespace Framework
                 anim->SetActiveAnimation(idx);
             }
         }
-    } // anonymous namespace
+    }
 
     /*****************************************************************************************
-      \brief Construct the system with a reference to the driving LogicSystem.
-      \param logicRef Owner that provides access to level objects for collision checks.
+     \brief Constructs the game-owned hitbox system.
+     \param logicRef LogicSystem used for level-object queries and world state access.
     *****************************************************************************************/
     HitBoxSystem::HitBoxSystem(LogicSystem& logicRef)
         : logic(logicRef)
     {
     }
 
-    /// Ensures containers are cleared on destruction.
+    /*****************************************************************************************
+     \brief Destroys the hitbox system and clears any active hitboxes.
+    *****************************************************************************************/
     HitBoxSystem::~HitBoxSystem()
     {
         Shutdown();
     }
 
     /*****************************************************************************************
-      \brief Prepare internal state for a fresh session.
-      \note  Clears any dangling hit boxes that might remain from a previous run.
+     \brief Initializes runtime hitbox state for a fresh play session.
+     \details
+        - Clears any leftover active hitboxes.
+        - Leaves callbacks unchanged so previously bound game hooks remain valid.
     *****************************************************************************************/
     void HitBoxSystem::Initialize()
     {
@@ -149,8 +145,9 @@ namespace Framework
     }
 
     /*****************************************************************************************
-      \brief Release runtime state held by the system.
-             (No heap ownership beyond unique_ptrs inside activeHitBoxes.)
+     \brief Releases all active hitboxes owned by the system.
+     \details
+        This resets transient combat state without changing the bound callbacks.
     *****************************************************************************************/
     void HitBoxSystem::Shutdown()
     {
@@ -158,19 +155,22 @@ namespace Framework
     }
 
     /*****************************************************************************************
-      \brief Spawn a transient hit box owned by \p attacker at (\p targetX, \p targetY).
-      \param attacker  The game object creating the hit (not collided against itself).
-      \param targetX   World X center of the hit box.
-      \param targetY   World Y center of the hit box.
-      \param width     Width of the AABB.
-      \param height    Height of the AABB.
-      \param damage    Damage payload to apply (carried in the component; application external).
-      \param duration  Lifetime in seconds before the hit box auto-expires.
-      \param team      Initial team value (may be overridden based on attacker).
-      \details
-        - Allocates a HitBoxComponent and marks it active for collision participation.
-        - Stores an internal ActiveHitBox record with countdown timer.
-        - The hit is checked against other objects' active hurt boxes during Update().
+     \brief Spawns a transient melee-style hitbox.
+     \param attacker Object creating the hitbox.
+     \param targetX World-space X center of the hitbox.
+     \param targetY World-space Y center of the hitbox.
+     \param width Hitbox width.
+     \param height Hitbox height.
+     \param damage Damage applied on a valid hit.
+     \param duration Lifetime before the hitbox expires.
+     \param team Requested team value, subject to attacker-based override.
+     \param soundDelay Delay before the attack sound result is emitted.
+     \details
+        - Allocates a temporary HitBoxComponent owned only by this system.
+        - Derives the final team from the attacker to avoid friendly-fire mistakes.
+        - Pushes an ActiveHitBox record so Update() can process collisions and expiry.
+     \note
+        If attacker is null, this function does nothing.
     *****************************************************************************************/
     void HitBoxSystem::SpawnHitBox(GameObjectComposition* attacker,
         float targetX, float targetY,
@@ -193,7 +193,6 @@ namespace Framework
         newhitbox->team = team;
         newhitbox->soundDelay = soundDelay;
 
-        // Decide team based on attacker, so we avoid friendly fire.
         if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
             newhitbox->team = HitBoxComponent::Team::Player;
         else if (attacker->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
@@ -201,7 +200,7 @@ namespace Framework
         else
             newhitbox->team = HitBoxComponent::Team::Neutral;
 
-        newhitbox->ActivateHurtBox(); // reuse flag: treat as active volume for collisions
+        newhitbox->ActivateHurtBox();
 
         std::string teamStr;
         switch (newhitbox->team)
@@ -224,18 +223,24 @@ namespace Framework
     }
 
     /*****************************************************************************************
-      \brief Spawn a projectile hit box that moves over time in the given direction.
-      \param attacker  The game object creating the projectile.
-      \param targetX   Initial world X center of the projectile.
-      \param targetY   Initial world Y center of the projectile.
-      \param dirX      Direction X (will be normalized).
-      \param dirY      Direction Y (will be normalized).
-      \param speed     Projectile speed.
-      \param width     Width of the AABB.
-      \param height    Height of the AABB.
-      \param damage    Damage payload to apply.
-      \param duration  Lifetime in seconds.
-      \param team      Initial team (may be overridden based on attacker).
+     \brief Spawns a moving projectile hitbox.
+     \param attacker Object creating the projectile.
+     \param targetX Initial world-space X center.
+     \param targetY Initial world-space Y center.
+     \param dirX Projectile direction X.
+     \param dirY Projectile direction Y.
+     \param speed Projectile speed.
+     \param width Hitbox width.
+     \param height Hitbox height.
+     \param damage Damage applied on a valid hit.
+     \param duration Lifetime before the projectile expires.
+     \param team Requested team value, subject to attacker-based override.
+     \details
+        - Normalizes the input direction.
+        - Creates a temporary HitBoxComponent and stores per-projectile velocity.
+        - Starts a grace timer so newly spawned projectiles can ignore non-character overlaps briefly.
+     \note
+        If attacker is null or the direction is near zero length, this function does nothing.
     *****************************************************************************************/
     void HitBoxSystem::SpawnProjectile(GameObjectComposition* attacker,
         float targetX, float targetY,
@@ -249,7 +254,6 @@ namespace Framework
         if (!attacker)
             return;
 
-        // Normalized direction
         float len = std::sqrt(dirX * dirX + dirY * dirY);
         if (len < 0.0001f)
             return;
@@ -267,7 +271,6 @@ namespace Framework
         newhitbox->owner = attacker;
         newhitbox->team = team;
 
-        // Set the team / make sure friendly fire does not happen.
         if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
             newhitbox->team = HitBoxComponent::Team::Thrown;
         else if (attacker->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
@@ -300,16 +303,16 @@ namespace Framework
     }
 
     /*****************************************************************************************
-      \brief Advance all active hit boxes: tick timers, check collisions, and cull as needed.
-      \param dt Delta time (seconds).
-      \details
-        - For each active hit box:
-          * Decrement remaining time.
-          * Build its AABB (center + extents).
-          * Iterate over level objects from LogicSystem; skip the owner.
-          * If an object is a valid target (based on team/type), check overlap.
-          * If an enemy is hit, apply damage, knockback, and trigger "knockback" animation.
-        - If no hit occurs, remove the hit box once its timer reaches zero.
+     \brief Advances all active hitboxes for the current frame.
+     \param dt Delta time in seconds.
+     \details
+        - Updates hitbox timers and projectile positions.
+        - Removes invalid hitboxes whose owners no longer exist or whose layers are disabled.
+        - Checks collision against current level objects from LogicSystem.
+        - Applies player/enemy damage, knockback, animation changes, audio, and hit-impact VFX.
+        - Removes hitboxes after a successful hit or when their lifetime expires.
+     \note
+        If the global Factory is unavailable, the update is skipped entirely.
     *****************************************************************************************/
     void HitBoxSystem::Update(float dt)
     {
@@ -334,7 +337,7 @@ namespace Framework
                 it = activeHitBoxes.erase(it);
                 continue;
             }
-            // Projectile movement
+
             if (it->isProjectile || HB->team == HitBoxComponent::Team::Thrown)
             {
                 it->hitbox->spawnX += it->velX * dt;
@@ -352,11 +355,15 @@ namespace Framework
 
             for (auto* obj : logic.LevelObjects())
             {
-                if (!obj || obj == attacker) continue;
-                if (!layers.IsLayerEnabled(obj->GetLayerName())) continue;
+                if (!obj || obj == attacker)
+                    continue;
+                if (!layers.IsLayerEnabled(obj->GetLayerName()))
+                    continue;
+
                 auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 auto* rb = obj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
-                if (!(tr && rb)) continue;
+                if (!(tr && rb))
+                    continue;
 
                 if (it->isProjectile && it->hitGraceTimer > 0.0f)
                 {
@@ -369,11 +376,11 @@ namespace Framework
                 }
 
                 AABB targetAABB(tr->x, tr->y, rb->width, rb->height);
-                if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB)) continue;
+                if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB))
+                    continue;
 
                 bool validTargetHit = false;
 
-                // Player hit logic
                 if (auto* playerHealth = obj->GetComponentType<PlayerHealthComponent>(ComponentTypeId::CT_PlayerHealthComponent))
                 {
                     if (!playerHealth->isInvulnerable)
@@ -392,24 +399,30 @@ namespace Framework
                         }
                     }
                 }
-                // Enemy hit logic
                 else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
                     bool canHit = false;
 
                     if (auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent))
                     {
-                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::physical && HB->team == HitBoxComponent::Team::Player)
+                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::physical &&
+                            HB->team == HitBoxComponent::Team::Player)
+                        {
                             canHit = true;
-                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged && HB->team == HitBoxComponent::Team::Thrown)
+                        }
+                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged &&
+                            HB->team == HitBoxComponent::Team::Thrown)
+                        {
                             canHit = true;
+                        }
                     }
                     else
                     {
                         canHit = true;
                     }
 
-                    if (enemyHealth->enemyHealth <= 0) canHit = false;
+                    if (enemyHealth->enemyHealth <= 0)
+                        canHit = false;
 
                     if (canHit)
                     {
@@ -426,23 +439,29 @@ namespace Framework
                 }
                 else
                 {
-                    validTargetHit = true; // Non-damaging hit (neutral objects)
+                    validTargetHit = true;
                 }
 
-                // Apply knockback if valid hit
                 if (validTargetHit)
                 {
-                    bool isPlayer = obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
-                    bool isEnemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent) != nullptr;
-                    if ((isPlayer || isEnemy))
+                    const bool isPlayer = obj->GetComponentType<PlayerComponent>(
+                        ComponentTypeId::CT_PlayerComponent) != nullptr;
+                    const bool isEnemy = obj->GetComponentType<EnemyComponent>(
+                        ComponentTypeId::CT_EnemyComponent) != nullptr;
+                    if (isPlayer || isEnemy)
                     {
-                        auto* attackerTr = attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                        auto* attackerTr =
+                            attacker->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                         if (attackerTr)
                         {
                             float dx = tr->x - attackerTr->x;
                             float dy = tr->y - attackerTr->y;
                             float len = std::sqrt(dx * dx + dy * dy);
-                            if (len > 0.001f) { dx /= len; dy /= len; }
+                            if (len > 0.001f)
+                            {
+                                dx /= len;
+                                dy /= len;
+                            }
 
                             const float knockStrength = 1.5f;
                             rb->knockVelX = dx * knockStrength;
@@ -454,11 +473,11 @@ namespace Framework
                     }
                 }
 
-                if (validTargetHit) hitAnything = true;
-                break; // Only first collision per hitbox
+                if (validTargetHit)
+                    hitAnything = true;
+                break;
             }
 
-            // Play air swing or ineffective sound if no enemy hit
             if (!HB->soundTriggered && HB->team == HitBoxComponent::Team::Player)
             {
                 HB->soundDelay -= dt;
@@ -474,13 +493,10 @@ namespace Framework
                 HB->soundTriggered = true;
             }
 
-            // Remove hitbox if hit or expired
             if (hitAnything || it->timer <= 0.0f)
                 it = activeHitBoxes.erase(it);
             else
                 ++it;
         }
     }
-
-
-} // namespace Framework
+}

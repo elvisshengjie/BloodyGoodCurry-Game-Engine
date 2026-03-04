@@ -14,7 +14,6 @@
             - Handles player death: plays death animation, enforces invulnerability timers,
               and destroys the player only after animation + timer finish.
             - Uses stable IDs instead of raw pointers to avoid dangling references.
-            - Provides draw() support for player HUD through PlayerHUDComponent.
             - Fully integrates with SpriteAnimationComponent for frame-based animation logic.
  \copyright
             All content © 2025 DigiPen Institute of Technology Singapore.
@@ -37,7 +36,6 @@
 #include "Component/EnemyDecisionTreeComponent.h"
 #include "Component/EnemyHealthComponent.h"
 #include "Component/EnemyTypeComponent.h"
-#include "Graphics/PlayerHUD.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
 // Enemy Components
