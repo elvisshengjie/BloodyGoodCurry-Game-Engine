@@ -103,6 +103,45 @@ namespace Framework
             m_mouseHeld[btn] = isHeld;
         }
 
+        // Gamepad Controller
+        if (glfwJoystickIsGamepad(GLFW_JOYSTICK_1))
+        {
+            GLFWgamepadstate state;
+            if (glfwGetGamepadState(GLFW_JOYSTICK_1, &state))
+            {
+                // Buttons
+                for (int btn = 0; btn <= GLFW_GAMEPAD_BUTTON_LAST; ++btn)
+                {
+                    bool wasHeld = m_gamepadHeld[btn];
+                    bool isHeld = (state.buttons[btn] == GLFW_PRESS);
+
+                    if (isHeld)
+                    {
+                        if (!wasHeld)
+                            m_gamepadPressed[btn] = true;
+                    }
+                    else if (wasHeld)
+                    {
+                        m_gamepadReleased[btn] = true;
+                    }
+
+                    m_gamepadHeld[btn] = isHeld;
+                }
+
+                // Axes
+                for (int axis = 0; axis <= GLFW_GAMEPAD_AXIS_LAST; ++axis)
+                {
+                    m_gamepadAxes[axis] = state.axes[axis];
+                }
+            }
+        }
+        else
+        {
+            // If no controller connected, clear state
+            std::fill(m_gamepadHeld.begin(), m_gamepadHeld.end(), false);
+            std::fill(m_gamepadAxes.begin(), m_gamepadAxes.end(), 0.0f);
+        }
+
         // Mouse position
         glfwGetCursorPos(m_window, &m_mouseState.x, &m_mouseState.y);
 
