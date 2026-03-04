@@ -43,8 +43,9 @@ namespace Framework
     class EnemyHealthComponent : public GameComponent
     {
     public:
-        int enemyHealth{ 2 };      ///< Current health of the enemy.
-        int enemyMaxhealth{ 2 };   ///< Maximum health value for the enemy.
+        static constexpr int kDefaultEnemyHealth = 5;
+        int enemyHealth{ kDefaultEnemyHealth };      ///< Current health of the enemy.
+        int enemyMaxhealth{ kDefaultEnemyHealth };   ///< Maximum health value for the enemy.
         bool isDead = false;
 
         /*************************************************************************************

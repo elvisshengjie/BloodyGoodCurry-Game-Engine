@@ -28,6 +28,11 @@
 
 namespace Framework
 {
+    static constexpr float kMeleeVsPhysicalBonus = 2.0f;
+    static constexpr float kRangedVsRangedBonus = 2.0f;
+    static constexpr float kNeutralMultiplier = 1.00f;
+    static constexpr float kEnemyAggroScale = 1.5f;
+
     namespace
     {
         /*****************************************************************************************
@@ -113,6 +118,32 @@ namespace Framework
             {
                 anim->SetActiveAnimation(idx);
             }
+        }
+
+        
+        float ComputeEnemyDamage(float baseDamage,
+            HitBoxComponent::Team attackTeam,
+            EnemyTypeComponent::EnemyType enemyType)
+        {
+            using Team = HitBoxComponent::Team;
+            using EType = EnemyTypeComponent::EnemyType;
+
+            // Melee attack logic
+            if (attackTeam == Team::Player)
+            {
+                if (enemyType == EType::physical) return baseDamage * kMeleeVsPhysicalBonus;  // weak to melee
+                if (enemyType == EType::ranged)   return baseDamage * kNeutralMultiplier; // not weak
+            }
+
+            // Ranged attack logic
+            if (attackTeam == Team::Thrown)
+            {
+                if (enemyType == EType::ranged)   return baseDamage * kRangedVsRangedBonus;  // weak to ranged
+                if (enemyType == EType::physical) return baseDamage * kNeutralMultiplier; // not weak
+            }
+
+            // fallback
+            return baseDamage;
         }
     }
 
@@ -375,9 +406,24 @@ namespace Framework
                         continue;
                 }
 
-                AABB targetAABB(tr->x, tr->y, rb->width, rb->height);
+                const bool targetIsEnemy = obj->GetComponentType<EnemyComponent>(
+                    ComponentTypeId::CT_EnemyComponent) != nullptr;
+
+                AABB targetAABB = targetIsEnemy
+                    ? AABB(tr->x, tr->y, rb->width * kEnemyAggroScale, rb->height * kEnemyAggroScale)
+                    : AABB(tr->x, tr->y, rb->width, rb->height);
+
                 if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB))
                     continue;
+
+                // --- ADD THIS TEAM CHECK ---
+                bool targetIsPlayer = obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
+                bool sameTeam = (HB->team == HitBoxComponent::Team::Player && targetIsPlayer) ||
+                    (HB->team == HitBoxComponent::Team::Enemy && targetIsEnemy);
+
+                if (sameTeam)
+                    continue; // skip hitting teammates
+
 
                 bool validTargetHit = false;
 
@@ -401,40 +447,24 @@ namespace Framework
                 }
                 else if (auto* enemyHealth = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent))
                 {
-                    bool canHit = false;
-
-                    if (auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent))
+                    if (enemyHealth->enemyHealth <= 0)
                     {
-                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::physical &&
-                            HB->team == HitBoxComponent::Team::Player)
-                        {
-                            canHit = true;
-                        }
-                        if (typeComp->Etype == EnemyTypeComponent::EnemyType::ranged &&
-                            HB->team == HitBoxComponent::Team::Thrown)
-                        {
-                            canHit = true;
-                        }
+                        // already dead, skip
                     }
                     else
                     {
-                        canHit = true;
-                    }
+                        float finalDamage = HB->damage;
+                        if (auto* typeComp = obj->GetComponentType<EnemyTypeComponent>(
+                            ComponentTypeId::CT_EnemyTypeComponent))
+                        {
+                            finalDamage = ComputeEnemyDamage(HB->damage, HB->team, typeComp->Etype);
+                        }
 
-                    if (enemyHealth->enemyHealth <= 0)
-                        canHit = false;
-
-                    if (canHit)
-                    {
-                        enemyHealth->TakeDamage(static_cast<int>(HB->damage));
+                        enemyHealth->TakeDamage(static_cast<int>(finalDamage));
                         validTargetHit = true;
                         hitEnemy = true;
                         EmitHitImpactVfx(hitImpactVfxCallback, glm::vec2(tr->x, tr->y));
                         EmitCombatAudio(combatAudioCallback, obj, CombatAudioEvent::EnemyHurt);
-                    }
-                    else if (enemyHealth->enemyHealth > 0)
-                    {
-                        ineffectiveHit = true;
                     }
                 }
                 else

@@ -63,8 +63,6 @@ namespace mygame
                 nullptr, nullptr, nullptr,
                 AliveGuardedAction([](Framework::BehaviorContext& ctx)
                 {
-                        std::cout << "[AI] Melee Patrol: "
-                            << ctx.owner->GetObjectName() << "\n";
                         Patrol(ctx);
                 })
             );
@@ -73,8 +71,6 @@ namespace mygame
                 nullptr, nullptr, nullptr,
                 AliveGuardedAction([](Framework::BehaviorContext& ctx)
                 {
-                        std::cout << "[AI] Melee Attack: "
-                            << ctx.owner->GetObjectName() << "\n";
                         MeleeAttack(ctx);
                 })
             );
@@ -103,8 +99,6 @@ namespace mygame
                 nullptr, nullptr, nullptr,
                 AliveGuardedAction([](Framework::BehaviorContext& ctx)
                     {
-                        std::cout << "[AI] Ranged Patrol: "
-                            << ctx.owner->GetObjectName() << "\n";
                         Patrol(ctx);
                     })
             );
@@ -113,8 +107,6 @@ namespace mygame
                 nullptr, nullptr, nullptr,
                 AliveGuardedAction([](Framework::BehaviorContext& ctx)
                     {
-                        std::cout << "[AI] Ranged Attack: "
-                            << ctx.owner->GetObjectName() << "\n";
                         RangedAttack(ctx);
                     })
             );

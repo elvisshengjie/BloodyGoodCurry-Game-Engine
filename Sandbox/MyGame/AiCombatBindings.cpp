@@ -15,6 +15,10 @@
 #include "Systems/HitBoxSystem.h"
 #include "Systems/LogicSystem.h"
 
+static constexpr float kEnemyProjectileSpeedScale = 1.5f;
+static constexpr float kEnemyProjectileHitboxScale = 1.4f;
+static constexpr float kEnemyMeleeHitboxScale = 1.4f;
+
 namespace mygame {
 
     void BindAiCombat(Framework::AiSystem& ai, Framework::LogicSystem& logic)
@@ -30,7 +34,7 @@ namespace mygame {
                     if (logicPtr && logicPtr->hitBoxSystem)
                     {
                         logicPtr->hitBoxSystem->SpawnHitBox(
-                            owner, x, y, w, h, dmg, dur,
+                            owner, x, y, w* kEnemyMeleeHitboxScale, h*kEnemyMeleeHitboxScale, dmg, dur,
                             Framework::HitBoxComponent::Team::Enemy, 0.0f);
                     }
                 };
@@ -42,7 +46,7 @@ namespace mygame {
                     if (logicPtr && logicPtr->hitBoxSystem)
                     {
                         logicPtr->hitBoxSystem->SpawnProjectile(
-                            owner, x, y, dirX, dirY, speed, w, h, dmg, lifetime,
+                            owner, x, y, dirX, dirY, speed*kEnemyProjectileSpeedScale, w*kEnemyProjectileHitboxScale, h* kEnemyProjectileHitboxScale, dmg, lifetime,
                             Framework::HitBoxComponent::Team::Enemy);
                     }
                 };

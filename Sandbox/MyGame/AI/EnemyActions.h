@@ -25,6 +25,7 @@
 #include "Physics/System/Physics.h"
 #include "Factory/Factory.h"
 #include "../Audio/GameAudioSetup.h"
+#include "EnemyConditions.h" 
 #include <cmath>
 #include <algorithm>
 #include <cctype>
@@ -33,6 +34,10 @@
 namespace mygame
 {
     
+    static constexpr float kEnemyProjectileBaseSpeed = 1.2f;
+    static constexpr float kRangedAttackFireDist = kDetectionRadius;  // 3.5f
+    static constexpr float kMeleeAttackDist = 0.8f;
+
     inline int FindAnimationIndex(Framework::SpriteAnimationComponent* anim, std::string_view desired)
     {
         if (!anim) return -1;
@@ -184,8 +189,6 @@ namespace mygame
         auto* ai = enemy->GetComponentType<Framework::EnemyDecisionTreeComponent>(Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
         auto* audio = enemy->GetComponentType<Framework::AudioComponent>(Framework::ComponentTypeId::CT_AudioComponent);
         auto* player = FindPlayer();
-        std::cout << "[MeleeAttack] attack=" << attack << " rb=" << rb
-            << " tr=" << tr << " ai=" << ai << " player=" << player << "\n";
         if (!attack || !rb || !tr || !ai || !player) return;
 
         auto* trPlayer = player->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
@@ -229,12 +232,7 @@ namespace mygame
 
         ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
         attack->attack_timer += ctx.dt;
-        std::cout << "[Melee] distance=" << distance
-            << " timer=" << attack->attack_timer
-            << " speed=" << attack->attack_speed
-            << " hitbox_active=" << attack->hitbox->active << "\n";
-
-        if (attack->attack_timer >= attack->attack_speed && !attack->hitbox->active && distance < 0.8f)
+        if (attack->attack_timer >= attack->attack_speed && !attack->hitbox->active && distance < kMeleeAttackDist)
         {
             attack->attack_timer = 0.0f;
             if (ctx.spawnHitBox)  // check callback is valid first
@@ -263,7 +261,7 @@ namespace mygame
             }
         }
 
-        if (distance > 0.5f)
+        if (distance > kChaseRetentionRadius)
         {
             ai->chaseTimer += ctx.dt;
             if (ai->chaseTimer >= ai->maxChaseDuration)
@@ -283,7 +281,6 @@ namespace mygame
     // ------------------------ RANGED ATTACK ------------------------
     inline void RangedAttack(Framework::BehaviorContext& ctx)
     {
-        std::cout << "Projectile func valid: " << (bool)ctx.spawnProjectile << "\n";
         GOC* enemy = ctx.owner;
         if (!enemy) return;
 
@@ -353,14 +350,14 @@ namespace mygame
         ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
         attack->attack_timer += ctx.dt;
 
-        if (attack->attack_timer >= attack->attack_speed && retreatTimer <= 0.0f && distance < 3.5f)
+        if (attack->attack_timer >= attack->attack_speed && retreatTimer <= 0.0f && distance < kRangedAttackFireDist)
         {
             attack->attack_timer = 0.0f;
 
             float spawnX = tr->x + dirX * (std::max(rb->width, rb->height) * 0.5f + 0.1f);
             float spawnY = tr->y + dirY * (std::max(rb->width, rb->height) * 0.5f + 0.1f);
 
-            ctx.spawnProjectile(enemy, spawnX, spawnY, dirX, dirY, 0.5f, 0.3f, 0.15f,
+            ctx.spawnProjectile(enemy, spawnX, spawnY, dirX, dirY, kEnemyProjectileBaseSpeed, 0.3f, 0.15f,
                 static_cast<float>(attack->damage), 3.0f);
 
             if (audio)
@@ -380,7 +377,7 @@ namespace mygame
         if (attack->attack_timer > 0.5f)
             PlayAnim(enemy, "idle");
 
-        if (distance > 4.0f)
+        if (distance > kChaseRetentionRadius)
         {
             ai->chaseTimer += ctx.dt;
             if (ai->chaseTimer >= ai->maxChaseDuration)

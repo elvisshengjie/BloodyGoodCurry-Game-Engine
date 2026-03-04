@@ -83,8 +83,8 @@
       },
 
       "EnemyHealthComponent": {
-        "enemyHealth": 2,
-        "enemyMaxHealth": 2
+        "enemyHealth": 5,
+        "enemyMaxHealth": 5
       },
 
       "EnemyDecisionTreeComponent": {},
