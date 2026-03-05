@@ -132,7 +132,9 @@ namespace {
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
         float footstepTimer{ 0.0f };                         ///< Timer for footstep sound cadence
-        std::unique_ptr<mygame::GameAudio> audio;         ///< Game-side audio facade
+        std::unique_ptr<mygame::GameAudio> audio;           ///< Game-side audio facade
+        float lastAimDirX{ 1.0f };                          ///< Current aim direction x for player [Default right]
+        float lastAimDirY{ 0.0f };                          ///< Current aim direction y for player
     };
 
     /*****************************************************************************************
@@ -470,8 +472,20 @@ namespace {
             {
                 aimDirX = stickX / len;
                 aimDirY = stickY / len;
+
+                // Stores the last aimed direction
+                state.lastAimDirX = aimDirX;
+                state.lastAimDirY = aimDirY;
+
                 usingControllerAim = true;
             }
+        }
+        else
+        {
+            // stick released → keep last direction
+            aimDirX = state.lastAimDirX;
+            aimDirY = state.lastAimDirY;
+            usingControllerAim = true; // prevents mouse fallback
         }
 
         /*************************************************************************************
