@@ -519,7 +519,7 @@ namespace {
         }
 
         // If nothing changed this frame, keep last direction
-        if (!controllerActive)
+        if (!controllerActive && !mouseMoved)
         {
             aimDirX = state.lastAimDirX;
             aimDirY = state.lastAimDirY;
