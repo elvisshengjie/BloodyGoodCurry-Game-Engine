@@ -104,19 +104,19 @@ namespace Framework
 		if (lx > 0.2f) m_moveRight = true;
 
 		// Attack mapping
-		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_A)) 
+		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER)) 
 		{
 			m_meleeAttack = true;
 		}
-		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_B))
+		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER))
 		{
 			m_rangedAttack = true;
 		}
-		if (input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonHeld(GLFW_GAMEPAD_BUTTON_B))
+		if (input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonHeld(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER))
 		{
 			m_rangedHeld = true;
 		}
-		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonReleased(GLFW_GAMEPAD_BUTTON_B))
+		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonReleased(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER))
 		{
 			m_rangedReleased = true;
 		}
