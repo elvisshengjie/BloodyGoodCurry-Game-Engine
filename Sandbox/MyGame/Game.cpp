@@ -294,6 +294,7 @@ namespace mygame {
                     editorSimulationRunning = false;
                     pauseMenu.ResetLatches();
                     ResetPlayerDefeat();
+                    ResetPlayerKeyCount();
                 }
                 if (mainMenu.ConsumeExit())
                 {
@@ -399,6 +400,7 @@ namespace mygame {
                         gLogicSystem->ReloadLevel();
                     }
                     ResetPlayerDefeat();
+                    ResetPlayerKeyCount();
 
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
@@ -469,6 +471,7 @@ namespace mygame {
                         gLogicSystem->ReloadLevel();
                     }
                     ResetPlayerDefeat();
+                    ResetPlayerKeyCount();
 
                     editorSimulationRunning = true;
                     currentState = GameState::PLAYING;
@@ -668,6 +671,7 @@ namespace mygame {
         gLogicSystem->LoadLevel(levelPath);
 
         ResetPlayerDefeat();
+        ResetPlayerKeyCount();
 
         return true;
     }

@@ -65,4 +65,14 @@ namespace mygame {
     **************************************************************************************/
     void BindAiCombat(Framework::AiSystem& ai, Framework::LogicSystem& logic);
 
+    /*************************************************************************************
+      \brief Returns current player key inventory count used by key-door gameplay.
+    **************************************************************************************/
+    int GetPlayerKeyCount();
+
+    /*************************************************************************************
+      \brief Clears player key inventory and key-door runtime unlock state.
+    **************************************************************************************/
+    void ResetPlayerKeyCount();
+
 }

@@ -59,6 +59,7 @@
 #include <memory>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <cstdint>
 
@@ -80,6 +81,21 @@ namespace {
       \brief Guards gate-triggered transitions to prevent multiple LoadLevel calls.
     *****************************************************************************************/
     bool gPendingGateTransition = false;
+
+    /*****************************************************************************************
+      \brief Current player key inventory used by key pickups and key-locked doors.
+    *****************************************************************************************/
+    int gPlayerKeyCount = 0;
+
+    /*****************************************************************************************
+      \brief Tracks key pickup objects that have already been collected.
+    *****************************************************************************************/
+    std::unordered_set<Framework::GOCId> gCollectedKeyObjects;
+
+    /*****************************************************************************************
+      \brief Tracks key-locked doors that have already been unlocked.
+    *****************************************************************************************/
+    std::unordered_set<Framework::GOCId> gUnlockedDoorObjects;
 
     /*****************************************************************************************
       \enum PlayerAnimState
@@ -359,6 +375,53 @@ namespace {
     bool HasRemainingEnemies()
     {
         return CountAliveEnemies() > 0;
+    }
+
+    /*****************************************************************************************
+      \brief Checks AABB overlap between a player and another object.
+      \param player Alive player object.
+      \param object Target object to test overlap with.
+      \return True if both objects have transform+rigidbody components and overlap.
+    *****************************************************************************************/
+    bool IsPlayerOverlappingObject(Framework::GameObjectComposition* player, Framework::GameObjectComposition* object)
+    {
+        if (!player || !object)
+            return false;
+
+        auto* objectTr = SafeGetComponent<Framework::TransformComponent>(object, Framework::ComponentTypeId::CT_TransformComponent);
+        auto* objectRb = SafeGetComponent<Framework::RigidBodyComponent>(object, Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* playerTr = SafeGetComponent<Framework::TransformComponent>(player, Framework::ComponentTypeId::CT_TransformComponent);
+        auto* playerRb = SafeGetComponent<Framework::RigidBodyComponent>(player, Framework::ComponentTypeId::CT_RigidBodyComponent);
+
+        if (!objectTr || !objectRb || !playerTr || !playerRb)
+            return false;
+
+        const Framework::AABB objectBox(objectTr->x, objectTr->y, objectRb->width, objectRb->height);
+        const Framework::AABB playerBox(playerTr->x, playerTr->y, playerRb->width, playerRb->height);
+        return Framework::Collision::CheckCollisionRectToRect(playerBox, objectBox);
+    }
+
+    /*****************************************************************************************
+      \brief Resolves GateTargetComponent.levelPath into an absolute data path.
+      \param gateObject Object that owns GateTargetComponent.
+      \param outPath    Output absolute/usable level path.
+      \return True when a valid target path was resolved.
+    *****************************************************************************************/
+    bool ResolveGateTargetPath(Framework::GameObjectComposition* gateObject, std::filesystem::path& outPath)
+    {
+        if (!gateObject)
+            return false;
+
+        auto* target = SafeGetComponent<Framework::GateTargetComponent>(gateObject, Framework::ComponentTypeId::CT_GateTargetComponent);
+        if (!target || target->levelPath.empty())
+            return false;
+
+        std::filesystem::path targetPath(target->levelPath);
+        if (!targetPath.is_absolute())
+            targetPath = Framework::ResolveDataPath(targetPath);
+
+        outPath = targetPath;
+        return true;
     }
 
     /*****************************************************************************************
@@ -855,6 +918,48 @@ namespace {
     void VfxCleanup_End(Framework::GameObjectComposition*) {}
 
     /*****************************************************************************************
+      \brief KeyPickupLogic behaviour: Init hook.
+    *****************************************************************************************/
+    void KeyPickupLogic_Init(Framework::GameObjectComposition*) {}
+
+    /*****************************************************************************************
+      \brief KeyPickupLogic behaviour: Update hook.
+      \details
+      If the player collides with this key object's hitbox, increment key count once and
+      destroy the key object.
+    *****************************************************************************************/
+    void KeyPickupLogic_Update(Framework::GameObjectComposition* keyObject, float)
+    {
+        if (!gLogicSystem || !keyObject)
+            return;
+
+        if (gCollectedKeyObjects.contains(keyObject->GetId()))
+            return;
+
+        auto* player = gLogicSystem->FindAnyAlivePlayer();
+        if (!player)
+            return;
+
+        auto* playerHealth = SafeGetComponent<Framework::PlayerHealthComponent>(player, Framework::ComponentTypeId::CT_PlayerHealthComponent);
+        if (playerHealth && playerHealth->isDead)
+            return;
+
+        if (!IsPlayerOverlappingObject(player, keyObject))
+            return;
+
+        gCollectedKeyObjects.insert(keyObject->GetId());
+        ++gPlayerKeyCount;
+
+        if (auto* factory = gLogicSystem->Factory())
+            factory->Destroy(keyObject);
+    }
+
+    /*****************************************************************************************
+      \brief KeyPickupLogic behaviour: End hook.
+    *****************************************************************************************/
+    void KeyPickupLogic_End(Framework::GameObjectComposition*) {}
+
+    /*****************************************************************************************
       \brief GateLogic behaviour: Init hook.
       \details Resets gPendingGateTransition so the gate can trigger again in a new level.
     *****************************************************************************************/
@@ -887,32 +992,82 @@ namespace {
         auto* player = gLogicSystem->FindAnyAlivePlayer();
         if (!player)
             return;
-
-        auto* gateTr = SafeGetComponent<Framework::TransformComponent>(gateObject, Framework::ComponentTypeId::CT_TransformComponent);
-        auto* gateRb = SafeGetComponent<Framework::RigidBodyComponent>(gateObject, Framework::ComponentTypeId::CT_RigidBodyComponent);
-        auto* playerTr = SafeGetComponent<Framework::TransformComponent>(player, Framework::ComponentTypeId::CT_TransformComponent);
-        auto* playerRb = SafeGetComponent<Framework::RigidBodyComponent>(player, Framework::ComponentTypeId::CT_RigidBodyComponent);
         auto* playerHealth = SafeGetComponent<Framework::PlayerHealthComponent>(player, Framework::ComponentTypeId::CT_PlayerHealthComponent);
 
-        if (!gateTr || !gateRb || !playerTr || !playerRb || (playerHealth && playerHealth->isDead))
+        if (playerHealth && playerHealth->isDead)
             return;
 
-        Framework::AABB gateBox(gateTr->x, gateTr->y, gateRb->width, gateRb->height);
-        Framework::AABB playerBox(playerTr->x, playerTr->y, playerRb->width, playerRb->height);
-
-        if (!Framework::Collision::CheckCollisionRectToRect(playerBox, gateBox))
+        if (!IsPlayerOverlappingObject(player, gateObject))
             return;
 
-        auto* target = SafeGetComponent<Framework::GateTargetComponent>(gateObject, Framework::ComponentTypeId::CT_GateTargetComponent);
-        if (!target || target->levelPath.empty())
+        std::filesystem::path targetPath;
+        if (!ResolveGateTargetPath(gateObject, targetPath))
             return;
-
-        std::filesystem::path targetPath(target->levelPath);
-        if (!targetPath.is_absolute())
-            targetPath = Framework::ResolveDataPath(targetPath);
 
         gPendingGateTransition = true;
         gLogicSystem->LoadLevel(targetPath);
+    }
+
+    /*****************************************************************************************
+      \brief KeyDoorLogic behaviour: Init hook.
+    *****************************************************************************************/
+    void KeyDoorLogic_Init(Framework::GameObjectComposition*)
+    {
+        gPendingGateTransition = false;
+    }
+
+    /*****************************************************************************************
+      \brief KeyDoorLogic behaviour: Update hook.
+      \details
+      Door unlock only happens when the player collides with the door hitbox and has at
+      least one key. One key is consumed on unlock. Once unlocked, this door follows
+      GateLogic transition behavior (enemy clear + collision + GateTargetComponent load).
+    *****************************************************************************************/
+    void KeyDoorLogic_Update(Framework::GameObjectComposition* doorObject, float)
+    {
+        if (!gLogicSystem || !doorObject || gPendingGateTransition)
+            return;
+
+        auto* player = gLogicSystem->FindAnyAlivePlayer();
+        if (!player)
+            return;
+
+        auto* playerHealth = SafeGetComponent<Framework::PlayerHealthComponent>(player, Framework::ComponentTypeId::CT_PlayerHealthComponent);
+        if (playerHealth && playerHealth->isDead)
+            return;
+
+        if (!IsPlayerOverlappingObject(player, doorObject))
+            return;
+
+        const Framework::GOCId doorId = doorObject->GetId();
+        bool unlocked = gUnlockedDoorObjects.contains(doorId);
+        if (!unlocked)
+        {
+            if (gPlayerKeyCount <= 0)
+                return;
+
+            --gPlayerKeyCount;
+            gUnlockedDoorObjects.insert(doorId);
+            unlocked = true;
+        }
+
+        if (!unlocked)
+            return;
+
+        std::filesystem::path targetPath;
+        if (!ResolveGateTargetPath(doorObject, targetPath))
+            return;
+
+        gPendingGateTransition = true;
+        gLogicSystem->LoadLevel(targetPath);
+    }
+
+    /*****************************************************************************************
+      \brief KeyDoorLogic behaviour: End hook.
+    *****************************************************************************************/
+    void KeyDoorLogic_End(Framework::GameObjectComposition*)
+    {
+        gPendingGateTransition = false;
     }
 
     /*****************************************************************************************
@@ -951,6 +1106,26 @@ namespace mygame {
         logic.RegisterBehaviour("CombatDirector", { CombatDirector_Init, CombatDirector_Update, CombatDirector_End });
         logic.RegisterBehaviour("VfxCleanup", { VfxCleanup_Init, VfxCleanup_Update, VfxCleanup_End });
         logic.RegisterBehaviour("GateLogic", { GateLogic_Init, GateLogic_Update, GateLogic_End });
+        logic.RegisterBehaviour("KeyPickupLogic", { KeyPickupLogic_Init, KeyPickupLogic_Update, KeyPickupLogic_End });
+        logic.RegisterBehaviour("KeyDoorLogic", { KeyDoorLogic_Init, KeyDoorLogic_Update, KeyDoorLogic_End });
+    }
+
+    /*****************************************************************************************
+      \brief Returns the currently collected key count.
+    *****************************************************************************************/
+    int GetPlayerKeyCount()
+    {
+        return std::max(0, gPlayerKeyCount);
+    }
+
+    /*****************************************************************************************
+      \brief Resets key inventory and key-door runtime state.
+    *****************************************************************************************/
+    void ResetPlayerKeyCount()
+    {
+        gPlayerKeyCount = 0;
+        gCollectedKeyObjects.clear();
+        gUnlockedDoorObjects.clear();
     }
 
 }

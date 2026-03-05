@@ -2900,20 +2900,27 @@ namespace Framework {
             // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
 
-            // Displays objective
+            // Displays objective.
+            // Use live factory-owned objects instead of LogicSystem::LevelObjects() because
+            // editor-stop mode pauses LogicSystem::Update(), so levelObjects may be stale.
             int enemiesLeft = 0;
-            for (GOC* obj : logic.LevelObjects())
+            if (FACTORY)
             {
-                if (!obj)
-                    continue;
+                for (auto const& [id, objPtr] : FACTORY->Objects())
+                {
+                    (void)id;
+                    GOC* obj = objPtr.get();
+                    if (!obj)
+                        continue;
 
-                auto* enemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent);
-                if (!enemy)
-                    continue;
+                    auto* enemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent);
+                    if (!enemy)
+                        continue;
 
-                auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
-                if (health && health->enemyHealth > 0)
-                    ++enemiesLeft;
+                    auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
+                    if (health && health->enemyHealth > 0)
+                        ++enemiesLeft;
+                }
             }
 
             std::string enemyText;

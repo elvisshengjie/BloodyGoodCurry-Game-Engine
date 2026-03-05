@@ -46,6 +46,9 @@
 
 namespace
 {
+    // Defer non-simulation factory sweeps until after hierarchy iteration completes.
+    bool gPendingImmediateFactorySweep = false;
+
     /*****************************************************************************************
      \brief  Returns a display-safe object name for the Hierarchy view.
 
@@ -120,7 +123,7 @@ namespace
             mygame::editor::RecordObjectDeleted(*target);
             Framework::FACTORY->Destroy(target);
             if (!mygame::IsEditorSimulationRunning())
-                Framework::FACTORY->Update(0.0f);
+                gPendingImmediateFactorySweep = true;
         }
     }
 } // anonymous namespace
@@ -252,6 +255,12 @@ void mygame::DrawHierarchyPanel()
             }
 
             ImGui::EndTable();
+        }
+
+        if (gPendingImmediateFactorySweep && Framework::FACTORY && !mygame::IsEditorSimulationRunning())
+        {
+            Framework::FACTORY->Update(0.0f);
+            gPendingImmediateFactorySweep = false;
         }
     }
 

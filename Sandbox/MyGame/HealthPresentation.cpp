@@ -13,6 +13,7 @@
 
 #include "Factory/Factory.h"
 #include "Components/PlayerHUD.h"
+#include "Core/PathUtils.h"
 #include "Graphics/Graphics.hpp"
 #include "Systems/HealthSystem.h"
 #include "Systems/RenderSystem.h"
@@ -20,16 +21,81 @@
 #include "Component/EnemyHealthComponent.h"
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
+#include "Resource_Asset_Manager/Resource_Manager.h"
 
 #include <algorithm>
 #include <cmath>
 #include <glad/glad.h>
+#include <string>
 #include <utility>
+
+namespace mygame {
+    int GetPlayerKeyCount();
+}
 
 namespace mygame {
     namespace {
         bool gPlayerDefeated = false;
         float gLastHealthUiDt = 0.0f;
+        unsigned gKeyUiTexture = 0u;
+        bool gTriedLoadKeyUiTexture = false;
+
+        /*************************************************************************************
+         \brief  Lazily loads and returns the key UI icon texture.
+         \return OpenGL texture id, or 0 when loading fails.
+        *************************************************************************************/
+        unsigned ResolveKeyUiTexture()
+        {
+            if (gKeyUiTexture != 0u || gTriedLoadKeyUiTexture)
+                return gKeyUiTexture;
+
+            gTriedLoadKeyUiTexture = true;
+            constexpr const char* kTextureKey = "hud_key_icon";
+
+            if (const unsigned cached = Resource_Manager::getTexture(kTextureKey))
+            {
+                gKeyUiTexture = cached;
+                return gKeyUiTexture;
+            }
+
+            const std::string texturePath = Framework::ResolveAssetPath("Textures/UI/Key.png").string();
+            if (Resource_Manager::load(kTextureKey, texturePath))
+                gKeyUiTexture = Resource_Manager::getTexture(kTextureKey);
+
+            return gKeyUiTexture;
+        }
+
+        /*************************************************************************************
+         \brief  Draws the key inventory icon and count at left-center of the viewport.
+         \param  render     Active render system (for text drawing checks).
+         \param  viewportW  Current viewport width in pixels.
+         \param  viewportH  Current viewport height in pixels.
+        *************************************************************************************/
+        void DrawKeyInventoryUi(Framework::RenderSystem& render, int viewportW, int viewportH)
+        {
+            const float refHeight = 720.0f;
+            const float scale = std::max(0.6f, static_cast<float>(viewportH) / refHeight);
+
+            const float iconW = 56.0f * scale;
+            const float iconH = 56.0f * scale;
+            const float iconX = 18.0f * scale;
+            const float iconY = (viewportH * 0.5f) - (iconH * 0.5f);
+
+            if (const unsigned keyTexture = ResolveKeyUiTexture())
+            {
+                gfx::Graphics::renderSpriteUI(keyTexture, iconX, iconY, iconW, iconH,
+                    1.0f, 1.0f, 1.0f, 1.0f, viewportW, viewportH);
+            }
+
+            if (render.IsTextReadyHint())
+            {
+                const std::string label = "x" + std::to_string(std::max(0, GetPlayerKeyCount()));
+                const float textX = iconX + iconW + (8.0f * scale);
+                const float textY = iconY + (iconH * 0.28f);
+                render.GetTextHint().RenderText(label.c_str(), textX, textY,
+                    0.95f * scale, { 1.0f, 1.0f, 1.0f });
+            }
+        }
 
         /*************************************************************************************
          \brief  Converts a world-space position into UI-space screen coordinates.
@@ -189,6 +255,8 @@ namespace mygame {
                 0.0f, 1.0f, 0.0f, 1.0f,
                 viewportW, viewportH);
         }
+
+        DrawKeyInventoryUi(render, viewportW, viewportH);
 
         glViewport(0, 0, render.ScreenWidth(), render.ScreenHeight());
     }
