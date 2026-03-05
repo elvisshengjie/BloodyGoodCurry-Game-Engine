@@ -136,6 +136,8 @@ namespace {
         float lastAimDirX{ 1.0f };                          ///< Current aim direction x for player [Default right]
         float lastAimDirY{ 0.0f };                          ///< Current aim direction y for player
         bool usingControllerLast{ false };                  ///< Checks if player is using controller or not
+        float lastMouseX{ 0.0f };                           ///< To store mouse's X coordinates
+        float lastMouseY{ 0.0f };                           ///< To store mouse's Y coordinates
     };
 
     /*****************************************************************************************
@@ -488,12 +490,15 @@ namespace {
         // --------------------------------------------------
         // Mouse Aim (only if controller not actively moving)
         // --------------------------------------------------
-        if (!controllerActive)
+        bool mouseMoved = (mouse.x != state.lastMouseX || mouse.y != state.lastMouseY);
+
+        if (!controllerActive && mouseMoved)
         {
             if (auto* rs = Framework::RenderSystem::Get())
             {
-                if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport)
-                    && mouseInsideViewport)
+                if (rs->ScreenToWorld(mouse.x, mouse.y,
+                    mouseWorldX, mouseWorldY,
+                    mouseInsideViewport) && mouseInsideViewport)
                 {
                     const float dx = mouseWorldX - tr->x;
                     const float dy = mouseWorldY - tr->y;
@@ -507,13 +512,7 @@ namespace {
 
                         state.lastAimDirX = aimDirX;
                         state.lastAimDirY = aimDirY;
-
                         state.usingControllerLast = false;
-                    }
-                    else
-                    {
-                        aimDirX = state.lastAimDirX;
-                        aimDirY = state.lastAimDirY;
                     }
                 }
             }
@@ -525,6 +524,8 @@ namespace {
             aimDirX = state.lastAimDirX;
             aimDirY = state.lastAimDirY;
         }
+        state.lastMouseX = mouse.x;
+        state.lastMouseY = mouse.y;
         
         /*************************************************************************************
           \brief Flips the sprite based on final aim direction, for both mouse and controller
