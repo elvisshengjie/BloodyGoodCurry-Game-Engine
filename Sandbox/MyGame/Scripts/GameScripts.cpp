@@ -135,6 +135,7 @@ namespace {
         std::unique_ptr<mygame::GameAudio> audio;           ///< Game-side audio facade
         float lastAimDirX{ 1.0f };                          ///< Current aim direction x for player [Default right]
         float lastAimDirY{ 0.0f };                          ///< Current aim direction y for player
+        bool usingControllerLast{ false };                  ///< Checks if player is using controller or not
     };
 
     /*****************************************************************************************
@@ -463,8 +464,11 @@ namespace {
         stickY = -stickY;
 
         const float stickDeadzone = 0.2f;
-        bool usingControllerAim = false;
+        bool controllerActive = false;
 
+        // --------------------------------------------------
+ // Controller Aim
+ // --------------------------------------------------
         if (std::fabs(stickX) > stickDeadzone || std::fabs(stickY) > stickDeadzone)
         {
             const float len = std::sqrt(stickX * stickX + stickY * stickY);
@@ -473,42 +477,53 @@ namespace {
                 aimDirX = stickX / len;
                 aimDirY = stickY / len;
 
-                // Stores the last aimed direction
                 state.lastAimDirX = aimDirX;
                 state.lastAimDirY = aimDirY;
 
-                usingControllerAim = true;
+                state.usingControllerLast = true;
+                controllerActive = true;
             }
         }
-        else
-        {
-            // stick released → keep last direction
-            aimDirX = state.lastAimDirX;
-            aimDirY = state.lastAimDirY;
-            usingControllerAim = true; // prevents mouse fallback
-        }
 
-        /*************************************************************************************
-          \brief Convert mouse screen coordinates to world coordinates for aiming.
-          \details Also flips the sprite horizontally by flipping RenderComponent width sign.
-        **************************************************************************************/
-        if (!usingControllerAim)
+        // --------------------------------------------------
+        // Mouse Aim (only if controller not actively moving)
+        // --------------------------------------------------
+        if (!controllerActive)
         {
             if (auto* rs = Framework::RenderSystem::Get())
             {
-                if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport) && mouseInsideViewport)
+                if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport)
+                    && mouseInsideViewport)
                 {
                     const float dx = mouseWorldX - tr->x;
                     const float dy = mouseWorldY - tr->y;
                     const float lenSq = dx * dx + dy * dy;
+
                     if (lenSq > 1e-6f)
                     {
                         const float invLen = 1.0f / std::sqrt(lenSq);
                         aimDirX = dx * invLen;
                         aimDirY = dy * invLen;
+
+                        state.lastAimDirX = aimDirX;
+                        state.lastAimDirY = aimDirY;
+
+                        state.usingControllerLast = false;
+                    }
+                    else
+                    {
+                        aimDirX = state.lastAimDirX;
+                        aimDirY = state.lastAimDirY;
                     }
                 }
             }
+        }
+
+        // If nothing changed this frame, keep last direction
+        if (!controllerActive)
+        {
+            aimDirX = state.lastAimDirX;
+            aimDirY = state.lastAimDirY;
         }
         
         /*************************************************************************************
