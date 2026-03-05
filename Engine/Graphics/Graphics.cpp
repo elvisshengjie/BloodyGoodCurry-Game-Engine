@@ -43,6 +43,14 @@
 #endif
 namespace gfx {
 
+#if defined(__EMSCRIPTEN__)
+#define SOFASPUDS_GLSL_VERSION "#version 300 es\n"
+#define SOFASPUDS_GLSL_FRAGMENT_PREAMBLE "precision mediump float;\n"
+#else
+#define SOFASPUDS_GLSL_VERSION "#version 330 core\n"
+#define SOFASPUDS_GLSL_FRAGMENT_PREAMBLE ""
+#endif
+
     /// \brief PI constant used for circle tessellation.
     constexpr float PI = 3.14159265359f;
 
@@ -298,13 +306,14 @@ namespace gfx {
 
         // ----- Background shader -----
         const char* bgVertexSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout (location = 0) in vec2 aPos;\n"
             "layout (location = 1) in vec2 aTexCoord;\n"
             "out vec2 TexCoord;\n"
             "void main(){gl_Position=vec4(aPos,0.0,1.0);TexCoord=aTexCoord;}\n";
         const char* bgFragmentSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "out vec4 FragColor;\n"
             "in vec2 TexCoord;\n"
             "uniform sampler2D backgroundTex;\n"
@@ -313,12 +322,13 @@ namespace gfx {
 
         // ----- Object (rect/circle) shader -----
         const char* objVertexSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout (location = 0) in vec3 aPos;\n"
             "uniform mat4 uMVP;\n"
             "void main(){ gl_Position = uMVP * vec4(aPos, 1.0); }\n";
         const char* objFragmentSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "out vec4 FragColor;\n"
             "uniform vec4 uColor;\n"
             "void main(){ FragColor = uColor; }\n";
@@ -326,7 +336,7 @@ namespace gfx {
 
         // ----- Glow shader (circle with radial falloff) -----
         const char* glowVertexSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout (location = 0) in vec3 aPos;\n"
             "uniform mat4 uMVP;\n"
             "out vec2 vLocal;\n"
@@ -335,7 +345,8 @@ namespace gfx {
             "  gl_Position = uMVP * vec4(aPos, 1.0);\n"
             "}\n";
         const char* glowFragmentSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "in vec2 vLocal;\n"
             "out vec4 FragColor;\n"
             "uniform vec4 uColor;\n"
@@ -731,7 +742,7 @@ namespace gfx {
 
         // Sprite (single) shader with sub-UV
         const char* vs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout(location=0) in vec3 aPos;\n"
             "layout(location=1) in vec2 aUV;\n"
             "uniform mat4 uMVP;\n"
@@ -743,7 +754,8 @@ namespace gfx {
             "  vUV = aUV * uUVScale + uUVOffset;\n"
             "}\n";
         const char* fs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "in vec2 vUV;\n"
             "out vec4 FragColor;\n"
             "uniform sampler2D uTex;\n"
@@ -798,7 +810,7 @@ namespace gfx {
 
         // Instanced sprite shader
         const char* instVs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout(location=0) in vec3 aPos;\n"
             "layout(location=1) in vec2 aUV;\n"
             "layout(location=2) in mat4 iModel;\n"
@@ -813,7 +825,8 @@ namespace gfx {
             "  vTint= iTint;\n"
             "}\n";
         const char* instFs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "in vec2 vUV;\n"
             "in vec4 vTint;\n"
             "out vec4 FragColor;\n"

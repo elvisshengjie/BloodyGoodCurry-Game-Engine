@@ -51,10 +51,20 @@ private:
     using Clock = std::chrono::steady_clock;       // monotonic clock for dt
     using SecondsF = std::chrono::duration<float>;    // time duration in float seconds
 
+    void TickOneFrame();
+    void FinalizeRun();
+#if defined(__EMSCRIPTEN__)
+    static void WebMainLoop(void* userData);
+#endif
+
     bool m_Running{ false };                         ///< Main loop flag
+    bool m_Finalized{ false };                       ///< Guard to run shutdown only once.
     std::unique_ptr<gfx::Window> m_Window;           ///< Owned window (RAII)
     int m_CurrentNumSteps = 0;
     SecondsF  m_FixedStep{ 1.0f / 60.0f };
+    SecondsF  m_Accumulator{ SecondsF::zero() };
+    Clock::time_point m_PreviousTick{};
+    bool m_WasSuspended{ false };
     // Callback storage (may be null)
     InitFn     init{ nullptr };
     UpdateFn   update{ nullptr };

@@ -7,7 +7,7 @@
             basic frame management (clear, swap, event polling).
  \details   Responsibilities:
             - Initialize and terminate GLFW.
-            - Create an OpenGL 4.5 core-profile context via GLFW.
+            - Create a compatible OpenGL context via GLFW (desktop GL 3.3 / web GLES3).
             - Track fullscreen/windowed size and position and allow toggling at runtime.
             - Maintain focus/minimize (iconify) state via GLFW callbacks.
             - Provide helper loop functions (run / runWithCallback) for simple main loops.
@@ -33,8 +33,8 @@
 namespace {
 
     // Prefer constexpr over macros (resolves your VCR101 suggestion)
-    constexpr int kGlMajor = 4; ///< Requested OpenGL major version.
-    constexpr int kGlMinor = 5; ///< Requested OpenGL minor version.
+    constexpr int kGlMajor = 3; ///< Requested OpenGL major version.
+    constexpr int kGlMinor = 3; ///< Requested OpenGL minor version.
 
 } // anonymous namespace
 
@@ -53,7 +53,7 @@ namespace gfx {
 
       Steps:
       - Initialize GLFW and set a global error callback.
-      - Request an OpenGL 4.5 core-profile context.
+      - Request an OpenGL 3.3 core-profile context (or GLES3 for web).
       - Create either a fullscreen or windowed GLFWwindow.
       - Store windowed position/size for future fullscreen toggles.
       - Hook up iconify/focus callbacks and sync state.
@@ -73,10 +73,16 @@ namespace gfx {
         // Set error callback first so we catch any GLFW errors
         glfwSetErrorCallback(Window::error_cb);
 
-        // Request a modern OpenGL context (4.5 core)
+        // Request a compatible GL context for both desktop and web builds.
+#if defined(__EMSCRIPTEN__)
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#else
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, kGlMajor);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, kGlMinor);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#endif
 
         // Double buffered (default)
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
@@ -87,6 +93,15 @@ namespace gfx {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : nullptr;
 
+#if defined(__EMSCRIPTEN__)
+        // Browser builds should start in a deterministic windowed canvas size.
+        m_fullscreen = false;
+        s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
+        m_windowedX = 0;
+        m_windowedY = 0;
+        m_windowedWidth = m_width;
+        m_windowedHeight = m_height;
+#else
         if (m_fullscreen && monitor && mode)
         {
             // Start in fullscreen mode on primary monitor
@@ -105,6 +120,7 @@ namespace gfx {
             s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
             glfwGetWindowPos(s_window, &m_windowedX, &m_windowedY);
         }
+#endif
 
         if (!s_window) {
             std::cerr << "Failed to create GLFW window.\n";
@@ -140,8 +156,13 @@ namespace gfx {
         std::cout << "Renderer: " << renderer << "\n";
         std::cout << "OpenGL version supported: " << version << "\n";
 
-        // Set initial viewport and vsync
-        glViewport(0, 0, m_width, m_height);
+        // Set initial viewport and vsync using actual framebuffer dimensions.
+        int fbWidth = m_width;
+        int fbHeight = m_height;
+        glfwGetFramebufferSize(s_window, &fbWidth, &fbHeight);
+        if (fbWidth <= 0) fbWidth = m_width;
+        if (fbHeight <= 0) fbHeight = m_height;
+        glViewport(0, 0, fbWidth, fbHeight);
         glfwSwapInterval(1); // vsync on
     }
 

@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" href="https://www.digipen.edu/themes/custom/digipen_future/favicon.ico"
+        type="image/vnd.microsoft.icon" />
+    <title>CS250 DigiPen Computer Graphics</title>
+    <meta name="description" content="Computer Graphics Assignments for DigiPen class CS250">
+
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
+    <style>
+        body {
+            overflow-y: hidden;
+            overflow-x: hidden;
+            margin: 0;
+            background-image: url('data:image/svg+xml;base64,\
+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbDpzcGFjZT0icHJlc2VydmUiIGFyaWEtbGFiZWxsZWRieT0ibG9nb190aXRsZSIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pbllNaW4gbWVldCIgdmlld0JveD0iMCAyOTAuNSA2MTMuNSAyMTEiPgogIDx0aXRsZT5EaWdpUGVuIEluc3RpdHV0ZSBvZiBUZWNobm9sb2d5PC90aXRsZT4KICA8cGF0aCBkPSJNMTEzLjMgMzk2LjZhMzcgMzcgMCAwIDAgMzcuNC0zNi43YzAtMjAtMTcuMS0zNi43LTM4LjEtMzYuN0g4NS4zdjczLjFoMjcuOHYuM2guMnptLTc0IDczLjZhMzcgMzcgMCAwIDEtMzcuNC0zNi42QTM3LjYgMzcuNiAwIDAgMSAzOS44IDM5N2gyNy4zdjczLjFIMzkuM3YuMXptMzIuMi0xNDcuMWg5Ljd2MTQ3LjFoLTkuN3ptMzE3LjEgMTguOGMwIDIuNi0yLjYgNC42LTUuNiA0LjZoLTE1Yy0zLjEgMC01LjYtMi4xLTUuNi00LjZ2LTcuN2MwLTIuNiAyLjYtNC42IDUuNi00LjZoMTVjMy4xIDAgNS42IDIuMSA1LjYgNC42djcuN3ptLTI2LjUgOC45aDI2LjV2NjMuNmgtMjYuNXptLTgwLjItOC45YzAgMi42LTIuNiA0LjYtNS42IDQuNmgtMTVjLTMuMSAwLTUuOC0yLjEtNS44LTQuNnYtNy43YzAtMi42IDIuNi00LjYgNS44LTQuNmgxNWMzLjEgMCA1LjYgMi4xIDUuNiA0LjZ2Ny43em0tMjYuNiA4LjloMjYuNXY2My42aC0yNi41ek00NzEuOCAzMzljLTMuMS01LTcuNS04LjktMTIuOC0xMS42YTQxLjQgNDEuNCAwIDAgMC0xOC42LTQuMUgzOTh2OTEuMmgyNi4zVjM4N2gxOC4zYzQuOCAwIDkuMS0uOSAxMy4yLTIuNiAzLjktMS43IDcuNy0zLjkgMTAuOS02LjggMy4xLTIuOSA1LjYtNi4yIDcuMi0xMC40IDEuNy0zLjkgMi42LTcgMi42LTExLjRhMzYuNyAzNi43IDAgMCAwLTQuNy0xNi44bS0zNS40IDI3LjJoLTEydi0yMS40aDExLjhjNiAwIDEwLjkgNC44IDEwLjkgMTAuNi40IDYtNC42IDEwLjgtMTAuNyAxMC44bTE3Mi45LTguNmEyMS4xIDIxLjEgMCAwIDAtOS42LTcuOSAzOC4xIDM4LjEgMCAwIDAtMTQuNC0yLjdoLTM5LjV2NjcuNWgyNi41di0zNy42YzAtNC44IDIuMS02LjggNi43LTYuOCA0LjggMCA2LjcgMi4xIDYuNyA2Ljh2MzcuOWgyNi41di00NC45Yy41LTQuNy0uNS05LTIuOS0xMi4zbS02OSAyOS40Yy4zLTIuMS43LTQuMy43LTYuNWEzMy41IDMzLjUgMCAwIDAtMzMuMS0zMy43Yy0xOC41IDAtMzMuMSAxNS0zMy4xIDMzLjcgMCAxOC42IDE0LjkgMzQgMzMuMSAzNCAxMi41IDAgMjMuNC03IDI4LjktMTcuNGgtMjIuOWMtNS44IDAtMTAuNi0xLjQtMTAuNi03LjVWMzg3aDM3em0tMzcuMS0xMy44di0xLjdjMC00LjggMy44LTguNyA4LjItOC43IDQuOCAwIDguMiAzLjkgOC4yIDguNXYxLjdsLTE2LjQuMnptLTIwNSA2OS4yaDIzLjdjNy4yIDAgMTMuOC0yLjYgMTkuMy02LjcgNy4yLTUuOCAxMi0xNC45IDEyLTI0Ljl2LTYxLjNoLTMwLjhhNDMgNDMgMCAwIDAtMTMuMiAyLjIgMzYgMzYgMCAwIDAtMTAuNiA2LjcgMzEuOCAzMS44IDAgMCAwIDMuOCA0OC41YzEgLjcgMS45IDEuMiAyLjcgMS45IDQuMSAyLjYgOC45IDMuOSAxMy43IDQuMWg3djEuNWMwIDEuNy0uMyAyLjYtMSAzLjItMS43IDIuNi01IDMuMi05LjEgMy4yaC0xOC4xYy42LjYuNiAyMS42LjYgMjEuNnptMjUuMS03Mi41aDcuNXYyMGgtNy43Yy01LjYgMC0xMC4xLTQuNi0xMC4xLTkuOSAwLTUuNiA0LjUtMTAuMSAxMC4zLTEwLjFtLTgxLjUtMjMuNGMtNC4xLTctOS43LTEyLjYtMTcuMS0xNi43LTctNC4xLTE0LjktNi4yLTIyLjktNi4yaC0zNi4xdjkwLjdoMzcuNGM1LjMgMCAxMC45LTEuMiAxNi43LTMuOGE1NCA1NCAwIDAgMCAxNC45LTkuNyA0MSA0MSAwIDAgMCA5LjktMTQuNyA0NS41IDQ1LjUgMCAwIDAgMy4yLTE3LjFjLjUtNy44LTEuNi0xNS4zLTYtMjIuNW0tMjEuOSAyOC45Yy0xIDIuMS0yLjIgMy45LTMuOSA1LjZhMTcuMiAxNy4yIDAgMCAxLTUuOCAzLjhjLTIuMiAxLTQuMyAxLjQtNi41IDEuNGgtMTIuOHYtMzQuN0gyMDNjMy4xIDAgNi4yLjkgOC45IDIuNiAyLjcgMS43IDUgMy44IDYuNyA2LjVzMi42IDUuNiAyLjYgOC43Yy4zIDEuOC0uNCA0LjEtMS4zIDYuMW0tNTMuNSA3NC4zaDIuOVY0NzBoLTIuOXptMjguMiAwaC0yLjR2MTUuOGwtMTMuNi0xNS44aC0yLjR2MjAuMmgyLjV2LTE1LjRsMTMuNyAxNS40aDIuMnptMTcgMS4yYTcuNiA3LjYgMCAwIDAtNC42LTEuNGMtMy44IDAtNi4yIDIuMS02LjIgNS4zIDAgNS4zIDguNyA2IDguNyAxMC4xIDAgMS0xIDIuNi0zLjIgMi42LTEuOSAwLTMuOS0xLTUuMy0yLjl2My44YTkuNyA5LjcgMCAwIDAgNS42IDEuOWMzLjIgMCA1LjYtMi4yIDUuNi01LjMgMC02LjUtOC43LTYuNS04LjctMTAuNCAwLTEuNCAxLjItMi42IDMuMi0yLjYgMS4yIDAgMy4xLjMgNC44IDIuMWwuMS0zLjJ6bTIxLjMtMS4yaC0xNi43djIuNmg2Ljh2MTcuNmgyLjl2LTE3LjZoN3ptNS41IDBoMi45VjQ3MGgtMi45em0yNC45IDBoLTE2Ljl2Mi42aDd2MTcuNmgyLjl2LTE3LjZoN3ptMjIuMiAwaC0yLjl2MTEuOGMwIDEuOS0uMiAzLjItMS4yIDQuMy0xIDEtMi42IDEuNy00LjggMS43LTEuOSAwLTMuMi0uMy00LjMtMS45LTEtMS0xLjItMS45LTEuMi00LjF2LTEyaC0yLjl2MTIuNmMwIDUuMyA0LjEgNy45IDguMiA3LjkgNiAwIDkuMS0zLjIgOS4xLTguMnYtMTIuMXptMjEuNyAwaC0xNi45djIuNmg3djE3LjZoMi45di0xNy42aDd6bTE2LjYgMGgtMTEuNHYyMC4yaDExLjd2LTIuNmgtOC44VjQ2MWg4LjN2LTIuNmgtOC4zdi02LjFoOC41em0xOC42IDEwLjFjMC00LjYgMy4yLTcuNyA3LjktNy43IDQuNiAwIDcuOSAzLjIgNy45IDcuNyAwIDQuMy0zLjIgNy43LTcuOSA3LjdhNy42IDcuNiAwIDAgMS03LjktNy43bS0yLjkgMGMwIDUuMyA0LjEgMTAuNCAxMC44IDEwLjQgNi44IDAgMTAuOS01IDEwLjktMTAuNCAwLTUuNi00LjEtMTAuNC0xMC45LTEwLjQtNi41LjItMTAuOCA0LjgtMTAuOCAxMC40bTM4LjUtMTAuMWgtMTAuOHYyMC4yaDIuOXYtOS4yaDcuOXYtMi44aC03Ljl2LTUuNmg3Ljl6bTI3LjggMGgtMTYuOXYyLjZoN3YxNy42aDIuOXYtMTcuNmg3em0xNi42IDBoLTExLjN2MjAuMmgxMS44di0yLjZINDE0VjQ2MWg4LjR2LTIuNkg0MTR2LTYuMWg4LjR6bTIzLjQgMS40Yy0yLjctMS00LjgtMS43LTYuOC0xLjctNi41IDAtMTEuMSA0LjYtMTEuMSAxMC42IDAgNC4xIDMuMiAxMC4xIDEwLjkgMTAuMSAzLjIgMCA1LjMtLjkgNy41LTEuOVY0NjVhMTMuNyAxMy43IDAgMCAxLTcgMi4yYy00LjggMC04LjItMy4xLTguMi03LjdzMy4yLTcuNyA4LTcuN2MyLjYgMCA0LjYuNyA2LjggMi4xdi0yLjdoLS4xem0yMy4xLTEuNGgtMi44djguOWgtMTEuNHYtOC45aC0yLjl2MjAuMmgyLjl2LTguNmgxMS40djguNmgyLjh6bTI1LjggMGgtMi44djE1LjhsLTEzLjYtMTUuOEg0NzZ2MjAuMmgyLjZ2LTE1LjRsMTMuNyAxNS40aDIuNHptOSAxMC4xYzAtNC42IDMuMi03LjcgNy45LTcuN3M3LjkgMy4yIDcuOSA3LjdjMCA0LjMtMy4yIDcuNy03LjkgNy43YTcuNSA3LjUgMCAwIDEtNy45LTcuN20tMi45IDBjMCA1LjMgNC4xIDEwLjQgMTAuOCAxMC40IDYuOCAwIDEwLjktNSAxMC45LTEwLjQgMC01LjYtNC4xLTEwLjQtMTAuOC0xMC40LTYuOC4yLTEwLjkgNC44LTEwLjkgMTAuNG0zMC42LTEwLjFoLTIuOXYyMC4yaDExLjl2LTIuNmgtOXptMTYuMSAxMC4xYzAtNC42IDMuMi03LjcgNy45LTcuN3M3LjkgMy4yIDcuOSA3LjdjMCA0LjMtMy4yIDcuNy03LjkgNy43YTcuNiA3LjYgMCAwIDEtNy45LTcuN20tMyAwYzAgNS4zIDQuMSAxMC40IDEwLjggMTAuNCA2LjggMCAxMC45LTUgMTAuOS0xMC40IDAtNS42LTQuMS0xMC40LTEwLjgtMTAuNC02LjYgMC0xMC45IDQuOC0xMC45IDEwLjRtNDUuNy4yaC02Ljh2Mi42aDMuOXY0LjFjLTEuNC4zLTIuNy45LTQuMy45LTQuOCAwLTguMi0zLjItOC4yLTcuNyAwLTQuMyAzLjItNy43IDcuOS03LjcgMi42IDAgNC44LjcgNy4yIDEuOXYtMi45Yy0zLjItMS4yLTQuOC0xLjktNy4yLTEuOS02LjIgMC0xMC44IDQuNi0xMC44IDEwLjZzNC42IDEwLjQgMTAuOCAxMC40YzIuNyAwIDUtLjMgNy43LTEuN1Y0NjBoLS4yem0xMy4zLTMuMy01LjUtN2gtMy42bDcuNyA5LjR2MTAuOGgyLjl2LTEwLjRsNy40LTkuOEg2MDl6Ii8+Cjwvc3ZnPgo=');
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-color: #FFFFFF;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            -webkit-font-smoothing: subpixel-antialiased;
+            font-smoothing: subpixel-antialiased;
+        }
+
+        #main-container {
+            font-size: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+
+        .emscripten {
+            padding: 0;
+            margin: 0;
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            background-color: #00000000;
+        }
+
+        canvas.emscripten {
+            border: 0px none;
+            background: transparent;
+            background-color: #00000000;
+        }
+
+        #description {
+            margin: 10px;
+            padding: 10px;
+            color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main-container">
+        <div id="description" align="center">
+            <h2>DigiPen Korea Graphics II</h2>
+
+            <div id="container_status" align="center">
+                Loading - please wait ..
+            </div>
+        </div>
+        <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    </div>
+
+    <script type='text/javascript'>
+        var isInitialized = false;
+        var failedToInitialize = false;
+
+        function updateWindowSize() {
+            var w = window,
+                d = document,
+                e = d.documentElement,
+                g = d.getElementsByTagName('body')[0],
+                x = w.innerWidth || e.clientWidth || g.clientWidth,
+                y = w.innerHeight || e.clientHeight || g.clientHeight;
+            Module.setWindowSize(x, y);
+        }
+
+        window.setInterval(function () {
+            if (isInitialized == false) return;
+
+            updateWindowSize();
+
+        }, 500);
+
+        function onkeydown(event) {
+            if (event.ctrlKey ||
+                (event.keyCode >= 112 && event.keyCode <= 123)) {
+                event.stopImmediatePropagation();
+                return;
+            }
+
+            if (event.keyCode == 8 || // Backspace
+                event.keyCode == 9 || // Tab
+                event.keyCode == 46 || // Delete
+                (event.keyCode >= 37 && event.keyCode <= 40)) { // Arrow keys
+                event.preventDefault();
+            }
+        }
+
+        function init() {
+            document.getElementById('container_status').innerHTML = "WebAssembly module initialized successfully!"
+            document.getElementById('container_status').style.color = "#00ff00";
+
+            window.addEventListener('keydown', onkeydown, true);
+            // This enables our app to get keyboard focus when displayed through an iframe
+            // https://supernapie.com/blog/keyboard-focus-in-an-iframe/
+            window.addEventListener('load', function () {
+                window.focus();
+                document.body.addEventListener('click', function (e) {
+                    window.focus();
+                }, false);
+            });
+
+            if (isInitialized == false) {
+                updateWindowSize();
+                isInitialized = true;
+            }
+            {
+                var status = document.getElementById("description");
+                status.hidden = true;
+            }
+        }
+
+        function getQueryParam(parameterName) {
+            const queryParams = new URLSearchParams(window.location.search);
+            return queryParams.get(parameterName);
+        }
+
+        function buildCommandLineArguments() {
+            var param = getQueryParam('start')
+            if (param)
+                return [param]
+            return []
+        }
+
+        var Module = {
+            arguments: buildCommandLineArguments(),
+            preRun: [(function () { })],
+            postRun: [(function () {
+                if (failedToInitialize) return;
+                init();
+            })],
+            canvas: (function () {
+                var canvas = document.getElementById('canvas');
+                canvas.addEventListener("webglcontextlost", function (e) {
+                    alert('WebGL context lost. You will need to reload the page.'); e.preventDefault();
+                }, false);
+                return canvas;
+            })(),
+            print: function (text) {
+                text = Array.prototype.slice.call(arguments).join(' ');
+                console.log(text);
+            },
+            printErr: function (text) {
+                text = Array.prototype.slice.call(arguments).join(' ');
+                console.error(text);
+            },
+            setStatus: function (text) {
+                if (text) {
+                    console.log("html module status: " + text);
+                }
+            }
+        };
+
+        window.onerror = function (event) {
+            failedToInitialize = true;
+            let reason = JSON.stringify(event);
+            console.log("onerror: " + reason);
+            document.getElementById('container_status').innerHTML = reason;
+            document.getElementById('container_status').innerHTML += '<br>This browser is not supported. Please try a different browser';
+            document.getElementById('container_status').style.color = "#ff0000";
+        };
+    </script>
+
+    {{{ SCRIPT }}}
+</body>
+
+</html>

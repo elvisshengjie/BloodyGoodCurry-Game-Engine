@@ -214,12 +214,12 @@ return Const pointer to the component if found, nullptr otherwise.
 
     template<typename T>
     inline T* GameObjectComposition::GetComponentType(ComponentTypeId typeId) {
-        return static_cast<T*>(GetComponent(typeId));
+        return dynamic_cast<T*>(GetComponent(typeId));
     }
 
     template<typename T>
     inline T const* GameObjectComposition::GetComponentType(ComponentTypeId typeId) const {
-        return static_cast<T const*>(GetComponent(typeId));
+        return dynamic_cast<T const*>(GetComponent(typeId));
     }
 
 #define HAS(obj, Type) ((obj) ? (obj)->GetComponentType<Type>(Framework::ComponentTypeId::CT_##Type) : nullptr)

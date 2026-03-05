@@ -27,6 +27,14 @@
 #endif
 namespace gfx {
 
+#if defined(__EMSCRIPTEN__)
+#define SOFASPUDS_GLSL_VERSION "#version 300 es\n"
+#define SOFASPUDS_GLSL_FRAGMENT_PREAMBLE "precision mediump float;\n"
+#else
+#define SOFASPUDS_GLSL_VERSION "#version 330 core\n"
+#define SOFASPUDS_GLSL_FRAGMENT_PREAMBLE ""
+#endif
+
     /*************************************************************************************
       \brief  Compile a GLSL shader from source and return its handle.
       \param  source Null-terminated GLSL source string.
@@ -91,7 +99,7 @@ namespace gfx {
     void TextRenderer::initialize(const char* fontPath, unsigned int width, unsigned int height) {
         // text shaders
         const char* vShader =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout (location = 0) in vec4 vertex;\n"
             "out vec2 TexCoords;\n"
             "uniform mat4 projection;\n"
@@ -101,7 +109,8 @@ namespace gfx {
             "}\n";
 
         const char* fShader =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "in vec2 TexCoords;\n"
             "out vec4 FragColor;\n"
             "uniform sampler2D text;\n"

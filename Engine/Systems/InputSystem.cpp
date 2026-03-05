@@ -12,10 +12,12 @@
 *********************************************************************************************/
 
 #include "InputSystem.h"
+#if defined(_WIN32)
 #if defined(APIENTRY)
 #  undef APIENTRY
 #endif
 #include <Windows.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW

@@ -11,6 +11,16 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Feature toggles used across engine/game targets.
+option(SOFASPUDS_ENABLE_EDITOR "Enable in-engine editor and ImGui tooling" ON)
+option(SOFASPUDS_DISABLE_AUDIO "Disable FMOD audio backend and use no-audio stubs" OFF)
+
+if(EMSCRIPTEN)
+  # Browser target should ship as gameplay-only and avoid native FMOD linkage.
+  set(SOFASPUDS_ENABLE_EDITOR OFF CACHE BOOL "Enable in-engine editor and ImGui tooling" FORCE)
+  set(SOFASPUDS_DISABLE_AUDIO ON CACHE BOOL "Disable FMOD audio backend and use no-audio stubs" FORCE)
+endif()
+
 # Ensure a consistent MSVC runtime across all targets and prebuilt libs.
 # This avoids LIBCMT vs MSVCRT defaultlib conflicts.
 if(MSVC)

@@ -33,6 +33,7 @@
 #include "AI/Blackboard.h"
 #include <iostream>
 
+#if defined(_WIN32)
 #define NOMINMAX
 #if defined(APIENTRY)
 #  undef APIENTRY
@@ -40,6 +41,7 @@
 #include <Windows.h>
 #ifdef SendMessage
 #  undef SendMessage
+#endif
 #endif
 
 namespace Framework {

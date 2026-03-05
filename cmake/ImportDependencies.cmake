@@ -3,19 +3,25 @@ include(FetchContent)
 # ---- GLFW ----
 macro(import_glfw)
   if (NOT TARGET glfw)
-    # Configure GLFW options before fetching
-    set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    if(EMSCRIPTEN)
+      # Use Emscripten's built-in GLFW port instead of fetching desktop GLFW (X11/Win32).
+      add_library(glfw INTERFACE)
+      target_link_options(glfw INTERFACE -sUSE_GLFW=3)
+    else()
+      # Configure GLFW options before fetching
+      set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+      set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+      set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-    FetchContent_Declare(
-      glfw
-      GIT_REPOSITORY https://github.com/glfw/glfw.git
-      GIT_TAG 3.3.8
-    )
+      FetchContent_Declare(
+        glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG 3.3.8
+      )
 
-    # New, CMake-4.0 friendly API (does populate + add_subdirectory)
-    FetchContent_MakeAvailable(glfw)
+      # New, CMake-4.0 friendly API (does populate + add_subdirectory)
+      FetchContent_MakeAvailable(glfw)
+    endif()
   endif()
 endmacro()
 
@@ -128,7 +134,9 @@ macro(importDependencies)
   import_glfw()
   import_glm()
   import_stb_image()
-  import_imgui()
+  if(SOFASPUDS_ENABLE_EDITOR)
+    import_imgui()
+  endif()
   import_freetype()
   import_pl_mpeg()
 endmacro()

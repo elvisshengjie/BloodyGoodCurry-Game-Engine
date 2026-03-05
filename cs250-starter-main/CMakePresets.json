@@ -1,0 +1,240 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 21,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "conf-common",
+            "description": "General settings that apply to all configurations",
+            "hidden": true,
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/build/install/${presetName}"
+        },
+        {
+            "name": "conf-windows-common",
+            "description": "Windows settings for MSBuild toolchain that apply to msvc and clang",
+            "hidden": true,
+            "inherits": "conf-common",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            },
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "toolset": {
+                "value": "host=x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
+            }
+        },
+        {
+            "name": "conf-unixlike-common",
+            "description": "Unix-like OS settings for gcc and clang toolchains",
+            "hidden": true,
+            "inherits": "conf-common",
+            "generator": "Ninja",
+            "condition": {
+                "type": "inList",
+                "string": "${hostSystemName}",
+                "list": [
+                    "Linux",
+                    "Darwin"
+                ]
+            },
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "name": "conf-web-common",
+            "description": "Common Web/Emscripten configuration",
+            "hidden": true,
+            "inherits": "conf-unixlike-common",
+            "generator": "Ninja",
+            "toolchainFile": "~/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "~/emsdk/upstream/emscripten/emcc",
+                "CMAKE_CXX_COMPILER": "~/emsdk/upstream/emscripten/em++"
+            }
+        },
+        {
+            "name": "windows-debug",
+            "displayName": "Windows Debug",
+            "description": "Debug Build on Windows",
+            "inherits": "conf-windows-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "IS_DEVELOPER_VERSION": "TRUE"
+            }
+        },
+        {
+            "name": "windows-developer-release",
+            "displayName": "Windows Developer Release",
+            "description": "Optimized Developer Build on Windows",
+            "inherits": "conf-windows-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "IS_DEVELOPER_VERSION": "TRUE"
+            }
+        },
+        {
+            "name": "windows-release",
+            "displayName": "Windows Release",
+            "description": "Optimized User Facing Build on Windows",
+            "inherits": "conf-windows-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "IS_DEVELOPER_VERSION": "FALSE"
+            }
+        },
+        {
+            "name": "linux-debug",
+            "displayName": "Linux Debug",
+            "description": "Debug Build on Linux",
+            "inherits": "conf-unixlike-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "IS_DEVELOPER_VERSION": "TRUE"
+            }
+        },
+        {
+            "name": "linux-developer-release",
+            "displayName": "Linux Developer Release",
+            "description": "Optimized Developer Build on Linux",
+            "inherits": "conf-unixlike-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "IS_DEVELOPER_VERSION": "TRUE"
+            }
+        },
+        {
+            "name": "linux-release",
+            "displayName": "Linux Release",
+            "description": "Optimized User Facing Build on Linux",
+            "inherits": "conf-unixlike-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "IS_DEVELOPER_VERSION": "FALSE"
+            }
+        },
+        {
+            "name": "web-debug",
+            "displayName": "Web Debug",
+            "description": "Debug Build on Web",
+            "inherits": "conf-web-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "IS_DEVELOPER_VERSION": "TRUE"
+            }
+        },
+        {
+            "name": "web-developer-release",
+            "displayName": "Web Developer Release",
+            "description": "Optimized Developer Build on Web",
+            "inherits": "conf-web-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "IS_DEVELOPER_VERSION": "TRUE"
+            }
+        },
+        {
+            "name": "web-release",
+            "displayName": "Web Release",
+            "description": "Optimized User Facing Build on Web",
+            "inherits": "conf-web-common",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "IS_DEVELOPER_VERSION": "FALSE"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "build-windows-common",
+            "description": "Windows build settings",
+            "hidden": true,
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "build-unixlike-common",
+            "description": "Unix-like build settings",
+            "hidden": true,
+            "condition": {
+                "type": "inList",
+                "string": "${hostSystemName}",
+                "list": [
+                    "Linux",
+                    "Darwin"
+                ]
+            }
+        },
+        {
+            "name": "windows-debug",
+            "configurePreset": "windows-debug",
+            "inherits": "build-windows-common",
+            "configuration": "Debug"
+        },
+        {
+            "name": "windows-developer-release",
+            "configurePreset": "windows-developer-release",
+            "inherits": "build-windows-common",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "windows-release",
+            "configurePreset": "windows-release",
+            "inherits": "build-windows-common",
+            "configuration": "Release"
+        },
+        {
+            "name": "linux-debug",
+            "configurePreset": "linux-debug",
+            "inherits": "build-unixlike-common",
+            "configuration": "Debug"
+        },
+        {
+            "name": "linux-developer-release",
+            "configurePreset": "linux-developer-release",
+            "inherits": "build-unixlike-common",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "linux-release",
+            "configurePreset": "linux-release",
+            "inherits": "build-unixlike-common",
+            "configuration": "Release"
+        },
+        {
+            "name": "web-debug",
+            "configurePreset": "web-debug",
+            "inherits": "build-unixlike-common",
+            "configuration": "Debug"
+        },
+        {
+            "name": "web-developer-release",
+            "configurePreset": "web-developer-release",
+            "inherits": "build-unixlike-common",
+            "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "web-release",
+            "configurePreset": "web-release",
+            "inherits": "build-unixlike-common",
+            "configuration": "Release"
+        }
+    ]
+}

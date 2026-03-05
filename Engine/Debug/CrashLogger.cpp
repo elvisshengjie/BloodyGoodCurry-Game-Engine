@@ -26,7 +26,7 @@
 #include <thread>
 #include <utility>
 #include <cstdlib>
-#if defined(__unix__) || defined(__APPLE__)
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__EMSCRIPTEN__)
 #include <execinfo.h>
 #endif
 #if defined(__ANDROID__)
@@ -75,7 +75,7 @@ namespace {
     }
 
     std::string CaptureStackTrace() {
-#if defined(__unix__) || defined(__APPLE__)
+#if (defined(__unix__) || defined(__APPLE__)) && !defined(__EMSCRIPTEN__)
         constexpr int kMaxFrames = 64;
         void* frames[kMaxFrames];
         int count = ::backtrace(frames, kMaxFrames);

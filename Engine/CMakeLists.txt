@@ -6,7 +6,18 @@ set(ENGINE_NAME MyEngine)
 # ---------------------------------------------------------------------------
 # Editor toggle (used by code to include/exclude editor & ImGui tooling)
 # ---------------------------------------------------------------------------
-option(SOFASPUDS_ENABLE_EDITOR "Enable in-engine editor and ImGui tooling" ON)
+if(NOT DEFINED SOFASPUDS_ENABLE_EDITOR)
+    option(SOFASPUDS_ENABLE_EDITOR "Enable in-engine editor and ImGui tooling" ON)
+endif()
+if(NOT DEFINED SOFASPUDS_DISABLE_AUDIO)
+    option(SOFASPUDS_DISABLE_AUDIO "Disable FMOD audio backend and use no-audio stubs" OFF)
+endif()
+
+if(EMSCRIPTEN)
+    # Web builds currently run without the editor and native FMOD.
+    set(SOFASPUDS_ENABLE_EDITOR OFF CACHE BOOL "Enable in-engine editor and ImGui tooling" FORCE)
+    set(SOFASPUDS_DISABLE_AUDIO ON CACHE BOOL "Disable FMOD audio backend and use no-audio stubs" FORCE)
+endif()
 
 # ---------------------------------------------------------------------------
 # Source / header discovery (excluding ThirdParty)
@@ -25,9 +36,16 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
 # Exclude vendored code handled separately (glad, etc.)
 list(FILTER ENGINE_SRC_FILES     EXCLUDE REGEX ".*/ThirdParty/.*")
 list(FILTER ENGINE_HEADER_FILES  EXCLUDE REGEX ".*/ThirdParty/.*")
+# Audio stub should only be compiled in no-audio builds.
+list(FILTER ENGINE_SRC_FILES EXCLUDE REGEX ".*/Audio/AudioManagerStub\\.cpp$")
 
 set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${ALL_ENGINE_FILES})
+
+if(SOFASPUDS_DISABLE_AUDIO)
+    list(FILTER ENGINE_SRC_FILES EXCLUDE REGEX ".*/Audio/AudioManager\\.cpp$")
+    list(APPEND ENGINE_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/Audio/AudioManagerStub.cpp)
+endif()
 
 # ---------------------------------------------------------------------------
 # Manual GLAD (vendored)
@@ -50,20 +68,22 @@ add_library(${ENGINE_NAME}
 # Libraries that are always linked (non-editor specific)
 set(ALL_LIBS
     glfw
-    fmod_vc
 )
 
 # ---------------------------------------------------------------------------
 # FMOD setup
 # ---------------------------------------------------------------------------
-set(FMOD_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/fmod/inc)
-set(FMOD_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/fmod/lib/x64)
+if(NOT SOFASPUDS_DISABLE_AUDIO)
+    set(FMOD_INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/fmod/inc)
+    set(FMOD_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/ThirdParty/fmod/lib/x64)
 
-# Include FMOD headers
-target_include_directories(${ENGINE_NAME} PUBLIC ${FMOD_INCLUDE_DIR})
+    # Include FMOD headers
+    target_include_directories(${ENGINE_NAME} PUBLIC ${FMOD_INCLUDE_DIR})
 
-# Link FMOD libraries
-target_link_directories(${ENGINE_NAME} PRIVATE ${FMOD_LIBRARY_DIR})
+    # Link FMOD libraries
+    target_link_directories(${ENGINE_NAME} PRIVATE ${FMOD_LIBRARY_DIR})
+    list(APPEND ALL_LIBS fmod_vc)
+endif()
 
 # ---------------------------------------------------------------------------
 # JSON dependency include
@@ -108,6 +128,14 @@ else()
     target_compile_definitions(${ENGINE_NAME} PUBLIC SOFASPUDS_ENABLE_EDITOR=0)
 endif()
 
+if(SOFASPUDS_DISABLE_AUDIO)
+    message(STATUS "[SofaSpuds] Audio: DISABLED (FMOD stubs)")
+    target_compile_definitions(${ENGINE_NAME} PUBLIC SOFASPUDS_DISABLE_AUDIO=1)
+else()
+    message(STATUS "[SofaSpuds] Audio: ENABLED (FMOD)")
+    target_compile_definitions(${ENGINE_NAME} PUBLIC SOFASPUDS_DISABLE_AUDIO=0)
+endif()
+
 # ---------------------------------------------------------------------------
 # Group files by folder (if helper macro exists)
 # ---------------------------------------------------------------------------
@@ -133,7 +161,9 @@ endif()
 # ---------------------------------------------------------------------------
 # Platform OpenGL (required)
 # ---------------------------------------------------------------------------
-if (WIN32)
+if (EMSCRIPTEN)
+    # Emscripten provides GL/WebGL via its own toolchain.
+elseif (WIN32)
     target_link_libraries(${ENGINE_NAME} PRIVATE opengl32)
 elseif (APPLE)
     find_library(COCOA_LIBRARY Cocoa REQUIRED)

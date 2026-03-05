@@ -12,10 +12,12 @@
 *********************************************************************************************/
 
 #include "Input.h"
+#if defined(_WIN32)
 #if defined(APIENTRY)
 #  undef APIENTRY
 #endif
 #include <Windows.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <algorithm>
@@ -103,6 +105,11 @@ namespace Framework
             m_mouseHeld[btn] = isHeld;
         }
 
+        // Gamepad controller polling is unavailable in Emscripten's GLFW shim.
+#if defined(__EMSCRIPTEN__)
+        std::fill(m_gamepadHeld.begin(), m_gamepadHeld.end(), false);
+        std::fill(m_gamepadAxes.begin(), m_gamepadAxes.end(), 0.0f);
+#else
         // Gamepad Controller
         if (glfwJoystickIsGamepad(GLFW_JOYSTICK_1))
         {
@@ -141,6 +148,7 @@ namespace Framework
             std::fill(m_gamepadHeld.begin(), m_gamepadHeld.end(), false);
             std::fill(m_gamepadAxes.begin(), m_gamepadAxes.end(), 0.0f);
         }
+#endif
 
         // Mouse position
         glfwGetCursorPos(m_window, &m_mouseState.x, &m_mouseState.y);
@@ -270,3 +278,4 @@ namespace Framework
         return m_gamepadAxes[axis];
     }
 }
+
