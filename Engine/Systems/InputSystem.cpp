@@ -108,15 +108,15 @@ namespace Framework
 		{
 			m_meleeAttack = true;
 		}
-		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER))
+		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER))
 		{
 			m_rangedAttack = true;
 		}
-		if (input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonHeld(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER))
+		if (input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonHeld(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER))
 		{
 			m_rangedHeld = true;
 		}
-		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonReleased(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER))
+		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonReleased(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER))
 		{
 			m_rangedReleased = true;
 		}
