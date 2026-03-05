@@ -148,7 +148,12 @@ namespace {
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
         float footstepTimer{ 0.0f };                         ///< Timer for footstep sound cadence
-        std::unique_ptr<mygame::GameAudio> audio;         ///< Game-side audio facade
+        std::unique_ptr<mygame::GameAudio> audio;           ///< Game-side audio facade
+        float lastAimDirX{ 1.0f };                          ///< Current aim direction x for player [Default right]
+        float lastAimDirY{ 0.0f };                          ///< Current aim direction y for player
+        bool usingControllerLast{ false };                  ///< Checks if player is using controller or not
+        float lastMouseX{ 0.0f };                           ///< To store mouse's X coordinates
+        float lastMouseY{ 0.0f };                           ///< To store mouse's Y coordinates
     };
 
     /*****************************************************************************************
@@ -524,8 +529,11 @@ namespace {
         stickY = -stickY;
 
         const float stickDeadzone = 0.2f;
-        bool usingControllerAim = false;
+        bool controllerActive = false;
 
+        // --------------------------------------------------
+ // Controller Aim
+ // --------------------------------------------------
         if (std::fabs(stickX) > stickDeadzone || std::fabs(stickY) > stickDeadzone)
         {
             const float len = std::sqrt(stickX * stickX + stickY * stickY);
@@ -533,32 +541,54 @@ namespace {
             {
                 aimDirX = stickX / len;
                 aimDirY = stickY / len;
-                usingControllerAim = true;
+
+                state.lastAimDirX = aimDirX;
+                state.lastAimDirY = aimDirY;
+
+                state.usingControllerLast = true;
+                controllerActive = true;
             }
         }
 
-        /*************************************************************************************
-          \brief Convert mouse screen coordinates to world coordinates for aiming.
-          \details Also flips the sprite horizontally by flipping RenderComponent width sign.
-        **************************************************************************************/
-        if (!usingControllerAim)
+        // --------------------------------------------------
+        // Mouse Aim (only if controller not actively moving)
+        // --------------------------------------------------
+        bool mouseMoved = (mouse.x != state.lastMouseX || mouse.y != state.lastMouseY);
+
+        if (!controllerActive && mouseMoved)
         {
             if (auto* rs = Framework::RenderSystem::Get())
             {
-                if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport) && mouseInsideViewport)
+                if (rs->ScreenToWorld(mouse.x, mouse.y,
+                    mouseWorldX, mouseWorldY,
+                    mouseInsideViewport) && mouseInsideViewport)
                 {
                     const float dx = mouseWorldX - tr->x;
                     const float dy = mouseWorldY - tr->y;
                     const float lenSq = dx * dx + dy * dy;
+
                     if (lenSq > 1e-6f)
                     {
                         const float invLen = 1.0f / std::sqrt(lenSq);
                         aimDirX = dx * invLen;
                         aimDirY = dy * invLen;
+
+                        state.lastAimDirX = aimDirX;
+                        state.lastAimDirY = aimDirY;
+                        state.usingControllerLast = false;
                     }
                 }
             }
         }
+
+        // If nothing changed this frame, keep last direction
+        if (!controllerActive && !mouseMoved)
+        {
+            aimDirX = state.lastAimDirX;
+            aimDirY = state.lastAimDirY;
+        }
+        state.lastMouseX = mouse.x;
+        state.lastMouseY = mouse.y;
         
         /*************************************************************************************
           \brief Flips the sprite based on final aim direction, for both mouse and controller
