@@ -180,8 +180,8 @@ namespace
     *************************************************************************************/
     void ConfigureMyGameRenderDefaults(Framework::RenderSystem& render)
     {
-        render.SetLegacyPlayerTexture(
-            LoadTextureHandle("player_png", "Textures/player.png"));
+        // Legacy standalone player texture is no longer used by the game.
+        render.SetLegacyPlayerTexture(0);
 
         const std::array<unsigned, 3> attackTextures{
             LoadTextureHandle("ming_attack1", "Textures/Character/Ming_Sprite/1st_Attack Sprite.png"),

@@ -91,15 +91,6 @@
       }
     },
     {
-      "name": "web-release",
-      "displayName": "Web Release (Editor OFF)",
-      "inherits": "conf-web-common",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "SOFASPUDS_WEB_SINGLE_FILE": "ON"
-      }
-    },
-    {
       "name": "web-release-split",
       "displayName": "Web Release Split (Editor OFF)",
       "inherits": "conf-web-common",
@@ -124,11 +115,6 @@
       "name": "web-debug",
       "configurePreset": "web-debug",
       "configuration": "Debug"
-    },
-    {
-      "name": "web-release",
-      "configurePreset": "web-release",
-      "configuration": "Release"
     },
     {
       "name": "web-release-split",

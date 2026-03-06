@@ -119,7 +119,7 @@ namespace Framework
         texFaceHappy = LoadTexture("hud_face_happy", "Textures/UI/Health Bar/Health_HappyFace.png");
         texFaceUpset = LoadTexture("hud_face_upset", "Textures/UI/Health Bar/Health_UpsetFace.png");
         texBottleFull = LoadTexture("hud_bottle", "Textures/UI/Health Bar/Health_Life.png");
-        texBottleBreak = LoadTexture("hud_bottle_break", "Textures/UI/Broken_Life_VFX_Sprite.png");
+        texBottleBreak = LoadTexture("hud_bottle_break", "Textures/UI/Health Bar/Broken_Life_VFX_Sprite.png");
         texBottleBroken = LoadTexture("hud_bottle_broken", "Textures/UI/Health Bar/Health_BrokenLife.png");
     }
 

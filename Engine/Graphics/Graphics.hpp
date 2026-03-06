@@ -17,7 +17,7 @@
 #ifndef GRAPHICS_HPP
 #define GRAPHICS_HPP
 
-#include <glad/glad.h>
+#include "Graphics/GLHeaders.h"
 #include "../Resource_Asset_Manager/Resource_Manager.h"
 #include <glm/mat4x4.hpp>
 #include <vector>

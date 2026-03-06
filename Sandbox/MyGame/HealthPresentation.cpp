@@ -25,7 +25,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <glad/glad.h>
+#include "Graphics/GLHeaders.h"
 #include <string>
 #include <utility>
 
@@ -262,3 +262,4 @@ namespace mygame {
     }
 
 } // namespace mygame
+

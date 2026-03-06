@@ -593,6 +593,11 @@ namespace Framework {
             if (!obj)
                 continue;
 
+            // levelObjects can lag behind object destruction by up to one frame.
+            // Guard against stale pointers during teardown/reload paths.
+            if (factory && !IsAlive(obj))
+                continue;
+
             auto* behaviour = obj->GetComponentType<BehaviourComponent>(ComponentTypeId::CT_BehaviourComponent);
             if (!behaviour || !behaviour->started || behaviour->behaviourKey.empty())
                 continue;

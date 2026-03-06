@@ -587,8 +587,8 @@ namespace {
             aimDirX = state.lastAimDirX;
             aimDirY = state.lastAimDirY;
         }
-        state.lastMouseX = mouse.x;
-        state.lastMouseY = mouse.y;
+        state.lastMouseX = static_cast<float>(mouse.x);
+        state.lastMouseY = static_cast<float>(mouse.y);
         
         /*************************************************************************************
           \brief Flips the sprite based on final aim direction, for both mouse and controller

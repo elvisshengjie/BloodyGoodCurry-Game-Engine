@@ -27,6 +27,7 @@
 #include "Resource_Asset_Manager/Resource_Manager.h"
 #include "Audio/SoundManager.h"
 #include "Component/TransformComponent.h"
+#include <filesystem>
 #include <iostream>
 #include "Common/CRTDebug.h"
 
@@ -60,8 +61,22 @@ namespace Framework
             return;
         }
 
-        const std::string audioPath = Framework::ResolveAssetPath("Audio").string();
-        Resource_Manager::loadAll(audioPath);
+#if !SOFASPUDS_DISABLE_AUDIO
+        namespace fs = std::filesystem;
+        fs::path audioPath = Framework::ResolveAssetPath("Audio");
+        if (!fs::exists(audioPath))
+        {
+            const fs::path fallbackAudioPath = Framework::ResolveAssetPath("Audio__OFF_WEB");
+            if (fs::exists(fallbackAudioPath))
+            {
+                std::cout << "[AudioSystem] Using fallback audio folder: "
+                          << fallbackAudioPath.string() << "\n";
+                audioPath = fallbackAudioPath;
+            }
+        }
+
+        Resource_Manager::loadAll(audioPath.string());
+#endif
 
 #if SOFASPUDS_ENABLE_EDITOR
         AudioImGui::Initialize(*window);

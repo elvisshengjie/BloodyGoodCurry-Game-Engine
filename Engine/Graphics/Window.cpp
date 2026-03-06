@@ -20,7 +20,7 @@
 #include "Graphics/Window.hpp"
 
 // Keep GL/GLFW only in the .cpp to avoid polluting headers.
-#include <glad/glad.h>
+#include "Graphics/GLHeaders.h"
 #include <GLFW/glfw3.h>
 #include "../Sandbox/MyGame/Game.hpp"
 #include <iostream>
@@ -141,13 +141,15 @@ namespace gfx {
         // Make the context current
         glfwMakeContextCurrent(s_window);
 
-        // Load GL function pointers with GLAD
+        // Desktop uses GLAD function pointers; Emscripten uses GLES symbols directly.
+#if !defined(__EMSCRIPTEN__)
         if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
             glfwDestroyWindow(s_window);
             s_window = nullptr;
             glfwTerminate();
             throw std::runtime_error("Failed to initialize GLAD");
         }
+#endif
 
         // Print renderer and version info for debugging
         const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -163,7 +165,10 @@ namespace gfx {
         if (fbWidth <= 0) fbWidth = m_width;
         if (fbHeight <= 0) fbHeight = m_height;
         glViewport(0, 0, fbWidth, fbHeight);
+        // Browser builds control frame pacing from the main loop.
+#if !defined(__EMSCRIPTEN__)
         glfwSwapInterval(1); // vsync on
+#endif
     }
 
     /*************************************************************************************

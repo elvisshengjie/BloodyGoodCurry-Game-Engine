@@ -25,7 +25,7 @@
 #include "VideoPlayer.hpp"
 
 #include "Graphics/Graphics.hpp"
-#include <glad/glad.h>
+#include "Graphics/GLHeaders.h"
 #include <pl_mpeg.h>
 #include <algorithm>
 
@@ -268,3 +268,4 @@ namespace Framework {
     }
 
 } // namespace Framework
+

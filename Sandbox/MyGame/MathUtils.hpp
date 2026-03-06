@@ -13,7 +13,7 @@
             All rights reserved.
 *********************************************************************************************/
 #pragma once
-#include <glad/glad.h>
+#include "Graphics/GLHeaders.h"
 
 /**
  * \struct Mat4

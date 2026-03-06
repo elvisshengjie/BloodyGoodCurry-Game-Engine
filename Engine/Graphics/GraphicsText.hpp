@@ -17,7 +17,7 @@
             All rights reserved.
 *********************************************************************************************/
 #pragma once
-#include <glad/glad.h>
+#include "Graphics/GLHeaders.h"
 #include <glm/glm.hpp>
 #include <map>
 #include <string>
@@ -46,3 +46,4 @@ namespace gfx {
     };
 
 } // namespace gfx
+

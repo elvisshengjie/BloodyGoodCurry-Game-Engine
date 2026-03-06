@@ -1,12 +1,12 @@
 @echo off
 setlocal
 
-set "PRESET=web-release"
+set "PRESET=web-release-split"
 set "FORCE_CONFIGURE=0"
 if /I "%~1"=="debug" set "PRESET=web-debug"
 if /I "%~1"=="fast" set "PRESET=web-debug"
 if /I "%~1"=="dev" set "PRESET=web-debug"
-if /I "%~1"=="release" set "PRESET=web-release"
+if /I "%~1"=="release" set "PRESET=web-release-split"
 if /I "%~1"=="release-split" set "PRESET=web-release-split"
 if /I "%~1"=="releasefast" set "PRESET=web-release-split"
 if /I "%~1"=="reconfigure" set "FORCE_CONFIGURE=1"
@@ -77,12 +77,12 @@ if exist "%HTML_FILE%" (
 
 echo.
 echo Usage:
-echo   build_web_html.bat          ^(release^)
+echo   build_web_html.bat          ^(release-split default^)
 echo   build_web_html.bat debug
 echo   build_web_html.bat fast     ^(alias of debug, faster link^)
 echo   build_web_html.bat dev      ^(alias of debug, faster link^)
-echo   build_web_html.bat release
-echo   build_web_html.bat release-split  ^(release opt, split files, faster load^)
+echo   build_web_html.bat release  ^(alias of release-split^)
+echo   build_web_html.bat release-split  ^(recommended^)
 echo   build_web_html.bat [mode] reconfigure
 
 endlocal

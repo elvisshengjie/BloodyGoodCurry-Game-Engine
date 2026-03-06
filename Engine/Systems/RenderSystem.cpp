@@ -53,15 +53,18 @@
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <charconv>
 #include <cctype>
 #include <cmath>
 #include <fstream>
 #include <system_error>
+#include <string_view>
 #include <vector>
 #include <limits>
 #include <unordered_set>
 #include <unordered_map>
 #include <iostream>
+#include <cstdio>
 #if SOFASPUDS_ENABLE_EDITOR
 #include "Resource_Asset_Manager/Asset_Manager.h"
 #include "Debug/AssetManagerPanel.h"
@@ -113,7 +116,40 @@ namespace Framework {
 
         inline bool BlendMinMaxSupported()
         {
-            return GLAD_GL_VERSION_1_4 != 0;
+#if defined(__EMSCRIPTEN__)
+            return true;
+#else
+            const GLubyte* versionBytes = glGetString(GL_VERSION);
+            if (!versionBytes)
+                return false;
+
+            std::string_view versionText(reinterpret_cast<const char*>(versionBytes));
+            const char* firstDigit = versionText.data();
+            const char* const versionEnd = versionText.data() + versionText.size();
+            while (firstDigit < versionEnd &&
+                   !std::isdigit(static_cast<unsigned char>(*firstDigit)))
+            {
+                ++firstDigit;
+            }
+
+            int major = 0;
+            int minor = 0;
+            if (firstDigit < versionEnd)
+            {
+                const auto majorResult = std::from_chars(firstDigit, versionEnd, major);
+                if (majorResult.ec == std::errc{} &&
+                    majorResult.ptr < versionEnd &&
+                    *majorResult.ptr == '.')
+                {
+                    const char* minorStart = majorResult.ptr + 1;
+                    const auto minorResult = std::from_chars(minorStart, versionEnd, minor);
+                    if (minorResult.ec == std::errc{})
+                        return (major > 1) || (major == 1 && minor >= 4);
+                }
+            }
+
+            return true;
+#endif
         }
 
         inline BlendMode ResolveBlendMode(BlendMode mode)

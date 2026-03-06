@@ -1,4 +1,4 @@
-/*********************************************************************************************
+﻿/*********************************************************************************************
  \file      GraphicsText.cpp
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Main Author, 100%
@@ -146,23 +146,33 @@ namespace gfx {
 
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-        for (unsigned char c = 0; c < 128; c++) {
+        for (unsigned char c = 32; c < 127; c++) {
             if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
                 std::cerr << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
                 continue;
             }
-            unsigned int texture;
-            glGenTextures(1, &texture);
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glTexImage2D(
-                GL_TEXTURE_2D, 0, GL_RED,
-                face->glyph->bitmap.width, face->glyph->bitmap.rows,
-                0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer
-            );
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            unsigned int texture = 0;
+            if (face->glyph->bitmap.width > 0 && face->glyph->bitmap.rows > 0 && face->glyph->bitmap.buffer) {
+                glGenTextures(1, &texture);
+                glBindTexture(GL_TEXTURE_2D, texture);
+#if defined(__EMSCRIPTEN__)
+                glTexImage2D(
+                    GL_TEXTURE_2D, 0, GL_R8,
+                    face->glyph->bitmap.width, face->glyph->bitmap.rows,
+                    0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer
+                );
+#else
+                glTexImage2D(
+                    GL_TEXTURE_2D, 0, GL_RED,
+                    face->glyph->bitmap.width, face->glyph->bitmap.rows,
+                    0, GL_RED, GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer
+                );
+#endif
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            }
 
             Character character = {
                 texture,
@@ -171,6 +181,17 @@ namespace gfx {
                 static_cast<unsigned int>(face->glyph->advance.x)
             };
             Characters.insert(std::pair<char, Character>(c, character));
+        }
+
+        // Ensure space advances cursor even if it has no bitmap.
+        if (FT_Load_Char(face, ' ', FT_LOAD_RENDER) == 0)
+        {
+            Characters[' '] = Character{
+                0,
+                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                static_cast<unsigned int>(face->glyph->advance.x)
+            };
         }
 
         FT_Done_Face(face);
@@ -207,7 +228,7 @@ namespace gfx {
       \param  x,y    Baseline origin in pixels.
       \param  scale  Uniform scale factor for glyph quads.
       \param  color  RGB tint; alpha comes from glyph texture (red channel).
-      \details Advances the pen using FreeType�s 26.6 fixed-point advance (Advance >> 6).
+      \details Advances the pen using FreeType’s 26.6 fixed-point advance (Advance >> 6).
     *************************************************************************************/
     void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color) {
         if (!shaderID || Characters.empty()) return; // nothing to render
@@ -219,7 +240,12 @@ namespace gfx {
         glBindVertexArray(VAO);
 
         for (char c : text) {
-            Character ch = Characters[c];
+            auto it = Characters.find(c);
+            if (it == Characters.end())
+                it = Characters.find('?');
+            if (it == Characters.end())
+                continue;
+            const Character& ch = it->second;
 
             float xpos = x + ch.Bearing.x * scale;
             float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
@@ -236,10 +262,12 @@ namespace gfx {
                 { xpos + w, ypos + h,   1.0f, 0.0f }
             };
 
-            glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-            glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            if (ch.TextureID != 0 && ch.Size.x > 0 && ch.Size.y > 0) {
+                glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+                glBindBuffer(GL_ARRAY_BUFFER, VBO);
+                glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+            }
 
             // advance cursor for the next character (FreeType uses 1/64 pixels)
             x += (ch.Advance >> 6) * scale;
@@ -265,3 +293,6 @@ namespace gfx {
     }
 
 } // namespace gfx
+
+
+

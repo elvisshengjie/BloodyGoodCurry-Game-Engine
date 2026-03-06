@@ -142,12 +142,35 @@ bool Resource_Manager::load(const std::string& id, const std::string& path)
 *****************************************************************************************/
 void Resource_Manager::loadAll(const std::string& directory)
 {
-    for (auto& entry : fs::recursive_directory_iterator(directory))
-    {
-        if (!entry.is_regular_file()) continue;
+    std::error_code ec;
+    const fs::path root(directory);
 
-        fs::path path = entry.path();
+    if (!fs::exists(root, ec) || !fs::is_directory(root, ec))
+    {
+        std::cerr << "[Resource_Manager] Skipping missing directory: " << directory << std::endl;
+        return;
+    }
+
+    for (fs::recursive_directory_iterator it(root, ec), end; it != end; it.increment(ec))
+    {
+        if (ec)
+        {
+            std::cerr << "[Resource_Manager] Directory iteration error in: "
+                << directory << " (" << ec.message() << ")\n";
+            ec.clear();
+            continue;
+        }
+
+        if (!it->is_regular_file(ec) || ec)
+        {
+            ec.clear();
+            continue;
+        }
+
+        fs::path path = it->path();
         std::string ext = GetExtension(path.string());
+        if (!isTexture(ext) && !isSound(ext))
+            continue;
         std::string stem = path.stem().string();      // filename without extension
         size_t pos = stem.find_first_of("-_.");
         std::string id = (pos == std::string::npos) ? stem : stem.substr(0, pos);

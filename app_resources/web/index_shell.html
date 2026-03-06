@@ -40,6 +40,11 @@
       throw new Error("WebGL2 initialization failed");
     }
 
+    // Prevent browser context menu from stealing RMB input used by the game.
+    window.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    }, { capture: true });
+
     var Module = {
       canvas: canvasEl,
       preinitializedWebGLContext: webgl2Ctx,
