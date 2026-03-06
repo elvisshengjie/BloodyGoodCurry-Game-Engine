@@ -49,11 +49,6 @@ int main()
     if (cfg.width <= 0)  cfg.width = 1280;
     if (cfg.height <= 0) cfg.height = 720;
     if (cfg.title.empty()) cfg.title = "SofaSpuds Engine";
-#if defined(__EMSCRIPTEN__)
-    // Browser canvas should use explicit size; desktop fullscreen semantics do not map cleanly.
-    cfg.fullscreen = false;
-#endif
-
     // Create engine core and register game callbacks.
     Core core(cfg.width, cfg.height, cfg.title.c_str(), cfg.fullscreen);
     core.SetCallbacks(mygame::init, mygame::update, mygame::draw, mygame::shutdown);

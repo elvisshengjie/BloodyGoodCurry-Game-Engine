@@ -93,15 +93,6 @@ namespace gfx {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = monitor ? glfwGetVideoMode(monitor) : nullptr;
 
-#if defined(__EMSCRIPTEN__)
-        // Browser builds should start in a deterministic windowed canvas size.
-        m_fullscreen = false;
-        s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
-        m_windowedX = 0;
-        m_windowedY = 0;
-        m_windowedWidth = m_width;
-        m_windowedHeight = m_height;
-#else
         if (m_fullscreen && monitor && mode)
         {
             // Start in fullscreen mode on primary monitor
@@ -120,7 +111,6 @@ namespace gfx {
             s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
             glfwGetWindowPos(s_window, &m_windowedX, &m_windowedY);
         }
-#endif
 
         if (!s_window) {
             std::cerr << "Failed to create GLFW window.\n";

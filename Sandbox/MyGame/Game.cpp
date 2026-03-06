@@ -116,6 +116,20 @@ namespace mygame {
                 }
             }
         }
+
+        std::string ResolveFirstExistingAsset(std::initializer_list<const char*> candidates)
+        {
+            for (const char* rel : candidates)
+            {
+                if (!rel || rel[0] == '\0')
+                    continue;
+                const auto resolved = Framework::ResolveAssetPath(rel);
+                if (std::filesystem::exists(resolved))
+                    return resolved.string();
+            }
+            return {};
+        }
+
         Framework::SystemManager gSystems;
         Framework::InputSystem* gInputSystem = nullptr;
         Framework::LogicSystem* gLogicSystem = nullptr;
@@ -208,14 +222,22 @@ namespace mygame {
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
-        cutsceneReady = cutscenePlayer.Load(Framework::ResolveAssetPath("Video/output.mpg").string());
+        const std::string cutscenePath = ResolveFirstExistingAsset({
+            "Video/output.mpg",
+            "Video__OFF_WEB/output.mpg"
+            });
+        cutsceneReady = !cutscenePath.empty() && cutscenePlayer.Load(cutscenePath);
         if (!cutsceneReady) {
-            std::cerr << "[Cutscene] Warning: Could not load Video/output.mpg.\n";
+            std::cerr << "[Cutscene] Warning: Could not load output.mpg from Video/ or Video__OFF_WEB/.\n";
         }
         if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
-            const auto cutsceneAudioPath = Framework::ResolveAssetPath("Video/audio.mp3").string();
-            if (!SoundManager::getInstance().loadSound(CUTSCENE_AUDIO, cutsceneAudioPath)) {
-                std::cerr << "[Cutscene] Warning: Could not load Video/audio.mp3.\n";
+            const std::string cutsceneAudioPath = ResolveFirstExistingAsset({
+                "Video/audio.mp3",
+                "Video__OFF_WEB/audio.mp3"
+                });
+            if (cutsceneAudioPath.empty() ||
+                !SoundManager::getInstance().loadSound(CUTSCENE_AUDIO, cutsceneAudioPath)) {
+                std::cerr << "[Cutscene] Warning: Could not load audio.mp3 from Video/ or Video__OFF_WEB/.\n";
             }
         }
         currentState = GameState::MAIN_MENU;
