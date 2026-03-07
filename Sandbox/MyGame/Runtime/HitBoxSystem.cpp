@@ -247,7 +247,9 @@ namespace Framework
         case HitBoxComponent::Team::Player:  teamStr = "Player";  break;
         case HitBoxComponent::Team::Enemy:   teamStr = "Enemy";   break;
         case HitBoxComponent::Team::Thrown:  teamStr = "Thrown";  break;
+        case HitBoxComponent::Team::PlayerSlow: teamStr = "Slow"; break;
         case HitBoxComponent::Team::Neutral: teamStr = "Neutral"; break;
+        
         }
 
         std::cout << "HitBox spawned at (" << targetX << ", " << targetY
@@ -309,11 +311,13 @@ namespace Framework
         newhitbox->duration = duration;
         newhitbox->owner = attacker;
         newhitbox->team = team;
-
-        if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
-            newhitbox->team = HitBoxComponent::Team::Thrown;
-        else if (attacker->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
-            newhitbox->team = HitBoxComponent::Team::Enemy;
+        if (team == HitBoxComponent::Team::Neutral)
+        {
+            if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
+                newhitbox->team = HitBoxComponent::Team::Thrown;
+            else if (attacker->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent))
+                newhitbox->team = HitBoxComponent::Team::Enemy;
+        }
 
         newhitbox->ActivateHurtBox();
 
@@ -323,6 +327,7 @@ namespace Framework
         case HitBoxComponent::Team::Player:  teamStr = "Player";  break;
         case HitBoxComponent::Team::Enemy:   teamStr = "Enemy";   break;
         case HitBoxComponent::Team::Thrown:  teamStr = "Thrown";  break;
+        case HitBoxComponent::Team::PlayerSlow: teamStr = "Slow"; break;
         case HitBoxComponent::Team::Neutral: teamStr = "Neutral"; break;
         }
 
@@ -471,6 +476,17 @@ namespace Framework
                         enemyHealth->TakeDamage(static_cast<int>(finalDamage));
                         validTargetHit = true;
                         hitEnemy = true;
+                        if (HB->team == HitBoxComponent::Team::PlayerSlow)
+                        {
+                            if (auto* enemyComp = obj->GetComponentType<EnemyComponent>(
+                                ComponentTypeId::CT_EnemyComponent))
+                            {
+
+                                enemyComp->slowTimer = 5.0f;       // slow lasts 5 seconds
+                                enemyComp->slowMultiplier = 0.2f;  // enemy moves at 20% speed
+                                std::cout << "Enemy slowed!\n";
+                            }
+                        }
                         EmitHitImpactVfx(hitImpactVfxCallback, glm::vec2(tr->x, tr->y));
                         EmitCombatAudio(combatAudioCallback, obj, CombatAudioEvent::EnemyHurt);
                     }

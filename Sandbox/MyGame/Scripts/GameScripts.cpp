@@ -3,7 +3,7 @@
  \par       SofaSpuds
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
- \brief     Implements sandbox/game-layer behaviours (scripts) registered into the engine’s
+ \brief     Implements sandbox/game-layer behaviours (scripts) registered into the engine's
             LogicSystem via function-pointer tables (Init/Update/End).
 
  \details
@@ -98,10 +98,25 @@ namespace {
     std::unordered_set<Framework::GOCId> gUnlockedDoorObjects;
 
     /*****************************************************************************************
+      \brief Ranged attack constants for change
+    *****************************************************************************************/
+    constexpr float kProjectileSpeed = 10.0f;
+    constexpr float kProjectileLifetime = 0.35f;
+    /*****************************************************************************************
+      \brief Slow down attack constants
+    *****************************************************************************************/
+    constexpr float kSlowAttackRange = 0.15f;
+    constexpr float kSlowAttackDuration = 0.25f;  ///< Hitbox active window
+    constexpr float kSlowAttackDamage = 0.0f;
+    constexpr float kSlowSpeedMultiplier = 0.35f;
+    constexpr float kSlowEffectDuration = 2.5f;
+    constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock — avoids bad sprite sheet fps giving huge values
+    constexpr float kSlowAttackCooldown = 0.9f;   ///< Total cooldown after slow attack fires
+    /*****************************************************************************************
       \enum PlayerAnimState
       \brief High-level animation state machine used by PlayerController.
     *****************************************************************************************/
-    enum class PlayerAnimState { Idle, Run, Attack1, Attack2, Attack3, Throw, Knockback, Death };
+    enum class PlayerAnimState { Idle, Run, Attack1, Attack2, Attack3, Throw, SlowAttack, Knockback, Death };
 
     /*****************************************************************************************
       \struct PlayerAnimConfig
@@ -144,6 +159,7 @@ namespace {
         int comboStep{ 0 };                                  ///< 1..3 combo cycle step
         float knockbackAnimTimer{ 0.0f };                    ///< Remaining knockback anim time
         PendingThrow pendingThrow{};                         ///< Queued throw spawn data
+        PendingThrow pendingSlow{};
         float throwCooldownTimer{ 0.0f };                    ///< Cooldown gate for throw
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
@@ -154,6 +170,8 @@ namespace {
         bool usingControllerLast{ false };                  ///< Checks if player is using controller or not
         float lastMouseX{ 0.0f };                           ///< To store mouse's X coordinates
         float lastMouseY{ 0.0f };                           ///< To store mouse's Y coordinates
+
+        float slowAttackCooldownTimer{ 0.0f };
     };
 
     /*****************************************************************************************
@@ -228,6 +246,7 @@ namespace {
         case PlayerAnimState::Attack2: desired = "attack2"; break;
         case PlayerAnimState::Attack3: desired = "attack3"; break;
         case PlayerAnimState::Throw: desired = "throw"; break;
+        case PlayerAnimState::SlowAttack: desired = "throw"; break;
         case PlayerAnimState::Knockback: desired = "knockback"; break;
         case PlayerAnimState::Death: desired = "death"; break;
         case PlayerAnimState::Idle:
@@ -279,7 +298,8 @@ namespace {
         return state == PlayerAnimState::Attack1 ||
             state == PlayerAnimState::Attack2 ||
             state == PlayerAnimState::Attack3 ||
-            state == PlayerAnimState::Throw;
+            state == PlayerAnimState::Throw ||
+            state == PlayerAnimState::SlowAttack;
     }
 
     /*****************************************************************************************
@@ -493,7 +513,7 @@ namespace {
         if (!gLogicSystem || !obj)
             return;
 
-        auto& input = gLogicSystem->Input(); 
+        auto& input = gLogicSystem->Input();
         auto& state = gPlayerStates[obj->GetId()];
 
         auto* tr = SafeGetComponent<Framework::TransformComponent>(obj, Framework::ComponentTypeId::CT_TransformComponent);
@@ -589,7 +609,7 @@ namespace {
         }
         state.lastMouseX = static_cast<float>(mouse.x);
         state.lastMouseY = static_cast<float>(mouse.y);
-        
+
         /*************************************************************************************
           \brief Flips the sprite based on final aim direction, for both mouse and controller
         **************************************************************************************/
@@ -614,6 +634,7 @@ namespace {
         const bool isMeleeAttacking = state.animState == PlayerAnimState::Attack1 ||
             state.animState == PlayerAnimState::Attack2 ||
             state.animState == PlayerAnimState::Attack3;
+        const bool isSlowAttacking = state.animState == PlayerAnimState::SlowAttack; // [Balancing #5]
 
         /*************************************************************************************
           \brief Movement integration (normal movement > locked during melee/throw/knockback).
@@ -627,7 +648,7 @@ namespace {
                 rb->lungeTime = 0.0f;
             }
         }
-        else if (!isKnockback && !isThrowing && !isMeleeAttacking)
+        else if (!isKnockback && !isThrowing && !isMeleeAttacking && !isSlowAttacking) // [Balancing #5][#6]
         {
             const float forwardX = (rc->w >= 0.0f) ? 1.0f : -1.0f;
             float speedModifier = 1.0f;
@@ -642,7 +663,7 @@ namespace {
             if (input.MoveDown()) rb->velY = std::min(rb->velY, -1.f);
             if (!input.MoveUp() && !input.MoveDown()) rb->velY *= rb->dampening;
         }
-        else if ((isThrowing || isMeleeAttacking) && !isKnockback)
+        else if ((isThrowing || isMeleeAttacking || isSlowAttacking) && !isKnockback) // [Balancing #6]
         {
             rb->velX = 0.0f;
             rb->velY = 0.0f;
@@ -686,6 +707,20 @@ namespace {
         **************************************************************************************/
         if (state.throwCooldownTimer > 0.0f)
             state.throwCooldownTimer = std::max(0.0f, state.throwCooldownTimer - dt);
+
+        // [Balancing #5] Tick slow attack cooldown each frame
+        if (state.slowAttackCooldownTimer > 0.0f)
+            state.slowAttackCooldownTimer = std::max(0.0f, state.slowAttackCooldownTimer - dt);
+
+        // DEBUG: print state when F is held so we can see what's blocking re-fire
+        if (input.IsKeyHeld(GLFW_KEY_F))
+        {
+            std::cout << "[SlowAttack DBG] animState=" << static_cast<int>(state.animState)
+                << " attackTimer=" << state.attackTimer
+                << " cooldown=" << state.slowAttackCooldownTimer
+                << " canStartMelee=" << (!IsAttackState(state.animState) ? "YES" : "NO")
+                << "\n";
+        }
 
         /*************************************************************************************
           \brief Input: queue/hold throw request via RMB.
@@ -748,6 +783,24 @@ namespace {
                 state.throwRequestQueued = false;
             }
         }
+        else if (input.IsKeyPressed(GLFW_KEY_F) && canStartMelee
+            && state.slowAttackCooldownTimer <= 0.0f && (aimDirX != 0.0f || aimDirY != 0.0f))
+        {
+            const float offset = 0.05f;
+            const float halfW = std::abs(rc->w) * 0.5f;
+            const float halfH = rc->h * 0.5f;
+
+            state.pendingSlow.active = true;
+            state.pendingSlow.spawnX = tr->x + aimDirX * (halfW + offset);
+            state.pendingSlow.spawnY = tr->y + aimDirY * (halfH + offset);
+            state.pendingSlow.dirX = aimDirX;
+            state.pendingSlow.dirY = aimDirY;
+
+            SetAnimState(obj, state, PlayerAnimState::SlowAttack);
+            state.attackTimer = kSlowAttackAnimDuration;
+            state.slowAttackCooldownTimer = kSlowAttackCooldown;
+        }
+
 
         /*************************************************************************************
           \brief State machine priority: Death > Knockback > Attack/Throw > Run/Idle.
@@ -808,15 +861,32 @@ namespace {
                 gLogicSystem->hitBoxSystem->SpawnProjectile(obj,
                     state.pendingThrow.spawnX, state.pendingThrow.spawnY,
                     state.pendingThrow.dirX, state.pendingThrow.dirY,
-                    0.8f,
+                    kProjectileLifetime,
                     0.1f, 0.1f,
-                    1.0f, 5.f, Framework::HitBoxComponent::Team::Thrown);
+                    1.0f, kProjectileSpeed, Framework::HitBoxComponent::Team::Thrown);
             }
             if (state.audio)
                 state.audio->PlayGrapple();
             state.pendingThrow.active = false;
         }
+        if (state.pendingSlow.active && state.attackTimer <= 0.0f)
+        {
+            gLogicSystem->hitBoxSystem->SpawnProjectile(obj,
+                state.pendingSlow.spawnX,
+                state.pendingSlow.spawnY,
+                state.pendingSlow.dirX,
+                state.pendingSlow.dirY,
+                kProjectileLifetime,
+                0.1f, 0.1f,
+                0.0f,
+                kProjectileSpeed,
+                Framework::HitBoxComponent::Team::PlayerSlow);
+
+            state.pendingSlow.active = false;
+
+        }
     }
+
 
     /*****************************************************************************************
       \brief PlayerController behaviour: End hook.
@@ -858,6 +928,8 @@ namespace {
         if (!attack || !attack->hitbox || !attack->hitbox->active)
             return;
 
+        const bool isSlowHitbox = (attack->hitbox->team == Framework::HitBoxComponent::Team::PlayerSlow);
+
         Framework::AABB playerHitBox(
             attack->hitbox->spawnX,
             attack->hitbox->spawnY,
@@ -871,11 +943,26 @@ namespace {
 
             auto* rb = SafeGetComponent<Framework::RigidBodyComponent>(obj, Framework::ComponentTypeId::CT_RigidBodyComponent);
             auto* tr = SafeGetComponent<Framework::TransformComponent>(obj, Framework::ComponentTypeId::CT_TransformComponent);
+            auto* enemy = SafeGetComponent<Framework::EnemyComponent>(obj, Framework::ComponentTypeId::CT_EnemyComponent);
             if (!(rb && tr))
                 continue;
+            if (enemy && enemy->isAttacking)
+            {
+                rb->velX = 0.0f;
+                rb->velY = 0.0f;
+            }
 
             Framework::AABB enemyBox(tr->x, tr->y, rb->width, rb->height);
-            if (Framework::Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
+            if (!Framework::Collision::CheckCollisionRectToRect(playerHitBox, enemyBox)) continue;
+            if (isSlowHitbox)
+            {
+                if (enemy)
+                {
+                    enemy->slowTimer = kSlowEffectDuration;
+                    enemy->slowMultiplier = kSlowSpeedMultiplier;
+                }
+            }
+            else
             {
                 attack->hitbox->DeactivateHurtBox();
                 break;

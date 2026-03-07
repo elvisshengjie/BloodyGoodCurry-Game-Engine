@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyAudioController.cpp
  \par       SofaSpuds
- \author    Choo Jian Wei - Primary Author
+ \author    Choo Jian Wei - Primary Author (100%)
 
  \brief     Implementation of EnemyAudioController.
 

@@ -49,7 +49,8 @@ namespace Framework
             Player,
             Enemy,
             Neutral,
-            Thrown
+            Thrown,
+            PlayerSlow
         };                           /// For determining hurtbox for player or enemy
         Team team = Team::Neutral;
 

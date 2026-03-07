@@ -36,6 +36,9 @@ namespace Framework
     class EnemyComponent : public GameComponent
     {
     public:
+        float slowTimer{ 0.0f };
+        float slowMultiplier{ 1.0f };
+        bool isAttacking{ false };
         /*************************************************************************************
           \brief Initializes the component. No behavior for now.
         *************************************************************************************/

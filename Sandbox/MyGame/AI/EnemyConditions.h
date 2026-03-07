@@ -12,6 +12,7 @@
 #pragma once
 #include "Composition/Composition.h"
 #include "AI/BehaviorContext.h"
+#include "Components/EnemyComponent.h"
 #include "Components/EnemyDecisionTreeComponent.h"
 #include "Component/TransformComponent.h"
 #include "Components/EnemyTypeComponent.h"

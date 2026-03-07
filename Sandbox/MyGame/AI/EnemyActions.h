@@ -1,10 +1,15 @@
 /*********************************************************************************************
  \file      EnemyActions.h
  \par       SofaSpuds
- \author
+ \author    Choo Jian Wei - Primary Author (100%)
  \brief     Declares game-specific AI action helpers for enemy behaviour execution.
  \details   Provides small action routines used by the sandbox enemy AI layer to
             drive movement, attacks, and state changes through the engine AI context.
+
+ \changelog
+            Applied slowTimer/slowMultiplier from EnemyComponent to all
+            movement velocity sets in Patrol, MeleeAttack, RangedAttack.
+
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
@@ -22,6 +27,7 @@
 #include "Component/AudioComponent.h"
 #include "Components/PlayerComponent.h"
 #include "Component/HitBoxComponent.h"
+#include "Common/GameComponentIDs.h"
 #include "Physics/System/Physics.h"
 #include "Factory/Factory.h"
 #include "../Audio/GameAudioSetup.h"
@@ -33,7 +39,7 @@
 
 namespace mygame
 {
-    
+
     static constexpr float kEnemyProjectileBaseSpeed = 1.2f;
     static constexpr float kRangedAttackFireDist = kDetectionRadius;  // 3.5f
     static constexpr float kMeleeAttackDist = 0.8f;
@@ -65,7 +71,7 @@ namespace mygame
     {
         if (!goc) return;
         auto* anim = goc->GetComponentType<Framework::SpriteAnimationComponent>
-        (Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+            (Framework::ComponentTypeId::CT_SpriteAnimationComponent);
         if (!anim) return;
         int idx = FindAnimationIndex(anim, name);
         if (idx >= 0 && idx != anim->ActiveAnimationIndex())
@@ -76,7 +82,7 @@ namespace mygame
     {
         if (!goc) return 0.2f;
         auto* anim = goc->GetComponentType<Framework::SpriteAnimationComponent>
-        (Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+            (Framework::ComponentTypeId::CT_SpriteAnimationComponent);
         if (!anim) return 0.2f;
 
         for (const auto& a : anim->animations)
@@ -97,7 +103,28 @@ namespace mygame
         }
         return nullptr;
     }
-    
+
+    inline void ApplySlow(Framework::GOC* enemy, Framework::RigidBodyComponent* rb, float dt)
+    {
+        auto* enemyComp = enemy->GetComponentType<Framework::EnemyComponent>(CT_EnemyComponent());
+        if (!enemyComp) return;
+
+        if (enemyComp->slowTimer > 0.0f)
+        {
+            enemyComp->slowTimer -= dt;
+
+            rb->velX *= enemyComp->slowMultiplier;
+            rb->velY *= enemyComp->slowMultiplier;
+
+            if (enemyComp->slowTimer <= 0.0f)
+            {
+                enemyComp->slowTimer = 0.0f;
+                enemyComp->slowMultiplier = 1.0f;
+            }
+        }
+    }
+
+
 
     // ------------------------ PATROL ------------------------
     inline void Patrol(Framework::BehaviorContext& ctx)
@@ -108,7 +135,6 @@ namespace mygame
         auto* rb = enemy->GetComponentType<Framework::RigidBodyComponent>(Framework::ComponentTypeId::CT_RigidBodyComponent);
         auto* tr = enemy->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
         auto* ai = enemy->GetComponentType<Framework::EnemyDecisionTreeComponent>(Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
-        
 
         if (!rb || !tr || !ai) return;
 
@@ -166,7 +192,7 @@ namespace mygame
         }
 
         if ((collisionDetected || futureX <= leftEdge || futureX >= rightEdge)
-            && ai->pauseTimer <= 0.0f)  // <-- add this guard
+            && ai->pauseTimer <= 0.0f)
         {
             ai->dir *= -1.0f;
             ai->pauseTimer = pauseDuration;
@@ -175,6 +201,7 @@ namespace mygame
 
         ai->prevX = tr->x;
         PlayAnim(enemy, "idle");
+        ApplySlow(enemy, rb, ctx.dt);
     }
 
     // ------------------------ MELEE ATTACK ------------------------
@@ -216,6 +243,7 @@ namespace mygame
         constexpr float accel = 2.0f;
         constexpr float stopDist = 0.1f;
 
+
         if (distance > stopDist)
         {
             float norm = (distance > 0.001f) ? distance : 1.0f;
@@ -235,7 +263,7 @@ namespace mygame
         if (attack->attack_timer >= attack->attack_speed && !attack->hitbox->active && distance < kMeleeAttackDist)
         {
             attack->attack_timer = 0.0f;
-            if (ctx.spawnHitBox)  // check callback is valid first
+            if (ctx.spawnHitBox)
             {
                 attack->hitbox->active = true;
                 attack->hitboxElapsed = 0.0f;
@@ -276,6 +304,7 @@ namespace mygame
             ai->chaseTimer = 0.0f;
             ai->hasSeenPlayer = true;
         }
+        ApplySlow(enemy, rb, ctx.dt);
     }
 
     // ------------------------ RANGED ATTACK ------------------------
@@ -294,7 +323,7 @@ namespace mygame
         if (!attack || !rb || !tr || !ai || !player) return;
 
         auto* trPlayer = player->GetComponentType<Framework::TransformComponent>
-        (Framework::ComponentTypeId::CT_TransformComponent);
+            (Framework::ComponentTypeId::CT_TransformComponent);
         if (!trPlayer) return;
 
         float dx = trPlayer->x - tr->x;
@@ -328,6 +357,7 @@ namespace mygame
 
         float& retreatTimer = ai->retreatTimer;
 
+
         if (retreatTimer > 0.0f)
         {
             retreatTimer -= ctx.dt;
@@ -336,7 +366,7 @@ namespace mygame
         }
         else if (distance < minDist)
         {
-            rb->velX = ((rand() % 100) < 20) ? -dirX * retreatSpeed : rb->velX * 0.5f;
+            rb->velX = ((rand() % 100) < 20) ? -dirX * retreatSpeed: rb->velX * 0.5f;
         }
         else if (distance > maxDist)
         {
@@ -392,5 +422,6 @@ namespace mygame
             ai->chaseTimer = 0.0f;
             ai->hasSeenPlayer = true;
         }
+        ApplySlow(enemy, rb, ctx.dt);
     }
 }
