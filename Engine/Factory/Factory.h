@@ -42,6 +42,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 #include <filesystem>
 #include <functional>
@@ -85,6 +86,9 @@ namespace Framework {
     *****************************************************************************************/
     class GameObjectFactory : public ISystem {
     public:
+        using ComponentJsonSerializer = std::function<std::optional<json>(const GameComponent&)>;
+        using ComponentJsonDeserializer = std::function<bool(GameComponent&, const json&)>;
+
 
         GameObjectFactory();
         ~GameObjectFactory() override;
@@ -166,6 +170,19 @@ namespace Framework {
           \note Stored as std::unique_ptr in ComponentMap for exclusive ownership.
         *************************************************************************************/
         void AddComponentCreator(const std::string& name, std::unique_ptr<ComponentCreator> creator);
+        /*************************************************************************************
+          \brief Registers JSON save/load hooks for a component type owned by the current game.
+          \param typeId        Runtime component ID the hooks apply to.
+          \param serializer    Optional JSON writer used by SaveLevel and editor snapshots.
+          \param deserializer  Optional JSON reader used by editor snapshot restore.
+          \details
+            - Engine-owned components continue to use the built-in switch implementation.
+            - Game projects use this API to keep project-specific JSON schemas out of the
+              engine target while still participating in save/load and undo flows.
+        *************************************************************************************/
+        void SetComponentJsonHandlers(ComponentTypeId typeId,
+            ComponentJsonSerializer serializer,
+            ComponentJsonDeserializer deserializer = {});
 
     private:
         unsigned LastGameObjectId = 0; ///< Counter for assigning unique GOC IDs.
@@ -181,6 +198,8 @@ namespace Framework {
         std::filesystem::path LastLevelPathCache;  ///< Cached level file path
         LayerManager           LayerData;
         std::function<void(json& gameObjects)> levelSaveFinalizeCallback;
+        std::unordered_map<ComponentTypeId::Storage, ComponentJsonSerializer> componentJsonSerializers;
+        std::unordered_map<ComponentTypeId::Storage, ComponentJsonDeserializer> componentJsonDeserializers;
 
         std::string ComponentNameFromId(ComponentTypeId id) const;
         json SerializeComponentToJson(const GameComponent& component) const;

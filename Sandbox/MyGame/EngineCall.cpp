@@ -27,8 +27,8 @@
 #include "Audio/GameAudioSetup.h"
 #include "Composition/Composition.h"
 #include "Component/AudioComponent.h"
+#include "Runtime/HealthSystem.h"
 #include "Systems/CombatAudioEvents.h"
-#include "Systems/HealthSystem.h"
 #include "Systems/HitBoxSystem.h"
 #include "Systems/LogicSystem.h"
 

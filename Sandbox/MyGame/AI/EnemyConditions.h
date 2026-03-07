@@ -12,10 +12,10 @@
 #pragma once
 #include "Composition/Composition.h"
 #include "AI/BehaviorContext.h"
-#include "Component/EnemyDecisionTreeComponent.h"
+#include "Components/EnemyDecisionTreeComponent.h"
 #include "Component/TransformComponent.h"
-#include "Component/PlayerComponent.h"
-#include "Component/EnemyTypeComponent.h"
+#include "Components/EnemyTypeComponent.h"
+#include "Components/PlayerComponent.h"
 #include "Factory/Factory.h"
 #include <cmath>
 

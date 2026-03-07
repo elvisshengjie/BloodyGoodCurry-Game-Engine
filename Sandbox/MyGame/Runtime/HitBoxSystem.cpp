@@ -9,11 +9,19 @@
 *********************************************************************************************/
 
 #include "Systems/HitBoxSystem.h"
+#include "Components/EnemyComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Components/EnemyTypeComponent.h"
+#include "Components/PlayerComponent.h"
+#include "Components/PlayerHealthComponent.h"
 #include "Composition/Component.h"
 #include "Systems/LogicSystem.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
+#include "Component/TransformComponent.h"
 #include "Factory/Factory.h"
+#include "Physics/Collision/Collision.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 
 #include <iostream>
 #include <cctype>

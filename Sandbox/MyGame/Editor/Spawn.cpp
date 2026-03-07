@@ -27,10 +27,10 @@
 
 #if SOFASPUDS_ENABLE_EDITOR
 
-#include "Debug/Spawn.h"
+#include "Editor/Spawn.h"
 #include "Debug/LayerPanel.h"
 #include "Core/PathUtils.h"
-#include "Selection.h"
+#include "Debug/Selection.h"
 #include "Debug/UndoStack.h"
 #include "imgui.h"
 
@@ -63,17 +63,17 @@
 #include "Resource_Asset_Manager/Resource_Manager.h"
 
 // Player & Enemy Components
-#include "Component/PlayerComponent.h"
-#include "Component/PlayerAttackComponent.h"
-#include "Component/PlayerHealthComponent.h"
+#include "Components/PlayerComponent.h"
+#include "Components/PlayerAttackComponent.h"
+#include "Components/PlayerHealthComponent.h"
 
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyAttackComponent.h"
-#include "Component/EnemyDecisionTreeComponent.h"
+#include "Components/EnemyComponent.h"
+#include "Components/EnemyAttackComponent.h"
+#include "Components/EnemyDecisionTreeComponent.h"
 #include "Component/BehaviorTreeComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/EnemyTypeComponent.h"
-#include "Component/GateTargetComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Components/EnemyTypeComponent.h"
+#include "Components/GateTargetComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Serialization/JsonSerialization.h"
 
@@ -1489,4 +1489,5 @@ namespace mygame {
 } // namespace mygame
 
 #endif // SOFASPUDS_ENABLE_EDITOR
+
 

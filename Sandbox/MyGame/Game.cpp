@@ -14,11 +14,12 @@
 #include "Systems/RenderSystem.h"
 #include "Factory/Factory.h"
 #include "Systems/audioSystem.h"
-#include "Systems/EnemySystem.h"
 #include "Systems/AiSystem.h"
-#include "Systems/AI_Navigation/NavigationSystem.h"
-#include "Systems/HealthSystem.h"
 #include "Systems/ParticleSystem.h"
+#include "Runtime/EnemySystem.h"
+#include "Runtime/NavigationSystem.h"
+#include "Runtime/HealthSystem.h"
+#include "Runtime/ZoomTriggerSystem.h"
 #include "Audio/SoundManager.h"
 #include "Debug/CrashLogger.hpp"
 #include "Graphics/Graphics.hpp"
@@ -141,6 +142,7 @@ namespace mygame {
         Framework::AiSystem* gAiSystem = nullptr;
         Framework::HealthSystem* gHealthSystem = nullptr;
         Framework::ParticleSystem* gParticleSystem = nullptr;
+        Framework::ZoomTriggerSystem* gZoomTriggerSystem = nullptr;
 
         enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, PLAYING, PAUSED, DEFEAT, EXIT };
         GameState currentState = GameState::MAIN_MENU;
@@ -195,12 +197,20 @@ namespace mygame {
         ConfigureRenderBootstrap(*gRenderSystem);
         gHealthSystem = gSystems.RegisterSystem<Framework::HealthSystem>(win);
         gParticleSystem = gSystems.RegisterSystem<Framework::ParticleSystem>();
+        gZoomTriggerSystem = gSystems.RegisterSystem<Framework::ZoomTriggerSystem>();
 
         //(void)gPhysicsSystem;
         //(void)gAudioSystem;
         //(void)gRenderSystem;
 
         gSystems.IntializeAll();
+        if (gAudioSystem)
+        {
+            gAudioSystem->SetListenerQueryCallback([]() -> Framework::GOC*
+            {
+                return gLogicSystem ? gLogicSystem->FindAnyAlivePlayer() : nullptr;
+            });
+        }
         if (gLogicSystem && !gLogicSystem->hitBoxSystem)
         {
             // HitBoxSystem remains a shared runtime service, but this game now owns its lifetime.
@@ -644,6 +654,10 @@ namespace mygame {
         gPhysicsSystem = nullptr;
         gLogicSystem = nullptr;
         gInputSystem = nullptr;
+        gHealthSystem = nullptr;
+        gParticleSystem = nullptr;
+        gNavSystem = nullptr;
+        gZoomTriggerSystem = nullptr;
 
         std::cout << "[Game] Shutdown complete.\n";
     }

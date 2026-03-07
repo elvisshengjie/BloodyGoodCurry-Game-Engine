@@ -16,28 +16,8 @@
 
 #include "Factory/Factory.h"
 #include "Composition/PrefabManager.h"
-#include "Component/TransformComponent.h"
-#include "Component/RenderComponent.h"
-#include "Component/CircleRenderComponent.h"
-#include "Component/GlowComponent.h"
-#include "Component/SpriteComponent.h"
-#include "Component/SpriteAnimationComponent.h"
-#include "Component/ShadowComponent.h"
-#include "Component/PlayerComponent.h"
-#include "Component/PlayerAttackComponent.h"
-#include "Component/PlayerHealthComponent.h"
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyAttackComponent.h"
-#include "Component/BehaviorTreeComponent.h"
-#include "Component/EnemyDecisionTreeComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/EnemyTypeComponent.h"
 #include "Component/BehaviourComponent.h"
-#include "Component/GateTargetComponent.h"
-#include "Component/ZoomTriggerComponent.h"
-#include "Physics/Dynamics/RigidBodyComponent.h"
 #include <Serialization/JsonSerialization.h>
-#include "Logic/GateController.h"
 #include "InputSystem.h"
 #include "Config/WindowConfig.h"
 #include "Debug/CrashLogger.hpp"
@@ -143,6 +123,31 @@ namespace Framework {
         {
             factorySetupCallback = std::move(callback);
         }
+        /*****************************************************************************************
+         \brief Registers the game-provided player-discovery policy.
+         \param callback Callback that returns the current player object for this game.
+         \details
+            - Used by LogicSystem::FindAnyAlivePlayer() after engine-side assumptions about
+              player components were removed.
+            - Lets each game decide which component or tag identifies its player entity.
+        *****************************************************************************************/
+        void SetFindPlayerCallback(std::function<GOC*(LogicSystem&)> callback)
+        {
+            findPlayerCallback = std::move(callback);
+        }
+        /*****************************************************************************************
+         \brief Registers a game-layer hook for restoring per-game audio state after level load.
+         \param callback Callback invoked with the freshly loaded level objects.
+         \details
+            - Runs immediately after CreateLevel() returns inside the engine load path.
+            - Lets the active game restore prefab-driven audio or other project-specific
+              post-processing without hardcoding that logic into the engine.
+        *****************************************************************************************/
+        void SetPostAudioRestoreCallback(
+            std::function<void(LogicSystem&, const std::vector<GOC*>&)> callback)
+        {
+            postAudioRestoreCallback = std::move(callback);
+        }
         std::filesystem::path ResolveDataPath(std::string_view name) const { return resolveData(name); }
         bool HasLevelObjectNamed(std::string_view name) const;
         void AddLevelObject(GOC* obj);
@@ -183,7 +188,6 @@ namespace Framework {
 
         GOC* player{ nullptr };
         GOC* collisionTarget{ nullptr };
-        GateController                       gateController;
 
         AnimationInfo                        animInfo{};
         CollisionInfo                        collisionInfo{};
@@ -192,12 +196,13 @@ namespace Framework {
         int                                  screenH{ 600 };
 
         bool                                 crashTestLatched{ false };
-        bool                                 pendingLevelTransition{ false };
         std::unique_ptr<CrashLogger>         crashLogger;
         std::filesystem::path                startupLevelPath;
         std::function<void(LogicSystem&)>    postLevelLoadCallback;
         std::function<void(float)>           postUpdateCallback;
         std::function<void(GameObjectFactory&)> factorySetupCallback;
+        std::function<GOC*(LogicSystem&)>    findPlayerCallback;
+        std::function<void(LogicSystem&, const std::vector<GOC*>&)> postAudioRestoreCallback;
 
         std::unordered_map<std::string, BehaviourFCT> behaviours;
     };

@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      InspectorPanel.cpp
  \par       SofaSpuds
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
@@ -14,17 +14,17 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
-#include "Component/GlowComponent.h"
+#include "Components/GlowComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/HitBoxComponent.h"
-#include "Component/PlayerAttackComponent.h"
-#include "Component/EnemyAttackComponent.h"
-#include "Component/PlayerHealthComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/EnemyTypeComponent.h"
+#include "Components/PlayerAttackComponent.h"
+#include "Components/EnemyAttackComponent.h"
+#include "Components/PlayerHealthComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Components/EnemyTypeComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
-#include "Selection.h"
+#include "Debug/Selection.h"
 #include "Factory/Factory.h"
 #include "Debug/UndoStack.h"
 
@@ -91,7 +91,7 @@ namespace
 
       \param hb          HitBoxComponent being edited.
       \param labelPrefix Optional label prefix to disambiguate controls when reused.
-                         (e.g., "HB " → "HB Size##HitBox")
+                         (e.g., "HB " ? "HB Size##HitBox")
     *************************************************************************************/
     void DrawHitBoxFields(HitBoxComponent& hb, const char* labelPrefix = "")
     {
@@ -552,7 +552,7 @@ namespace mygame
             return;
         }
 
-        // No object → show hint text and early out.
+        // No object ? show hint text and early out.
         if (!object)
         {
             ImGui::TextDisabled("No object selected.");
@@ -634,3 +634,4 @@ namespace mygame
 }
 
 #endif // SOFASPUDS_ENABLE_EDITOR
+

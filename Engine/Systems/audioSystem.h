@@ -34,6 +34,7 @@
 #include "Messaging_System/Messager_Bus.hpp"
 
 #include <array>
+#include <functional>
 #include <memory>
 #if SOFASPUDS_ENABLE_EDITOR
 #include "Debug/AudioImGui.h"
@@ -41,6 +42,7 @@
 #include "../Composition/Composition.h"
 namespace Framework {
 	class AudioImGui;
+    using AudioListenerQueryCallback = std::function<GOC*()>;
 
     /*****************************************************************************************
      \class AudioSystem
@@ -60,9 +62,14 @@ namespace Framework {
         void draw();
 		void Shutdown() override;
 		std::string GetName() override{ return "AudioSystem"; }
+        void SetListenerQueryCallback(AudioListenerQueryCallback callback)
+        {
+            listenerQueryCallback = std::move(callback);
+        }
 	private:
 		gfx::Window* window;
         void UpdateListener();
+        AudioListenerQueryCallback listenerQueryCallback;
 
 	};
 }

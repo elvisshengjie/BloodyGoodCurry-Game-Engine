@@ -1,4 +1,4 @@
-ï»¿/*********************************************************************************************
+/*********************************************************************************************
  \file      Factory.cpp
  \par       SofaSpuds
  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
@@ -10,7 +10,7 @@
 
  \details   Ownership model (important):
             - The factory maintains ownership of all live GOCs via a map of
-              id â†’ GameObjectHandle (GameObjectIdMap).
+              id ? GameObjectHandle (GameObjectIdMap).
             - Public methods that return a GOC* return a **non-owning** raw pointer
               for convenience. Callers must **not** delete these pointers.
             - Prefab templates built by CreateTemplate are allocated from the pool and
@@ -21,14 +21,14 @@
 
             Key behaviors:
             - Enforces a single global factory instance (FACTORY).
-            - Assigns unique IDs to GOCs and maintains an idâ†’GameObjectHandle map.
+            - Assigns unique IDs to GOCs and maintains an id?GameObjectHandle map.
             - Supports BuildFromCurrentJsonObject for data-driven construction from an
               already-positioned JSON serializer.
             - Defers destruction via an ObjectsToBeDeleted set to avoid mid-frame invalidation.
             - Exposes level loading by iterating a "GameObjects" JSON array.
 
  \copyright
-            All content Â© 2025 DigiPen Institute of Technology Singapore.
+            All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #include "Common/CRTDebug.h"
@@ -42,23 +42,23 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
-#include "Component/GlowComponent.h"
+#include "Components/GlowComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/ShadowComponent.h"
 
-#include "Component/PlayerComponent.h"
+#include "Components/PlayerComponent.h"
 #include "Component/BehaviourComponent.h"
-#include "Component/PlayerHealthComponent.h"
-#include "Component/PlayerAttackComponent.h"
+#include "Components/PlayerHealthComponent.h"
+#include "Components/PlayerAttackComponent.h"
 #include "Component/HitBoxComponent.h"
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyAttackComponent.h"
+#include "Components/EnemyComponent.h"
+#include "Components/EnemyAttackComponent.h"
 #include "Component/BehaviorTreeComponent.h"
-#include "Component/EnemyDecisionTreeComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/EnemyTypeComponent.h"
-#include "Component/GateTargetComponent.h"
+#include "Components/EnemyDecisionTreeComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Components/EnemyTypeComponent.h"
+#include "Components/GateTargetComponent.h"
 
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
@@ -111,7 +111,7 @@ namespace Framework {
 
     /*************************************************************************************
       \brief Creates an empty GOC (no components), assigns a unique ID, and registers it.
-      \return Non-owning raw pointer to the new GOC (owned by the factoryâ€™s id map).
+      \return Non-owning raw pointer to the new GOC (owned by the factory’s id map).
       \note   Ownership is transferred into the id map as a GameObjectHandle.
     *************************************************************************************/
     GOC* GameObjectFactory::CreateEmptyComposition() {
@@ -124,7 +124,7 @@ namespace Framework {
       \param filename Path to JSON describing a single GameObject.
       \return Raw pointer to the newly built GOC template; **caller takes ownership**.
       \note   Intended for PrefabManager. The template is created with pooled storage and then
-              released (goc.release()), so it is **not** tracked in the factoryâ€™s id map.
+              released (goc.release()), so it is **not** tracked in the factory’s id map.
     *************************************************************************************/
     GOC* GameObjectFactory::CreateTemplate(const std::string& filename)
     {
@@ -167,7 +167,7 @@ namespace Framework {
     }
 
     /*************************************************************************************
-      \brief Builds a GOC from the serializerâ€™s current object (expects "Components").
+      \brief Builds a GOC from the serializer’s current object (expects "Components").
       \param stream An opened serializer, positioned at a GameObject JSON object.
       \return Non-owning pointer to the created and ID-assigned GOC.
       \details
@@ -297,7 +297,7 @@ namespace Framework {
     \param id The concrete ComponentTypeId to resolve.
     \return The registered JSON key (e.g., "TransformComponent") if found; empty string otherwise.
     \details
-      - Iterates the ComponentMap registry (name â†’ ComponentCreator).
+      - Iterates the ComponentMap registry (name ? ComponentCreator).
       - Matches by comparing the stored creator->TypeId against the given id.
       - Safe on missing/unknown ids and null creators.
    *************************************************************************************/
@@ -322,7 +322,7 @@ namespace Framework {
     *************************************************************************************/
     json GameObjectFactory::SerializeComponentToJson(const GameComponent& component) const
     {
-        switch (component.GetTypeId()) {
+        switch (static_cast<ComponentTypeId::Storage>(component.GetTypeId())) {
         case ComponentTypeId::CT_TransformComponent: {
             auto const& tr = static_cast<TransformComponent const&>(component);
             return json{ {"x", tr.x}, {"y", tr.y}, {"rot", tr.rot}, {"scale_x", tr.scaleX}, {"scale_y", tr.scaleY} };
@@ -545,8 +545,8 @@ namespace Framework {
             std::filesystem::path p(filename);
             finalName = p.stem().string();          //  default to its stem (filename without extension)
         }
-        if (!finalName.empty())                     // If we have a non-empty name by nowâ€¦
-            level["name"] = finalName;              //   â€¦write it into JSON: "Level": { "name": "<finalName>" }
+        if (!finalName.empty())                     // If we have a non-empty name by now…
+            level["name"] = finalName;              //   …write it into JSON: "Level": { "name": "<finalName>" }
 
         auto& array = level["GameObjects"];         // Create/access the "GameObjects" array node
         array = json::array();                      // Make sure it's an array: "GameObjects": [ ]
@@ -563,7 +563,7 @@ namespace Framework {
                 continue;                           // Skip if flagged for deletion (deferred)
 
             json objJson = json::object();          // Build: { } for this one object
-            if (!obj->ObjectName.empty())           // If it has a non-empty nameâ€¦
+            if (!obj->ObjectName.empty())           // If it has a non-empty name…
                 objJson["name"] = obj->ObjectName;  //  write "name": "<GOC name>"
             objJson["layer"] = obj->GetLayerName(); // Always write the object's layer (string)
 
@@ -646,7 +646,7 @@ namespace Framework {
     }
 
     /*************************************************************************************
-      \brief Assigns a unique ID to the GOC and registers it in the idâ†’object map.
+      \brief Assigns a unique ID to the GOC and registers it in the id?object map.
       \param gameObject Newly constructed GOC to identify and take ownership of.
       \param fixedId    Optional explicit id to reuse (used by some loaders/undo systems).
       \return Non-owning pointer to the now-registered GOC.
@@ -826,6 +826,8 @@ namespace Framework {
     *************************************************************************************/
     void GameObjectFactory::AddComponentCreator(const std::string& name, std::unique_ptr<ComponentCreator> creator)
     {
+        if (creator)
+            ComponentTypeRegistry::Get().Register(name, creator->TypeId);
         ComponentMap[name] = std::move(creator);
     }
 
@@ -869,7 +871,7 @@ namespace Framework {
                     out = it->get<std::string>();
             };
 
-        switch (component.GetTypeId())
+        switch (static_cast<ComponentTypeId::Storage>(component.GetTypeId()))
         {
         case ComponentTypeId::CT_TransformComponent:
         {
@@ -1197,7 +1199,7 @@ namespace Framework {
         if (!data.is_object())
             return nullptr;
 
-        // 1. Build a brandâ€“new GOC from the snapshot
+        // 1. Build a brand–new GOC from the snapshot
         auto goc = GameObjectPool::Create();
 
         // Name
@@ -1263,3 +1265,4 @@ namespace Framework {
     }
 
 } // namespace Framework
+

@@ -13,9 +13,23 @@
 
 #include "EngineCall.hpp"
 
+#include "Common/GameComponentIDs.h"
+#include "Components/EnemyAttackComponent.h"
+#include "Components/EnemyComponent.h"
+#include "Components/EnemyDecisionTreeComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Components/EnemyTypeComponent.h"
+#include "Components/GateTargetComponent.h"
+#include "Components/GlowComponent.h"
+#include "Components/PlayerAttackComponent.h"
+#include "Components/PlayerComponent.h"
 #include "Components/PlayerHUD.h"
+#include "Components/PlayerHealthComponent.h"
+#include "Components/WayPointComponent.h"
+#include "Components/ZoomTriggerComponent.h"
 #include "Composition/ComponentCreator.h"
-#include "Debug/Spawn.h"
+#include "Editor/InspectorPanel.h"
+#include "Editor/Spawn.h"
 #include "Game.hpp"
 #include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
@@ -27,9 +41,114 @@
 #include <array>
 #include <filesystem>
 #include <iostream>
+#include <vector>
+#include <glm/vec3.hpp>
 
 namespace
 {
+    /*************************************************************************************
+     \brief  Finds the first alive player object using the current game's PlayerComponent ID.
+     \param  logic  Active LogicSystem owning the factory to search.
+     \return The matching player object, or nullptr if no live player exists.
+    *************************************************************************************/
+    Framework::GOC* FindAlivePlayer(Framework::LogicSystem& logic)
+    {
+        auto* factory = logic.Factory();
+        if (!factory)
+            return nullptr;
+
+        for (auto& [id, ptr] : factory->Objects())
+        {
+            (void)id;
+            if (!ptr)
+                continue;
+
+            auto* object = ptr.get();
+            if (object->GetComponentType<Framework::PlayerComponent>(mygame::CT_PlayerComponent()))
+                return object;
+        }
+
+        return nullptr;
+    }
+
+    /*************************************************************************************
+     \brief  Copies prefab audio settings onto a live object when its audio data is missing.
+     \param  obj        Live object that should receive audio state.
+     \param  prefabKey  Prefab key used to look up the source audio data.
+    *************************************************************************************/
+    void RestoreAudioFromPrefab(Framework::GOC* obj, const char* prefabKey)
+    {
+        if (!obj || !prefabKey)
+            return;
+
+        auto prefabIt = Framework::master_copies.find(prefabKey);
+        if (prefabIt == Framework::master_copies.end() || !prefabIt->second)
+            return;
+
+        auto* prefabAudio = prefabIt->second->GetComponentType<Framework::AudioComponent>(
+            Framework::ComponentTypeId::CT_AudioComponent);
+        if (!prefabAudio)
+            return;
+
+        auto* audio = obj->GetComponentType<Framework::AudioComponent>(
+            Framework::ComponentTypeId::CT_AudioComponent);
+        if (!audio)
+        {
+            auto clone = prefabAudio->Clone();
+            if (!clone)
+                return;
+
+            obj->AddComponent(Framework::ComponentTypeId::CT_AudioComponent, std::move(clone));
+            audio = obj->GetComponentType<Framework::AudioComponent>(
+                Framework::ComponentTypeId::CT_AudioComponent);
+        }
+
+        if (!audio || !audio->GetSounds().empty())
+            return;
+
+        audio->volume = prefabAudio->volume;
+        for (const auto& [action, info] : prefabAudio->GetSounds())
+            audio->AddSound(action, info.id, info.loop);
+    }
+
+    /*************************************************************************************
+     \brief  Restores game-specific audio defaults after a level is loaded by the engine.
+     \param  logic    Active LogicSystem requesting the restore pass.
+     \param  objects  Newly loaded live level objects.
+     \details Uses current-game component IDs to identify player and enemy variants.
+    *************************************************************************************/
+    void RestoreMissingLevelAudio(Framework::LogicSystem& logic, const std::vector<Framework::GOC*>& objects)
+    {
+        (void)logic;
+        for (auto* obj : objects)
+        {
+            if (!obj)
+                continue;
+
+            auto* audio = obj->GetComponentType<Framework::AudioComponent>(
+                Framework::ComponentTypeId::CT_AudioComponent);
+            if (audio && !audio->GetSounds().empty())
+                continue;
+
+            if (obj->GetComponentType<Framework::PlayerComponent>(mygame::CT_PlayerComponent()))
+            {
+                RestoreAudioFromPrefab(obj, "player");
+                continue;
+            }
+
+            auto* enemyType = obj->GetComponentType<Framework::EnemyTypeComponent>(
+                mygame::CT_EnemyTypeComponent());
+            if (enemyType && enemyType->Etype == Framework::EnemyTypeComponent::EnemyType::ranged)
+            {
+                RestoreAudioFromPrefab(obj, "enemyranged");
+                continue;
+            }
+
+            if (obj->GetComponentType<Framework::EnemyComponent>(mygame::CT_EnemyComponent()))
+                RestoreAudioFromPrefab(obj, "enemy");
+        }
+    }
+
     /*************************************************************************************
      \brief  Ensures a named behaviour-only helper object exists in saved level data.
      \param  gameObjects  The serialized level object array being finalized.
@@ -201,6 +320,47 @@ namespace
             "impact_vfx_sheet",
             Framework::ResolveProjectAssetPath("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png").string());
     }
+
+    /*************************************************************************************
+     \brief  Draws BloodyGoodCurry's objective overlay inside the engine render frame.
+     \param  render  Active render system providing text renderers and screen size.
+    *************************************************************************************/
+    void DrawMyGameOverlay(Framework::RenderSystem& render)
+    {
+        int enemiesLeft = 0;
+        if (Framework::FACTORY)
+        {
+            for (const auto& [id, objPtr] : Framework::FACTORY->Objects())
+            {
+                (void)id;
+                auto* obj = objPtr.get();
+                if (!obj)
+                    continue;
+
+                if (!obj->GetComponentType<Framework::EnemyComponent>(mygame::CT_EnemyComponent()))
+                    continue;
+
+                auto* health = obj->GetComponentType<Framework::EnemyHealthComponent>(
+                    mygame::CT_EnemyHealthComponent());
+                if (health && health->enemyHealth > 0)
+                    ++enemiesLeft;
+            }
+        }
+
+        std::string text = "Objective: Go to the gate";
+        if (enemiesLeft > 0)
+        {
+            const char* enemyLabel = (enemiesLeft == 1) ? "enemy" : "enemies";
+            text = "Objective: Kill all enemies (" + std::to_string(enemiesLeft) + " " + enemyLabel + " remaining)";
+        }
+
+        render.GetTextHint().RenderText(
+            text,
+            static_cast<float>(render.ScreenWidth()) / 3.0f,
+            static_cast<float>(render.ScreenHeight()) - 64.0f,
+            0.75f,
+            glm::vec3(1.0f, 0.2f, 0.2f));
+    }
 }
 
 namespace mygame
@@ -215,18 +375,73 @@ namespace mygame
     *************************************************************************************/
     void ConfigureGameBootstrap(Framework::LogicSystem& logic)
     {
+        GameComponentIDs::Get().Init();
         logic.SetFactorySetupCallback([](Framework::GameObjectFactory& factory)
         {
+            auto registerGameComponent = [&factory](const std::string& name,
+                Framework::ComponentTypeId typeId,
+                std::unique_ptr<Framework::ComponentCreator> creator)
+                {
+                    (void)typeId;
+                    factory.AddComponentCreator(name, std::move(creator));
+                };
+
+            registerGameComponent(
+                "GlowComponent",
+                mygame::CT_GlowComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::GlowComponent>>(mygame::CT_GlowComponent()));
+            registerGameComponent(
+                "PlayerComponent",
+                mygame::CT_PlayerComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::PlayerComponent>>(mygame::CT_PlayerComponent()));
+            registerGameComponent(
+                "PlayerAttackComponent",
+                mygame::CT_PlayerAttackComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::PlayerAttackComponent>>(mygame::CT_PlayerAttackComponent()));
+            registerGameComponent(
+                "PlayerHealthComponent",
+                mygame::CT_PlayerHealthComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::PlayerHealthComponent>>(mygame::CT_PlayerHealthComponent()));
             factory.AddComponentCreator(
                 "PlayerHUDComponent",
                 std::make_unique<Framework::ComponentCreatorType<Framework::PlayerHUDComponent>>(
-                    Framework::ComponentTypeId::CT_PlayerHUDComponent));
+                    mygame::CT_PlayerHUDComponent()));
+            registerGameComponent(
+                "EnemyComponent",
+                mygame::CT_EnemyComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::EnemyComponent>>(mygame::CT_EnemyComponent()));
+            registerGameComponent(
+                "EnemyAttackComponent",
+                mygame::CT_EnemyAttackComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::EnemyAttackComponent>>(mygame::CT_EnemyAttackComponent()));
+            registerGameComponent(
+                "EnemyDecisionTreeComponent",
+                mygame::CT_EnemyDecisionTreeComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::EnemyDecisionTreeComponent>>(mygame::CT_EnemyDecisionTreeComponent()));
+            registerGameComponent(
+                "EnemyHealthComponent",
+                mygame::CT_EnemyHealthComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::EnemyHealthComponent>>(mygame::CT_EnemyHealthComponent()));
+            registerGameComponent(
+                "EnemyTypeComponent",
+                mygame::CT_EnemyTypeComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::EnemyTypeComponent>>(mygame::CT_EnemyTypeComponent()));
+            registerGameComponent(
+                "WayPointComponent",
+                mygame::CT_WayPointComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::WayPointComponent>>(mygame::CT_WayPointComponent()));
+            registerGameComponent(
+                "ZoomTriggerComponent",
+                mygame::CT_ZoomTriggerComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::ZoomTriggerComponent>>(mygame::CT_ZoomTriggerComponent()));
+            registerGameComponent(
+                "GateTargetComponent",
+                mygame::CT_GateTargetComponent(),
+                std::make_unique<Framework::ComponentCreatorType<Framework::GateTargetComponent>>(mygame::CT_GateTargetComponent()));
         });
+        logic.SetFindPlayerCallback(&FindAlivePlayer);
+        logic.SetPostAudioRestoreCallback(&RestoreMissingLevelAudio);
         logic.SetStartupLevelPath(logic.ResolveDataPath("level_RealTutorial.json"));
-#if SOFASPUDS_ENABLE_EDITOR
-        SetSpawnPanelLevelDefaults("level_RealTutorial.json", "RealLevel1.json");
-        SetSpawnPanelEditorCallbacks(IsEditorSimulationRunning, LoadLevelFromEditor);
-#endif
         logic.SetPostLevelLoadCallback([](Framework::LogicSystem& runtime)
         {
             InstallFactorySavePolicy(runtime);
@@ -245,5 +460,24 @@ namespace mygame
         {
             ConfigureMyGameRenderDefaults(runtime);
         });
+        render.SetOverlayCallback([](Framework::RenderSystem& runtime)
+        {
+            DrawMyGameOverlay(runtime);
+        });
+#if SOFASPUDS_ENABLE_EDITOR
+        render.SetEditorProjectRootsCallback(
+            [](const std::filesystem::path& assetsRoot, const std::filesystem::path&)
+            {
+                if (!assetsRoot.empty())
+                    SetSpawnPanelAssetsRoot(assetsRoot);
+                SetSpawnPanelLevelDefaults("level_RealTutorial.json", "RealLevel1.json");
+                SetSpawnPanelEditorCallbacks(IsEditorSimulationRunning, LoadLevelFromEditor);
+            });
+        render.SetEditorPanelsCallback([]()
+        {
+            DrawSpawnPanel();
+            DrawPropertiesEditor();
+        });
+#endif
     }
 }

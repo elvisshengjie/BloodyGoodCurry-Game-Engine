@@ -10,7 +10,7 @@
 
 #include "Components/PlayerHUD.h"
 
-#include "Component/PlayerHealthComponent.h"
+#include "Components/PlayerHealthComponent.h"
 #include "Core/PathUtils.h"
 #include "Resource_Asset_Manager/Resource_Manager.h"
 

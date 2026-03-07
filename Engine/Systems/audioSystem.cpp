@@ -118,26 +118,21 @@ namespace Framework
     void AudioSystem::UpdateListener()
     {
         if (!FACTORY) return;
+        GOC* listener = listenerQueryCallback ? listenerQueryCallback() : nullptr;
+        if (!listener)
+            return;
 
-        for (auto& [id, gocPtr] : FACTORY->Objects())
-        {
-            if (!gocPtr) continue;
-            GOC* goc = gocPtr.get();
+        auto* tr = listener->GetComponentType<TransformComponent>(
+            ComponentTypeId::CT_TransformComponent);
+        if (!tr)
+            return;
 
-            if (!goc->GetComponent(ComponentTypeId::CT_PlayerComponent)) continue;
+        // Game is 2D — Z is fixed at 0. Forward points into the screen.
+        float listenerPos[3] = { tr->x, tr->y, 0.0f };
+        float forward[3] = { 0.0f, 0.0f, 1.0f };
+        float up[3] = { 0.0f, 1.0f, 0.0f };
 
-            auto* tr = goc->GetComponentType<TransformComponent>(
-                ComponentTypeId::CT_TransformComponent);
-            if (!tr) break;
-
-            // Game is 2D — Z is fixed at 0. Forward points into the screen.
-            float listenerPos[3] = { tr->x,   tr->y,  0.0f };
-            float forward[3] = { 0.0f, 0.0f, 1.0f };
-            float up[3] = { 0.0f,    1.0f,   0.0f };
-
-            SoundManager::getInstance().setListenerPos(listenerPos, forward, up);
-            break; // Only one player expected.
-        }
+        SoundManager::getInstance().setListenerPos(listenerPos, forward, up);
     }
 
     /*****************************************************************************************

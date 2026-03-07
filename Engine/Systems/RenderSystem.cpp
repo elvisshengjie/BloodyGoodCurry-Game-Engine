@@ -78,13 +78,20 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Systems/HitBoxSystem.h"
-#include "../../Sandbox/MyGame/Game.hpp"
 #include "Component/HitBoxComponent.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
+
+namespace mygame
+{
+    bool IsEditorSimulationRunning();
+    void EditorPlaySimulation();
+    void EditorStopSimulation();
+}
+
 namespace Framework {
 
     RenderSystem* RenderSystem::sInstance = nullptr;
@@ -532,7 +539,6 @@ namespace Framework {
         if (!assetsRoot.empty())
         {
             assetBrowser.Initialize(assetsRoot);
-            mygame::SetSpawnPanelAssetsRoot(assetsRoot);
             AudioImGui::SetAssetsRoot(assetsRoot);
         }
 
@@ -544,8 +550,8 @@ namespace Framework {
             jsonEditor.Initialize(dataFilesRoot);
         else
             jsonEditor.Initialize({});
-
-        mygame::SetSpawnPanelLevelDefaults("level.json", "level.json");
+        if (editorProjectRootsCallback)
+            editorProjectRootsCallback(assetsRoot, dataFilesRoot);
     }
 
     bool RenderSystem::CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message)
@@ -2936,50 +2942,12 @@ namespace Framework {
             // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
 
-            // Displays objective.
-            // Use live factory-owned objects instead of LogicSystem::LevelObjects() because
-            // editor-stop mode pauses LogicSystem::Update(), so levelObjects may be stale.
-            int enemiesLeft = 0;
-            if (FACTORY)
-            {
-                for (auto const& [id, objPtr] : FACTORY->Objects())
-                {
-                    (void)id;
-                    GOC* obj = objPtr.get();
-                    if (!obj)
-                        continue;
-
-                    auto* enemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent);
-                    if (!enemy)
-                        continue;
-
-                    auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
-                    if (health && health->enemyHealth > 0)
-                        ++enemiesLeft;
-                }
-            }
-
-            std::string enemyText;
-            if (enemiesLeft > 0)
-            {
-                const char* enemyLabel = (enemiesLeft == 1) ? "enemy" : "enemies";
-                enemyText = "Objective: Kill all enemies (" + std::to_string(enemiesLeft) + " " + enemyLabel + " remaining)";
-            }
-            else
-            {
-                enemyText = "Objective: Go to the gate";
-            }
-
             std::string FPSText = "FPS: Nothing";
             FPSText = "FPS: " + std::to_string((int)Framework::GetFps());
-            
-            textHint.RenderText(
-                enemyText,
-                static_cast<float>(screenW) - (static_cast<float>(screenW)/3.f)*2.f,//650.0f,
-                static_cast<float>(screenH) - 64.0f,//1100.0f,
-                0.75f,
-                glm::vec3(1.0f, 0.2f, 0.2f)
-            );
+
+            if (overlayCallback)
+                overlayCallback(*this);
+
             if (showFPS)
             {
                 textTitle.RenderText(
@@ -3077,12 +3045,12 @@ namespace Framework {
                 assetBrowser.Draw();
                 jsonEditor.Draw();
                 mygame::DrawHierarchyPanel();
-                mygame::DrawSpawnPanel();
                 mygame::DrawLayerPanel();
-                mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);
                 mygame::DrawAssetManagerPanel(&jsonEditor);
+                if (editorPanelsCallback)
+                    editorPanelsCallback();
 
                 if (ImGui::Begin("Crash Tests"))
                 {

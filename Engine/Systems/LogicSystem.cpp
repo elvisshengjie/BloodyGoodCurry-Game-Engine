@@ -24,11 +24,20 @@
 #include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"      // for ScreenToWorld / camera-based world mapping
 #include "Debug/Selection.h"
-#include "Debug/Spawn.h"
 #include "Systems/VfxHelpers.h"
 #include "Memory/GameObjectPool.h"
 #include "Systems/ParticleSystem.h"
 #include "Component/AudioComponent.h"
+#include "Component/BehaviourComponent.h"
+#include "Component/BehaviorTreeComponent.h"
+#include "Component/CircleRenderComponent.h"
+#include "Component/HitBoxComponent.h"
+#include "Component/RenderComponent.h"
+#include "Component/ShadowComponent.h"
+#include "Component/SpriteAnimationComponent.h"
+#include "Component/SpriteComponent.h"
+#include "Component/TransformComponent.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 #include <cctype>
 #include <string>
 #include <string_view>
@@ -44,79 +53,6 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
-
-namespace
-{
-    void RestoreAudioFromPrefab(Framework::GOC* obj, const char* prefabKey)
-    {
-        if (!obj || !prefabKey)
-            return;
-
-        auto prefabIt = Framework::master_copies.find(prefabKey);
-        if (prefabIt == Framework::master_copies.end() || !prefabIt->second)
-            return;
-
-        auto* prefabAudio = prefabIt->second->GetComponentType<Framework::AudioComponent>(
-            Framework::ComponentTypeId::CT_AudioComponent);
-        if (!prefabAudio)
-            return;
-
-        auto* audio = obj->GetComponentType<Framework::AudioComponent>(
-            Framework::ComponentTypeId::CT_AudioComponent);
-        if (!audio)
-        {
-            auto clone = prefabAudio->Clone();
-            if (!clone)
-                return;
-
-            obj->AddComponent(Framework::ComponentTypeId::CT_AudioComponent, std::move(clone));
-            audio = obj->GetComponentType<Framework::AudioComponent>(
-                Framework::ComponentTypeId::CT_AudioComponent);
-        }
-
-        if (!audio || !audio->GetSounds().empty())
-            return;
-
-        audio->volume = prefabAudio->volume;
-        for (const auto& [action, info] : prefabAudio->GetSounds())
-            audio->AddSound(action, info.id, info.loop);
-    }
-
-    void RestoreMissingLevelAudio(const std::vector<Framework::GOC*>& objects)
-    {
-        for (auto* obj : objects)
-        {
-            if (!obj)
-                continue;
-
-            auto* audio = obj->GetComponentType<Framework::AudioComponent>(
-                Framework::ComponentTypeId::CT_AudioComponent);
-            if (audio && !audio->GetSounds().empty())
-                continue;
-
-            if (obj->GetComponentType<Framework::PlayerComponent>(
-                Framework::ComponentTypeId::CT_PlayerComponent))
-            {
-                RestoreAudioFromPrefab(obj, "player");
-                continue;
-            }
-
-            auto* enemyType = obj->GetComponentType<Framework::EnemyTypeComponent>(
-                Framework::ComponentTypeId::CT_EnemyTypeComponent);
-            if (enemyType && enemyType->Etype == Framework::EnemyTypeComponent::EnemyType::ranged)
-            {
-                RestoreAudioFromPrefab(obj, "enemyranged");
-                continue;
-            }
-
-            if (obj->GetComponentType<Framework::EnemyComponent>(
-                Framework::ComponentTypeId::CT_EnemyComponent))
-            {
-                RestoreAudioFromPrefab(obj, "enemy");
-            }
-        }
-    }
-}
 
 namespace Framework {
 
@@ -159,15 +95,11 @@ namespace Framework {
         if (!factory)
             return nullptr;
 
-        for (auto& [id, ptr] : factory->Objects())
-        {
-            if (auto* obj = ptr.get())
-            {
-                if (obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
-                    return obj;
-            }
-        }
-        return nullptr;
+        if (!findPlayerCallback)
+            return nullptr;
+
+        GOC* playerCandidate = findPlayerCallback(*this);
+        return IsAlive(playerCandidate) ? playerCandidate : nullptr;
     }
 
     /*****************************************************************************************
@@ -216,8 +148,6 @@ namespace Framework {
         if (!IsAlive(collisionTarget))
             collisionTarget = nullptr;
 
-        gateController.SetPlayer(player);
-
         auto nameEqualsIgnoreCase = [](const std::string& lhs, std::string_view rhs)
             {
                 if (lhs.size() != rhs.size())
@@ -243,8 +173,6 @@ namespace Framework {
                 }
             }
         }
-
-        gateController.RefreshGateReference(levelObjects);
     }
 
     /*****************************************************************************************
@@ -313,30 +241,18 @@ namespace Framework {
         InstallSignalHandlers();
 
         factory = std::make_unique<GameObjectFactory>();
+        FACTORY = factory.get();
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
-        RegisterComponent(GlowComponent);
         RegisterComponent(SpriteComponent);
         RegisterComponent(ShadowComponent);
         RegisterComponent(RigidBodyComponent);
-        RegisterComponent(PlayerComponent);
-        RegisterComponent(PlayerAttackComponent);
-        RegisterComponent(PlayerHealthComponent);
         RegisterComponent(HitBoxComponent);
         RegisterComponent(SpriteAnimationComponent);
-        RegisterComponent(EnemyComponent);
-        RegisterComponent(EnemyAttackComponent);
-        RegisterComponent(EnemyDecisionTreeComponent);
         RegisterComponent(BehaviorTreeComponent);
-        RegisterComponent(EnemyHealthComponent);
-        RegisterComponent(EnemyTypeComponent);
         RegisterComponent(AudioComponent);
-        RegisterComponent(ZoomTriggerComponent);
-        RegisterComponent(GateTargetComponent);
         RegisterComponent(BehaviourComponent);
-        FACTORY = factory.get();
-        gateController.SetFactory(factory.get());
         if (factorySetupCallback)
             factorySetupCallback(*factory);
         LoadPrefabs();
@@ -471,17 +387,15 @@ namespace Framework {
         }
 
         levelObjects = factory->CreateLevel(levelPath.string());
-        RestoreMissingLevelAudio(levelObjects);
+        if (postAudioRestoreCallback)
+            postAudioRestoreCallback(*this, levelObjects);
         if (postLevelLoadCallback)
             postLevelLoadCallback(*this);
 
         player = nullptr;
         collisionTarget = nullptr;
-        pendingLevelTransition = false;
         animInfo = AnimationInfo{};
         collisionInfo = CollisionInfo{};
-        gateController.Reset();
-        gateController.SetPlayer(nullptr);
 
         RefreshLevelReferences();
     }
@@ -519,9 +433,6 @@ namespace Framework {
         levelObjects.clear();
         collisionTarget = nullptr;
         player = nullptr;
-        gateController.Reset();
-        gateController.SetFactory(nullptr);
-
         if (factory) {
             factory->Shutdown();
             factory.reset();

@@ -14,19 +14,7 @@
 #pragma once
 #include "Common/System.h"
 #include "Factory/Factory.h"
-#include "../Systems/AiSystem.h"
-#include "../../Engine/Graphics/Window.hpp"
-#include "Serialization/Serialization.h"
-
-// Enemy Components
-#include "../Component/RenderComponent.h"
-#include "../Component/SpriteComponent.h"
-#include "../Component/TransformComponent.h"
-#include "../Component/EnemyComponent.h"
-#include "../Component/EnemyAttackComponent.h"
-#include "../Component/EnemyDecisionTreeComponent.h"
-#include "../Component/EnemyHealthComponent.h"
-#include "../Component/EnemyTypeComponent.h"
+#include "Graphics/Window.hpp"
 
 namespace Framework {
 
@@ -63,3 +51,4 @@ namespace Framework {
     };
 
 } // namespace Framework
+

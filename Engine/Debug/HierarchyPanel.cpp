@@ -30,7 +30,6 @@
 #include "Composition/Composition.h"
 #include "Selection.h"
 #include "Debug/UndoStack.h"
-#include "../../Sandbox/MyGame/Game.hpp"
 
 #include <imgui.h>
 #include <array>
@@ -43,6 +42,11 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
+
+namespace mygame
+{
+    bool IsEditorSimulationRunning();
+}
 
 namespace
 {

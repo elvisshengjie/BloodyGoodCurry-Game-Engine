@@ -11,6 +11,8 @@
 *********************************************************************************************/
 #include "EngineCall.hpp"
 
+#include "Common/GameComponentIDs.h"
+#include "Components/EnemyComponent.h"
 #include "Systems/AiSystem.h"
 #include "Systems/HitBoxSystem.h"
 #include "Systems/LogicSystem.h"
@@ -24,6 +26,10 @@ namespace mygame {
     void BindAiCombat(Framework::AiSystem& ai, Framework::LogicSystem& logic)
     {
         auto* const logicPtr = &logic;
+        ai.SetObjectFilterCallback([](const Framework::GOC& object)
+        {
+            return object.GetComponent(mygame::CT_EnemyComponent()) != nullptr;
+        });
         ai.SetBehaviorBindingCallback(
             [logicPtr](Framework::BehaviorTreeComponent& behavior, Framework::GOC* /*owner*/)
             {

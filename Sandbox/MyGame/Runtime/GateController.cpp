@@ -20,9 +20,9 @@
 #include "GateController.h"
 
 #include "Factory/Factory.h"
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/GateTargetComponent.h"
+#include "Components/EnemyComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Components/GateTargetComponent.h"
 #include "Component/TransformComponent.h"
 #include "Physics/Collision/Collision.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"

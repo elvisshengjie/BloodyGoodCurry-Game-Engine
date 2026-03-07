@@ -24,35 +24,14 @@
 
 #include "Common/System.h"
 #include "Factory/Factory.h"
-#include "../Systems/AiSystem.h"
-#include "../../Engine/Graphics/Window.hpp"
+#include "Graphics/Window.hpp"
 #include "Serialization/Serialization.h"
-//Player Components
-#include "Component/PlayerComponent.h"
-#include "Component/PlayerAttackComponent.h"
-#include "Component/PlayerHealthComponent.h"
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyAttackComponent.h"
-#include "Component/EnemyDecisionTreeComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/EnemyTypeComponent.h"
-#include "Physics/Dynamics/RigidBodyComponent.h"
-
-// Enemy Components
-#include "../Component/RenderComponent.h"
-#include "../Component/SpriteComponent.h"
-#include "../Component/TransformComponent.h"
-#include "../Component/EnemyComponent.h"
-#include "../Component/EnemyAttackComponent.h"
-#include "../Component/EnemyDecisionTreeComponent.h"
-#include "../Component/EnemyHealthComponent.h"
-#include "../Component/EnemyTypeComponent.h"
-#include "../Component/SpriteAnimationComponent.h"
-#include "../Graphics/Graphics.hpp"
-
-
+#include "Components/PlayerComponent.h"
+#include "Components/PlayerHealthComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Component/SpriteAnimationComponent.h"
 #include "Component/AudioComponent.h"
-#include "CombatAudioEvents.h"
+#include "Systems/CombatAudioEvents.h"
 #include <functional>
 #include <unordered_map>
 
@@ -99,3 +78,4 @@ namespace Framework {
     };
 
 } // namespace Framework
+

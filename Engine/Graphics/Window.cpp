@@ -22,7 +22,6 @@
 // Keep GL/GLFW only in the .cpp to avoid polluting headers.
 #include "Graphics/GLHeaders.h"
 #include <GLFW/glfw3.h>
-#include "../Sandbox/MyGame/Game.hpp"
 #include <iostream>
 #include <stdexcept>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW

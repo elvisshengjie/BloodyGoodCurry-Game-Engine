@@ -35,6 +35,7 @@
 #include <utility>
 namespace Framework {
     using AiBehaviorBindingCallback = std::function<void(BehaviorTreeComponent&, GOC*)>;
+    using AiObjectFilterCallback = std::function<bool(const GOC&)>;
     /*****************************************************************************************
     \class AiSystem
     \brief
@@ -58,9 +59,14 @@ namespace Framework {
         {
             behaviorBindingCallback = std::move(callback);
         }
+        void SetObjectFilterCallback(AiObjectFilterCallback callback)
+        {
+            objectFilterCallback = std::move(callback);
+        }
 	private:
 		gfx::Window* window;
         AiBehaviorBindingCallback behaviorBindingCallback;
+        AiObjectFilterCallback objectFilterCallback;
 	};
 
 }
