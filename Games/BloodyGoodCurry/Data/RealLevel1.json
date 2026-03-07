@@ -44,7 +44,7 @@
             "y": 0.23999999463558197
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -71,7 +71,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -99,7 +99,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -127,7 +127,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -154,7 +154,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -182,7 +182,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -210,7 +210,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -238,7 +238,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -265,7 +265,7 @@
             "y": 0.23999999463558197
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -293,7 +293,7 @@
             "y": 0.23999999463558197
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -376,7 +376,7 @@
             "y": -0.9179999828338623
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -430,7 +430,7 @@
             "y": 0.4307132959365845
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -458,7 +458,7 @@
             "y": 0.4309999942779541
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -485,7 +485,7 @@
             "y": 0.4309999942779541
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -512,7 +512,7 @@
             "y": 0.4309999942779541
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -649,7 +649,7 @@
             "y": 0.5849999785423279
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -676,7 +676,7 @@
             "y": 0.5849999785423279
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -703,7 +703,7 @@
             "y": 0.5849999785423279
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -730,7 +730,7 @@
             "y": 0.5849999785423279
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -757,7 +757,7 @@
             "y": -0.4545915424823761
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -784,7 +784,7 @@
             "y": -0.028999999165534973
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -811,7 +811,7 @@
             "y": -0.028999999165534973
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -838,7 +838,7 @@
             "y": -0.45500001311302185
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -865,7 +865,7 @@
             "y": -0.5882536768913269
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -893,7 +893,7 @@
             "y": 0.08500000089406967
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -921,7 +921,7 @@
             "y": -0.13500000536441803
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -949,7 +949,7 @@
             "y": -0.13500000536441803
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -976,7 +976,7 @@
             "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1003,7 +1003,7 @@
             "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1030,7 +1030,7 @@
             "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1057,7 +1057,7 @@
             "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1084,7 +1084,7 @@
             "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1111,7 +1111,7 @@
             "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1531,7 +1531,7 @@
             "y": -0.14402233064174652
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1559,7 +1559,7 @@
             "y": 0.08334511518478394
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1587,7 +1587,7 @@
             "y": 0.07305476069450378
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1614,7 +1614,7 @@
             "y": 0.04174555838108063
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1641,7 +1641,7 @@
             "y": -0.124119833111763
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1668,7 +1668,7 @@
             "y": 0.3475675880908966
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1722,7 +1722,7 @@
             "y": -0.7811310887336731
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1750,7 +1750,7 @@
             "y": -0.9554847478866577
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1777,7 +1777,7 @@
             "y": -0.9553049206733704
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2238,7 +2238,7 @@
             "y": 0.36566078662872314
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassetsFrontOfPlayer"
       },
       {
@@ -2293,7 +2293,7 @@
             "y": -0.24966397881507874
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassetsFrontOfPlayer"
       },
       {
@@ -2323,7 +2323,7 @@
             "y": -1.0598573684692383
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -2353,7 +2353,7 @@
             "y": -1.0078394412994385
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -2383,7 +2383,7 @@
             "y": -1.008286714553833
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -2438,7 +2438,7 @@
             "y": 0.39147093892097473
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassetsFrontOfPlayer"
       },
       {
@@ -2491,7 +2491,7 @@
             "y": 0.3646370768547058
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Tv_Animated"
       },
       {
@@ -2544,7 +2544,7 @@
             "y": 0.3839757740497589
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Pendulum_Animated"
       },
       {
@@ -2571,7 +2571,7 @@
             "y": -0.9245679974555969
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2624,7 +2624,7 @@
             "y": -0.8652777671813965
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Cat_Sleep_Animated"
       },
       {
@@ -2651,7 +2651,7 @@
             "y": -0.2598646879196167
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2678,7 +2678,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2705,7 +2705,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2733,7 +2733,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2760,7 +2760,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2787,7 +2787,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2814,7 +2814,7 @@
             "y": 0.24000000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2842,7 +2842,7 @@
             "y": 0.23999997973442078
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2869,7 +2869,7 @@
             "y": 0.23999999463558197
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2896,7 +2896,7 @@
             "y": 0.36399999260902405
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2923,7 +2923,7 @@
             "y": 0.36399999260902405
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2950,7 +2950,7 @@
             "y": 0.3643720746040344
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2977,7 +2977,7 @@
             "y": 0.36399999260902405
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3004,7 +3004,7 @@
             "y": 0.36399999260902405
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3031,7 +3031,7 @@
             "y": 0.36399999260902405
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3061,7 +3061,7 @@
             "y": -1.2000000476837158
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3091,7 +3091,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3121,7 +3121,7 @@
             "y": -1.2000000476837158
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3151,7 +3151,7 @@
             "y": 0.23999999463558197
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3241,7 +3241,7 @@
             "y": 0.6200000047683716
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3271,7 +3271,7 @@
             "y": 0.7400000095367432
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3301,7 +3301,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3331,7 +3331,7 @@
             "y": 0.6200000047683716
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3361,7 +3361,7 @@
             "y": 0.47999998927116394
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3388,7 +3388,7 @@
             "y": 0.27799999713897705
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3415,7 +3415,7 @@
             "y": 0.2277146726846695
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3442,7 +3442,7 @@
             "y": 0.17832833528518677
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3469,7 +3469,7 @@
             "y": 0.17800000309944153
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3497,7 +3497,7 @@
             "y": -0.013999998569488525
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3551,7 +3551,7 @@
             "y": -0.414000004529953
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3579,7 +3579,7 @@
             "y": -0.21400000154972076
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3606,7 +3606,7 @@
             "y": -0.7151777148246765
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3633,7 +3633,7 @@
             "y": -0.6140000224113464
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3799,7 +3799,7 @@
             "y": 0.47999998927116394
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -3826,7 +3826,7 @@
             "y": 0.1259317696094513
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3853,7 +3853,7 @@
             "y": -0.4311075806617737
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3880,7 +3880,7 @@
             "y": -0.16615405678749084
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3907,7 +3907,7 @@
             "y": -0.6275748014450073
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -3988,7 +3988,7 @@
             "y": -0.756178081035614
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4015,7 +4015,7 @@
             "y": -0.6939730644226074
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4042,7 +4042,7 @@
             "y": 0.23111869394779205
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4069,7 +4069,7 @@
             "y": 0.3390570282936096
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -4149,7 +4149,7 @@
             "y": -0.10520270466804504
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Pot_Animated"
       },
       {
@@ -4179,7 +4179,7 @@
             "y": -0.6428274512290955
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Rect"
       },
       {
@@ -4204,6 +4204,33 @@
             "scale_y": 1.0,
             "x": 0.7575026750564575,
             "y": 0.27156007289886475
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 5.0,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 5.0
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.30000001192092896,
+            "y": 0.0
           }
         },
         "layer": "Background:0",
