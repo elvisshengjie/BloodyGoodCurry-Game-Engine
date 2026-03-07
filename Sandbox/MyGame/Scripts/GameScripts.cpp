@@ -246,7 +246,7 @@ namespace {
         case PlayerAnimState::Attack2: desired = "attack2"; break;
         case PlayerAnimState::Attack3: desired = "attack3"; break;
         case PlayerAnimState::Throw: desired = "throw"; break;
-        case PlayerAnimState::SlowAttack: desired = "throw"; break;
+        case PlayerAnimState::SlowAttack: desired = "slowattack"; break;
         case PlayerAnimState::Knockback: desired = "knockback"; break;
         case PlayerAnimState::Death: desired = "death"; break;
         case PlayerAnimState::Idle:

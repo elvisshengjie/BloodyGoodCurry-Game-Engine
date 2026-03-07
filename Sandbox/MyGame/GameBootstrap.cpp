@@ -550,6 +550,7 @@ namespace
             LoadTextureHandle("ming_attack1", "Textures/Character/Ming_Sprite/1st_Attack Sprite.png"),
             LoadTextureHandle("ming_attack2", "Textures/Character/Ming_Sprite/2nd_Attack Sprite.png"),
             LoadTextureHandle("ming_attack3", "Textures/Character/Ming_Sprite/3rd_Attack Sprite.png")
+
         };
 
         render.SetLegacyAnimationTextures(
@@ -558,11 +559,16 @@ namespace
             attackTextures,
             LoadTextureHandle("ming_knockback", "Textures/Character/Ming_Sprite/Knockback_Sprite.png"),
             LoadTextureHandle("ming_knife", "Textures/Character/Ming_Sprite/Knife_Sprite.png"),
-            LoadTextureHandle("fire_projectile", "Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png"));
+            LoadTextureHandle("fire_projectile", "Textures/Character/Fire Enemy_Sprite/FireProjectileSprite.png")
+        );
 
         Resource_Manager::load(
             "impact_vfx_sheet",
             Framework::ResolveProjectAssetPath("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png").string());
+
+        Resource_Manager::load(
+            "talisman_throw",
+            Framework::ResolveProjectAssetPath("Textures/Character/Ming_Sprite/Shooting Talismans_Sprite.png").string());
     }
 
     /*************************************************************************************
