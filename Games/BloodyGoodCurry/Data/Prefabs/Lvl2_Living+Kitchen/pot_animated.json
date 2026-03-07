@@ -1,0 +1,49 @@
+{
+  "GameObject": {
+    "name": "Pot_Animated",
+    "Components": {
+      "TransformComponent": {
+        "x": 0.0,
+        "y": 0.0,
+        "rot": 0.0
+      },
+      "SpriteComponent": {
+        "texture_key": "cooking_pot_sheet"
+      },
+      "RenderComponent": {
+        "w": 0.3,
+        "h": 0.4,
+        "r": 1.0,
+        "g": 1.0,
+        "b": 1.0,
+        "a": 1.0,
+        "texture_key": "cooking_pot_sheet",
+        "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Pot_Sprite.png"
+      },
+      "SpriteAnimationComponent": {
+        "activeAnimation": 0,
+        "animations": [
+          {
+            "config": {
+              "columns": 11,
+              "endFrame": 10,
+              "fps": 6.0,
+              "loop": true,
+              "rows": 1,
+              "startFrame": 0,
+              "totalFrames": 11
+            },
+            "currentFrame": 0,
+            "name": "idle",
+            "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Pot_Sprite.png",
+            "textureKey": "cooking_pot_sheet"
+          }
+        ],
+        "fps": 6.0,
+        "frames": [],
+        "loop": true,
+        "play": true
+      }
+    }
+  }
+}
