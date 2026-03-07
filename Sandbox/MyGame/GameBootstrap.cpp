@@ -41,11 +41,40 @@
 #include <array>
 #include <filesystem>
 #include <iostream>
+#include <optional>
 #include <vector>
 #include <glm/vec3.hpp>
 
 namespace
 {
+    void ReadJsonFloat(const Framework::json& data, const char* key, float& out)
+    {
+        auto it = data.find(key);
+        if (it != data.end() && it->is_number())
+            out = static_cast<float>(it->get<double>());
+    }
+
+    void ReadJsonInt(const Framework::json& data, const char* key, int& out)
+    {
+        auto it = data.find(key);
+        if (it != data.end() && it->is_number_integer())
+            out = it->get<int>();
+    }
+
+    void ReadJsonBool(const Framework::json& data, const char* key, bool& out)
+    {
+        auto it = data.find(key);
+        if (it != data.end() && it->is_boolean())
+            out = it->get<bool>();
+    }
+
+    void ReadJsonString(const Framework::json& data, const char* key, std::string& out)
+    {
+        auto it = data.find(key);
+        if (it != data.end() && it->is_string())
+            out = it->get<std::string>();
+    }
+
     /*************************************************************************************
      \brief  Finds the first alive player object using the current game's PlayerComponent ID.
      \param  logic  Active LogicSystem owning the factory to search.
@@ -209,6 +238,221 @@ namespace
             EnsureBehaviourObject(gameObjects, "CombatDirector");
             EnsureBehaviourObject(gameObjects, "VfxCleanup");
         });
+    }
+
+    /*************************************************************************************
+     \brief  Registers BloodyGoodCurry-specific JSON save/load hooks with the factory.
+     \param  factory  The active GameObjectFactory receiving the component handlers.
+     \details Keeps current-game component snapshot and level serialization rules on the
+              game side so Engine/Factory only owns engine-native component schemas.
+    *************************************************************************************/
+    void InstallFactoryJsonHandlers(Framework::GameObjectFactory& factory)
+    {
+        factory.SetComponentJsonHandlers(
+            mygame::CT_GlowComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& glow = static_cast<const Framework::GlowComponent&>(component);
+                Framework::json points = Framework::json::array();
+                for (const auto& point : glow.points)
+                    points.push_back({ {"x", point.x}, {"y", point.y} });
+
+                return Framework::json{
+                    {"r", glow.r},
+                    {"g", glow.g},
+                    {"b", glow.b},
+                    {"opacity", glow.opacity},
+                    {"brightness", glow.brightness},
+                    {"inner_radius", glow.innerRadius},
+                    {"outer_radius", glow.outerRadius},
+                    {"falloff_exponent", glow.falloffExponent},
+                    {"visible", glow.visible},
+                    {"points", points}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& glow = static_cast<Framework::GlowComponent&>(component);
+                ReadJsonFloat(data, "r", glow.r);
+                ReadJsonFloat(data, "g", glow.g);
+                ReadJsonFloat(data, "b", glow.b);
+                ReadJsonFloat(data, "opacity", glow.opacity);
+                ReadJsonFloat(data, "brightness", glow.brightness);
+                ReadJsonFloat(data, "inner_radius", glow.innerRadius);
+                ReadJsonFloat(data, "outer_radius", glow.outerRadius);
+                ReadJsonFloat(data, "falloff_exponent", glow.falloffExponent);
+                ReadJsonBool(data, "visible", glow.visible);
+
+                glow.points.clear();
+                if (auto it = data.find("points"); it != data.end() && it->is_array())
+                {
+                    glow.points.reserve(it->size());
+                    for (const auto& point : *it)
+                    {
+                        float x = 0.0f;
+                        float y = 0.0f;
+                        if (point.contains("x") && point["x"].is_number())
+                            x = point["x"].get<float>();
+                        if (point.contains("y") && point["y"].is_number())
+                            y = point["y"].get<float>();
+                        glow.points.emplace_back(x, y);
+                    }
+                }
+
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_PlayerHealthComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& health = static_cast<const Framework::PlayerHealthComponent&>(component);
+                return Framework::json{
+                    {"playerHealth", health.playerHealth},
+                    {"playerMaxhealth", health.playerMaxhealth}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& health = static_cast<Framework::PlayerHealthComponent&>(component);
+                ReadJsonInt(data, "playerHealth", health.playerHealth);
+                ReadJsonInt(data, "playerMaxhealth", health.playerMaxhealth);
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_PlayerAttackComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& attack = static_cast<const Framework::PlayerAttackComponent&>(component);
+                return Framework::json{
+                    {"damage", attack.damage},
+                    {"attack_speed", attack.attack_speed}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& attack = static_cast<Framework::PlayerAttackComponent&>(component);
+                ReadJsonInt(data, "damage", attack.damage);
+                ReadJsonFloat(data, "attack_speed", attack.attack_speed);
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_EnemyAttackComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& attack = static_cast<const Framework::EnemyAttackComponent&>(component);
+                return Framework::json{
+                    {"damage", attack.damage},
+                    {"attack_speed", attack.attack_speed}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& attack = static_cast<Framework::EnemyAttackComponent&>(component);
+                ReadJsonInt(data, "damage", attack.damage);
+                ReadJsonFloat(data, "attack_speed", attack.attack_speed);
+                if (attack.hitbox)
+                {
+                    ReadJsonFloat(data, "hitwidth", attack.hitbox->width);
+                    ReadJsonFloat(data, "hitheight", attack.hitbox->height);
+                    ReadJsonFloat(data, "hitduration", attack.hitbox->duration);
+                }
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_EnemyHealthComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& health = static_cast<const Framework::EnemyHealthComponent&>(component);
+                return Framework::json{
+                    {"enemyHealth", health.enemyHealth},
+                    {"enemyMaxhealth", health.enemyMaxhealth}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& health = static_cast<Framework::EnemyHealthComponent&>(component);
+                ReadJsonInt(data, "enemyHealth", health.enemyHealth);
+                ReadJsonInt(data, "enemyMaxhealth", health.enemyMaxhealth);
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_EnemyTypeComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& type = static_cast<const Framework::EnemyTypeComponent&>(component);
+                return Framework::json{
+                    {"type", type.Etype == Framework::EnemyTypeComponent::EnemyType::ranged ? "ranged" : "physical"}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& type = static_cast<Framework::EnemyTypeComponent&>(component);
+                std::string typeName;
+                ReadJsonString(data, "type", typeName);
+                type.Etype = (typeName == "ranged")
+                    ? Framework::EnemyTypeComponent::EnemyType::ranged
+                    : Framework::EnemyTypeComponent::EnemyType::physical;
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_WayPointComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& wayPoint = static_cast<const Framework::WayPointComponent&>(component);
+                return Framework::json{
+                    {"NeighborIDs", wayPoint.NeighborIDs}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& wayPoint = static_cast<Framework::WayPointComponent&>(component);
+                wayPoint.NeighborIDs.clear();
+                auto it = data.find("NeighborIDs");
+                if (it != data.end() && it->is_array())
+                    wayPoint.NeighborIDs = it->get<std::vector<int>>();
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_ZoomTriggerComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& trigger = static_cast<const Framework::ZoomTriggerComponent&>(component);
+                return Framework::json{
+                    {"targetZoom", trigger.targetZoom},
+                    {"oneShot", trigger.oneShot}
+                };
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& trigger = static_cast<Framework::ZoomTriggerComponent&>(component);
+                ReadJsonFloat(data, "targetZoom", trigger.targetZoom);
+                ReadJsonBool(data, "oneShot", trigger.oneShot);
+                return true;
+            });
+
+        factory.SetComponentJsonHandlers(
+            mygame::CT_GateTargetComponent(),
+            [](const Framework::GameComponent& component) -> std::optional<Framework::json>
+            {
+                auto const& gateTarget = static_cast<const Framework::GateTargetComponent&>(component);
+                Framework::json out = Framework::json::object();
+                if (!gateTarget.levelPath.empty())
+                    out["level_path"] = gateTarget.levelPath;
+                return out;
+            },
+            [](Framework::GameComponent& component, const Framework::json& data) -> bool
+            {
+                auto& gateTarget = static_cast<Framework::GateTargetComponent&>(component);
+                ReadJsonString(data, "level_path", gateTarget.levelPath);
+                return true;
+            });
     }
 
     /*************************************************************************************
@@ -438,6 +682,8 @@ namespace mygame
                 "GateTargetComponent",
                 mygame::CT_GateTargetComponent(),
                 std::make_unique<Framework::ComponentCreatorType<Framework::GateTargetComponent>>(mygame::CT_GateTargetComponent()));
+
+            InstallFactoryJsonHandlers(factory);
         });
         logic.SetFindPlayerCallback(&FindAlivePlayer);
         logic.SetPostAudioRestoreCallback(&RestoreMissingLevelAudio);
