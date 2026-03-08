@@ -881,7 +881,8 @@ namespace {
                 0.0f,
                 kProjectileSpeed,
                 Framework::HitBoxComponent::Team::PlayerSlow);
-
+            if (state.audio)          
+                state.audio->PlayGrapple();
             state.pendingSlow.active = false;
 
         }
