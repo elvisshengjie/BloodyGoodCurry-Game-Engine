@@ -70,6 +70,13 @@ namespace Framework {
         float chaseTimer = 0.0f;             ///< Accumulated time spent in chase mode.
         float maxChaseDuration = 3.0f;       ///< Maximum allowed chase time before reset.
         float retreatTimer = 0.0f;           ///< Retreat Timer
+        
+        bool  pendingProjectile = false;
+        float pendingProjectileDirX = 0.0f;
+        float pendingProjectileDirY = 0.0f;
+        float pendingProjectileSpawnX = 0.0f;
+        float pendingProjectileSpawnY = 0.0f;
+
         bool rangedAttackActive = false;     ///< True while a ranged attack animation is playing.
         bool rangedProjectileFired = false;  ///< True once the ranged projectile has been spawned.
         float rangedAttackTimer = 0.0f;      ///< Timer tracking ranged attack animation elapsed time.
@@ -103,7 +110,9 @@ namespace Framework {
             patrolOriginSet = false;
             patrolOriginX = 0.0f;
             patrolOriginY = 0.0f;
-
+            pendingProjectile = false;
+            pendingProjectileDirX = pendingProjectileDirY = 0.0f;
+            pendingProjectileSpawnX = pendingProjectileSpawnY = 0.0f;
             chaseTimer = 0.0f;
             retreatTimer = 0.0f;
             pauseTimer = 0.0f;
@@ -143,6 +152,11 @@ namespace Framework {
             copy->maxChaseDuration = maxChaseDuration;
             copy->rangedAttackActive = rangedAttackActive;
             copy->rangedProjectileFired = rangedProjectileFired;
+            copy->pendingProjectile = pendingProjectile;
+            copy->pendingProjectileDirX = pendingProjectileDirX;
+            copy->pendingProjectileDirY = pendingProjectileDirY;
+            copy->pendingProjectileSpawnX = pendingProjectileSpawnX;
+            copy->pendingProjectileSpawnY = pendingProjectileSpawnY;
             copy->rangedAttackTimer = rangedAttackTimer;
             copy->rangedAttackDuration = rangedAttackDuration;
             copy->hasSeenPlayer = hasSeenPlayer;
