@@ -2752,6 +2752,13 @@ namespace Framework {
                                 cols = 5;
                                 frames = 5;
                             }
+                            else if (hb->team == HitBoxComponent::Team::PlayerSlow && talismanProjectileTex)
+                            {
+                                projTex = talismanProjectileTex;
+                                cols = 6;   // Flying_Talisman_Sprite_ has 6 frames
+                                frames = 6;
+                                fps = 12.0f;
+                            }
                             else if (knifeTex)
                             {
                                 projTex = knifeTex;

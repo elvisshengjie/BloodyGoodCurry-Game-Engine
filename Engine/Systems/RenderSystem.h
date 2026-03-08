@@ -172,13 +172,14 @@ namespace Framework {
         void SetLegacyPlayerTexture(unsigned handle) { playerTex = handle; }
         /// \brief Set legacy fallback animation and projectile textures used by older render paths.
         void SetLegacyAnimationTextures(unsigned idle, unsigned run, const std::array<unsigned, 3>& attacks,
-            unsigned knockback, unsigned knife, unsigned enemyProjectile)
+            unsigned knockback, unsigned knife, unsigned talismanProjectile, unsigned enemyProjectile)
         {
             idleTex = idle;
             runTex = run;
             attackTex = attacks;
             knockbackTex = knockback;
             knifeTex = knife;
+            talismanProjectileTex = talismanProjectile;
             fireProjectileTex = enemyProjectile;
         }
 
@@ -276,7 +277,7 @@ namespace Framework {
         unsigned knockbackTex = 0;            //!< Knockback animation sheet.
         unsigned knifeTex = 0;                //!< Animated knife projectile sheet.
         unsigned fireProjectileTex = 0;       //!< Fire enemy projectile sheet.
-
+        unsigned  talismanProjectileTex = 0;
         // --- Game viewport rectangle (pixels) --------------------------------------------
         struct ViewRect {
             int x = 0;
