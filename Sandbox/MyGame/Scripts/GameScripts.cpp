@@ -100,8 +100,8 @@ namespace {
     /*****************************************************************************************
       \brief Ranged attack constants for change
     *****************************************************************************************/
-    constexpr float kProjectileSpeed = 10.0f;
-    constexpr float kProjectileLifetime = 0.35f;
+    constexpr float kProjectileSpeed = 15.0f;
+    constexpr float kProjectileLifetime = 0.40f;
     /*****************************************************************************************
       \brief Slow down attack constants
     *****************************************************************************************/
