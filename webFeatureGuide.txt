@@ -1,0 +1,259 @@
+SofaSpuds Web Feature - Technical Documentation
+===============================================
+
+Document purpose
+----------------
+This document explains how the web version of BloodyGoodCurry is integrated into the same
+engine/game codebase, how it is built, how it runs in browser, and why it differs from
+desktop in some areas.
+
+It is written so it can be presented to instructors during technical review.
+
+
+1) High-level design
+--------------------
+The project uses one shared C++ codebase for:
+- Engine systems (rendering, logic, physics, resources, input, etc.)
+- Game-specific code (BloodyGoodCurry)
+
+Platform selection is handled at build time:
+- Desktop: native compiler + native OpenGL/GLFW runtime
+- Web: Emscripten compiler -> WebAssembly + JavaScript + HTML shell + WebGL2 runtime
+
+This means the game logic is not duplicated for web. The same logic classes and level JSON
+flow are reused, with platform-specific branches where needed.
+
+
+2) Web build integration (CMake + presets)
+------------------------------------------
+2.1 Configure presets
+Web configuration is defined in CMakePresets.json:
+- conf-web-common: uses Emscripten toolchain (emcc/em++)
+- web-debug
+- web-release-split (current release mode used for browser)
+
+Important web toggles:
+- SOFASPUDS_ENABLE_EDITOR=OFF
+- SOFASPUDS_DISABLE_AUDIO=ON
+
+Rationale:
+- Editor tooling is disabled for browser shipping path.
+- FMOD native backend is not linked in web build; stub audio path is used.
+
+2.2 Root-level safeguards
+Root CMakeLists also forces web-safe defaults under EMSCRIPTEN:
+- editor OFF
+- audio OFF
+
+This prevents accidental mismatched flags between presets and actual target configuration.
+
+2.3 Game target packaging
+Sandbox/CMakeLists sets:
+- output suffix ".html" for web target
+- data source path and assets source path
+- Emscripten file packaging:
+  - split mode uses --preload-file for /Assets and /Data
+
+Data/asset source selection:
+- Preferred: Games/BloodyGoodCurry/Assets and Games/BloodyGoodCurry/Data
+- Fallback: assets and Data_Files
+
+This allows project-specific content while keeping fallback compatibility for older layout.
+
+
+3) Build and run workflow
+-------------------------
+3.1 Build helper
+build_web_html.bat handles:
+- preset selection (default release-split)
+- EMSDK environment load (if not already active)
+- configure + build commands
+
+Current expected usage:
+- build_web_html.bat release-split reconfigure
+
+3.2 Local hosting
+Web output must be served over HTTP (not opened directly as local file).
+
+Recommended:
+- python -m http.server 8000 -d build\web-release-split\Sandbox
+
+Open:
+- http://localhost:8000/BloodyGoodCurry.html?v=1
+
+Cache-busting:
+- increment v= number each rebuild
+- hard refresh (Ctrl+Shift+R)
+
+
+4) Browser shell integration
+----------------------------
+Custom shell file:
+- app_resources/web/index_shell.html
+
+Responsibilities:
+1. Creates WebGL2 context first.
+2. Provides that context to Emscripten Module (preinitializedWebGLContext).
+3. Displays loading status while wasm/data dependencies load.
+4. Shows startup failure text on abort.
+5. Disables browser context menu so right-click input is not stolen from gameplay.
+
+Why custom shell matters:
+- Better UX during loading/errors.
+- Explicit control of WebGL2 requirement.
+- Correct RMB behavior for in-game right-click attack input.
+
+
+5) Runtime flow in web build
+----------------------------
+5.1 Entry point
+Sandbox/MyGame/main.cpp is still the entry point.
+It initializes project context, loads window config, and starts Core.
+
+Web-specific behavior:
+- fullscreen is disabled in web branch (canvas behavior differs from desktop fullscreen)
+
+5.2 Main loop model
+Engine/Core/Core.cpp uses:
+- desktop: while loop
+- web: emscripten_set_main_loop_arg(...)
+
+This is required because browser controls frame scheduling and event loop ownership.
+
+5.3 Window/context
+Engine/Graphics/Window.cpp requests:
+- GLFW_OPENGL_ES_API
+- GLES 3.0 context in web build
+
+Desktop-specific GL loader path is skipped where not needed.
+VSync call is avoided for web branch where browser timing already controls pacing.
+
+5.4 Rendering pipeline differences
+Engine/Graphics/Graphics.cpp uses:
+- GLSL "#version 300 es" on web
+- GLSL "#version 330 core" on desktop
+
+Texture upload path is web-safe:
+- uses explicit internal formats suitable for strict WebGL2 validation
+
+Resource loading starts from:
+- Resource_Manager::loadAll(ResolveAssetPath("Textures"))
+which resolves to packaged /Assets path at runtime.
+
+
+6) Data and level behavior parity
+---------------------------------
+Startup level is explicitly configured in game bootstrap:
+- level_RealTutorial.json
+
+LogicSystem then uses startupLevelPath if set (otherwise fallback level.json).
+
+Therefore web and desktop start from the same intended level file as long as packaged Data
+content matches desktop Data content.
+
+Project data root resolution supports modern and legacy layouts:
+- Data preferred
+- Data_Files fallback
+
+
+7) Audio behavior in web
+------------------------
+Web build compiles with SOFASPUDS_DISABLE_AUDIO=ON.
+Engine/CMakeLists swaps to AudioManagerStub.cpp path for this configuration.
+
+Practical result:
+- no FMOD runtime audio output in browser currently
+- gameplay remains functional
+
+This is intentional for current web compatibility scope.
+
+
+8) Known differences from desktop
+---------------------------------
+1. Audio:
+   - Desktop: FMOD backend
+   - Web: stub audio
+
+2. Editor:
+   - Desktop can enable editor
+   - Web build is gameplay-focused (editor disabled)
+
+3. Browser input and UX:
+   - context menu suppression required for RMB controls
+
+4. Strict GL validation:
+   - WebGL2 catches invalid format/state usage that native drivers may tolerate.
+
+
+9) Validation checklist (demonstration-ready)
+---------------------------------------------
+Use this checklist when presenting the feature:
+
+Build:
+- Run build_web_html.bat release-split reconfigure
+- Confirm BloodyGoodCurry.html/.js/.wasm/.data generated
+
+Run:
+- Start python http server in web output folder
+- Open localhost URL with cache-busting query string
+
+Startup:
+- Loading overlay appears then disappears
+- No hard startup abort in console
+
+Gameplay:
+- WASD movement works
+- left-click attack works
+- right-click attack works without browser context menu popup
+- level starts in expected tutorial map
+
+Regression checks:
+- verify web-only issues are not from stale cache (query string + hard refresh)
+- verify packaged Data source path is expected project Data directory
+
+
+10) Troubleshooting guide
+-------------------------
+A) Page keeps loading forever
+- Check browser console for runtime exception.
+- Ensure wasm and data requests return HTTP 200 in server terminal.
+- Rebuild with reconfigure and reload with new ?v= value.
+
+B) Right-click opens browser menu
+- Ensure contextmenu suppression exists in index_shell.html.
+- Hard refresh after rebuild.
+
+C) "invalid internalformat" WebGL errors
+- Indicates texture upload format mismatch for WebGL2 strict rules.
+- Verify web-safe texture upload branch in Graphics.cpp is being compiled.
+
+D) Web collisions differ from desktop
+- Check for logic bugs that native path may hide (undefined behavior, hash/equality issues).
+- Force clean rebuild to ensure latest wasm is running.
+
+E) No sound in web
+- Expected in current configuration (audio stubs).
+
+
+11) Why release-split is the chosen web mode
+--------------------------------------------
+Current project standard is release-split because:
+- stable in your testing
+- simpler deployment/debug than single-file when large assets are involved
+- avoids the failing non-split release behavior you observed earlier
+
+Result:
+- one consistent web pipeline for team usage
+- fewer accidental wrong-mode builds
+
+
+12) Summary
+-----------
+The web feature is a full platform integration, not a separate mini project:
+- same gameplay code and systems
+- Emscripten toolchain compiles to wasm
+- custom HTML shell controls browser integration
+- CMake packaging mounts project Assets/Data into virtual FS
+- Core loop and rendering adapt to browser/WebGL2 requirements
+- documented constraints (audio/editor) are intentional and build-controlled
+

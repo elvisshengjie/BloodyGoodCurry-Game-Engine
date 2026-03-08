@@ -24,24 +24,20 @@
 
 #include "LogicSystem.h"
 #include "Component/CircleRenderComponent.h"
-#include "Component/GlowComponent.h"
+#include "Components/GlowComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/ShadowComponent.h"
 #include "Component/TransformComponent.h"
 #include "Component/SpriteAnimationComponent.h"
-#include "Component/EnemyAttackComponent.h"
-#include "Component/PlayerAttackComponent.h"
 
 #include "Config/WindowConfig.h"
 #if SOFASPUDS_ENABLE_EDITOR
 #include "Debug/ImGuiLayer.h"
 #include "Debug/Perf.h"
-#include "Debug/Spawn.h"
 #include "Debug/LayerPanel.h"
 #include "Debug/Selection.h"
 #include "Debug/HierarchyPanel.h"
-#include "Debug/InspectorPanel.h"
 #include "Debug/AssetBrowserPanel.h"
 #include "Debug/AnimationEditorPanel.h"
 #include "Debug/JsonEditorPanel.h"
@@ -127,6 +123,18 @@ namespace Framework {
         static RenderSystem* Get();
         /// \brief Install a game-side initialization hook for game-specific render defaults.
         void SetInitializeCallback(std::function<void(RenderSystem&)> callback) { initializeCallback = std::move(callback); }
+        /// \brief Install a game-side overlay hook rendered after the main world pass.
+        void SetOverlayCallback(std::function<void(RenderSystem&)> callback) { overlayCallback = std::move(callback); }
+#if SOFASPUDS_ENABLE_EDITOR
+        /// \brief Install game-owned editor panels that should be drawn inside the engine editor shell.
+        void SetEditorPanelsCallback(std::function<void()> callback) { editorPanelsCallback = std::move(callback); }
+        /// \brief Notify the active game when editor project roots change.
+        void SetEditorProjectRootsCallback(
+            std::function<void(const std::filesystem::path&, const std::filesystem::path&)> callback)
+        {
+            editorProjectRootsCallback = std::move(callback);
+        }
+#endif
 
         // Text accessors
         /// \brief  True if the hint text renderer is ready (font/atlas loaded).
@@ -163,13 +171,14 @@ namespace Framework {
         void SetLegacyPlayerTexture(unsigned handle) { playerTex = handle; }
         /// \brief Set legacy fallback animation and projectile textures used by older render paths.
         void SetLegacyAnimationTextures(unsigned idle, unsigned run, const std::array<unsigned, 3>& attacks,
-            unsigned knockback, unsigned knife, unsigned enemyProjectile)
+            unsigned knockback, unsigned knife, unsigned talismanProjectile, unsigned enemyProjectile)
         {
             idleTex = idle;
             runTex = run;
             attackTex = attacks;
             knockbackTex = knockback;
             knifeTex = knife;
+            talismanProjectileTex = talismanProjectile;
             fireProjectileTex = enemyProjectile;
         }
 
@@ -254,6 +263,7 @@ namespace Framework {
         bool textReadyHint = false;      //!< True once hint font is ready.
         bool showFPS = false;            //!< True to show FPS
         std::function<void(RenderSystem&)> initializeCallback;
+        std::function<void(RenderSystem&)> overlayCallback;
 
         // --- Demo textures (player / animation) ------------------------------------------
         unsigned playerTex = 0;               //!< Legacy fallback player texture.
@@ -263,7 +273,7 @@ namespace Framework {
         unsigned knockbackTex = 0;            //!< Knockback animation sheet.
         unsigned knifeTex = 0;                //!< Animated knife projectile sheet.
         unsigned fireProjectileTex = 0;       //!< Fire enemy projectile sheet.
-
+        unsigned  talismanProjectileTex = 0;
         // --- Game viewport rectangle (pixels) --------------------------------------------
         struct ViewRect {
             int x = 0;
@@ -277,6 +287,8 @@ namespace Framework {
         ViewRect imguiViewportRect{};         //!< ImGui content rect (top-left coords).
         bool     imguiViewportValid = false;  //!< True when ImGui viewport has valid size.
         bool     imguiViewportMouseInContent = false; //!< Mouse is over viewport content.
+        std::function<void()> editorPanelsCallback;
+        std::function<void(const std::filesystem::path&, const std::filesystem::path&)> editorProjectRootsCallback;
 #endif
 
         // --- Editor layout flags ---------------------------------------------------------
@@ -354,3 +366,4 @@ namespace Framework {
     };
 
 } // namespace Framework
+

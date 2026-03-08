@@ -59,7 +59,10 @@ namespace Framework
 		bool MoveDown() const { return m_moveDown; }
 		bool MoveLeft() const { return m_moveLeft; }
 		bool MoveRight() const { return m_moveRight; }
-		bool Attack() const { return m_attack; }
+		bool MeleeAttack() const { return m_meleeAttack; }
+		bool RangedAttack() const { return m_rangedAttack; }
+		bool RangedHeld() const { return m_rangedHeld; }
+		bool RangedReleased() const { return m_rangedReleased; }
 
 		/*************************************************************************
 		  \brief  True during the frame the key transitioned from up → down.
@@ -100,6 +103,9 @@ namespace Framework
 		bool m_moveDown = false;
 		bool m_moveLeft = false;
 		bool m_moveRight = false;
-		bool m_attack = false;
+		bool m_meleeAttack = false;
+		bool m_rangedAttack = false;
+		bool m_rangedHeld = false;
+		bool m_rangedReleased = false;
 	};
 }

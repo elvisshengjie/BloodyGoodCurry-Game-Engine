@@ -1,0 +1,1867 @@
+{
+  "Level": {
+    "GameObjects": [
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "CombatDirector"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "CombatDirector"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "VfxCleanup"
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "VfxCleanup"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.25,
+            "velocity_x": 0.6000000238418579,
+            "velocity_y": 0.6000000238418579,
+            "width": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "boss"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 142.69085693359375,
+            "y": 142.43099975585938
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Boss"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "ConcreteFootsteps1": {
+                "id": "ConcreteFootsteps1",
+                "loop": false
+              },
+              "ConcreteFootsteps2": {
+                "id": "ConcreteFootsteps2",
+                "loop": false
+              },
+              "ConcreteFootsteps3": {
+                "id": "ConcreteFootsteps3",
+                "loop": false
+              },
+              "ConcreteFootsteps4": {
+                "id": "ConcreteFootsteps4",
+                "loop": false
+              },
+              "ConcreteFootsteps5": {
+                "id": "ConcreteFootsteps5",
+                "loop": false
+              },
+              "ConcreteFootsteps6": {
+                "id": "ConcreteFootsteps6",
+                "loop": false
+              },
+              "GrappleShoot1": {
+                "id": "GrappleShoot1",
+                "loop": false
+              },
+              "GrappleShoot2": {
+                "id": "GrappleShoot2",
+                "loop": false
+              },
+              "GrappleShoot3": {
+                "id": "GrappleShoot3",
+                "loop": false
+              },
+              "GrappleShoot4": {
+                "id": "GrappleShoot4",
+                "loop": false
+              },
+              "Ineffective Boink1": {
+                "id": "Ineffective Boink1",
+                "loop": false
+              },
+              "Ineffective Boink2": {
+                "id": "Ineffective Boink2",
+                "loop": false
+              },
+              "Ineffective Boink3": {
+                "id": "Ineffective Boink3",
+                "loop": false
+              },
+              "PlayerDead": {
+                "id": "PlayerDead",
+                "loop": false
+              },
+              "PlayerHit": {
+                "id": "PlayerHit",
+                "loop": false
+              },
+              "Punch1": {
+                "id": "Punch1",
+                "loop": false
+              },
+              "Punch2": {
+                "id": "Punch2",
+                "loop": false
+              },
+              "Punch3": {
+                "id": "Punch3",
+                "loop": false
+              },
+              "Punch4": {
+                "id": "Punch4",
+                "loop": false
+              },
+              "Slash1": {
+                "id": "Slash1",
+                "loop": false
+              },
+              "Slash2": {
+                "id": "Slash2",
+                "loop": false
+              },
+              "Slash3": {
+                "id": "Slash3",
+                "loop": false
+              }
+            },
+            "volume": 1.0
+          },
+          "BehaviourComponent": {
+            "behaviourKey": "PlayerController"
+          },
+          "HitBoxComponent": {
+            "duration": 0.15000000596046448,
+            "height": 0.15000000596046448,
+            "width": 0.15000000596046448
+          },
+          "PlayerAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "PlayerComponent": {},
+          "PlayerHUDComponent": {},
+          "PlayerHealthComponent": {
+            "playerHealth": 5,
+            "playerMaxhealth": 5
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": 1,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "RigidBodyComponent": {
+            "height": 0.20999999344348907,
+            "velocity_x": 6.366801699186908e-07,
+            "velocity_y": 1.401298464324817e-45,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 5,
+                  "endFrame": 4,
+                  "fps": 6.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 5
+                },
+                "currentFrame": 3,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
+                "textureKey": "idle_sheet"
+              },
+              {
+                "config": {
+                  "columns": 10,
+                  "endFrame": 9,
+                  "fps": 20.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 10
+                },
+                "currentFrame": 6,
+                "name": "run",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
+                "textureKey": "run_sheet"
+              },
+              {
+                "config": {
+                  "columns": 13,
+                  "endFrame": 12,
+                  "fps": 18.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 13
+                },
+                "currentFrame": 0,
+                "name": "attack1",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
+                "textureKey": "attack1_sheet"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 18.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 7,
+                "name": "attack2",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/2nd_Attack Sprite.png",
+                "textureKey": "attack2_sheet"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 18.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "attack3",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
+                "textureKey": "attack3_sheet"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 18.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "throw",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Throwing Attack_Sprite.png",
+                "textureKey": "throw_sheet"
+              },
+              {
+                "config": {
+                  "columns": 4,
+                  "endFrame": 3,
+                  "fps": 5.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 4
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Knockback_Sprite.png",
+                "textureKey": "knockback_sheet"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Death_Sprite.png",
+                "textureKey": "death_sheet"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "idle_sheet"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.1324881911277771,
+            "y": -1.1106306314468384
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "player"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 5.0,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 5.0
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7179477214813232,
+            "y": -0.29031479358673096
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.0,
+            "y": 0.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.5,
+            "y": 0.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0,
+            "y": 0.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5,
+            "y": 0.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.0,
+            "y": -0.5
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.5,
+            "y": -0.5
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0,
+            "y": -0.5
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5,
+            "y": -0.5
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.0,
+            "y": -1.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.5,
+            "y": -1.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0,
+            "y": -1.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5,
+            "y": -1.0
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Top Left.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Top Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.16184692084789276,
+            "y": 0.19085822999477386
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Bottom Right.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Bottom Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.6622458696365356,
+            "y": -1.1580451726913452
+          }
+        },
+        "layer": "Gameplay:4",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Bottom Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.16200000047683716,
+            "y": -1.1579999923706055
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Top Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.6617059707641602,
+            "y": 0.19099999964237213
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.8999999761581421,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.3304995894432068,
+            "y": -0.4951390326023102
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.8999999761581421,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.8305683135986328,
+            "y": -0.4950000047683716
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1899999976158142,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Top Mid.png",
+            "visible": true,
+            "w": 1.350000023841858
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Top Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7490620017051697,
+            "y": 0.3449999988079071
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Bottom Mid.png",
+            "visible": true,
+            "w": 1.350000023841858
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7490000128746033,
+            "y": -1.327466607093811
+          }
+        },
+        "layer": "Gameplay:4",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.3499999940395355
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wallpaper.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.07500000298023224,
+            "y": 0.050999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.3499999940395355
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wallpaper.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.9750000238418579,
+            "y": 0.050999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.3499999940395355
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wallpaper.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.625,
+            "y": 0.050999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.3499999940395355
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wallpaper.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.6749999523162842,
+            "y": 0.050999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.3499999940395355
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wallpaper.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.3250000476837158,
+            "y": 0.050999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wallpaper.png",
+            "visible": true,
+            "w": 0.3499999940395355
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wallpaper.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2778567373752594,
+            "y": 0.050999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Dresser.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.09977162629365921,
+            "y": -0.2605145275592804
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Side cabinet.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.17942160367965698,
+            "y": -0.9091662168502808
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Wardrobe.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5011012554168701,
+            "y": -1.1573562622070313
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Back cabinet.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0024454593658447,
+            "y": -1.2262632846832275
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.699999988079071,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.8999999761581421
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Carpet.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.3366925716400146,
+            "y": -0.6619985103607178
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bed.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5002175569534302,
+            "y": -0.6245233416557312
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bedside Lamp.png",
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bedside Lamp.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.676519751548767,
+            "y": -0.9291195869445801
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bedside Lamp.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.681023359298706,
+            "y": -0.2778332829475403
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Books.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0011156797409058,
+            "y": -1.1811550855636597
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Pearl earring painting.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.1435413360595703,
+            "y": 0.07353073358535767
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Plant paintings.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5531678199768066,
+            "y": 0.059355754405260086
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Shape paintings.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.12207893282175064,
+            "y": 0.0974138081073761
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Vase.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.18393531441688538,
+            "y": -0.815471351146698
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Plant.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.026815401390194893,
+            "y": -1.1497100591659546
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Plant.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2682909667491913,
+            "y": -1.1539428234100342
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.6000000238418579
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Window.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.8708304166793823,
+            "y": 0.05900729447603226
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Porcelein.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.188284158706665,
+            "y": -1.1640005111694336
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 3.0
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 3.0
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.6992889642715454,
+            "y": 0.2849999964237213
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 4.0
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 4.0
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7011892795562744,
+            "y": -1.5014173984527588
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 2.0,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 2.0,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.5018037557601929,
+            "y": -0.5526067614555359
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 2.0,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 2.0,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.0041375160217285,
+            "y": -0.49146711826324463
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.3603476285934448,
+            "y": -0.9004428386688232
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.35709425806999207,
+            "y": -0.15698163211345673
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.15000000596046448,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.15000000596046448
+          },
+          "RigidBodyComponent": {
+            "height": 0.15000000596046448,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.15000000596046448
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.02745872735977173,
+            "y": -0.25840285420417786
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4399999976158142,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.4399999976158142,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.505176305770874,
+            "y": -0.6537831425666809
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.10000000149011612
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.6651642322540283,
+            "y": -0.25372791290283203
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.10000000149011612
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.654015064239502,
+            "y": -0.9238565564155579
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png",
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5053695440292358,
+            "y": -1.3727102279663086
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Rect"
+      }
+    ],
+    "name": "RealLevel3"
+  }
+}

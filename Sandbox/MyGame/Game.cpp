@@ -9,15 +9,17 @@
 #include "Systems/SystemManager.h"
 #include "Systems/InputSystem.h"
 #include "Systems/LogicSystem.h"
+#include "Systems/HitBoxSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Factory/Factory.h"
 #include "Systems/audioSystem.h"
-#include "Systems/EnemySystem.h"
 #include "Systems/AiSystem.h"
-#include "Systems/AI_Navigation/NavigationSystem.h"
-#include "Systems/HealthSystem.h"
 #include "Systems/ParticleSystem.h"
+#include "Runtime/EnemySystem.h"
+#include "Runtime/NavigationSystem.h"
+#include "Runtime/HealthSystem.h"
+#include "Runtime/ZoomTriggerSystem.h"
 #include "Audio/SoundManager.h"
 #include "Debug/CrashLogger.hpp"
 #include "Graphics/Graphics.hpp"
@@ -115,6 +117,20 @@ namespace mygame {
                 }
             }
         }
+
+        std::string ResolveFirstExistingAsset(std::initializer_list<const char*> candidates)
+        {
+            for (const char* rel : candidates)
+            {
+                if (!rel || rel[0] == '\0')
+                    continue;
+                const auto resolved = Framework::ResolveAssetPath(rel);
+                if (std::filesystem::exists(resolved))
+                    return resolved.string();
+            }
+            return {};
+        }
+
         Framework::SystemManager gSystems;
         Framework::InputSystem* gInputSystem = nullptr;
         Framework::LogicSystem* gLogicSystem = nullptr;
@@ -126,6 +142,7 @@ namespace mygame {
         Framework::AiSystem* gAiSystem = nullptr;
         Framework::HealthSystem* gHealthSystem = nullptr;
         Framework::ParticleSystem* gParticleSystem = nullptr;
+        Framework::ZoomTriggerSystem* gZoomTriggerSystem = nullptr;
 
         enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, PLAYING, PAUSED, DEFEAT, EXIT };
         GameState currentState = GameState::MAIN_MENU;
@@ -161,6 +178,11 @@ namespace mygame {
     /*************************************************************************************
      \brief  Initializes engine systems and game-side bindings for the current session.
      \param  win  The main application window used by window-dependent systems.
+     \details
+             - Creates and initializes the shared engine systems through SystemManager.
+             - Creates the game-owned HitBoxSystem after LogicSystem is initialized so
+               combat behavior remains on the game side.
+             - Binds BloodyGoodCurry scripts, combat audio, combat VFX, and UI flow.
     *************************************************************************************/
     void init(gfx::Window& win)
     {
@@ -175,12 +197,33 @@ namespace mygame {
         ConfigureRenderBootstrap(*gRenderSystem);
         gHealthSystem = gSystems.RegisterSystem<Framework::HealthSystem>(win);
         gParticleSystem = gSystems.RegisterSystem<Framework::ParticleSystem>();
+        gZoomTriggerSystem = gSystems.RegisterSystem<Framework::ZoomTriggerSystem>();
 
         //(void)gPhysicsSystem;
         //(void)gAudioSystem;
         //(void)gRenderSystem;
 
         gSystems.IntializeAll();
+        if (gAudioSystem)
+        {
+            gAudioSystem->SetListenerQueryCallback([]() -> Framework::GOC*
+            {
+                return gLogicSystem ? gLogicSystem->FindAnyAlivePlayer() : nullptr;
+            });
+        }
+        if (gLogicSystem && !gLogicSystem->hitBoxSystem)
+        {
+            // HitBoxSystem remains a shared runtime service, but this game now owns its lifetime.
+            gLogicSystem->hitBoxSystem = new Framework::HitBoxSystem(*gLogicSystem);
+            gLogicSystem->hitBoxSystem->Initialize();
+            // Keep hitbox timing aligned with the old engine behavior, but route the update
+            // through a generic game callback instead of a hardcoded LogicSystem dependency.
+            gLogicSystem->SetPostUpdateCallback([](float dt)
+            {
+                if (gLogicSystem && gLogicSystem->hitBoxSystem)
+                    gLogicSystem->hitBoxSystem->Update(dt);
+            });
+        }
         RegisterMyGameScripts(*gLogicSystem);
         BindCombatAudio(*gLogicSystem, *gHealthSystem);
         BindCombatVfx(*gLogicSystem);
@@ -189,14 +232,22 @@ namespace mygame {
         mainMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
-        cutsceneReady = cutscenePlayer.Load(Framework::ResolveAssetPath("Video/output.mpg").string());
+        const std::string cutscenePath = ResolveFirstExistingAsset({
+            "Video/output.mpg",
+            "Video__OFF_WEB/output.mpg"
+            });
+        cutsceneReady = !cutscenePath.empty() && cutscenePlayer.Load(cutscenePath);
         if (!cutsceneReady) {
-            std::cerr << "[Cutscene] Warning: Could not load Video/output.mpg.\n";
+            std::cerr << "[Cutscene] Warning: Could not load output.mpg from Video/ or Video__OFF_WEB/.\n";
         }
         if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
-            const auto cutsceneAudioPath = Framework::ResolveAssetPath("Video/audio.mp3").string();
-            if (!SoundManager::getInstance().loadSound(CUTSCENE_AUDIO, cutsceneAudioPath)) {
-                std::cerr << "[Cutscene] Warning: Could not load Video/audio.mp3.\n";
+            const std::string cutsceneAudioPath = ResolveFirstExistingAsset({
+                "Video/audio.mp3",
+                "Video__OFF_WEB/audio.mp3"
+                });
+            if (cutsceneAudioPath.empty() ||
+                !SoundManager::getInstance().loadSound(CUTSCENE_AUDIO, cutsceneAudioPath)) {
+                std::cerr << "[Cutscene] Warning: Could not load audio.mp3 from Video/ or Video__OFF_WEB/.\n";
             }
         }
         currentState = GameState::MAIN_MENU;
@@ -275,6 +326,7 @@ namespace mygame {
                     editorSimulationRunning = false;
                     pauseMenu.ResetLatches();
                     ResetPlayerDefeat();
+                    ResetPlayerKeyCount();
                 }
                 if (mainMenu.ConsumeExit())
                 {
@@ -380,6 +432,7 @@ namespace mygame {
                         gLogicSystem->ReloadLevel();
                     }
                     ResetPlayerDefeat();
+                    ResetPlayerKeyCount();
 
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
@@ -450,6 +503,7 @@ namespace mygame {
                         gLogicSystem->ReloadLevel();
                     }
                     ResetPlayerDefeat();
+                    ResetPlayerKeyCount();
 
                     editorSimulationRunning = true;
                     currentState = GameState::PLAYING;
@@ -570,10 +624,22 @@ namespace mygame {
 
     /*************************************************************************************
      \brief  Shuts down game systems and prints allocator leak diagnostics.
+     \details
+             - Destroys the game-owned HitBoxSystem before engine systems are released.
+             - Shuts down all registered systems through SystemManager.
+             - Prints allocator leak information after shutdown for debugging.
     *************************************************************************************/
     void shutdown()
     {
         std::cout << "[Game] Shutting down systems...\n";
+
+        if (gLogicSystem && gLogicSystem->hitBoxSystem)
+        {
+            gLogicSystem->SetPostUpdateCallback({});
+            gLogicSystem->hitBoxSystem->Shutdown();
+            delete gLogicSystem->hitBoxSystem;
+            gLogicSystem->hitBoxSystem = nullptr;
+        }
 
         // Only call ShutdownAll(), do NOT manually delete gEnemySystem etc.
         gSystems.ShutdownAll();
@@ -588,6 +654,10 @@ namespace mygame {
         gPhysicsSystem = nullptr;
         gLogicSystem = nullptr;
         gInputSystem = nullptr;
+        gHealthSystem = nullptr;
+        gParticleSystem = nullptr;
+        gNavSystem = nullptr;
+        gZoomTriggerSystem = nullptr;
 
         std::cout << "[Game] Shutdown complete.\n";
     }
@@ -637,6 +707,7 @@ namespace mygame {
         gLogicSystem->LoadLevel(levelPath);
 
         ResetPlayerDefeat();
+        ResetPlayerKeyCount();
 
         return true;
     }

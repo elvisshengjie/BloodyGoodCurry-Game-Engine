@@ -84,3 +84,65 @@ Delete removes selected object (editor-only flow).
 
 
 That's it — the project is ready to build and run in Visual Studio 2022.
+
+4. WEB BUILD AND RUN (BROWSER)
+------------------------------
+Use this when testing the Emscripten/WebGL build.
+
+Install first (one-time setup):
+- Visual Studio 2022 with "Desktop development with C++" workload
+- CMake (add to PATH)
+- Ninja (add to PATH)
+- Python 3 (add to PATH)
+- EMSDK (Emscripten SDK)
+
+Quick checks:
+```powershell
+cmake --version
+ninja --version
+python --version
+em++ --version
+```
+
+Recommended install commands (Windows + winget):
+```powershell
+winget install Kitware.CMake
+winget install Ninja-build.Ninja
+winget install Python.Python.3.12
+```
+
+EMSDK setup example:
+```powershell
+git clone https://github.com/emscripten-core/emsdk.git $env:USERPROFILE\emsdk
+cd $env:USERPROFILE\emsdk
+.\emsdk install latest
+.\emsdk activate latest
+.\emsdk_env.bat
+```
+
+Note:
+- `build_web_html.bat` auto-loads `%USERPROFILE%\emsdk\emsdk_env.bat` if `EMSDK` is not set.
+
+1. Build web output (recommended split-file release):
+   ```powershell
+   build_web_html.bat release-split reconfigure
+   ```
+
+2. Start local web server from project root:
+   ```powershell
+   python -m http.server 8000 -d build\web-release-split\Sandbox
+   ```
+
+3. Open the game:
+   ```text
+   http://localhost:8000/BloodyGoodCurry.html?v=1
+   ```
+
+4. After each rebuild:
+   - Increase the query string value (`v=2`, `v=3`, etc.)
+   - Hard refresh browser: `Ctrl+Shift+R`
+
+Web notes:
+- Do not open `BloodyGoodCurry.html` directly from file explorer.
+- Always host with `http.server` (or equivalent local server).
+- Web version currently uses audio stubs, so no FMOD sound output in browser.

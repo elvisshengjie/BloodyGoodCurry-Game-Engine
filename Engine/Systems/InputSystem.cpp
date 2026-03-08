@@ -12,10 +12,12 @@
 *********************************************************************************************/
 
 #include "InputSystem.h"
+#if defined(_WIN32)
 #if defined(APIENTRY)
 #  undef APIENTRY
 #endif
 #include <Windows.h>
+#endif
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
@@ -78,6 +80,48 @@ namespace Framework
 		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_LEFT)) std::cout << "LMB released!" << std::endl;
 		*/
 		
+		// Reset action flag each frame
+		m_moveUp = false;
+		m_moveDown = false;
+		m_moveLeft = false;
+		m_moveRight = false;
+		m_meleeAttack = false;
+		m_rangedAttack = false;
+		m_rangedHeld = false;
+		m_rangedReleased = false;
+
+		// Keyboard Movement
+		if (input.IsKeyHeld(GLFW_KEY_W)) m_moveUp = true;
+		if (input.IsKeyHeld(GLFW_KEY_S)) m_moveDown = true;
+		if (input.IsKeyHeld(GLFW_KEY_A)) m_moveLeft = true;
+		if (input.IsKeyHeld(GLFW_KEY_D)) m_moveRight = true;
+
+		// Controller Movement (Left Stick)
+		float lx = input.GetGamepadAxis(GLFW_GAMEPAD_AXIS_LEFT_X);
+		float ly = input.GetGamepadAxis(GLFW_GAMEPAD_AXIS_LEFT_Y);
+
+		if (ly < -0.2f) m_moveUp = true;
+		if (ly > 0.2f) m_moveDown = true;
+		if (lx < -0.2f) m_moveLeft = true;
+		if (lx > 0.2f) m_moveRight = true;
+
+		// Attack mapping
+		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER)) 
+		{
+			m_meleeAttack = true;
+		}
+		if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER))
+		{
+			m_rangedAttack = true;
+		}
+		if (input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonHeld(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER))
+		{
+			m_rangedHeld = true;
+		}
+		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonReleased(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER))
+		{
+			m_rangedReleased = true;
+		}
 	}
 
 	/*************************************************************************************

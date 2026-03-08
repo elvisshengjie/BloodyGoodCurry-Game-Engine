@@ -27,8 +27,9 @@
 #include "Audio/GameAudioSetup.h"
 #include "Composition/Composition.h"
 #include "Component/AudioComponent.h"
+#include "Runtime/HealthSystem.h"
 #include "Systems/CombatAudioEvents.h"
-#include "Systems/HealthSystem.h"
+#include "Systems/HitBoxSystem.h"
 #include "Systems/LogicSystem.h"
 
 namespace mygame {
@@ -68,7 +69,7 @@ namespace mygame {
 
     /*************************************************************************************
       \brief Binds this game's combat audio routing into engine combat event hooks.
-      \param logic  Reference to the engine LogicSystem that owns the hitbox system.
+      \param logic  Reference to the engine LogicSystem that exposes the active hitbox system.
       \param health Reference to the engine HealthSystem that emits health-related events.
 
       \details

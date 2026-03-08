@@ -27,6 +27,7 @@
 #include "Resource_Asset_Manager/Resource_Manager.h"
 #include "Audio/SoundManager.h"
 #include "Component/TransformComponent.h"
+#include <filesystem>
 #include <iostream>
 #include "Common/CRTDebug.h"
 
@@ -60,8 +61,22 @@ namespace Framework
             return;
         }
 
-        const std::string audioPath = Framework::ResolveAssetPath("Audio").string();
-        Resource_Manager::loadAll(audioPath);
+#if !SOFASPUDS_DISABLE_AUDIO
+        namespace fs = std::filesystem;
+        fs::path audioPath = Framework::ResolveAssetPath("Audio");
+        if (!fs::exists(audioPath))
+        {
+            const fs::path fallbackAudioPath = Framework::ResolveAssetPath("Audio__OFF_WEB");
+            if (fs::exists(fallbackAudioPath))
+            {
+                std::cout << "[AudioSystem] Using fallback audio folder: "
+                          << fallbackAudioPath.string() << "\n";
+                audioPath = fallbackAudioPath;
+            }
+        }
+
+        Resource_Manager::loadAll(audioPath.string());
+#endif
 
 #if SOFASPUDS_ENABLE_EDITOR
         AudioImGui::Initialize(*window);
@@ -103,26 +118,21 @@ namespace Framework
     void AudioSystem::UpdateListener()
     {
         if (!FACTORY) return;
+        GOC* listener = listenerQueryCallback ? listenerQueryCallback() : nullptr;
+        if (!listener)
+            return;
 
-        for (auto& [id, gocPtr] : FACTORY->Objects())
-        {
-            if (!gocPtr) continue;
-            GOC* goc = gocPtr.get();
+        auto* tr = listener->GetComponentType<TransformComponent>(
+            ComponentTypeId::CT_TransformComponent);
+        if (!tr)
+            return;
 
-            if (!goc->GetComponent(ComponentTypeId::CT_PlayerComponent)) continue;
+        // Game is 2D — Z is fixed at 0. Forward points into the screen.
+        float listenerPos[3] = { tr->x, tr->y, 0.0f };
+        float forward[3] = { 0.0f, 0.0f, 1.0f };
+        float up[3] = { 0.0f, 1.0f, 0.0f };
 
-            auto* tr = goc->GetComponentType<TransformComponent>(
-                ComponentTypeId::CT_TransformComponent);
-            if (!tr) break;
-
-            // Game is 2D — Z is fixed at 0. Forward points into the screen.
-            float listenerPos[3] = { tr->x,   tr->y,  0.0f };
-            float forward[3] = { 0.0f,    0.0f,  -1.0f };
-            float up[3] = { 0.0f,    1.0f,   0.0f };
-
-            SoundManager::getInstance().setListenerPos(listenerPos, forward, up);
-            break; // Only one player expected.
-        }
+        SoundManager::getInstance().setListenerPos(listenerPos, forward, up);
     }
 
     /*****************************************************************************************

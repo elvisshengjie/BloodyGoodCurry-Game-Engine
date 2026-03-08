@@ -3,7 +3,7 @@
  \par       SofaSpuds
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
- \brief     Implements sandbox/game-layer behaviours (scripts) registered into the engine’s
+ \brief     Implements sandbox/game-layer behaviours (scripts) registered into the engine's
             LogicSystem via function-pointer tables (Init/Update/End).
 
  \details
@@ -28,6 +28,7 @@
 *********************************************************************************************/
 
 #include "Systems/LogicSystem.h"
+#include "Systems/HitBoxSystem.h"
 #include "Factory/Factory.h"
 #include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"
@@ -37,11 +38,11 @@
 #include "../Audio/GameAudioSetup.h"
 
 #include "Component/AudioComponent.h"
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/GateTargetComponent.h"
-#include "Component/PlayerAttackComponent.h"
-#include "Component/PlayerHealthComponent.h"
+#include "Components/EnemyComponent.h"
+#include "Components/EnemyHealthComponent.h"
+#include "Components/GateTargetComponent.h"
+#include "Components/PlayerAttackComponent.h"
+#include "Components/PlayerHealthComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/TransformComponent.h"
@@ -58,6 +59,7 @@
 #include <memory>
 #include <string_view>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <cstdint>
 
@@ -81,10 +83,40 @@ namespace {
     bool gPendingGateTransition = false;
 
     /*****************************************************************************************
+      \brief Current player key inventory used by key pickups and key-locked doors.
+    *****************************************************************************************/
+    int gPlayerKeyCount = 0;
+
+    /*****************************************************************************************
+      \brief Tracks key pickup objects that have already been collected.
+    *****************************************************************************************/
+    std::unordered_set<Framework::GOCId> gCollectedKeyObjects;
+
+    /*****************************************************************************************
+      \brief Tracks key-locked doors that have already been unlocked.
+    *****************************************************************************************/
+    std::unordered_set<Framework::GOCId> gUnlockedDoorObjects;
+
+    /*****************************************************************************************
+      \brief Ranged attack constants for change
+    *****************************************************************************************/
+    constexpr float kProjectileSpeed = 10.0f;
+    constexpr float kProjectileLifetime = 0.35f;
+    /*****************************************************************************************
+      \brief Slow down attack constants
+    *****************************************************************************************/
+    constexpr float kSlowAttackRange = 0.15f;
+    constexpr float kSlowAttackDuration = 0.25f;  ///< Hitbox active window
+    constexpr float kSlowAttackDamage = 0.0f;
+    constexpr float kSlowSpeedMultiplier = 0.35f;
+    constexpr float kSlowEffectDuration = 2.5f;
+    constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock — avoids bad sprite sheet fps giving huge values
+    constexpr float kSlowAttackCooldown = 0.9f;   ///< Total cooldown after slow attack fires
+    /*****************************************************************************************
       \enum PlayerAnimState
       \brief High-level animation state machine used by PlayerController.
     *****************************************************************************************/
-    enum class PlayerAnimState { Idle, Run, Attack1, Attack2, Attack3, Throw, Knockback, Death };
+    enum class PlayerAnimState { Idle, Run, Attack1, Attack2, Attack3, Throw, SlowAttack, Knockback, Death };
 
     /*****************************************************************************************
       \struct PlayerAnimConfig
@@ -127,11 +159,19 @@ namespace {
         int comboStep{ 0 };                                  ///< 1..3 combo cycle step
         float knockbackAnimTimer{ 0.0f };                    ///< Remaining knockback anim time
         PendingThrow pendingThrow{};                         ///< Queued throw spawn data
+        PendingThrow pendingSlow{};
         float throwCooldownTimer{ 0.0f };                    ///< Cooldown gate for throw
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
         float footstepTimer{ 0.0f };                         ///< Timer for footstep sound cadence
-        std::unique_ptr<mygame::GameAudio> audio;         ///< Game-side audio facade
+        std::unique_ptr<mygame::GameAudio> audio;           ///< Game-side audio facade
+        float lastAimDirX{ 1.0f };                          ///< Current aim direction x for player [Default right]
+        float lastAimDirY{ 0.0f };                          ///< Current aim direction y for player
+        bool usingControllerLast{ false };                  ///< Checks if player is using controller or not
+        float lastMouseX{ 0.0f };                           ///< To store mouse's X coordinates
+        float lastMouseY{ 0.0f };                           ///< To store mouse's Y coordinates
+
+        float slowAttackCooldownTimer{ 0.0f };
     };
 
     /*****************************************************************************************
@@ -206,6 +246,7 @@ namespace {
         case PlayerAnimState::Attack2: desired = "attack2"; break;
         case PlayerAnimState::Attack3: desired = "attack3"; break;
         case PlayerAnimState::Throw: desired = "throw"; break;
+        case PlayerAnimState::SlowAttack: desired = "slowattack"; break;
         case PlayerAnimState::Knockback: desired = "knockback"; break;
         case PlayerAnimState::Death: desired = "death"; break;
         case PlayerAnimState::Idle:
@@ -257,7 +298,8 @@ namespace {
         return state == PlayerAnimState::Attack1 ||
             state == PlayerAnimState::Attack2 ||
             state == PlayerAnimState::Attack3 ||
-            state == PlayerAnimState::Throw;
+            state == PlayerAnimState::Throw ||
+            state == PlayerAnimState::SlowAttack;
     }
 
     /*****************************************************************************************
@@ -361,6 +403,53 @@ namespace {
     }
 
     /*****************************************************************************************
+      \brief Checks AABB overlap between a player and another object.
+      \param player Alive player object.
+      \param object Target object to test overlap with.
+      \return True if both objects have transform+rigidbody components and overlap.
+    *****************************************************************************************/
+    bool IsPlayerOverlappingObject(Framework::GameObjectComposition* player, Framework::GameObjectComposition* object)
+    {
+        if (!player || !object)
+            return false;
+
+        auto* objectTr = SafeGetComponent<Framework::TransformComponent>(object, Framework::ComponentTypeId::CT_TransformComponent);
+        auto* objectRb = SafeGetComponent<Framework::RigidBodyComponent>(object, Framework::ComponentTypeId::CT_RigidBodyComponent);
+        auto* playerTr = SafeGetComponent<Framework::TransformComponent>(player, Framework::ComponentTypeId::CT_TransformComponent);
+        auto* playerRb = SafeGetComponent<Framework::RigidBodyComponent>(player, Framework::ComponentTypeId::CT_RigidBodyComponent);
+
+        if (!objectTr || !objectRb || !playerTr || !playerRb)
+            return false;
+
+        const Framework::AABB objectBox(objectTr->x, objectTr->y, objectRb->width, objectRb->height);
+        const Framework::AABB playerBox(playerTr->x, playerTr->y, playerRb->width, playerRb->height);
+        return Framework::Collision::CheckCollisionRectToRect(playerBox, objectBox);
+    }
+
+    /*****************************************************************************************
+      \brief Resolves GateTargetComponent.levelPath into an absolute data path.
+      \param gateObject Object that owns GateTargetComponent.
+      \param outPath    Output absolute/usable level path.
+      \return True when a valid target path was resolved.
+    *****************************************************************************************/
+    bool ResolveGateTargetPath(Framework::GameObjectComposition* gateObject, std::filesystem::path& outPath)
+    {
+        if (!gateObject)
+            return false;
+
+        auto* target = SafeGetComponent<Framework::GateTargetComponent>(gateObject, Framework::ComponentTypeId::CT_GateTargetComponent);
+        if (!target || target->levelPath.empty())
+            return false;
+
+        std::filesystem::path targetPath(target->levelPath);
+        if (!targetPath.is_absolute())
+            targetPath = Framework::ResolveDataPath(targetPath);
+
+        outPath = targetPath;
+        return true;
+    }
+
+    /*****************************************************************************************
       \brief GameDirector behaviour: Init hook (optional global director).
     *****************************************************************************************/
     void GameDirector_Init(Framework::GameObjectComposition*)
@@ -450,25 +539,86 @@ namespace {
         float aimDirY = 0.0f;
 
         /*************************************************************************************
-          \brief Convert mouse screen coordinates to world coordinates for aiming.
+          \brief For controller aiming
           \details Also flips the sprite horizontally by flipping RenderComponent width sign.
         **************************************************************************************/
-        if (auto* rs = Framework::RenderSystem::Get())
+        float stickX = input.Manager().GetGamepadAxis(GLFW_GAMEPAD_AXIS_RIGHT_X);
+        float stickY = input.Manager().GetGamepadAxis(GLFW_GAMEPAD_AXIS_RIGHT_Y);
+
+        // Invert the Y because gamepad Y is usually opposite of screen Y, but remove if it isnt.
+        stickY = -stickY;
+
+        const float stickDeadzone = 0.2f;
+        bool controllerActive = false;
+
+        // --------------------------------------------------
+ // Controller Aim
+ // --------------------------------------------------
+        if (std::fabs(stickX) > stickDeadzone || std::fabs(stickY) > stickDeadzone)
         {
-            if (rs->ScreenToWorld(mouse.x, mouse.y, mouseWorldX, mouseWorldY, mouseInsideViewport) && mouseInsideViewport)
+            const float len = std::sqrt(stickX * stickX + stickY * stickY);
+            if (len > 0.0001f)
             {
-                const float dx = mouseWorldX - tr->x;
-                const float dy = mouseWorldY - tr->y;
-                const float lenSq = dx * dx + dy * dy;
-                if (lenSq > 1e-6f)
-                {
-                    const float invLen = 1.0f / std::sqrt(lenSq);
-                    aimDirX = dx * invLen;
-                    aimDirY = dy * invLen;
-                }
-                if (aimDirX >= 0.0f) rc->w = std::abs(rc->w);
-                else rc->w = -std::abs(rc->w);
+                aimDirX = stickX / len;
+                aimDirY = stickY / len;
+
+                state.lastAimDirX = aimDirX;
+                state.lastAimDirY = aimDirY;
+
+                state.usingControllerLast = true;
+                controllerActive = true;
             }
+        }
+
+        // --------------------------------------------------
+        // Mouse Aim (only if controller not actively moving)
+        // --------------------------------------------------
+        bool mouseMoved = (mouse.x != state.lastMouseX || mouse.y != state.lastMouseY);
+
+        if (!controllerActive && mouseMoved)
+        {
+            if (auto* rs = Framework::RenderSystem::Get())
+            {
+                if (rs->ScreenToWorld(mouse.x, mouse.y,
+                    mouseWorldX, mouseWorldY,
+                    mouseInsideViewport) && mouseInsideViewport)
+                {
+                    const float dx = mouseWorldX - tr->x;
+                    const float dy = mouseWorldY - tr->y;
+                    const float lenSq = dx * dx + dy * dy;
+
+                    if (lenSq > 1e-6f)
+                    {
+                        const float invLen = 1.0f / std::sqrt(lenSq);
+                        aimDirX = dx * invLen;
+                        aimDirY = dy * invLen;
+
+                        state.lastAimDirX = aimDirX;
+                        state.lastAimDirY = aimDirY;
+                        state.usingControllerLast = false;
+                    }
+                }
+            }
+        }
+
+        // If nothing changed this frame, keep last direction
+        if (!controllerActive && !mouseMoved)
+        {
+            aimDirX = state.lastAimDirX;
+            aimDirY = state.lastAimDirY;
+        }
+        state.lastMouseX = static_cast<float>(mouse.x);
+        state.lastMouseY = static_cast<float>(mouse.y);
+
+        /*************************************************************************************
+          \brief Flips the sprite based on final aim direction, for both mouse and controller
+        **************************************************************************************/
+        if (std::fabs(aimDirX) > 0.001f)
+        {
+            if (aimDirX >= 0.0f)
+                rc->w = std::abs(rc->w);
+            else
+                rc->w = -std::abs(rc->w);
         }
 
         /*************************************************************************************
@@ -481,9 +631,13 @@ namespace {
 
         const bool isKnockback = rb->knockbackTime > 0.0f || state.knockbackAnimTimer > 0.0f;
         const bool isThrowing = state.animState == PlayerAnimState::Throw;
+        const bool isMeleeAttacking = state.animState == PlayerAnimState::Attack1 ||
+            state.animState == PlayerAnimState::Attack2 ||
+            state.animState == PlayerAnimState::Attack3;
+        const bool isSlowAttacking = state.animState == PlayerAnimState::SlowAttack; // [Balancing #5]
 
         /*************************************************************************************
-          \brief Movement integration (lunge > normal movement > locked during throw/knockback).
+          \brief Movement integration (normal movement > locked during melee/throw/knockback).
         **************************************************************************************/
         if (rb->lungeTime > 0.0f)
         {
@@ -494,22 +648,22 @@ namespace {
                 rb->lungeTime = 0.0f;
             }
         }
-        else if (!isKnockback && !isThrowing)
+        else if (!isKnockback && !isThrowing && !isMeleeAttacking && !isSlowAttacking) // [Balancing #5][#6]
         {
             const float forwardX = (rc->w >= 0.0f) ? 1.0f : -1.0f;
             float speedModifier = 1.0f;
-            if ((input.IsKeyHeld(GLFW_KEY_D) && forwardX < 0) || (input.IsKeyHeld(GLFW_KEY_A) && forwardX > 0))
+            if ((input.MoveRight() && forwardX < 0) || (input.MoveLeft() && forwardX > 0))
                 speedModifier = 0.75f;
 
-            if (input.IsKeyHeld(GLFW_KEY_D)) rb->velX = std::max(rb->velX, 1.f * speedModifier);
-            if (input.IsKeyHeld(GLFW_KEY_A)) rb->velX = std::min(rb->velX, -1.f * speedModifier);
-            if (!input.IsKeyHeld(GLFW_KEY_A) && !input.IsKeyHeld(GLFW_KEY_D)) rb->velX *= rb->dampening;
+            if (input.MoveRight()) rb->velX = std::max(rb->velX, 1.f * speedModifier);
+            if (input.MoveLeft()) rb->velX = std::min(rb->velX, -1.f * speedModifier);
+            if (!input.MoveLeft() && !input.MoveRight()) rb->velX *= rb->dampening;
 
-            if (input.IsKeyHeld(GLFW_KEY_W)) rb->velY = std::max(rb->velY, 1.f);
-            if (input.IsKeyHeld(GLFW_KEY_S)) rb->velY = std::min(rb->velY, -1.f);
-            if (!input.IsKeyHeld(GLFW_KEY_W) && !input.IsKeyHeld(GLFW_KEY_S)) rb->velY *= rb->dampening;
+            if (input.MoveUp()) rb->velY = std::max(rb->velY, 1.f);
+            if (input.MoveDown()) rb->velY = std::min(rb->velY, -1.f);
+            if (!input.MoveUp() && !input.MoveDown()) rb->velY *= rb->dampening;
         }
-        else if (isThrowing && !isKnockback)
+        else if ((isThrowing || isMeleeAttacking || isSlowAttacking) && !isKnockback) // [Balancing #6]
         {
             rb->velX = 0.0f;
             rb->velY = 0.0f;
@@ -518,10 +672,12 @@ namespace {
         /*************************************************************************************
           \brief Run/idle intent used for animation and run particle spawning.
         **************************************************************************************/
-        const bool wantRun = input.IsKeyHeld(GLFW_KEY_A) || input.IsKeyHeld(GLFW_KEY_D) ||
+        /*const bool wantRun = input.IsKeyHeld(GLFW_KEY_A) || input.IsKeyHeld(GLFW_KEY_D) ||
             input.IsKeyHeld(GLFW_KEY_W) || input.IsKeyHeld(GLFW_KEY_S) ||
             input.IsKeyHeld(GLFW_KEY_LEFT) || input.IsKeyHeld(GLFW_KEY_RIGHT) ||
-            input.IsKeyHeld(GLFW_KEY_UP) || input.IsKeyHeld(GLFW_KEY_DOWN);
+            input.IsKeyHeld(GLFW_KEY_UP) || input.IsKeyHeld(GLFW_KEY_DOWN);*/
+
+        const bool wantRun = input.MoveUp() || input.MoveDown() || input.MoveLeft() || input.MoveRight();
 
         state.runParticleTimer = std::max(0.0f, state.runParticleTimer - dt);
         state.footstepTimer = std::max(0.0f, state.footstepTimer - dt);
@@ -552,24 +708,36 @@ namespace {
         if (state.throwCooldownTimer > 0.0f)
             state.throwCooldownTimer = std::max(0.0f, state.throwCooldownTimer - dt);
 
+        // [Balancing #5] Tick slow attack cooldown each frame
+        if (state.slowAttackCooldownTimer > 0.0f)
+            state.slowAttackCooldownTimer = std::max(0.0f, state.slowAttackCooldownTimer - dt);
+
+        // DEBUG: print state when F is held so we can see what's blocking re-fire
+        if (input.IsKeyHeld(GLFW_KEY_F))
+        {
+            std::cout << "[SlowAttack DBG] animState=" << static_cast<int>(state.animState)
+                << " attackTimer=" << state.attackTimer
+                << " cooldown=" << state.slowAttackCooldownTimer
+                << " canStartMelee=" << (!IsAttackState(state.animState) ? "YES" : "NO")
+                << "\n";
+        }
+
         /*************************************************************************************
           \brief Input: queue/hold throw request via RMB.
         **************************************************************************************/
         const bool knockbackActive = rb->knockbackTime > 0.0f || state.knockbackAnimTimer > 0.0f;
-        if (input.IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT) || (knockbackActive && input.IsMouseHeld(GLFW_MOUSE_BUTTON_RIGHT)))
+        if (input.RangedAttack() || (knockbackActive && input.RangedHeld()))
             state.throwRequestQueued = true;
-        if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT))
+        if (input.RangedReleased())
             state.throwRequestQueued = false;
 
         /*************************************************************************************
-          \brief Input: LMB melee attack triggers lunge + hitbox + combo animation.
+          \brief Input: LMB melee attack triggers hitbox + combo animation.
         **************************************************************************************/
-        if (input.IsMousePressed(GLFW_MOUSE_BUTTON_LEFT) && (aimDirX != 0.0f || aimDirY != 0.0f))
+        const bool canStartMelee = !IsAttackState(state.animState) && !knockbackActive;
+        if (input.MeleeAttack() && canStartMelee &&
+            (aimDirX != 0.0f || aimDirY != 0.0f))
         {
-            float dirX = (mouseWorldX > tr->x) ? 1.0f : -1.0f;
-            rb->velX = dirX * 0.1f;
-            rb->lungeTime = 0.15f;
-
             const float offset = 0.05f;
             const float halfW = std::abs(rc->w) * 0.5f;
             const float halfH = rc->h * 0.5f;
@@ -615,6 +783,24 @@ namespace {
                 state.throwRequestQueued = false;
             }
         }
+        else if (input.IsKeyPressed(GLFW_KEY_F) && canStartMelee
+            && state.slowAttackCooldownTimer <= 0.0f && (aimDirX != 0.0f || aimDirY != 0.0f))
+        {
+            const float offset = 0.05f;
+            const float halfW = std::abs(rc->w) * 0.5f;
+            const float halfH = rc->h * 0.5f;
+
+            state.pendingSlow.active = true;
+            state.pendingSlow.spawnX = tr->x + aimDirX * (halfW + offset);
+            state.pendingSlow.spawnY = tr->y + aimDirY * (halfH + offset);
+            state.pendingSlow.dirX = aimDirX;
+            state.pendingSlow.dirY = aimDirY;
+
+            SetAnimState(obj, state, PlayerAnimState::SlowAttack);
+            state.attackTimer = kSlowAttackAnimDuration;
+            state.slowAttackCooldownTimer = kSlowAttackCooldown;
+        }
+
 
         /*************************************************************************************
           \brief State machine priority: Death > Knockback > Attack/Throw > Run/Idle.
@@ -675,15 +861,33 @@ namespace {
                 gLogicSystem->hitBoxSystem->SpawnProjectile(obj,
                     state.pendingThrow.spawnX, state.pendingThrow.spawnY,
                     state.pendingThrow.dirX, state.pendingThrow.dirY,
-                    0.8f,
+                    kProjectileLifetime,
                     0.1f, 0.1f,
-                    1.0f, 5.f, Framework::HitBoxComponent::Team::Thrown);
+                    1.0f, kProjectileSpeed, Framework::HitBoxComponent::Team::Thrown);
             }
             if (state.audio)
                 state.audio->PlayGrapple();
             state.pendingThrow.active = false;
         }
+        if (state.pendingSlow.active && state.attackTimer <= 0.0f)
+        {
+            gLogicSystem->hitBoxSystem->SpawnProjectile(obj,
+                state.pendingSlow.spawnX,
+                state.pendingSlow.spawnY,
+                state.pendingSlow.dirX,
+                state.pendingSlow.dirY,
+                kProjectileLifetime,
+                0.1f, 0.1f,
+                0.0f,
+                kProjectileSpeed,
+                Framework::HitBoxComponent::Team::PlayerSlow);
+            if (state.audio)          
+                state.audio->PlayGrapple();
+            state.pendingSlow.active = false;
+
+        }
     }
+
 
     /*****************************************************************************************
       \brief PlayerController behaviour: End hook.
@@ -725,6 +929,8 @@ namespace {
         if (!attack || !attack->hitbox || !attack->hitbox->active)
             return;
 
+        const bool isSlowHitbox = (attack->hitbox->team == Framework::HitBoxComponent::Team::PlayerSlow);
+
         Framework::AABB playerHitBox(
             attack->hitbox->spawnX,
             attack->hitbox->spawnY,
@@ -738,11 +944,26 @@ namespace {
 
             auto* rb = SafeGetComponent<Framework::RigidBodyComponent>(obj, Framework::ComponentTypeId::CT_RigidBodyComponent);
             auto* tr = SafeGetComponent<Framework::TransformComponent>(obj, Framework::ComponentTypeId::CT_TransformComponent);
+            auto* enemy = SafeGetComponent<Framework::EnemyComponent>(obj, Framework::ComponentTypeId::CT_EnemyComponent);
             if (!(rb && tr))
                 continue;
+            if (enemy && enemy->isAttacking)
+            {
+                rb->velX = 0.0f;
+                rb->velY = 0.0f;
+            }
 
             Framework::AABB enemyBox(tr->x, tr->y, rb->width, rb->height);
-            if (Framework::Collision::CheckCollisionRectToRect(playerHitBox, enemyBox))
+            if (!Framework::Collision::CheckCollisionRectToRect(playerHitBox, enemyBox)) continue;
+            if (isSlowHitbox)
+            {
+                if (enemy)
+                {
+                    enemy->slowTimer = kSlowEffectDuration;
+                    enemy->slowMultiplier = kSlowSpeedMultiplier;
+                }
+            }
+            else
             {
                 attack->hitbox->DeactivateHurtBox();
                 break;
@@ -815,6 +1036,48 @@ namespace {
     void VfxCleanup_End(Framework::GameObjectComposition*) {}
 
     /*****************************************************************************************
+      \brief KeyPickupLogic behaviour: Init hook.
+    *****************************************************************************************/
+    void KeyPickupLogic_Init(Framework::GameObjectComposition*) {}
+
+    /*****************************************************************************************
+      \brief KeyPickupLogic behaviour: Update hook.
+      \details
+      If the player collides with this key object's hitbox, increment key count once and
+      destroy the key object.
+    *****************************************************************************************/
+    void KeyPickupLogic_Update(Framework::GameObjectComposition* keyObject, float)
+    {
+        if (!gLogicSystem || !keyObject)
+            return;
+
+        if (gCollectedKeyObjects.contains(keyObject->GetId()))
+            return;
+
+        auto* player = gLogicSystem->FindAnyAlivePlayer();
+        if (!player)
+            return;
+
+        auto* playerHealth = SafeGetComponent<Framework::PlayerHealthComponent>(player, Framework::ComponentTypeId::CT_PlayerHealthComponent);
+        if (playerHealth && playerHealth->isDead)
+            return;
+
+        if (!IsPlayerOverlappingObject(player, keyObject))
+            return;
+
+        gCollectedKeyObjects.insert(keyObject->GetId());
+        ++gPlayerKeyCount;
+
+        if (auto* factory = gLogicSystem->Factory())
+            factory->Destroy(keyObject);
+    }
+
+    /*****************************************************************************************
+      \brief KeyPickupLogic behaviour: End hook.
+    *****************************************************************************************/
+    void KeyPickupLogic_End(Framework::GameObjectComposition*) {}
+
+    /*****************************************************************************************
       \brief GateLogic behaviour: Init hook.
       \details Resets gPendingGateTransition so the gate can trigger again in a new level.
     *****************************************************************************************/
@@ -847,32 +1110,82 @@ namespace {
         auto* player = gLogicSystem->FindAnyAlivePlayer();
         if (!player)
             return;
-
-        auto* gateTr = SafeGetComponent<Framework::TransformComponent>(gateObject, Framework::ComponentTypeId::CT_TransformComponent);
-        auto* gateRb = SafeGetComponent<Framework::RigidBodyComponent>(gateObject, Framework::ComponentTypeId::CT_RigidBodyComponent);
-        auto* playerTr = SafeGetComponent<Framework::TransformComponent>(player, Framework::ComponentTypeId::CT_TransformComponent);
-        auto* playerRb = SafeGetComponent<Framework::RigidBodyComponent>(player, Framework::ComponentTypeId::CT_RigidBodyComponent);
         auto* playerHealth = SafeGetComponent<Framework::PlayerHealthComponent>(player, Framework::ComponentTypeId::CT_PlayerHealthComponent);
 
-        if (!gateTr || !gateRb || !playerTr || !playerRb || (playerHealth && playerHealth->isDead))
+        if (playerHealth && playerHealth->isDead)
             return;
 
-        Framework::AABB gateBox(gateTr->x, gateTr->y, gateRb->width, gateRb->height);
-        Framework::AABB playerBox(playerTr->x, playerTr->y, playerRb->width, playerRb->height);
-
-        if (!Framework::Collision::CheckCollisionRectToRect(playerBox, gateBox))
+        if (!IsPlayerOverlappingObject(player, gateObject))
             return;
 
-        auto* target = SafeGetComponent<Framework::GateTargetComponent>(gateObject, Framework::ComponentTypeId::CT_GateTargetComponent);
-        if (!target || target->levelPath.empty())
+        std::filesystem::path targetPath;
+        if (!ResolveGateTargetPath(gateObject, targetPath))
             return;
-
-        std::filesystem::path targetPath(target->levelPath);
-        if (!targetPath.is_absolute())
-            targetPath = Framework::ResolveDataPath(targetPath);
 
         gPendingGateTransition = true;
         gLogicSystem->LoadLevel(targetPath);
+    }
+
+    /*****************************************************************************************
+      \brief KeyDoorLogic behaviour: Init hook.
+    *****************************************************************************************/
+    void KeyDoorLogic_Init(Framework::GameObjectComposition*)
+    {
+        gPendingGateTransition = false;
+    }
+
+    /*****************************************************************************************
+      \brief KeyDoorLogic behaviour: Update hook.
+      \details
+      Door unlock only happens when the player collides with the door hitbox and has at
+      least one key. One key is consumed on unlock. Once unlocked, this door follows
+      GateLogic transition behavior (enemy clear + collision + GateTargetComponent load).
+    *****************************************************************************************/
+    void KeyDoorLogic_Update(Framework::GameObjectComposition* doorObject, float)
+    {
+        if (!gLogicSystem || !doorObject || gPendingGateTransition)
+            return;
+
+        auto* player = gLogicSystem->FindAnyAlivePlayer();
+        if (!player)
+            return;
+
+        auto* playerHealth = SafeGetComponent<Framework::PlayerHealthComponent>(player, Framework::ComponentTypeId::CT_PlayerHealthComponent);
+        if (playerHealth && playerHealth->isDead)
+            return;
+
+        if (!IsPlayerOverlappingObject(player, doorObject))
+            return;
+
+        const Framework::GOCId doorId = doorObject->GetId();
+        bool unlocked = gUnlockedDoorObjects.contains(doorId);
+        if (!unlocked)
+        {
+            if (gPlayerKeyCount <= 0)
+                return;
+
+            --gPlayerKeyCount;
+            gUnlockedDoorObjects.insert(doorId);
+            unlocked = true;
+        }
+
+        if (!unlocked)
+            return;
+
+        std::filesystem::path targetPath;
+        if (!ResolveGateTargetPath(doorObject, targetPath))
+            return;
+
+        gPendingGateTransition = true;
+        gLogicSystem->LoadLevel(targetPath);
+    }
+
+    /*****************************************************************************************
+      \brief KeyDoorLogic behaviour: End hook.
+    *****************************************************************************************/
+    void KeyDoorLogic_End(Framework::GameObjectComposition*)
+    {
+        gPendingGateTransition = false;
     }
 
     /*****************************************************************************************
@@ -911,6 +1224,26 @@ namespace mygame {
         logic.RegisterBehaviour("CombatDirector", { CombatDirector_Init, CombatDirector_Update, CombatDirector_End });
         logic.RegisterBehaviour("VfxCleanup", { VfxCleanup_Init, VfxCleanup_Update, VfxCleanup_End });
         logic.RegisterBehaviour("GateLogic", { GateLogic_Init, GateLogic_Update, GateLogic_End });
+        logic.RegisterBehaviour("KeyPickupLogic", { KeyPickupLogic_Init, KeyPickupLogic_Update, KeyPickupLogic_End });
+        logic.RegisterBehaviour("KeyDoorLogic", { KeyDoorLogic_Init, KeyDoorLogic_Update, KeyDoorLogic_End });
+    }
+
+    /*****************************************************************************************
+      \brief Returns the currently collected key count.
+    *****************************************************************************************/
+    int GetPlayerKeyCount()
+    {
+        return std::max(0, gPlayerKeyCount);
+    }
+
+    /*****************************************************************************************
+      \brief Resets key inventory and key-door runtime state.
+    *****************************************************************************************/
+    void ResetPlayerKeyCount()
+    {
+        gPlayerKeyCount = 0;
+        gCollectedKeyObjects.clear();
+        gUnlockedDoorObjects.clear();
     }
 
 }

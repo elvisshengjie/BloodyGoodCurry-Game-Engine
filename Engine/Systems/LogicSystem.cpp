@@ -11,7 +11,7 @@
             - Factory lifetime: component registration, prefab loading, level create/reload.
             - Player state: discovery and animation state (idle/run/melee combo/throw/knockback/death).
             - Input mapping: WASD move, LMB melee combo, RMB throw projectile, F1 overlay.
-            - HitBoxSystem: spawns melee hitboxes and deferred projectile throws (after throw animation).
+            - Game hooks: exposes callbacks for project-specific runtime work owned by the game layer.
             - Editor hooks (when enabled): selection/spawn/debug tooling integration.
             - Crash logging: writes crash logs and supports a debug-only crash test.
 
@@ -24,11 +24,20 @@
 #include "Core/PathUtils.h"
 #include "Systems/RenderSystem.h"      // for ScreenToWorld / camera-based world mapping
 #include "Debug/Selection.h"
-#include "Debug/Spawn.h"
 #include "Systems/VfxHelpers.h"
 #include "Memory/GameObjectPool.h"
 #include "Systems/ParticleSystem.h"
 #include "Component/AudioComponent.h"
+#include "Component/BehaviourComponent.h"
+#include "Component/BehaviorTreeComponent.h"
+#include "Component/CircleRenderComponent.h"
+#include "Component/HitBoxComponent.h"
+#include "Component/RenderComponent.h"
+#include "Component/ShadowComponent.h"
+#include "Component/SpriteAnimationComponent.h"
+#include "Component/SpriteComponent.h"
+#include "Component/TransformComponent.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 #include <cctype>
 #include <string>
 #include <string_view>
@@ -44,79 +53,6 @@
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
-
-namespace
-{
-    void RestoreAudioFromPrefab(Framework::GOC* obj, const char* prefabKey)
-    {
-        if (!obj || !prefabKey)
-            return;
-
-        auto prefabIt = Framework::master_copies.find(prefabKey);
-        if (prefabIt == Framework::master_copies.end() || !prefabIt->second)
-            return;
-
-        auto* prefabAudio = prefabIt->second->GetComponentType<Framework::AudioComponent>(
-            Framework::ComponentTypeId::CT_AudioComponent);
-        if (!prefabAudio)
-            return;
-
-        auto* audio = obj->GetComponentType<Framework::AudioComponent>(
-            Framework::ComponentTypeId::CT_AudioComponent);
-        if (!audio)
-        {
-            auto clone = prefabAudio->Clone();
-            if (!clone)
-                return;
-
-            obj->AddComponent(Framework::ComponentTypeId::CT_AudioComponent, std::move(clone));
-            audio = obj->GetComponentType<Framework::AudioComponent>(
-                Framework::ComponentTypeId::CT_AudioComponent);
-        }
-
-        if (!audio || !audio->GetSounds().empty())
-            return;
-
-        audio->volume = prefabAudio->volume;
-        for (const auto& [action, info] : prefabAudio->GetSounds())
-            audio->AddSound(action, info.id, info.loop);
-    }
-
-    void RestoreMissingLevelAudio(const std::vector<Framework::GOC*>& objects)
-    {
-        for (auto* obj : objects)
-        {
-            if (!obj)
-                continue;
-
-            auto* audio = obj->GetComponentType<Framework::AudioComponent>(
-                Framework::ComponentTypeId::CT_AudioComponent);
-            if (audio && !audio->GetSounds().empty())
-                continue;
-
-            if (obj->GetComponentType<Framework::PlayerComponent>(
-                Framework::ComponentTypeId::CT_PlayerComponent))
-            {
-                RestoreAudioFromPrefab(obj, "player");
-                continue;
-            }
-
-            auto* enemyType = obj->GetComponentType<Framework::EnemyTypeComponent>(
-                Framework::ComponentTypeId::CT_EnemyTypeComponent);
-            if (enemyType && enemyType->Etype == Framework::EnemyTypeComponent::EnemyType::ranged)
-            {
-                RestoreAudioFromPrefab(obj, "enemyranged");
-                continue;
-            }
-
-            if (obj->GetComponentType<Framework::EnemyComponent>(
-                Framework::ComponentTypeId::CT_EnemyComponent))
-            {
-                RestoreAudioFromPrefab(obj, "enemy");
-            }
-        }
-    }
-}
 
 namespace Framework {
 
@@ -159,15 +95,11 @@ namespace Framework {
         if (!factory)
             return nullptr;
 
-        for (auto& [id, ptr] : factory->Objects())
-        {
-            if (auto* obj = ptr.get())
-            {
-                if (obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
-                    return obj;
-            }
-        }
-        return nullptr;
+        if (!findPlayerCallback)
+            return nullptr;
+
+        GOC* playerCandidate = findPlayerCallback(*this);
+        return IsAlive(playerCandidate) ? playerCandidate : nullptr;
     }
 
     /*****************************************************************************************
@@ -216,8 +148,6 @@ namespace Framework {
         if (!IsAlive(collisionTarget))
             collisionTarget = nullptr;
 
-        gateController.SetPlayer(player);
-
         auto nameEqualsIgnoreCase = [](const std::string& lhs, std::string_view rhs)
             {
                 if (lhs.size() != rhs.size())
@@ -243,8 +173,6 @@ namespace Framework {
                 }
             }
         }
-
-        gateController.RefreshGateReference(levelObjects);
     }
 
     /*****************************************************************************************
@@ -294,7 +222,7 @@ namespace Framework {
              - Installs terminate/signal handlers.
              - Instantiates factory; registers components; loads prefabs; creates initial level.
              - Discovers player and caches initial size; loads window config.
-             - Builds HitBoxSystem and prints control help.
+             - Leaves any game-specific combat runtime to be attached by the game layer.
     *****************************************************************************************/
     void LogicSystem::Initialize()
     {
@@ -313,31 +241,20 @@ namespace Framework {
         InstallSignalHandlers();
 
         factory = std::make_unique<GameObjectFactory>();
+        FACTORY = factory.get();
         RegisterComponent(TransformComponent);
         RegisterComponent(RenderComponent);
         RegisterComponent(CircleRenderComponent);
-        RegisterComponent(GlowComponent);
         RegisterComponent(SpriteComponent);
         RegisterComponent(ShadowComponent);
         RegisterComponent(RigidBodyComponent);
-        RegisterComponent(PlayerComponent);
-        RegisterComponent(PlayerAttackComponent);
-        RegisterComponent(PlayerHealthComponent);
         RegisterComponent(HitBoxComponent);
         RegisterComponent(SpriteAnimationComponent);
-        RegisterComponent(EnemyComponent);
-        RegisterComponent(EnemyAttackComponent);
-        RegisterComponent(EnemyDecisionTreeComponent);
         RegisterComponent(BehaviorTreeComponent);
-        RegisterComponent(EnemyHealthComponent);
-        RegisterComponent(EnemyTypeComponent);
         RegisterComponent(AudioComponent);
-        RegisterComponent(ZoomTriggerComponent);
-        RegisterComponent(GateTargetComponent);
         RegisterComponent(BehaviourComponent);
-        RegisterComponent(PlayerHUDComponent);
-        FACTORY = factory.get();
-        gateController.SetFactory(factory.get());
+        if (factorySetupCallback)
+            factorySetupCallback(*factory);
         LoadPrefabs();
 
         std::filesystem::path startLevelPath = startupLevelPath.empty()
@@ -352,18 +269,6 @@ namespace Framework {
         screenW = cfg.width;
         screenH = cfg.height;
 
-        // Build HitBoxSystem after references are valid.
-        if (hitBoxSystem)
-        {
-            hitBoxSystem->Shutdown();
-            delete hitBoxSystem;
-            hitBoxSystem = nullptr;
-        }
-
-        // Build HitBoxSystem after references are valid.
-        hitBoxSystem = new HitBoxSystem(*this);
-        hitBoxSystem->Initialize();
-
         std::cout << "\n=== Controls ===\n"
             << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
@@ -374,7 +279,7 @@ namespace Framework {
     }
 
     /*****************************************************************************************
-      \brief Per-frame update: input handling, physics intent, animation stepping, hitbox spawn,
+      \brief Per-frame update: input handling, physics intent, animation stepping, and game hook dispatch,
              collision AABB bookkeeping, and crash-test handling.
       \param dt Delta time (seconds).
     *****************************************************************************************/
@@ -453,8 +358,8 @@ namespace Framework {
                 }
             }
 
-            if (hitBoxSystem)
-                hitBoxSystem->Update(dt);
+            if (postUpdateCallback)
+                postUpdateCallback(dt);
         }, "LogicSystem::Update");
     }
 
@@ -482,17 +387,15 @@ namespace Framework {
         }
 
         levelObjects = factory->CreateLevel(levelPath.string());
-        RestoreMissingLevelAudio(levelObjects);
+        if (postAudioRestoreCallback)
+            postAudioRestoreCallback(*this, levelObjects);
         if (postLevelLoadCallback)
             postLevelLoadCallback(*this);
 
         player = nullptr;
         collisionTarget = nullptr;
-        pendingLevelTransition = false;
         animInfo = AnimationInfo{};
         collisionInfo = CollisionInfo{};
-        gateController.Reset();
-        gateController.SetPlayer(nullptr);
 
         RefreshLevelReferences();
     }
@@ -522,7 +425,7 @@ namespace Framework {
     /*****************************************************************************************
       \brief Shutdown and release owned systems/resources.
              - Clears references, shuts down factory and unloads prefabs.
-             - Tears down crash logger and HitBoxSystem.
+             - Tears down crash logger. Game-owned combat runtime is released by the game layer.
     *****************************************************************************************/
     void LogicSystem::Shutdown()
     {
@@ -530,9 +433,6 @@ namespace Framework {
         levelObjects.clear();
         collisionTarget = nullptr;
         player = nullptr;
-        gateController.Reset();
-        gateController.SetFactory(nullptr);
-
         if (factory) {
             factory->Shutdown();
             factory.reset();
@@ -545,12 +445,6 @@ namespace Framework {
             crashLogger.reset();
         }
 
-        if (hitBoxSystem)
-        {
-            hitBoxSystem->Shutdown();
-            delete hitBoxSystem;
-            hitBoxSystem = nullptr;
-        }
     }
 
 
@@ -608,6 +502,11 @@ namespace Framework {
         for (auto* obj : levelObjects)
         {
             if (!obj)
+                continue;
+
+            // levelObjects can lag behind object destruction by up to one frame.
+            // Guard against stale pointers during teardown/reload paths.
+            if (factory && !IsAlive(obj))
                 continue;
 
             auto* behaviour = obj->GetComponentType<BehaviourComponent>(ComponentTypeId::CT_BehaviourComponent);

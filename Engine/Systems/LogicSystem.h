@@ -16,31 +16,9 @@
 
 #include "Factory/Factory.h"
 #include "Composition/PrefabManager.h"
-#include "Component/TransformComponent.h"
-#include "Component/RenderComponent.h"
-#include "Component/CircleRenderComponent.h"
-#include "Component/GlowComponent.h"
-#include "Component/SpriteComponent.h"
-#include "Component/SpriteAnimationComponent.h"
-#include "Component/ShadowComponent.h"
-#include "Component/PlayerComponent.h"
-#include "Component/PlayerAttackComponent.h"
-#include "Component/PlayerHealthComponent.h"
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyAttackComponent.h"
-#include "Component/BehaviorTreeComponent.h"
-#include "Component/EnemyDecisionTreeComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/EnemyTypeComponent.h"
 #include "Component/BehaviourComponent.h"
-#include "Graphics/PlayerHUD.h"
-#include "Component/GateTargetComponent.h"
-#include "Component/ZoomTriggerComponent.h"
-#include "Physics/Dynamics/RigidBodyComponent.h"
 #include <Serialization/JsonSerialization.h>
-#include "Logic/GateController.h"
 #include "InputSystem.h"
-#include "HitBoxSystem.h"
 #include "Config/WindowConfig.h"
 #include "Debug/CrashLogger.hpp"
 #include "Graphics/Window.hpp"
@@ -113,6 +91,63 @@ namespace Framework {
         void RegisterBehaviour(const std::string& key, BehaviourFCT fct);
         void SetStartupLevelPath(std::filesystem::path levelPath) { startupLevelPath = std::move(levelPath); }
         void SetPostLevelLoadCallback(std::function<void(LogicSystem&)> callback) { postLevelLoadCallback = std::move(callback); }
+        /*****************************************************************************************
+         \brief Registers a game-layer callback that runs at the end of LogicSystem::Update().
+         \param callback Callback invoked once per logic tick with delta time in seconds.
+         \details
+            - Runs after factory updates, behaviour dispatch, and animation advancement.
+            - Lets the game attach project-specific runtime work without hardcoding that work
+              into the engine's LogicSystem.
+            - Used by BloodyGoodCurry to update its game-owned HitBoxSystem at the same
+              point in the frame where the engine used to update it directly.
+         \note
+            If no callback is set, LogicSystem simply skips this hook.
+        *****************************************************************************************/
+        void SetPostUpdateCallback(std::function<void(float)> callback)
+        {
+            postUpdateCallback = std::move(callback);
+        }
+        /*****************************************************************************************
+         \brief Registers a game-layer hook that runs after the factory is created.
+         \param callback Callback invoked with the active GameObjectFactory.
+         \details
+            - Runs during Initialize() after the engine registers engine-owned components.
+            - Lets the current game register game-only components without moving that
+              registration code into the engine target.
+            - Intended for project-specific ECS types such as BloodyGoodCurry's HUD component.
+         \note
+            If no callback is set, factory initialization proceeds normally with engine-only
+            component registration.
+        *****************************************************************************************/
+        void SetFactorySetupCallback(std::function<void(GameObjectFactory&)> callback)
+        {
+            factorySetupCallback = std::move(callback);
+        }
+        /*****************************************************************************************
+         \brief Registers the game-provided player-discovery policy.
+         \param callback Callback that returns the current player object for this game.
+         \details
+            - Used by LogicSystem::FindAnyAlivePlayer() after engine-side assumptions about
+              player components were removed.
+            - Lets each game decide which component or tag identifies its player entity.
+        *****************************************************************************************/
+        void SetFindPlayerCallback(std::function<GOC*(LogicSystem&)> callback)
+        {
+            findPlayerCallback = std::move(callback);
+        }
+        /*****************************************************************************************
+         \brief Registers a game-layer hook for restoring per-game audio state after level load.
+         \param callback Callback invoked with the freshly loaded level objects.
+         \details
+            - Runs immediately after CreateLevel() returns inside the engine load path.
+            - Lets the active game restore prefab-driven audio or other project-specific
+              post-processing without hardcoding that logic into the engine.
+        *****************************************************************************************/
+        void SetPostAudioRestoreCallback(
+            std::function<void(LogicSystem&, const std::vector<GOC*>&)> callback)
+        {
+            postAudioRestoreCallback = std::move(callback);
+        }
         std::filesystem::path ResolveDataPath(std::string_view name) const { return resolveData(name); }
         bool HasLevelObjectNamed(std::string_view name) const;
         void AddLevelObject(GOC* obj);
@@ -153,7 +188,6 @@ namespace Framework {
 
         GOC* player{ nullptr };
         GOC* collisionTarget{ nullptr };
-        GateController                       gateController;
 
         AnimationInfo                        animInfo{};
         CollisionInfo                        collisionInfo{};
@@ -162,10 +196,13 @@ namespace Framework {
         int                                  screenH{ 600 };
 
         bool                                 crashTestLatched{ false };
-        bool                                 pendingLevelTransition{ false };
         std::unique_ptr<CrashLogger>         crashLogger;
         std::filesystem::path                startupLevelPath;
         std::function<void(LogicSystem&)>    postLevelLoadCallback;
+        std::function<void(float)>           postUpdateCallback;
+        std::function<void(GameObjectFactory&)> factorySetupCallback;
+        std::function<GOC*(LogicSystem&)>    findPlayerCallback;
+        std::function<void(LogicSystem&, const std::vector<GOC*>&)> postAudioRestoreCallback;
 
         std::unordered_map<std::string, BehaviourFCT> behaviours;
     };

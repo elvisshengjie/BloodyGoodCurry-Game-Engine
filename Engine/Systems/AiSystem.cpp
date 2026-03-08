@@ -65,8 +65,10 @@ namespace Framework
     {
         for (auto& [id, gocPtr] : FACTORY->Objects())
         {
+            (void)id;
             if (!gocPtr) continue;
-            if (!gocPtr->GetComponent(ComponentTypeId::CT_EnemyComponent)) continue;
+            if (objectFilterCallback && !objectFilterCallback(*gocPtr))
+                continue;
             BehaviorTreeComponent* btComp = gocPtr->GetComponentType<BehaviorTreeComponent>(
                 ComponentTypeId::CT_BehaviorTreeComponent);
 

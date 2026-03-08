@@ -30,8 +30,8 @@ namespace Framework
 	};
 
 	/*****************************************************************************************
-	  \brief The Input Manager handles the input and also provides means to see 
-	         if the key is pressed, held or released.
+	  \brief The Input Manager handles the input and also provides means to see
+			 if the key is pressed, held or released.
 	*****************************************************************************************/
 	class InputManager
 	{
@@ -51,6 +51,14 @@ namespace Framework
 		bool IsMousePressed(int button) const;
 		bool IsMouseHeld(int button) const;
 		bool IsMouseReleased(int button) const;
+
+		// Controller Queries
+		bool IsGamepadButtonPressed(int button) const;
+		bool IsGamepadButtonHeld(int button) const;
+		bool IsGamepadButtonReleased(int button) const;
+
+		float GetGamepadAxis(int axis) const;
+
 		void ClearState();
 
 	private:
@@ -65,5 +73,14 @@ namespace Framework
 		std::vector<bool> m_mouseReleased;
 
 		MouseState m_mouseState;
+
+		// Gamepad
+		std::vector<bool> m_gamepadHeld;
+		std::vector<bool> m_gamepadPressed;
+		std::vector<bool> m_gamepadReleased;
+
+		std::vector<float> m_gamepadAxes;
+
+
 	};
 }

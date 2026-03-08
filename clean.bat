@@ -6,38 +6,41 @@ echo   Cleaning CMake build folders
 echo ================================
 echo.
 
-REM ------------------------------------------
-REM Remove build and build_game in the ROOT
-REM ------------------------------------------
-
-if exist build (
-    echo Removing root\build ...
-    del /F /Q "build\CMakeCache.txt" 2>nul
-    rmdir /S /Q build
-)
-
-if exist build_game (
-    echo Removing root\build_game ...
-    rmdir /S /Q build_game
-)
+REM Always run from repo root (directory where this script lives)
+cd /d "%~dp0"
 
 REM ------------------------------------------
-REM Remove build and build_game inside /game
+REM Remove main build folders
 REM ------------------------------------------
 
-pushd game >nul
-
-if exist build (
-    echo Removing game\build ...
-    rmdir /S /Q build
+for %%D in (build build_game) do (
+    if exist "%%D" (
+        echo Removing %%D ...
+        rmdir /S /Q "%%D"
+    )
 )
 
-if exist build_game (
-    echo Removing game\build_game ...
-    rmdir /S /Q build_game
+REM ------------------------------------------
+REM Remove in-source CMake artifacts (if present)
+REM ------------------------------------------
+
+for %%F in (
+    CMakeCache.txt
+    cmake_install.cmake
+    CPackConfig.cmake
+    CPackSourceConfig.cmake
+    giraphics.sln
+) do (
+    if exist "%%F" (
+        echo Removing %%F ...
+        del /F /Q "%%F"
+    )
 )
 
-popd >nul
+if exist "CMakeFiles" (
+    echo Removing CMakeFiles ...
+    rmdir /S /Q "CMakeFiles"
+)
 
 echo.
 echo Done!

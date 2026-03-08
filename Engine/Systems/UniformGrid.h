@@ -33,7 +33,7 @@ struct CellCoord
 
 	bool operator==(const CellCoord& other) const
 	{
-		return x == other.x && other.y;
+		return x == other.x && y == other.y;
 	}
 };
 

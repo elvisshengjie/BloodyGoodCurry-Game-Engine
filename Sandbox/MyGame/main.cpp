@@ -49,7 +49,6 @@ int main()
     if (cfg.width <= 0)  cfg.width = 1280;
     if (cfg.height <= 0) cfg.height = 720;
     if (cfg.title.empty()) cfg.title = "SofaSpuds Engine";
-
     // Create engine core and register game callbacks.
     Core core(cfg.width, cfg.height, cfg.title.c_str(), cfg.fullscreen);
     core.SetCallbacks(mygame::init, mygame::update, mygame::draw, mygame::shutdown);

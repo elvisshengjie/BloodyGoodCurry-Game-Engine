@@ -53,7 +53,7 @@ namespace mygame {
 
     /*************************************************************************************
       \brief Binds game-side combat audio routing into engine combat systems.
-      \param logic   Active engine LogicSystem (owns HitBoxSystem).
+      \param logic   Active engine LogicSystem (provides the current HitBoxSystem hook).
       \param health  Active engine HealthSystem.
     **************************************************************************************/
     void BindCombatAudio(Framework::LogicSystem& logic, Framework::HealthSystem& health);
@@ -61,8 +61,18 @@ namespace mygame {
     /*************************************************************************************
       \brief Binds game-side AI combat spawning into the engine AI system.
       \param ai     Active engine AiSystem.
-      \param logic  Active engine LogicSystem (owns HitBoxSystem).
+      \param logic  Active engine LogicSystem (provides the current HitBoxSystem hook).
     **************************************************************************************/
     void BindAiCombat(Framework::AiSystem& ai, Framework::LogicSystem& logic);
+
+    /*************************************************************************************
+      \brief Returns current player key inventory count used by key-door gameplay.
+    **************************************************************************************/
+    int GetPlayerKeyCount();
+
+    /*************************************************************************************
+      \brief Clears player key inventory and key-door runtime unlock state.
+    **************************************************************************************/
+    void ResetPlayerKeyCount();
 
 }

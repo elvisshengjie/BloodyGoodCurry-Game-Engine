@@ -53,15 +53,18 @@
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
+#include <charconv>
 #include <cctype>
 #include <cmath>
 #include <fstream>
 #include <system_error>
+#include <string_view>
 #include <vector>
 #include <limits>
 #include <unordered_set>
 #include <unordered_map>
 #include <iostream>
+#include <cstdio>
 #if SOFASPUDS_ENABLE_EDITOR
 #include "Resource_Asset_Manager/Asset_Manager.h"
 #include "Debug/AssetManagerPanel.h"
@@ -74,13 +77,21 @@
 #include <glm/gtc/matrix_inverse.hpp> // for glm::inverse (used in ScreenToWorld)
 #include <glm/gtc/matrix_transform.hpp>
 #include "Physics/Dynamics/RigidBodyComponent.h"
-#include "../../Sandbox/MyGame/Game.hpp"
+#include "Systems/HitBoxSystem.h"
 #include "Component/HitBoxComponent.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
+
+namespace mygame
+{
+    bool IsEditorSimulationRunning();
+    void EditorPlaySimulation();
+    void EditorStopSimulation();
+}
+
 namespace Framework {
 
     RenderSystem* RenderSystem::sInstance = nullptr;
@@ -112,7 +123,40 @@ namespace Framework {
 
         inline bool BlendMinMaxSupported()
         {
-            return GLAD_GL_VERSION_1_4 != 0;
+#if defined(__EMSCRIPTEN__)
+            return true;
+#else
+            const GLubyte* versionBytes = glGetString(GL_VERSION);
+            if (!versionBytes)
+                return false;
+
+            std::string_view versionText(reinterpret_cast<const char*>(versionBytes));
+            const char* firstDigit = versionText.data();
+            const char* const versionEnd = versionText.data() + versionText.size();
+            while (firstDigit < versionEnd &&
+                   !std::isdigit(static_cast<unsigned char>(*firstDigit)))
+            {
+                ++firstDigit;
+            }
+
+            int major = 0;
+            int minor = 0;
+            if (firstDigit < versionEnd)
+            {
+                const auto majorResult = std::from_chars(firstDigit, versionEnd, major);
+                if (majorResult.ec == std::errc{} &&
+                    majorResult.ptr < versionEnd &&
+                    *majorResult.ptr == '.')
+                {
+                    const char* minorStart = majorResult.ptr + 1;
+                    const auto minorResult = std::from_chars(minorStart, versionEnd, minor);
+                    if (minorResult.ec == std::errc{})
+                        return (major > 1) || (major == 1 && minor >= 4);
+                }
+            }
+
+            return true;
+#endif
         }
 
         inline BlendMode ResolveBlendMode(BlendMode mode)
@@ -495,7 +539,6 @@ namespace Framework {
         if (!assetsRoot.empty())
         {
             assetBrowser.Initialize(assetsRoot);
-            mygame::SetSpawnPanelAssetsRoot(assetsRoot);
             AudioImGui::SetAssetsRoot(assetsRoot);
         }
 
@@ -507,8 +550,8 @@ namespace Framework {
             jsonEditor.Initialize(dataFilesRoot);
         else
             jsonEditor.Initialize({});
-
-        mygame::SetSpawnPanelLevelDefaults("level.json", "level.json");
+        if (editorProjectRootsCallback)
+            editorProjectRootsCallback(assetsRoot, dataFilesRoot);
     }
 
     bool RenderSystem::CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message)
@@ -2456,6 +2499,13 @@ namespace Framework {
                                 cols = 5;
                                 frames = 5;
                             }
+                            else if (hb->team == HitBoxComponent::Team::PlayerSlow && talismanProjectileTex)
+                            {
+                                projTex = talismanProjectileTex;
+                                cols = 6;   // Flying_Talisman_Sprite_ has 6 frames
+                                frames = 6;
+                                fps = 12.0f;
+                            }
                             else if (knifeTex)
                             {
                                 projTex = knifeTex;
@@ -2899,43 +2949,12 @@ namespace Framework {
             // Switch back to screen-space VP (identity) for UI text so it ignores camera.
             gfx::Graphics::resetViewProjection();
 
-            // Displays objective
-            int enemiesLeft = 0;
-            for (GOC* obj : logic.LevelObjects())
-            {
-                if (!obj)
-                    continue;
-
-                auto* enemy = obj->GetComponentType<EnemyComponent>(ComponentTypeId::CT_EnemyComponent);
-                if (!enemy)
-                    continue;
-
-                auto* health = obj->GetComponentType<EnemyHealthComponent>(ComponentTypeId::CT_EnemyHealthComponent);
-                if (health && health->enemyHealth > 0)
-                    ++enemiesLeft;
-            }
-
-            std::string enemyText;
-            if (enemiesLeft > 0)
-            {
-                const char* enemyLabel = (enemiesLeft == 1) ? "enemy" : "enemies";
-                enemyText = "Objective: Kill all enemies (" + std::to_string(enemiesLeft) + " " + enemyLabel + " remaining)";
-            }
-            else
-            {
-                enemyText = "Objective: Go to the gate";
-            }
-
             std::string FPSText = "FPS: Nothing";
             FPSText = "FPS: " + std::to_string((int)Framework::GetFps());
-            
-            textHint.RenderText(
-                enemyText,
-                static_cast<float>(screenW) - (static_cast<float>(screenW)/3.f)*2.f,//650.0f,
-                static_cast<float>(screenH) - 64.0f,//1100.0f,
-                0.75f,
-                glm::vec3(1.0f, 0.2f, 0.2f)
-            );
+
+            if (overlayCallback)
+                overlayCallback(*this);
+
             if (showFPS)
             {
                 textTitle.RenderText(
@@ -3033,12 +3052,12 @@ namespace Framework {
                 assetBrowser.Draw();
                 jsonEditor.Draw();
                 mygame::DrawHierarchyPanel();
-                mygame::DrawSpawnPanel();
                 mygame::DrawLayerPanel();
-                mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);
                 mygame::DrawAssetManagerPanel(&jsonEditor, &assetBrowser);
+                if (editorPanelsCallback)
+                    editorPanelsCallback();
 
                 if (ImGui::Begin("Crash Tests"))
                 {

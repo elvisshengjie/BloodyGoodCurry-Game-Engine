@@ -140,4 +140,51 @@ the built-in crash drill. The engine raises SIGABRT, which routes through the cr
 - Relaunch the game after the forced crash and 
 open logs/crash.log to review the new entry. On Android builds the same record is also mirrored to logcat under the ENGINE/CRASH tag for quick inspection
    use imgui to spawn, despawn object and make changes depend on component
+
+Web Build and Run (Browser)
+
+Install first (one-time setup):
+- Visual Studio 2022 with "Desktop development with C++" workload
+- CMake (add to PATH)
+- Ninja (add to PATH)
+- Python 3 (add to PATH)
+- EMSDK (Emscripten SDK)
+
+Quick checks:
+- cmake --version
+- ninja --version
+- python --version
+- em++ --version
+
+Recommended install commands (Windows + winget):
+- winget install Kitware.CMake
+- winget install Ninja-build.Ninja
+- winget install Python.Python.3.12
+
+EMSDK setup example:
+1) git clone https://github.com/emscripten-core/emsdk.git %USERPROFILE%\emsdk
+2) cd %USERPROFILE%\emsdk
+3) emsdk install latest
+4) emsdk activate latest
+5) emsdk_env.bat
+
+Note:
+- build_web_html.bat auto-loads %USERPROFILE%\emsdk\emsdk_env.bat if EMSDK is not already set.
+
+1) Build web version:
+   build_web_html.bat release-split reconfigure
+
+2) Host output folder with a local server:
+   python -m http.server 8000 -d build\web-release-split\Sandbox
+
+3) Open in browser:
+   http://localhost:8000/BloodyGoodCurry.html?v=1
+
+4) After every rebuild, change v= number and hard refresh:
+   Ctrl+Shift+R
+
+Web notes:
+- Right-click is used for ranged attack in game. Browser context menu is disabled in the web shell.
+- Do not open the html file directly from disk. Always run through http.server.
+- Web builds currently run with audio disabled (FMOD stubs), so browser version has no in-game sound.
    

@@ -10,7 +10,7 @@
 
  \details   Ownership model (important):
             - The factory maintains ownership of all live GOCs via a map of
-              id → GameObjectHandle (GameObjectIdMap).
+              id ? GameObjectHandle (GameObjectIdMap).
             - Public methods that return a GOC* return a **non-owning** raw pointer
               for convenience. Callers must **not** delete these pointers.
             - Prefab templates built by CreateTemplate are allocated from the pool and
@@ -21,7 +21,7 @@
 
             Key behaviors:
             - Enforces a single global factory instance (FACTORY).
-            - Assigns unique IDs to GOCs and maintains an id→GameObjectHandle map.
+            - Assigns unique IDs to GOCs and maintains an id?GameObjectHandle map.
             - Supports BuildFromCurrentJsonObject for data-driven construction from an
               already-positioned JSON serializer.
             - Defers destruction via an ObjectsToBeDeleted set to avoid mid-frame invalidation.
@@ -42,24 +42,13 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
-#include "Component/GlowComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/ShadowComponent.h"
 
-#include "Component/PlayerComponent.h"
 #include "Component/BehaviourComponent.h"
-#include "Component/PlayerHealthComponent.h"
-#include "Component/PlayerAttackComponent.h"
 #include "Component/HitBoxComponent.h"
-#include "Component/EnemyComponent.h"
-#include "Component/EnemyAttackComponent.h"
 #include "Component/BehaviorTreeComponent.h"
-#include "Component/EnemyDecisionTreeComponent.h"
-#include "Component/EnemyHealthComponent.h"
-#include "Component/EnemyTypeComponent.h"
-#include "Component/GateTargetComponent.h"
-#include "Graphics/PlayerHUD.h"
 
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
@@ -298,7 +287,7 @@ namespace Framework {
     \param id The concrete ComponentTypeId to resolve.
     \return The registered JSON key (e.g., "TransformComponent") if found; empty string otherwise.
     \details
-      - Iterates the ComponentMap registry (name → ComponentCreator).
+      - Iterates the ComponentMap registry (name ? ComponentCreator).
       - Matches by comparing the stored creator->TypeId against the given id.
       - Safe on missing/unknown ids and null creators.
    *************************************************************************************/
@@ -323,7 +312,16 @@ namespace Framework {
     *************************************************************************************/
     json GameObjectFactory::SerializeComponentToJson(const GameComponent& component) const
     {
-        switch (component.GetTypeId()) {
+        // Let the active game override JSON save logic for its own component types
+        // before the engine falls back to built-in engine component serialization.
+        if (auto serializerIt = componentJsonSerializers.find(static_cast<ComponentTypeId::Storage>(component.GetTypeId()));
+            serializerIt != componentJsonSerializers.end() && serializerIt->second)
+        {
+            if (auto customJson = serializerIt->second(component))
+                return *customJson;
+        }
+
+        switch (static_cast<ComponentTypeId::Storage>(component.GetTypeId())) {
         case ComponentTypeId::CT_TransformComponent: {
             auto const& tr = static_cast<TransformComponent const&>(component);
             return json{ {"x", tr.x}, {"y", tr.y}, {"rot", tr.rot}, {"scale_x", tr.scaleX}, {"scale_y", tr.scaleY} };
@@ -351,25 +349,6 @@ namespace Framework {
             auto const& cc = static_cast<CircleRenderComponent const&>(component);
             return json{ {"radius", cc.radius}, {"r", cc.r}, {"g", cc.g}, {"b", cc.b}, {"a", cc.a} };
         }
-        case ComponentTypeId::CT_GlowComponent: {
-            auto const& glow = static_cast<GlowComponent const&>(component);
-            json points = json::array();
-            for (auto const& p : glow.points) {
-                points.push_back({ {"x", p.x}, {"y", p.y} });
-            }
-            return json{
-                {"r", glow.r},
-                {"g", glow.g},
-                {"b", glow.b},
-                {"opacity", glow.opacity},
-                {"brightness", glow.brightness},
-                {"inner_radius", glow.innerRadius},
-                {"outer_radius", glow.outerRadius},
-                {"falloff_exponent", glow.falloffExponent},
-                {"visible", glow.visible},
-                {"points", points}
-            };
-        }
         case ComponentTypeId::CT_SpriteComponent: {
             auto const& sp = static_cast<SpriteComponent const&>(component);
             json out = json::object();
@@ -392,13 +371,6 @@ namespace Framework {
                 {"a", shadow.a},
                 {"blend_mode", BlendModeToString(shadow.blendMode)}
             };
-        }
-        case ComponentTypeId::CT_GateTargetComponent: {
-            auto const& gateTarget = static_cast<GateTargetComponent const&>(component);
-            json out = json::object();
-            if (!gateTarget.levelPath.empty())
-                out["level_path"] = gateTarget.levelPath;
-            return out;
         }
         case ComponentTypeId::CT_SpriteAnimationComponent: {
             auto const& anim = static_cast<const SpriteAnimationComponent&>(component);
@@ -447,46 +419,14 @@ namespace Framework {
         }
         case ComponentTypeId::CT_InputComponents:
             return json::object();
-        case ComponentTypeId::CT_PlayerComponent:
-            return json::object();
-        case ComponentTypeId::CT_PlayerHealthComponent:
-        {
-            auto const& hp = static_cast<PlayerHealthComponent const&>(component);
-            return json{ {"playerHealth", hp.playerHealth}, {"playerMaxhealth", hp.playerMaxhealth} };
-        }
-        case ComponentTypeId::CT_PlayerAttackComponent:
-        {
-            auto const& atk = static_cast<PlayerAttackComponent const&>(component);
-            return json{ {"damage", atk.damage}, {"attack_speed", atk.attack_speed} };
-        }
-        case ComponentTypeId::CT_PlayerHUDComponent:
-            return json::object();
         case ComponentTypeId::CT_BehaviourComponent:
         {
             auto const& behaviour = static_cast<BehaviourComponent const&>(component);
             return json{ {"behaviourKey", behaviour.behaviourKey} };
         }
-        case ComponentTypeId::CT_EnemyComponent:
-        case ComponentTypeId::CT_EnemyDecisionTreeComponent:
-            return json::object();
         case ComponentTypeId::CT_BehaviorTreeComponent: {
             auto const& bt = static_cast<BehaviorTreeComponent const&>(component);
             return json{ {"treeType", bt.treeType} };
-        }
-        case ComponentTypeId::CT_EnemyAttackComponent: {
-            auto const& atk = static_cast<EnemyAttackComponent const&>(component);
-            return json{ {"damage", atk.damage}, {"attack_speed", atk.attack_speed} };
-        }
-        case ComponentTypeId::CT_EnemyHealthComponent: {
-            auto const& hp = static_cast<EnemyHealthComponent const&>(component);
-            return json{ {"enemyHealth", hp.enemyHealth}, {"enemyMaxhealth", hp.enemyMaxhealth} };
-        }
-        case ComponentTypeId::CT_EnemyTypeComponent: {
-            auto const& type = static_cast<EnemyTypeComponent const&>(component);
-            std::string typeStr = "physical";
-            if (type.Etype == EnemyTypeComponent::EnemyType::ranged)
-                typeStr = "ranged";
-            return json{ {"type", typeStr} };
         }
         case ComponentTypeId::CT_HitBoxComponent: {
             auto const& hit = static_cast<HitBoxComponent const&>(component);
@@ -647,7 +587,7 @@ namespace Framework {
     }
 
     /*************************************************************************************
-      \brief Assigns a unique ID to the GOC and registers it in the id→object map.
+      \brief Assigns a unique ID to the GOC and registers it in the id?object map.
       \param gameObject Newly constructed GOC to identify and take ownership of.
       \param fixedId    Optional explicit id to reuse (used by some loaders/undo systems).
       \return Non-owning pointer to the now-registered GOC.
@@ -827,7 +767,26 @@ namespace Framework {
     *************************************************************************************/
     void GameObjectFactory::AddComponentCreator(const std::string& name, std::unique_ptr<ComponentCreator> creator)
     {
+        if (creator)
+            ComponentTypeRegistry::Get().Register(name, creator->TypeId);
         ComponentMap[name] = std::move(creator);
+    }
+
+    void GameObjectFactory::SetComponentJsonHandlers(ComponentTypeId typeId,
+        ComponentJsonSerializer serializer,
+        ComponentJsonDeserializer deserializer)
+    {
+        const auto key = static_cast<ComponentTypeId::Storage>(typeId);
+
+        if (serializer)
+            componentJsonSerializers[key] = std::move(serializer);
+        else
+            componentJsonSerializers.erase(key);
+
+        if (deserializer)
+            componentJsonDeserializers[key] = std::move(deserializer);
+        else
+            componentJsonDeserializers.erase(key);
     }
 
     /*************************************************************************************
@@ -841,6 +800,13 @@ namespace Framework {
     {
         if (!data.is_object())
             return;
+
+        if (auto deserializerIt = componentJsonDeserializers.find(static_cast<ComponentTypeId::Storage>(component.GetTypeId()));
+            deserializerIt != componentJsonDeserializers.end() && deserializerIt->second)
+        {
+            if (deserializerIt->second(component, data))
+                return;
+        }
 
         auto readFloat = [&](const char* key, float& out)
             {
@@ -870,7 +836,7 @@ namespace Framework {
                     out = it->get<std::string>();
             };
 
-        switch (component.GetTypeId())
+        switch (static_cast<ComponentTypeId::Storage>(component.GetTypeId()))
         {
         case ComponentTypeId::CT_TransformComponent:
         {
@@ -902,34 +868,6 @@ namespace Framework {
             readFloat("g", cc.g);
             readFloat("b", cc.b);
             readFloat("a", cc.a);
-            break;
-        }
-        case ComponentTypeId::CT_GlowComponent:
-        {
-            auto& glow = static_cast<GlowComponent&>(component);
-            readFloat("r", glow.r);
-            readFloat("g", glow.g);
-            readFloat("b", glow.b);
-            readFloat("opacity", glow.opacity);
-            readFloat("brightness", glow.brightness);
-            readFloat("inner_radius", glow.innerRadius);
-            readFloat("outer_radius", glow.outerRadius);
-            readFloat("falloff_exponent", glow.falloffExponent);
-            readBool("visible", glow.visible);
-
-            glow.points.clear();
-            if (auto it = data.find("points"); it != data.end() && it->is_array())
-            {
-                glow.points.reserve(it->size());
-                for (auto const& p : *it)
-                {
-                    float px = 0.0f;
-                    float py = 0.0f;
-                    if (p.contains("x")) px = p["x"].get<float>();
-                    if (p.contains("y")) py = p["y"].get<float>();
-                    glow.points.emplace_back(px, py);
-                }
-            }
             break;
         }
         case ComponentTypeId::CT_SpriteComponent:
@@ -1035,67 +973,12 @@ namespace Framework {
             readFloat("height", rb.height);
             break;
         }
-        case ComponentTypeId::CT_PlayerHealthComponent:
-        {
-            auto& hp = static_cast<PlayerHealthComponent&>(component);
-            readInt("playerHealth", hp.playerHealth);
-            readInt("playerMaxhealth", hp.playerMaxhealth);
-            break;
-        }
-        case ComponentTypeId::CT_PlayerAttackComponent:
-        {
-            auto& atk = static_cast<PlayerAttackComponent&>(component);
-            readInt("damage", atk.damage);
-            readFloat("attack_speed", atk.attack_speed);
-            break;
-        }
-        case ComponentTypeId::CT_EnemyAttackComponent:
-        {
-            auto& atk = static_cast<EnemyAttackComponent&>(component);
-            readInt("damage", atk.damage);
-            readFloat("attack_speed", atk.attack_speed);
-            if (atk.hitbox)
-            {
-                readFloat("hitwidth", atk.hitbox->width);
-                readFloat("hitheight", atk.hitbox->height);
-                readFloat("hitduration", atk.hitbox->duration);
-            }
-            break;
-        }
-        case ComponentTypeId::CT_EnemyHealthComponent:
-        {
-            auto& hp = static_cast<EnemyHealthComponent&>(component);
-            readInt("enemyHealth", hp.enemyHealth);
-            readInt("enemyMaxhealth", hp.enemyMaxhealth);
-            break;
-        }
-        case ComponentTypeId::CT_PlayerHUDComponent:
-        {
-            break;
-        }
-        case ComponentTypeId::CT_EnemyTypeComponent:
-        {
-            auto& type = static_cast<EnemyTypeComponent&>(component);
-            std::string typeStr;
-            readString("type", typeStr);
-            if (typeStr == "ranged")
-                type.Etype = EnemyTypeComponent::EnemyType::ranged;
-            else
-                type.Etype = EnemyTypeComponent::EnemyType::physical;
-            break;
-        }
         case ComponentTypeId::CT_HitBoxComponent:
         {
             auto& hit = static_cast<HitBoxComponent&>(component);
             readFloat("width", hit.width);
             readFloat("height", hit.height);
             readFloat("duration", hit.duration);
-            break;
-        }
-        case ComponentTypeId::CT_EnemyComponent:
-        case ComponentTypeId::CT_PlayerComponent:
-        case ComponentTypeId::CT_EnemyDecisionTreeComponent:
-        {
             break;
         }
         case ComponentTypeId::CT_BehaviorTreeComponent:
@@ -1264,3 +1147,5 @@ namespace Framework {
     }
 
 } // namespace Framework
+
+

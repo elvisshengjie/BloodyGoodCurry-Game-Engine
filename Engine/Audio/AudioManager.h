@@ -17,7 +17,20 @@
 #include <unordered_map>
 #include <memory>
 #include <vector>
+
+#if SOFASPUDS_DISABLE_AUDIO
+struct FMOD_CHANNEL;
+struct FMOD_SOUND;
+struct FMOD_VECTOR
+{
+    float x;
+    float y;
+    float z;
+};
+using FMOD_RESULT = int;
+#else
 #include "fmod.hpp"
+#endif
 
 struct FadeData
 {

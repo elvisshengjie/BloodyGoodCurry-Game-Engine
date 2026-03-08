@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      PhysicSystem.cpp
  \par       SofaSpuds
  \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
@@ -17,9 +17,9 @@
 #include <algorithm>
 #include <cmath>
 
-#include "Component/PlayerComponent.h"
-#include "Component/ZoomTriggerComponent.h"
-#include "RenderSystem.h"
+#include "Component/TransformComponent.h"
+#include "Factory/Factory.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
 #ifdef _DEBUG
@@ -44,8 +44,7 @@ namespace Framework {
       \brief  Advance physics one step: move bodies and resolve simple AABB collisions.
       \param  dt  Delta time (seconds).
       \note   Movement is axis-separated: X and Y are tested independently for wall hits.
-               Solid collisions apply to any same-layer RigidBodyComponent (zoom triggers excluded).
-              Zoom triggers only react to objects marked with PlayerComponent.
+               Solid collisions apply to any same-layer RigidBodyComponent.
     *************************************************************************************/
     void PhysicSystem::Update(float dt)
     {
@@ -87,10 +86,6 @@ namespace Framework {
             auto* tr = obj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
             if (!rb || !tr)
                 continue;
-
-            const bool canTriggerZoom = obj->GetComponentType<PlayerComponent>(
-                ComponentTypeId::CT_PlayerComponent) != nullptr;
-
 
             // ------------------------------
             // START OF KNOCKBACK APPLICATION 
@@ -150,47 +145,7 @@ namespace Framework {
                 if (!rbO || !trO)
                     continue;
 
-                // -------------------------------------------------
-                // 1) Zoom trigger logic (does NOT block movement)
-                // -------------------------------------------------
-                auto* zoom = otherObj->GetComponentType<ZoomTriggerComponent>(
-                    ComponentTypeId::CT_ZoomTriggerComponent);
-                if (zoom)
-                {
-                    if (canTriggerZoom)
-                    {
-                        // AABB for player at new position
-                        AABB playerBoxTrigger(newX, newY, rb->width, rb->height);
-                        // AABB for the zoomObject (use its rigid body area)
-                        AABB triggerBox(trO->x, trO->y, rbO->width, rbO->height);
-
-                        if (Collision::CheckCollisionRectToRect(playerBoxTrigger, triggerBox))
-                        {
-                            if (!zoom->triggered)
-                            {
-                                zoom->triggered = true;
-
-                                if (auto* rs = RenderSystem::Get())
-                                {
-                                    // targetZoom is interpreted as "view height" here.
-                                    rs->SetCameraViewHeight(zoom->targetZoom);
-                                }
-
-                                if (zoom->oneShot)
-                                {
-                                    // Optional: remove the trigger so it doesn't fire again.
-                                    // FACTORY->Destroy(otherObj);
-                                }
-                            }
-                        }
-                    }
-                    // Zoom triggers should not block movement.
-                    continue;
-                }
-
-                // -------------------------------------------------
-                // 2) Solid collision (same-layer rigidbodies)
-                // -------------------------------------------------
+                // Solid collision (same-layer rigidbodies).
 
                 AABB otherBox(trO->x, trO->y, rbO->width, rbO->height);
                 // Resolve X then Y independently
@@ -198,13 +153,13 @@ namespace Framework {
                 {
                     newX = tr->x;
                     rb->velX = 0.0f;
-                    rb->knockVelX = 0.0f;   // ← cancel knockback on X
+                    rb->knockVelX = 0.0f;   // ? cancel knockback on X
                 }
                 if (Collision::CheckCollisionRectToRect(playerBoxY, otherBox))
                 {
                     newY = tr->y;
                     rb->velY = 0.0f;
-                    rb->knockVelY = 0.0f;   // ← cancel knockback on Y
+                    rb->knockVelY = 0.0f;   // ? cancel knockback on Y
                 }
                 
 
@@ -241,3 +196,4 @@ namespace Framework {
     }
 
 } // namespace Framework
+

@@ -13,9 +13,7 @@
 #pragma once
 #include "../AI/DecisionTree.h"
 #include "../AI/Blackboard.h"
-#include "Component/EnemyTypeComponent.h"
 #include "Composition/Component.h"
-#include "Component/HitBoxComponent.h"
 #include <memory>
 #include <string>
 #include <functional>

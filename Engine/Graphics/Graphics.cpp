@@ -27,6 +27,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstddef>
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -42,6 +43,14 @@
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
 namespace gfx {
+
+#if defined(__EMSCRIPTEN__)
+#define SOFASPUDS_GLSL_VERSION "#version 300 es\n"
+#define SOFASPUDS_GLSL_FRAGMENT_PREAMBLE "precision mediump float;\n"
+#else
+#define SOFASPUDS_GLSL_VERSION "#version 330 core\n"
+#define SOFASPUDS_GLSL_FRAGMENT_PREAMBLE ""
+#endif
 
     /// \brief PI constant used for circle tessellation.
     constexpr float PI = 3.14159265359f;
@@ -81,6 +90,7 @@ namespace gfx {
     static glm::mat4 sViewMatrix(1.0f);
     static glm::mat4 sProjectionMatrix(1.0f);
     static glm::mat4 sViewProjectionMatrix(1.0f);
+    static std::unordered_map<unsigned int, std::pair<int, int>> sTextureDimensions;
     
     
     const glm::mat4& gfx::Graphics::GetViewProjectionMatrix()
@@ -186,15 +196,67 @@ namespace gfx {
         unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
 
         if (data) {
-            GLenum format = (nrChannels == 3) ? GL_RGB : GL_RGBA;
-            glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            // WebGL2 is strict about texture formats; use explicit sized internal formats there.
+            GLenum format = GL_RGBA;
+            GLenum internalFormat = GL_RGBA;
+            switch (nrChannels) {
+            case 1:
+                format = GL_RED;
+#if defined(__EMSCRIPTEN__)
+                internalFormat = GL_R8;
+#else
+                internalFormat = GL_RED;
+#endif
+                break;
+            case 2:
+                format = GL_RG;
+#if defined(__EMSCRIPTEN__)
+                internalFormat = GL_RG8;
+#else
+                internalFormat = GL_RG;
+#endif
+                break;
+            case 3:
+                format = GL_RGB;
+#if defined(__EMSCRIPTEN__)
+                internalFormat = GL_RGB8;
+#else
+                internalFormat = GL_RGB;
+#endif
+                break;
+            case 4:
+            default:
+                format = GL_RGBA;
+#if defined(__EMSCRIPTEN__)
+                internalFormat = GL_RGBA8;
+#else
+                internalFormat = GL_RGBA;
+#endif
+                break;
+            }
+
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
             glGenerateMipmap(GL_TEXTURE_2D);
+            sTextureDimensions[textureID] = { width, height };
+
+            const GLenum texErr = glGetError();
+            if (texErr != GL_NO_ERROR) {
+                std::cerr << "[Graphics] glTexImage2D failed for: " << path
+                          << " (channels=" << nrChannels
+                          << ", gl_error=" << static_cast<int>(texErr) << ")\n";
+                stbi_image_free(data);
+                glBindTexture(GL_TEXTURE_2D, 0);
+                glDeleteTextures(1, &textureID);
+                sTextureDimensions.erase(textureID);
+                return 0;
+            }
         }
         else {
             std::cerr << "Failed to load texture: " << path << std::endl;
             glBindTexture(GL_TEXTURE_2D, 0);
             if (textureID) glDeleteTextures(1, &textureID);
-            throw std::runtime_error(std::string("texture_load|failed|") + path);
+            return 0;
         }
 
         stbi_image_free(data);
@@ -208,8 +270,10 @@ namespace gfx {
      \param  tex GL texture handle.
     ******************************************************************************************/
     void Graphics::destroyTexture(unsigned int tex) {
-        if (tex != 0)
+        if (tex != 0) {
             glDeleteTextures(1, &tex);
+            sTextureDimensions.erase(tex);
+        }
     }
 
     /*****************************************************************************************
@@ -298,13 +362,14 @@ namespace gfx {
 
         // ----- Background shader -----
         const char* bgVertexSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout (location = 0) in vec2 aPos;\n"
             "layout (location = 1) in vec2 aTexCoord;\n"
             "out vec2 TexCoord;\n"
             "void main(){gl_Position=vec4(aPos,0.0,1.0);TexCoord=aTexCoord;}\n";
         const char* bgFragmentSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "out vec4 FragColor;\n"
             "in vec2 TexCoord;\n"
             "uniform sampler2D backgroundTex;\n"
@@ -313,12 +378,13 @@ namespace gfx {
 
         // ----- Object (rect/circle) shader -----
         const char* objVertexSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout (location = 0) in vec3 aPos;\n"
             "uniform mat4 uMVP;\n"
             "void main(){ gl_Position = uMVP * vec4(aPos, 1.0); }\n";
         const char* objFragmentSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "out vec4 FragColor;\n"
             "uniform vec4 uColor;\n"
             "void main(){ FragColor = uColor; }\n";
@@ -326,7 +392,7 @@ namespace gfx {
 
         // ----- Glow shader (circle with radial falloff) -----
         const char* glowVertexSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout (location = 0) in vec3 aPos;\n"
             "uniform mat4 uMVP;\n"
             "out vec2 vLocal;\n"
@@ -335,7 +401,8 @@ namespace gfx {
             "  gl_Position = uMVP * vec4(aPos, 1.0);\n"
             "}\n";
         const char* glowFragmentSrc =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "in vec2 vLocal;\n"
             "out vec4 FragColor;\n"
             "uniform vec4 uColor;\n"
@@ -695,6 +762,7 @@ namespace gfx {
         glDeleteBuffers(1, &spriteInstanceVBO);
         glDeleteProgram(spriteInstanceShader);
         glDeleteProgram(glowShader);
+        sTextureDimensions.clear();
     }
 
     /*****************************************************************************************
@@ -731,7 +799,7 @@ namespace gfx {
 
         // Sprite (single) shader with sub-UV
         const char* vs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout(location=0) in vec3 aPos;\n"
             "layout(location=1) in vec2 aUV;\n"
             "uniform mat4 uMVP;\n"
@@ -743,7 +811,8 @@ namespace gfx {
             "  vUV = aUV * uUVScale + uUVOffset;\n"
             "}\n";
         const char* fs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "in vec2 vUV;\n"
             "out vec4 FragColor;\n"
             "uniform sampler2D uTex;\n"
@@ -798,7 +867,7 @@ namespace gfx {
 
         // Instanced sprite shader
         const char* instVs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
             "layout(location=0) in vec3 aPos;\n"
             "layout(location=1) in vec2 aUV;\n"
             "layout(location=2) in mat4 iModel;\n"
@@ -813,7 +882,8 @@ namespace gfx {
             "  vTint= iTint;\n"
             "}\n";
         const char* instFs =
-            "#version 330 core\n"
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "in vec2 vUV;\n"
             "in vec4 vTint;\n"
             "out vec4 FragColor;\n"
@@ -923,12 +993,21 @@ namespace gfx {
         if (!tex)
             return false;
 
+        const auto sizeIt = sTextureDimensions.find(tex);
+        if (sizeIt != sTextureDimensions.end()) {
+            outW = sizeIt->second.first;
+            outH = sizeIt->second.second;
+            return outW > 0 && outH > 0;
+        }
+
+#if !defined(__EMSCRIPTEN__)
         glBindTexture(GL_TEXTURE_2D, tex);
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &outW);
         glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &outH);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         GL_THROW_IF_ERROR("getTextureSize");
+#endif
         return outW > 0 && outH > 0;
     }
 

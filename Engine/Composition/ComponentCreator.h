@@ -121,3 +121,7 @@ namespace Framework {
     FACTORY->AddComponentCreator( \
         #type, std::make_unique<Framework::ComponentCreatorType<type>>( \
             Framework::ComponentTypeId::CT_##type))
+
+#define RegisterGameComponent(type, typeIdExpr) \
+    FACTORY->AddComponentCreator( \
+        #type, std::make_unique<Framework::ComponentCreatorType<type>>(typeIdExpr))
