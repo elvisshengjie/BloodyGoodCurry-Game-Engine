@@ -100,8 +100,8 @@ namespace {
     /*****************************************************************************************
       \brief Ranged attack constants for change
     *****************************************************************************************/
-    constexpr float kProjectileSpeed = 15.0f;
-    constexpr float kProjectileLifetime = 0.40f;
+    constexpr float kProjectileSpeed = 1.2f;
+    constexpr float kProjectileLifetime = 0.80f;
     /*****************************************************************************************
       \brief Slow down attack constants
     *****************************************************************************************/
@@ -861,9 +861,9 @@ namespace {
                 gLogicSystem->hitBoxSystem->SpawnProjectile(obj,
                     state.pendingThrow.spawnX, state.pendingThrow.spawnY,
                     state.pendingThrow.dirX, state.pendingThrow.dirY,
-                    kProjectileLifetime,
+                    kProjectileSpeed,
                     0.1f, 0.1f,
-                    1.0f, kProjectileSpeed, Framework::HitBoxComponent::Team::Thrown);
+                    1.0f, kProjectileLifetime, Framework::HitBoxComponent::Team::Thrown);
             }
             if (state.audio)
                 state.audio->PlayGrapple();
@@ -876,10 +876,10 @@ namespace {
                 state.pendingSlow.spawnY,
                 state.pendingSlow.dirX,
                 state.pendingSlow.dirY,
-                kProjectileLifetime,
+                kProjectileSpeed,
                 0.1f, 0.1f,
                 0.0f,
-                kProjectileSpeed,
+                kProjectileLifetime,
                 Framework::HitBoxComponent::Team::PlayerSlow);
             if (state.audio)          
                 state.audio->PlayGrapple();

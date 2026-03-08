@@ -566,7 +566,7 @@
             "y": -1.0880000591278076
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Gameplay:0",
         "name": "artassets"
       },
       {
@@ -1356,7 +1356,7 @@
             "y": -1.2599999904632568
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -1386,7 +1386,7 @@
             "y": -1.2599999904632568
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -1416,7 +1416,7 @@
             "y": -1.2599999904632568
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -1880,91 +1880,113 @@
             "sounds": {
               "ConcreteFootsteps1": {
                 "id": "ConcreteFootsteps1",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "ConcreteFootsteps2": {
                 "id": "ConcreteFootsteps2",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "ConcreteFootsteps3": {
                 "id": "ConcreteFootsteps3",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "ConcreteFootsteps4": {
                 "id": "ConcreteFootsteps4",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "ConcreteFootsteps5": {
                 "id": "ConcreteFootsteps5",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "ConcreteFootsteps6": {
                 "id": "ConcreteFootsteps6",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "GrappleShoot1": {
                 "id": "GrappleShoot1",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "GrappleShoot2": {
                 "id": "GrappleShoot2",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "GrappleShoot3": {
                 "id": "GrappleShoot3",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "GrappleShoot4": {
                 "id": "GrappleShoot4",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Ineffective Boink1": {
                 "id": "Ineffective Boink1",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Ineffective Boink2": {
                 "id": "Ineffective Boink2",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Ineffective Boink3": {
                 "id": "Ineffective Boink3",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "PlayerDead": {
                 "id": "PlayerDead",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "PlayerHit": {
                 "id": "PlayerHit",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Punch1": {
                 "id": "Punch1",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Punch2": {
                 "id": "Punch2",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Punch3": {
                 "id": "Punch3",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Punch4": {
                 "id": "Punch4",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Slash1": {
                 "id": "Slash1",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Slash2": {
                 "id": "Slash2",
-                "loop": false
+                "loop": false,
+                "spatial": false
               },
               "Slash3": {
                 "id": "Slash3",
-                "loop": false
+                "loop": false,
+                "spatial": false
               }
             },
             "volume": 1.0
@@ -2019,7 +2041,7 @@
             "scale_y": 0.44999998807907104
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 0,
+            "activeAnimation": 2,
             "animations": [
               {
                 "config": {
@@ -2046,7 +2068,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "run",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -2061,7 +2083,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 12,
+                "currentFrame": 1,
                 "name": "attack1",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -2148,14 +2170,14 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "idle_sheet"
+            "texture_key": "attack1_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.2548749446868896,
-            "y": -0.9105581045150757
+            "x": -1.254971981048584,
+            "y": -0.9044999480247498
           }
         },
         "layer": "Gameplay:0",
@@ -2443,7 +2465,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2496,7 +2518,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 7,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -2576,7 +2598,7 @@
                   "startFrame": 0,
                   "totalFrames": 3
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Sleeping_Cat_Sprite.png",
                 "textureKey": "sleep_cat_sheet"
@@ -2829,6 +2851,7 @@
             "h": 0.5,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png",
             "visible": true,
             "w": 0.5
           },
@@ -4101,7 +4124,7 @@
                   "startFrame": 0,
                   "totalFrames": 11
                 },
-                "currentFrame": 0,
+                "currentFrame": 9,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Pot_Sprite.png",
                 "textureKey": "cooking_pot_sheet"
@@ -4163,33 +4186,6 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.4000000059604645,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Fenced Door.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.7575026750564575,
-            "y": 0.27156007289886475
-          }
-        },
-        "layer": "Background:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
             "h": 5.0,
             "layer": -5,
             "r": 1.0,
@@ -4203,7 +4199,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.30000001192092896,
+            "x": 0.2999999523162842,
             "y": 0.0
           }
         },
@@ -4279,7 +4275,7 @@
       {
         "Components": {
           "BehaviourComponent": {
-            "behaviourKey": "KeyDoorLogic"
+            "behaviourKey": "GateLogic"
           },
           "GateTargetComponent": {
             "level_path": "RealLevel2.json"
@@ -4295,7 +4291,7 @@
             "texture_key": "key_locked_door",
             "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
             "visible": true,
-            "w": 0.10000000149011612
+            "w": 0.12999999523162842
           },
           "RigidBodyComponent": {
             "height": 0.20000000298023224,
@@ -4316,6 +4312,288 @@
         },
         "layer": "Background:1",
         "name": "Key_Locked_Door"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false,
+                "spatial": true
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false,
+                "spatial": true
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false,
+                "spatial": true
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false,
+                "spatial": true
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false,
+                "spatial": true
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false,
+                "spatial": true
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false,
+                "spatial": true
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false,
+                "spatial": true
+              },
+              "WaterGhostAttack": {
+                "id": "WaterGhostAttack",
+                "loop": false,
+                "spatial": true
+              },
+              "WaterGhostExplosion": {
+                "id": "WaterGhostExplosion",
+                "loop": false,
+                "spatial": true
+              }
+            },
+            "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_melee"
+          },
+          "EnemyAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 5,
+            "enemyMaxhealth": 5
+          },
+          "EnemyTypeComponent": {
+            "type": "physical"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": -0.6000000238418579,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 2,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "water_idle"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "slashattack",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+                "textureKey": "water_slashattack"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "water_knockback"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "water_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "water_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.0071666240692139,
+            "y": -0.3911215662956238
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "enemy"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "KeyDoorLogic"
+          },
+          "GateTargetComponent": {
+            "level_path": "RealLastLevel.json"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "fenced_key_locked_door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Fenced Door.png",
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.3499999940395355,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "fenced_key_locked_door"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.75,
+            "y": 0.2720000147819519
+          }
+        },
+        "layer": "Background:2",
+        "name": "Fenced_Key_Locked_Door"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/locked room light.png"
+          },
+          "TransformComponent": {
+            "rot": 1.5742933750152588,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.430996298789978,
+            "y": -0.5952911972999573
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "GateLogic"
+          },
+          "GateTargetComponent": {
+            "level_path": "RealLevel3.json"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
+            "visible": false,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.30000001192092896,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.4000000059604645
+          },
+          "SpriteComponent": {
+            "texture_key": "door"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4886877536773682,
+            "y": -0.5851663947105408
+          }
+        },
+        "layer": "Background:2",
+        "name": "Enemy_Clear_Door"
       }
     ],
     "name": "RealLevel1"

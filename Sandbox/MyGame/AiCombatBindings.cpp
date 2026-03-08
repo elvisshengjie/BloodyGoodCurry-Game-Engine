@@ -17,7 +17,7 @@
 #include "Systems/HitBoxSystem.h"
 #include "Systems/LogicSystem.h"
 
-static constexpr float kEnemyProjectileSpeedScale = 1.5f;
+static constexpr float kEnemyProjectileSpeedScale = 1.0f;
 static constexpr float kEnemyProjectileHitboxScale = 1.4f;
 static constexpr float kEnemyMeleeHitboxScale = 1.4f;
 

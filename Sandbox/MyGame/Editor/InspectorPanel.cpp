@@ -14,23 +14,31 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/BehaviourComponent.h"
 #include "Components/GlowComponent.h"
+#include "Components/GateTargetComponent.h"
 #include "Component/SpriteComponent.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/HitBoxComponent.h"
 #include "Components/PlayerAttackComponent.h"
+#include "Components/PlayerComponent.h"
 #include "Components/EnemyAttackComponent.h"
 #include "Components/PlayerHealthComponent.h"
 #include "Components/EnemyHealthComponent.h"
 #include "Components/EnemyTypeComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
+#include "Core/PathUtils.h"
 #include "Debug/Selection.h"
 #include "Factory/Factory.h"
 #include "Debug/UndoStack.h"
 
 #include <imgui.h>
 #include <array>
+#include <algorithm>
+#include <cctype>
+#include <filesystem>
 #include <string>
+#include <vector>
 #include <cstdio>
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
@@ -40,6 +48,48 @@
 namespace
 {
     using namespace Framework;
+
+    std::vector<std::string> GetAvailableLevelFiles()
+    {
+        std::vector<std::string> levels;
+        std::error_code ec;
+        const auto dataRoot = Framework::ResolveDataPath("");
+        if (dataRoot.empty() || !std::filesystem::exists(dataRoot, ec))
+            return levels;
+
+        for (const auto& entry : std::filesystem::directory_iterator(dataRoot, ec))
+        {
+            if (ec || !entry.is_regular_file(ec))
+                continue;
+
+            const auto& path = entry.path();
+            if (path.extension() != ".json")
+                continue;
+
+            levels.push_back(path.filename().string());
+        }
+
+        std::sort(levels.begin(), levels.end());
+        return levels;
+    }
+
+    std::vector<const char*> GetAllowedBehaviourKeys(const GOC& object, const BehaviourComponent& behaviour)
+    {
+        if (object.GetComponentAs<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
+            return { "PlayerController" };
+
+        if (object.GetComponentAs<GateTargetComponent>(ComponentTypeId::CT_GateTargetComponent))
+            return { "GateLogic", "KeyDoorLogic" };
+
+        std::string loweredName = object.GetObjectName();
+        std::transform(loweredName.begin(), loweredName.end(), loweredName.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+        if (behaviour.behaviourKey == "KeyPickupLogic" || loweredName.find("key") != std::string::npos)
+            return { "KeyPickupLogic" };
+
+        return { "GameDirector", "CombatDirector", "VfxCleanup" };
+    }
 
     /*************************************************************************************
       \brief Draws ImGui controls for the AudioComponent.
@@ -77,8 +127,8 @@ namespace
                 std::string loopLabel = "Loop##" + action;
                 if (ImGui::Checkbox(loopLabel.c_str(), &loopFlag))
                 {
-                    // AddSound() overwrites the existing entry with the new loop flag.
-                    audio.AddSound(action, info.id, loopFlag);
+                    // Preserve spatial metadata when the loop flag is edited in the inspector.
+                    audio.AddSound(action, info.id, loopFlag, info.spatial);
                 }
 
                 ImGui::TreePop();
@@ -502,6 +552,58 @@ namespace
         }
     }
 
+    void DrawBehaviourSection(const GOC& owner, BehaviourComponent& behaviour)
+    {
+        if (!ImGui::CollapsingHeader("Behaviour", ImGuiTreeNodeFlags_DefaultOpen))
+            return;
+
+        const auto behaviourKeys = GetAllowedBehaviourKeys(owner, behaviour);
+        const char* preview = behaviour.behaviourKey.empty() ? "<none>" : behaviour.behaviourKey.c_str();
+
+        if (ImGui::BeginCombo("Behaviour Key", preview))
+        {
+            for (const char* key : behaviourKeys)
+            {
+                const bool selected = (behaviour.behaviourKey == key);
+                if (ImGui::Selectable(key, selected))
+                    behaviour.behaviourKey = key;
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+
+        ImGui::TextDisabled("Started: %s", behaviour.started ? "true" : "false");
+    }
+
+    void DrawGateTargetSection(GateTargetComponent& gate)
+    {
+        if (!ImGui::CollapsingHeader("Gate Target", ImGuiTreeNodeFlags_DefaultOpen))
+            return;
+
+        const auto levels = GetAvailableLevelFiles();
+        const char* preview = gate.levelPath.empty() ? "<none>" : gate.levelPath.c_str();
+
+        if (levels.empty())
+        {
+            ImGui::TextDisabled("No level files found.");
+            return;
+        }
+
+        if (ImGui::BeginCombo("Level Path", preview))
+        {
+            for (const auto& level : levels)
+            {
+                const bool selected = (gate.levelPath == level);
+                if (ImGui::Selectable(level.c_str(), selected))
+                    gate.levelPath = level;
+                if (selected)
+                    ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+    }
+
 } // anonymous namespace
 
 namespace mygame
@@ -625,6 +727,12 @@ namespace mygame
 
         if (auto* eType = object->GetComponentAs<EnemyTypeComponent>(ComponentTypeId::CT_EnemyTypeComponent))
             DrawEnemyTypeSection(*eType);
+
+        if (auto* behaviour = object->GetComponentAs<BehaviourComponent>(ComponentTypeId::CT_BehaviourComponent))
+            DrawBehaviourSection(*object, *behaviour);
+
+        if (auto* gate = object->GetComponentAs<GateTargetComponent>(ComponentTypeId::CT_GateTargetComponent))
+            DrawGateTargetSection(*gate);
 
         if (auto* audio = object->GetComponentAs<AudioComponent>(ComponentTypeId::CT_AudioComponent))
             DrawAudioSection(*audio);

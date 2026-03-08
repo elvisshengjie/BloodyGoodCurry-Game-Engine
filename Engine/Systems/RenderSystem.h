@@ -202,7 +202,7 @@ namespace Framework {
         /// \brief Create a new game content project and matching sandbox code directory from the template.
         bool CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message);
 
-        void HandleViewportPicking();
+        void HandleViewportPicking(const glm::mat4& activeView, const glm::mat4& activeProj);
 #endif
         void HandleShortcuts();
         // --- Camera & picking helpers -----------------------------------------------------

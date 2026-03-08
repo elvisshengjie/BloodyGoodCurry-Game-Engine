@@ -443,7 +443,8 @@ namespace Framework {
             for (auto const& [actionName, info] : audio.GetSounds()) {
                 soundMap[actionName] = {
                     {"id", info.id},
-                    {"loop", info.loop}
+                    {"loop", info.loop},
+                    {"spatial", info.spatial}
                 };
             }
 
@@ -1014,6 +1015,7 @@ namespace Framework {
 
                     std::string soundId = actionName;
                     bool loop = false;
+                    bool spatial = false;
 
                     auto idIt = soundData.find("id");
                     if (idIt != soundData.end() && idIt->is_string())
@@ -1028,7 +1030,16 @@ namespace Framework {
                             loop = (loopIt->get<int>() != 0);
                     }
 
-                    audio.AddSound(actionName, soundId, loop);
+                    auto spatialIt = soundData.find("spatial");
+                    if (spatialIt != soundData.end())
+                    {
+                        if (spatialIt->is_boolean())
+                            spatial = spatialIt->get<bool>();
+                        else if (spatialIt->is_number_integer())
+                            spatial = (spatialIt->get<int>() != 0);
+                    }
+
+                    audio.AddSound(actionName, soundId, loop, spatial);
                 }
             }
             break;

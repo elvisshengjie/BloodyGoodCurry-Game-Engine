@@ -1101,7 +1101,7 @@ namespace Framework {
                offset, zeroes body velocity if present, and unlocks follow on mouse release.
     *************************************************************************************/
 #if SOFASPUDS_ENABLE_EDITOR
-    void RenderSystem::HandleViewportPicking()
+    void RenderSystem::HandleViewportPicking(const glm::mat4& activeView, const glm::mat4& activeProj)
     {
         if (!window || !FACTORY)
         {
@@ -1124,7 +1124,17 @@ namespace Framework {
         }
 
 
-        if (Framework::editor::IsGizmoActive())
+        Framework::editor::ViewportRect gizmoRect{};
+        if (const ImGuiViewport* mainViewport = ImGui::GetMainViewport())
+        {
+            gizmoRect.x = mainViewport->WorkPos.x + static_cast<float>(gameViewport.x);
+            gizmoRect.y = mainViewport->WorkPos.y + (mainViewport->WorkSize.y - static_cast<float>(gameViewport.y + gameViewport.height));
+            gizmoRect.width = static_cast<float>(gameViewport.width);
+            gizmoRect.height = static_cast<float>(gameViewport.height);
+        }
+
+        if (Framework::editor::IsGizmoActive() ||
+            Framework::editor::IsMouseOverGizmo(activeView, activeProj, gizmoRect))
         {
             leftMouseDownPrev = glfwGetMouseButton(window->raw(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             draggingSelection = false;
@@ -2523,7 +2533,7 @@ namespace Framework {
             }
 #if SOFASPUDS_ENABLE_EDITOR
             // Now handle picking with the correct (current) camera matrices.
-            HandleViewportPicking();
+            HandleViewportPicking(activeView, activeProj);
 #endif
             // Auto-load all textures referenced by objects
             for (auto& [id, objPtr] : FACTORY->Objects())
