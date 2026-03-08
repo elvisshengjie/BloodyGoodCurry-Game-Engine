@@ -573,10 +573,6 @@ namespace
             "impact_vfx_sheet",
             Framework::ResolveProjectAssetPath("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png").string());
 
-        std::cout << "[Debug] talismanProjectileTex: "
-            << Resource_Manager::getTexture("ming_talisman") << "\n";
-
-
     }
 
     /*************************************************************************************
