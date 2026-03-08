@@ -1074,33 +1074,6 @@
             "w": 0.25
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -1.1549999713897705,
-            "y": 0.36500000953674316
-          }
-        },
-        "layer": "Background:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.25,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.25
-          },
-          "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_01.png"
           },
           "TransformComponent": {
@@ -1654,6 +1627,7 @@
             "h": 0.2150000035762787,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
             "visible": true,
             "w": 0.13600000739097595
           },
@@ -2045,7 +2019,7 @@
             "scale_y": 0.44999998807907104
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 4,
+            "activeAnimation": 0,
             "animations": [
               {
                 "config": {
@@ -2057,7 +2031,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 1,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -2072,7 +2046,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 9,
+                "currentFrame": 2,
                 "name": "run",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -2117,7 +2091,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 2,
+                "currentFrame": 8,
                 "name": "attack3",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
                 "textureKey": "attack3_sheet"
@@ -2174,14 +2148,14 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "attack3_sheet"
+            "texture_key": "idle_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.2261461019515991,
-            "y": -0.8514143228530884
+            "x": -1.2548749446868896,
+            "y": -0.9105581045150757
           }
         },
         "layer": "Gameplay:0",
@@ -2323,7 +2297,7 @@
             "y": -1.0598573684692383
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -2353,7 +2327,7 @@
             "y": -1.0078394412994385
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -2383,7 +2357,7 @@
             "y": -1.008286714553833
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -2469,7 +2443,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2602,7 +2576,7 @@
                   "startFrame": 0,
                   "totalFrames": 3
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Sleeping_Cat_Sprite.png",
                 "textureKey": "sleep_cat_sheet"
@@ -3061,7 +3035,7 @@
             "y": -1.2000000476837158
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3091,7 +3065,7 @@
             "y": -0.25999999046325684
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3121,7 +3095,7 @@
             "y": -1.2000000476837158
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3151,7 +3125,7 @@
             "y": 0.23999999463558197
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3181,7 +3155,7 @@
             "y": -1.2000000476837158
           }
         },
-        "layer": "Gameplay:2",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3211,7 +3185,7 @@
             "y": -1.2599999904632568
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3241,7 +3215,7 @@
             "y": 0.6200000047683716
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3271,7 +3245,7 @@
             "y": 0.7400000095367432
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3301,7 +3275,7 @@
             "y": -0.7599999904632568
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3331,7 +3305,7 @@
             "y": 0.6200000047683716
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3361,7 +3335,7 @@
             "y": 0.47999998927116394
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -3799,7 +3773,7 @@
             "y": 0.47999998927116394
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -4127,7 +4101,7 @@
                   "startFrame": 0,
                   "totalFrames": 11
                 },
-                "currentFrame": 7,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Pot_Sprite.png",
                 "textureKey": "cooking_pot_sheet"
@@ -4179,7 +4153,7 @@
             "y": -0.6428274512290955
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:0",
         "name": "Rect"
       },
       {
@@ -4235,6 +4209,113 @@
         },
         "layer": "Background:0",
         "name": "artassets"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "KeyPickupLogic"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.11999999731779099,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "door_key_pickup",
+            "texture_path": "Textures/UI/Key.png",
+            "visible": true,
+            "w": 0.11999999731779099
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "door_key_pickup"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.9578201770782471,
+            "y": 0.008476361632347107
+          }
+        },
+        "layer": "Background:1",
+        "name": "Door_Key"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_02.png",
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.1549999713897705,
+            "y": 0.36500000953674316
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "KeyDoorLogic"
+          },
+          "GateTargetComponent": {
+            "level_path": "RealLevel2.json"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "key_locked_door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "RigidBodyComponent": {
+            "height": 0.20000000298023224,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "key_locked_door"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.0672410726547241,
+            "y": 0.34675705432891846
+          }
+        },
+        "layer": "Background:1",
+        "name": "Key_Locked_Door"
       }
     ],
     "name": "RealLevel1"

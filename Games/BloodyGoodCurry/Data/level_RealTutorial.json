@@ -464,7 +464,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Environment/lvl 1_Hawker/Stores_Left_Sprite.png",
                 "textureKey": "store_left_sheet"
@@ -2904,37 +2904,6 @@
       },
       {
         "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.10000000149011612,
-            "layer": 0,
-            "r": 1.0,
-            "visible": false,
-            "w": 1.0
-          },
-          "RigidBodyComponent": {
-            "height": 0.25,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 1.0
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 0.9944138526916504,
-            "x": -0.6441155672073364,
-            "y": 0.8053983449935913
-          },
-          "ZoomTriggerComponent": {}
-        },
-        "layer": "Background:0",
-        "name": "zoom_Object"
-      },
-      {
-        "Components": {
           "BehaviourComponent": {
             "behaviourKey": "GateLogic"
           },
@@ -2980,58 +2949,60 @@
             "sounds": {
               "FireGhostExplosion": {
                 "id": "FireGhostExplosion",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "FireGhostProjectile1": {
                 "id": "FireGhostProjectile1",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "FireGhostProjectile2": {
                 "id": "FireGhostProjectile2",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt1": {
                 "id": "GhostHurt1",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt2": {
                 "id": "GhostHurt2",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt3": {
                 "id": "GhostHurt3",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt4": {
                 "id": "GhostHurt4",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt5": {
                 "id": "GhostHurt5",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt6": {
                 "id": "GhostHurt6",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt7": {
                 "id": "GhostHurt7",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt8": {
                 "id": "GhostHurt8",
-                "loop": false,"spatial": true
+                "loop": false
               }
             },
             "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_ranged"
           },
           "EnemyAttackComponent": {
             "attack_speed": 0.6000000238418579,
             "damage": 1
           },
           "EnemyComponent": {},
-          "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": { "treeType": "enemy_ranged" },
+          "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
             "enemyHealth": 4,
             "enemyMaxhealth": 4
@@ -3052,7 +3023,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": -0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3069,7 +3040,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3132,7 +3103,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.6361397504806519,
+            "x": 0.6461397409439087,
             "y": 0.27609995007514954
           }
         },
@@ -3145,58 +3116,60 @@
             "sounds": {
               "FireGhostExplosion": {
                 "id": "FireGhostExplosion",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "FireGhostProjectile1": {
                 "id": "FireGhostProjectile1",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "FireGhostProjectile2": {
                 "id": "FireGhostProjectile2",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt1": {
                 "id": "GhostHurt1",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt2": {
                 "id": "GhostHurt2",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt3": {
                 "id": "GhostHurt3",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt4": {
                 "id": "GhostHurt4",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt5": {
                 "id": "GhostHurt5",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt6": {
                 "id": "GhostHurt6",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt7": {
                 "id": "GhostHurt7",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt8": {
                 "id": "GhostHurt8",
-                "loop": false,"spatial": true
+                "loop": false
               }
             },
             "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_ranged"
           },
           "EnemyAttackComponent": {
             "attack_speed": 0.6000000238418579,
             "damage": 1
           },
           "EnemyComponent": {},
-          "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": { "treeType": "enemy_ranged" },
+          "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
             "enemyHealth": 4,
             "enemyMaxhealth": 4
@@ -3234,7 +3207,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -3297,7 +3270,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -2.2498388290405273,
+            "x": -1.289839744567871,
             "y": 0.05491650104522705
           }
         },
@@ -3310,54 +3283,56 @@
             "sounds": {
               "GhostHurt1": {
                 "id": "GhostHurt1",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt2": {
                 "id": "GhostHurt2",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt3": {
                 "id": "GhostHurt3",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt4": {
                 "id": "GhostHurt4",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt5": {
                 "id": "GhostHurt5",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt6": {
                 "id": "GhostHurt6",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt7": {
                 "id": "GhostHurt7",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt8": {
                 "id": "GhostHurt8",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "WaterGhostAttack": {
                 "id": "WaterGhostAttack",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "WaterGhostExplosion": {
                 "id": "WaterGhostExplosion",
-                "loop": false,"spatial": true
+                "loop": false
               }
             },
             "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_melee"
           },
           "EnemyAttackComponent": {
             "attack_speed": 1.2000000476837158,
             "damage": 1
           },
           "EnemyComponent": {},
-          "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": { "treeType": "enemy_melee" },
+          "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
             "enemyHealth": 4,
             "enemyMaxhealth": 4
@@ -3395,7 +3370,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 4,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3458,7 +3433,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -2.2746734619140625,
+            "x": -1.274674415588379,
             "y": -1.1523995399475098
           }
         },
@@ -3471,54 +3446,56 @@
             "sounds": {
               "GhostHurt1": {
                 "id": "GhostHurt1",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt2": {
                 "id": "GhostHurt2",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt3": {
                 "id": "GhostHurt3",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt4": {
                 "id": "GhostHurt4",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt5": {
                 "id": "GhostHurt5",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt6": {
                 "id": "GhostHurt6",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt7": {
                 "id": "GhostHurt7",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "GhostHurt8": {
                 "id": "GhostHurt8",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "WaterGhostAttack": {
                 "id": "WaterGhostAttack",
-                "loop": false,"spatial": true
+                "loop": false
               },
               "WaterGhostExplosion": {
                 "id": "WaterGhostExplosion",
-                "loop": false,"spatial": true
+                "loop": false
               }
             },
             "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_melee"
           },
           "EnemyAttackComponent": {
             "attack_speed": 1.2000000476837158,
             "damage": 1
           },
           "EnemyComponent": {},
-          "EnemyDecisionTreeComponent":{},
-          "BehaviorTreeComponent": { "treeType": "enemy_melee" },
+          "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
             "enemyHealth": 4,
             "enemyMaxhealth": 4
@@ -3556,7 +3533,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 4,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "water_idle"
@@ -3619,7 +3596,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.6128926277160645,
+            "x": 1.3128929138183594,
             "y": 0.005404770374298096
           }
         },
@@ -7532,6 +7509,9 @@
             },
             "volume": 1.0
           },
+          "BehaviourComponent": {
+            "behaviourKey": "PlayerController"
+          },
           "HitBoxComponent": {
             "duration": 0.15000000596046448,
             "height": 0.15000000596046448,
@@ -7540,9 +7520,6 @@
           "PlayerAttackComponent": {
             "attack_speed": 1.2000000476837158,
             "damage": 1
-          },
-          "BehaviourComponent": {
-            "behaviourKey": "PlayerController"
           },
           "PlayerComponent": {},
           "PlayerHUDComponent": {},
@@ -7581,7 +7558,7 @@
             "scale_y": 0.44999998807907104
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 0,
+            "activeAnimation": 2,
             "animations": [
               {
                 "config": {
@@ -7623,7 +7600,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 0,
+                "currentFrame": 3,
                 "name": "attack1",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -7725,7 +7702,7 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "idle_sheet"
+            "texture_key": "attack1_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
