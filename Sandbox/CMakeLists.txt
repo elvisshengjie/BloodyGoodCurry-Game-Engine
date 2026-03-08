@@ -18,13 +18,16 @@ set(GAME_PROJECT_ROOT "${CMAKE_SOURCE_DIR}/Games/${GAME_NAME}")
 set(GAME_PROJECT_METADATA_FILE "${CMAKE_CURRENT_BINARY_DIR}/${GAME_NAME}.project_root.txt")
 file(GENERATE OUTPUT "${GAME_PROJECT_METADATA_FILE}" CONTENT "${GAME_PROJECT_ROOT}\n")
 
-if (EXISTS "${GAME_PROJECT_ROOT}/Assets" AND EXISTS "${GAME_PROJECT_ROOT}/Data")
-  set(GAME_ASSETS_SOURCE "${GAME_PROJECT_ROOT}/Assets")
-  set(GAME_DATA_SOURCE "${GAME_PROJECT_ROOT}/Data")
-else()
-  set(GAME_ASSETS_SOURCE "${CMAKE_SOURCE_DIR}/assets")
-  set(GAME_DATA_SOURCE "${CMAKE_SOURCE_DIR}/Data_Files")
-endif()
+# Git does not preserve empty folders, so ensure a newly cloned game project
+# always has the expected runtime content directories before build steps run.
+file(MAKE_DIRECTORY
+  "${GAME_PROJECT_ROOT}/Assets"
+  "${GAME_PROJECT_ROOT}/Data"
+  "${GAME_PROJECT_ROOT}/Saves"
+)
+
+set(GAME_ASSETS_SOURCE "${GAME_PROJECT_ROOT}/Assets")
+set(GAME_DATA_SOURCE "${GAME_PROJECT_ROOT}/Data")
 
 # Automatically collect source files from MyGame folder
 file(GLOB_RECURSE MYGAME_SRC
