@@ -28,8 +28,9 @@
 #include "Components/WayPointComponent.h"
 #include "Components/ZoomTriggerComponent.h"
 #include "Composition/ComponentCreator.h"
+#include "Debug/SpawnPanel.h"
 #include "Editor/InspectorPanel.h"
-#include "Editor/Spawn.h"
+#include "Editor/SpawnExtensions.h"
 #include "Game.hpp"
 #include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
@@ -40,6 +41,7 @@
 
 #include <array>
 #include <filesystem>
+#include <initializer_list>
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -47,6 +49,24 @@
 
 namespace
 {
+    std::string ChooseProjectLevelFile(std::initializer_list<const char*> preferredFiles)
+    {
+        std::error_code ec;
+        for (const char* file : preferredFiles)
+        {
+            if (!file || *file == '\0')
+                continue;
+
+            const auto candidate = Framework::ResolveDataPath(file);
+            if (std::filesystem::exists(candidate, ec) && std::filesystem::is_regular_file(candidate, ec))
+                return file;
+
+            ec.clear();
+        }
+
+        return "level.json";
+    }
+
     void ReadJsonFloat(const Framework::json& data, const char* key, float& out)
     {
         auto it = data.find(key);
@@ -697,7 +717,8 @@ namespace mygame
         });
         logic.SetFindPlayerCallback(&FindAlivePlayer);
         logic.SetPostAudioRestoreCallback(&RestoreMissingLevelAudio);
-        logic.SetStartupLevelPath(logic.ResolveDataPath("level_RealTutorial.json"));
+        logic.SetStartupLevelPath(
+            logic.ResolveDataPath(ChooseProjectLevelFile({ "level_RealTutorial.json", "level.json" })));
         logic.SetPostLevelLoadCallback([](Framework::LogicSystem& runtime)
         {
             InstallFactorySavePolicy(runtime);
@@ -721,17 +742,10 @@ namespace mygame
             DrawMyGameOverlay(runtime);
         });
 #if SOFASPUDS_ENABLE_EDITOR
-        render.SetEditorProjectRootsCallback(
-            [](const std::filesystem::path& assetsRoot, const std::filesystem::path&)
-            {
-                if (!assetsRoot.empty())
-                    SetSpawnPanelAssetsRoot(assetsRoot);
-                SetSpawnPanelLevelDefaults("level_RealTutorial.json", "RealLevel1.json");
-                SetSpawnPanelEditorCallbacks(IsEditorSimulationRunning, LoadLevelFromEditor);
-            });
+        Framework::ClearSpawnPanelExtensions();
+        RegisterMyGameSpawnPanelExtensions();
         render.SetEditorPanelsCallback([]()
         {
-            DrawSpawnPanel();
             DrawPropertiesEditor();
         });
 #endif

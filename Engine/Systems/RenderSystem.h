@@ -56,6 +56,7 @@
 #include <functional>
 #include <string>
 #include <utility>
+#include <vector>
 #if SOFASPUDS_ENABLE_EDITOR
 #include <imgui.h>
 #endif
@@ -196,6 +197,9 @@ namespace Framework {
         void DrawDockspace();
         void DrawGameViewportWindow();
         void RefreshEditorProjectRoots();
+        /// \brief Resolve the repository's `Games` directory for project creation/loading.
+        std::filesystem::path ResolveGamesRoot() const;
+        /// \brief Create a new game content project and matching sandbox code directory from the template.
         bool CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message);
 
         void HandleViewportPicking();
