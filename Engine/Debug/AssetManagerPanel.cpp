@@ -2,6 +2,7 @@
 #include "Resource_Asset_Manager/Asset_Manager.h"
 #include "Resource_Asset_Manager/Resource_Manager.h"
 #include "JsonEditorPanel.h"
+#include "AssetBrowserPanel.h"
 #include <filesystem>
 #include <vector>
 #include <imgui.h>
@@ -25,7 +26,7 @@ namespace mygame
 		  - Prevents deletion of non-existing assets.
 		  - Displays error messages in red if prefab creation fails.
 	*********************************************************************************/
-	void DrawAssetManagerPanel(JsonEditorPanel* jsonPanel)
+	void DrawAssetManagerPanel(JsonEditorPanel* jsonPanel, AssetBrowserPanel* assetBrowserPanel)
 	{
 		ImGui::Begin("Debug Asset Manager");
 		static std::vector<AssetManager::Asset> assets;
@@ -87,7 +88,9 @@ namespace mygame
 
 				if (ImGui::Button("Delete", ImVec2(120, 0)))
 				{
-					AssetManager::DeleteAsset(asset.path);
+					const bool deleted = AssetManager::DeleteAsset(asset.path);
+					if (deleted && assetBrowserPanel)
+						assetBrowserPanel->ForceRefresh();
 					if (jsonPanel)
 						jsonPanel->RefreshFiles();
 					assets = AssetManager::GetAllAssets();

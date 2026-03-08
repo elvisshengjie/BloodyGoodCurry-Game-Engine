@@ -3038,7 +3038,7 @@ namespace Framework {
                 mygame::DrawPropertiesEditor();
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);
-                mygame::DrawAssetManagerPanel(&jsonEditor);
+                mygame::DrawAssetManagerPanel(&jsonEditor, &assetBrowser);
 
                 if (ImGui::Begin("Crash Tests"))
                 {

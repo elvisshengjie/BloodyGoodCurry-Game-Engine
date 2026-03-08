@@ -33,6 +33,9 @@ namespace mygame {
         // Set the root folder and reset internal state.
         void Initialize(const std::filesystem::path& assetsRoot);
 
+        // Force a directory rescan (useful when files are changed externally).
+        void ForceRefresh();
+
         // Draw the panel UI 
         void Draw();
 

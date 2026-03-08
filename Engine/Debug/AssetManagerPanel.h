@@ -1,6 +1,7 @@
 #pragma once
 #include "JsonEditorPanel.h"
 namespace mygame {
+    class AssetBrowserPanel;
     /*********************************************************************************
       \brief Draws the Asset Manager editor panel using ImGui.
       \param jsonPanel Optional pointer to a JsonEditorPanel for prefab refresh.
@@ -13,5 +14,5 @@ namespace mygame {
           - Prevents deletion of non-existing assets.
           - Displays error messages in red if prefab creation fails.
     *********************************************************************************/
-    void DrawAssetManagerPanel(JsonEditorPanel* jsonPanel);
+    void DrawAssetManagerPanel(JsonEditorPanel* jsonPanel, AssetBrowserPanel* assetBrowserPanel);
 }

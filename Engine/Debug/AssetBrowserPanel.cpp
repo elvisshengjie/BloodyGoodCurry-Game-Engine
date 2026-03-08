@@ -75,14 +75,14 @@ static std::string SafeRelative(const std::filesystem::path& base,
     auto c = std::filesystem::weakly_canonical(p, ec);
     if (ec) c = p;
 
-    // Different drive letters / roots? Don’t try to make a relative path.
+    // Different drive letters / roots? Do not try to make a relative path.
     if (b.has_root_name() && c.has_root_name() && b.root_name() != c.root_name())
         return p.filename().string();
 
     auto rel = c.lexically_relative(b);
     auto s = rel.generic_string();
 
-    // If the “relative” result is empty or escapes upwards, show a friendly name instead.
+    // If the "relative" result is empty or escapes upwards, show a friendly name instead.
     if (s.empty() || s.rfind("..", 0) == 0)
         return p.filename().string();
 
@@ -224,7 +224,6 @@ namespace mygame {
     {
         ClearPreviewCache();
     }
-
     /*************************************************************************************
       \brief  Initialize the panel with an assets root; canonicalize and pre-scan entries.
       \param  assetsRoot Path to the assets directory to browse.
@@ -240,6 +239,14 @@ namespace mygame {
         m_replaceBuffer.fill('\0');
         m_statusMessage.clear();
         m_statusIsError = false;
+        RefreshEntries();
+    }
+
+    /*************************************************************************************
+      \brief  Force a rescan of the current directory entries.
+    *************************************************************************************/
+    void AssetBrowserPanel::ForceRefresh()
+    {
         RefreshEntries();
     }
 
