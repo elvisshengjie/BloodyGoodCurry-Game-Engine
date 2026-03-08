@@ -1,100 +1,215 @@
 Project Guide
-==============
+=============
 
-1. Install CMake
-----------------
-CMake is required to generate Visual Studio solutions.
+1. Requirements
+---------------
+Install these first:
+- Visual Studio 2022 with Desktop development with C++
+- CMake
+- PowerShell
 
-- Download the latest version here:
-  https://cmake.org/download/
-
-- During installation:
-  - Choose "Add CMake to system PATH".
-  - Verify installation:
-    ```powershell
-    cmake --version
-    ```
+Recommended:
+```powershell
+cmake --version
+```
 
 2. Regenerating the Visual Studio 2022 Solution
 -----------------------------------------------
-1. Open **Developer PowerShell for VS 2022** (or normal PowerShell).
-2. Navigate to the project root folder (where `CMakeLists.txt` is located):
-   ```powershell
-   cd path\to\project
-   ```
-3. Create a `build` directory (if not already present):
-   ```powershell
-   mkdir build
-   cd build
-   ```
-4. Run CMake to generate a Visual Studio 2022 solution:
-   ```powershell
-   cmake -G "Visual Studio 17 2022" ..
-   ```
-   - `..` tells CMake to look at the parent folder for `CMakeLists.txt`.
-   - This will generate `giraphics.sln` inside the `build` folder.
+From the project root:
+```powershell
+mkdir build_BloodyGoodCurry_editor
+cd build_BloodyGoodCurry_editor
+cmake -G "Visual Studio 17 2022" -DSOFASPUDS_ENABLE_EDITOR=ON -DSOFASPUDS_GAME_NAME=BloodyGoodCurry ..
+```
 
-5. Open the solution in Visual Studio:
-   ```powershell
-   start giraphics..sln
-   ```
+To generate for another game project:
+```powershell
+mkdir build_NewGame_editor
+cd build_NewGame_editor
+cmake -G "Visual Studio 17 2022" -DSOFASPUDS_ENABLE_EDITOR=ON -DSOFASPUDS_GAME_NAME=NewGame ..
+```
 
-Important!
+Notes:
+- `SOFASPUDS_GAME_NAME` selects which game target is built.
+- Each game target now resolves its code from `Sandbox/<ProjectName>`.
+- Each game target resolves its content from `Games/<ProjectName>`.
+- Desktop builds are now separated per game and per mode, so multiple projects can stay configured side by side.
 
-Use the clean.bat file then run the run.bat file for editor Mode (Offline)
-Use the clean.bat file run run_game.bat for non editor mode in release mode (Offline)
+3. Project Structure
+--------------------
+Each game project is split into code and content.
 
-3. PROJECT SETTINGS (DEBUG VS RELEASE)
---------------------------------------
-Once the solution is open in Visual Studio, you can toggle between configurations using the dropdown menu in the top toolbar.
+Code:
+- `Sandbox/BloodyGoodCurry` uses the legacy `Sandbox/MyGame` code path.
+- New projects use `Sandbox/<ProjectName>`.
 
-* **Debug Mode:** - Use this for development.
-  - Features: Unoptimized code, full debug symbols, and enables console logging/assertions.
-  - Performance: Slower.
-  - able to use F9 for Crash logging
-  -F1 to show performance panel
+Content:
+- `Games/<ProjectName>/Assets`
+- `Games/<ProjectName>/Data`
+- `Games/<ProjectName>/Saves`
 
-* **Release Mode:**
-  - Use this for final deployment or performance testing.
-  - Features: Fully optimized code. Debug logs may be disabled.
-  - Performance: Runs at maximum speed.
-    -F1 to show performance panel
+Folder purpose:
+- `Assets`: source art/audio/resources
+- `Data`: authored JSON such as levels, prefabs, and `window.json`
+- `Saves`: runtime save data and user-generated state
 
-Editor Mode (Offline)
-
--Run: clean.bat then run.bat
-
-Game Mode (Offline / no editor)
-
--Run: clean.bat then run_game.bat
-
-ShortCut
-F10: Toggle editor panels (show/hide editor UI).
-
-F11: Toggle fullscreen. (Works regardless of editor).
-
-Extra editor controls when editor UI is visible:
-
-T / R / S switch gizmo modes (Translate/Rotate/Scale).
-
-Delete removes selected object (editor-only flow).
-
-
-
-
-
-That's it — the project is ready to build and run in Visual Studio 2022.
-
-4. WEB BUILD AND RUN (BROWSER)
+4. Creating a New Game Project
 ------------------------------
-Use this when testing the Emscripten/WebGL build.
+Inside the editor:
+- Open the app in editor mode.
+- Use `File -> New Game`.
 
-Install first (one-time setup):
-- Visual Studio 2022 with "Desktop development with C++" workload
-- CMake (add to PATH)
-- Ninja (add to PATH)
-- Python 3 (add to PATH)
-- EMSDK (Emscripten SDK)
+This now creates:
+- `Games/<ProjectName>`
+- `Sandbox/<ProjectName>`
+
+Important:
+- `New Game` does not auto-load the project.
+
+5. Building and Running
+-----------------------
+Editor mode:
+```powershell
+run.bat BloodyGoodCurry
+run.bat NewGame
+```
+
+Game mode without editor:
+```powershell
+run_game.bat BloodyGoodCurry
+run_game.bat NewGame
+```
+
+If you omit the game name, the script uses its default configuration.
+
+Desktop build directories:
+- `run.bat BloodyGoodCurry` -> `build_BloodyGoodCurry_editor`
+- `run.bat NewGame` -> `build_NewGame_editor`
+- `run_game.bat BloodyGoodCurry` -> `build_BloodyGoodCurry_game`
+- `run_game.bat NewGame` -> `build_NewGame_game`
+
+If you want to run directly from Visual Studio:
+- Set the desired game target as Startup Project.
+- Example targets:
+  - `BloodyGoodCurry`
+  - `NewGame`
+
+Important distinction:
+- `New Game` only creates the project folders and starter files.
+- To run another coded project, build and launch that project's target.
+
+6. Debug vs Release
+-------------------
+Debug:
+- Best for development
+- More logging and symbols
+- Use `F9` crash test
+- Use `F1` performance panel
+
+Release:
+- Optimized build
+- Best for performance testing and final runs
+
+7. Editor Shortcuts
+-------------------
+- `F10`: Toggle editor UI
+- `F11`: Toggle fullscreen
+- `F1`: Toggle performance window
+- `F9`: Crash test
+- `T / R / S`: Translate / Rotate / Scale gizmos
+- `Delete`: Delete selected object
+- `Ctrl+Z`: Undo
+
+8. Spawn Panel Architecture
+---------------------------
+The spawn panel is now engine-owned.
+
+Engine responsibilities:
+- prefab search and selection
+- spawn / clear / apply-to-existing
+- level save / refresh / load
+- generic engine component controls
+
+Game responsibilities:
+- register optional spawn-panel extensions
+- provide UI and apply logic for game-only components
+
+Current engine-supported component editing in the spawn panel:
+- `TransformComponent`
+- `RenderComponent`
+- `CircleRenderComponent`
+- `SpriteComponent`
+- `RigidBodyComponent`
+
+BloodyGoodCurry currently registers a game-specific extension for:
+- enemy attack
+- enemy health
+- player attack
+- player health
+- gate target
+
+New generated projects do not need a custom spawn panel to work.
+
+9. Prefabs for New Projects
+----------------------------
+Prefab JSON files should go in:
+```text
+Games/<ProjectName>/Data/Prefabs
+```
+
+For a generated project like `NewGame`, the safest test prefabs are:
+- engine-only prefabs using built-in components
+- prefabs using the template `GlowComponent`
+
+Examples already added:
+- `Games/NewGame/Data/Prefabs/TestBox.json`
+- `Games/NewGame/Data/Prefabs/TestGlowBox.json`
+
+10. Minimal NewGame Prefab Example
+----------------------------------
+```json
+{
+  "GameObject": {
+    "Components": {
+      "TransformComponent": {
+        "x": 0.0,
+        "y": 0.0,
+        "rot": 0.0
+      },
+      "RenderComponent": {
+        "w": 0.25,
+        "h": 0.25,
+        "r": 0.2,
+        "g": 0.8,
+        "b": 0.9,
+        "a": 1.0
+      }
+    }
+  }
+}
+```
+
+11. Generated Game Template
+---------------------------
+New code projects are copied from:
+- `Sandbox/GameTemplate`
+
+The generated project starts with:
+- project bootstrap
+- `GlowComponent`
+- startup level set to `level.json`
+- no game-specific spawn extension
+
+12. Web Build and Run
+---------------------
+Use this for Emscripten/WebGL testing.
+
+Install first:
+- Visual Studio 2022
+- CMake
+- Ninja
+- Python 3
+- EMSDK
 
 Quick checks:
 ```powershell
@@ -102,13 +217,6 @@ cmake --version
 ninja --version
 python --version
 em++ --version
-```
-
-Recommended install commands (Windows + winget):
-```powershell
-winget install Kitware.CMake
-winget install Ninja-build.Ninja
-winget install Python.Python.3.12
 ```
 
 EMSDK setup example:
@@ -120,29 +228,32 @@ cd $env:USERPROFILE\emsdk
 .\emsdk_env.bat
 ```
 
-Note:
-- `build_web_html.bat` auto-loads `%USERPROFILE%\emsdk\emsdk_env.bat` if `EMSDK` is not set.
+Build:
+```powershell
+build_web_html.bat
+build_web_html.bat BloodyGoodCurry release-split reconfigure
+build_web_html.bat NewGame release-split reconfigure
+```
 
-1. Build web output (recommended split-file release):
-   ```powershell
-   build_web_html.bat release-split reconfigure
-   ```
+Default no-argument behavior:
+- builds `BloodyGoodCurry`
+- uses `release-split`
+- forces `reconfigure`
+- starts the local Python server automatically
 
-2. Start local web server from project root:
-   ```powershell
-   python -m http.server 8000 -d build\web-release-split\Sandbox
-   ```
+Host:
+```powershell
+python -m http.server 8000 -d build\web-release-split\Sandbox
+```
 
-3. Open the game:
-   ```text
-   http://localhost:8000/BloodyGoodCurry.html?v=1
-   ```
+Open:
+```text
+http://localhost:8000/BloodyGoodCurry.html?v=1
+```
 
-4. After each rebuild:
-   - Increase the query string value (`v=2`, `v=3`, etc.)
-   - Hard refresh browser: `Ctrl+Shift+R`
-
-Web notes:
-- Do not open `BloodyGoodCurry.html` directly from file explorer.
-- Always host with `http.server` (or equivalent local server).
-- Web version currently uses audio stubs, so no FMOD sound output in browser.
+13. Notes
+---------
+- Do not open the web HTML directly from file explorer.
+- Always host with a local server.
+- Web builds currently use audio stubs.
+- If the editor or build state gets messy, run `clean.bat` and rebuild.

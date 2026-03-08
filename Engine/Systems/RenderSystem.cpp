@@ -44,6 +44,8 @@
 #endif
 
 #include "RenderSystem.h"
+#include "Audio/SoundManager.h"
+#include "Composition/PrefabManager.h"
 #include "Core/ProjectContext.h"
 #include "Core/PathUtils.h"
 #include "Debug/Perf.h"
@@ -57,6 +59,7 @@
 #include <cctype>
 #include <cmath>
 #include <fstream>
+#include <iterator>
 #include <system_error>
 #include <string_view>
 #include <vector>
@@ -69,6 +72,7 @@
 #include "Resource_Asset_Manager/Asset_Manager.h"
 #include "Debug/AssetManagerPanel.h"
 #include "Debug/AudioImGui.h"
+#include "Debug/SpawnPanel.h"
 #include "Debug/UndoStack.h"
 #include "Debug/Inspector.h"
 #include "Debug/EditorGizmo.h"
@@ -90,6 +94,7 @@ namespace mygame
     bool IsEditorSimulationRunning();
     void EditorPlaySimulation();
     void EditorStopSimulation();
+    bool LoadLevelFromEditor(const std::filesystem::path& levelPath);
 }
 
 namespace Framework {
@@ -212,6 +217,199 @@ namespace Framework {
                 // rb->velX = 0.0f;
                 // rb->velY = 0.0f;
             }
+        }
+
+        /*************************************************************************************
+         \brief  Write a full text buffer to disk, replacing any previous file contents.
+         \param  path      Destination file path.
+         \param  contents  Full text payload to write.
+         \return True if the file was opened and written successfully.
+        *************************************************************************************/
+        bool WriteTextFile(const std::filesystem::path& path, std::string_view contents)
+        {
+            std::ofstream out(path, std::ios::trunc);
+            if (!out.is_open())
+                return false;
+
+            out << contents;
+            return out.good();
+        }
+
+        /*************************************************************************************
+         \brief  Replace every instance of a token inside a text file.
+         \param  path         Text file to edit in place.
+         \param  token        Placeholder token to search for.
+         \param  replacement  Replacement text to substitute.
+         \return True if the file could be read, transformed, and rewritten.
+        *************************************************************************************/
+        bool ReplaceTokenInFile(const std::filesystem::path& path,
+            std::string_view token,
+            std::string_view replacement)
+        {
+            std::ifstream in(path, std::ios::binary);
+            if (!in.is_open())
+                return false;
+
+            std::string contents((std::istreambuf_iterator<char>(in)),
+                std::istreambuf_iterator<char>());
+            in.close();
+
+            std::size_t pos = 0;
+            while ((pos = contents.find(token, pos)) != std::string::npos)
+            {
+                contents.replace(pos, token.size(), replacement);
+                pos += replacement.size();
+            }
+
+            return WriteTextFile(path, contents);
+        }
+
+        /*************************************************************************************
+         \brief  Copy the sandbox code template into a new per-project code directory.
+         \param  templateRoot   Source template directory under `Sandbox/GameTemplate`.
+         \param  destinationRoot Target sandbox code directory for the new project.
+         \param  token          Placeholder token to replace in copied files.
+         \param  replacement    Concrete project name written into copied files.
+         \param  error          Output message describing the failure reason on error.
+         \return True if the full template directory is copied and personalized successfully.
+        *************************************************************************************/
+        bool CopyProjectCodeTemplate(const std::filesystem::path& templateRoot,
+            const std::filesystem::path& destinationRoot,
+            std::string_view token,
+            std::string_view replacement,
+            std::string& error)
+        {
+            namespace fs = std::filesystem;
+
+            std::error_code ec;
+            if (!fs::exists(templateRoot, ec) || !fs::is_directory(templateRoot, ec))
+            {
+                error = "Missing game code template: " + templateRoot.string();
+                return false;
+            }
+
+            if (!fs::create_directories(destinationRoot, ec) && ec)
+            {
+                error = "Failed to create code directory: " + destinationRoot.string();
+                return false;
+            }
+
+            for (const auto& entry : fs::recursive_directory_iterator(templateRoot, ec))
+            {
+                if (ec)
+                {
+                    error = "Failed while reading template directory: " + templateRoot.string();
+                    return false;
+                }
+
+                const auto relative = entry.path().lexically_relative(templateRoot);
+                const auto target = destinationRoot / relative;
+
+                if (entry.is_directory())
+                {
+                    fs::create_directories(target, ec);
+                    if (ec)
+                    {
+                        error = "Failed to create code subdirectory: " + target.string();
+                        return false;
+                    }
+                    continue;
+                }
+
+                if (!entry.is_regular_file())
+                    continue;
+
+                fs::create_directories(target.parent_path(), ec);
+                if (ec)
+                {
+                    error = "Failed to create code parent directory: " + target.parent_path().string();
+                    return false;
+                }
+
+                fs::copy_file(entry.path(), target, fs::copy_options::overwrite_existing, ec);
+                if (ec)
+                {
+                    error = "Failed to copy code template file: " + entry.path().string();
+                    return false;
+                }
+
+                if (!ReplaceTokenInFile(target, token, replacement))
+                {
+                    error = "Failed to personalize code template file: " + target.string();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /*************************************************************************************
+         \brief  Normalize a path using weak canonicalization with an absolute fallback.
+         \param  path  Candidate filesystem path to normalize.
+         \return A normalized absolute path, or an empty path if resolution fails.
+        *************************************************************************************/
+        std::filesystem::path CanonicalOrAbsolute(std::filesystem::path path)
+        {
+            std::error_code ec;
+            path = std::filesystem::weakly_canonical(path, ec);
+            if (ec)
+                path = std::filesystem::absolute(path, ec);
+            return ec ? std::filesystem::path{} : path;
+        }
+
+        /*************************************************************************************
+         \brief  Choose the preferred startup level for the currently active project root.
+         \return `level_RealTutorial.json` when present, otherwise `level.json`.
+        *************************************************************************************/
+        std::filesystem::path ChooseProjectLevelPath()
+        {
+            std::error_code ec;
+            for (const char* file : { "level_RealTutorial.json", "level.json" })
+            {
+                const auto candidate = Framework::ResolveDataPath(file);
+                if (std::filesystem::exists(candidate, ec) &&
+                    std::filesystem::is_regular_file(candidate, ec))
+                {
+                    return candidate;
+                }
+                ec.clear();
+            }
+
+            return Framework::ResolveDataPath("level.json");
+        }
+
+        /*************************************************************************************
+         \brief  Clear old runtime audio state and reload sounds for the active project root.
+         \details Stops currently playing sounds, clears tracked sound resources, then reloads
+                  audio assets from the active project's `Assets/Audio` or fallback folder.
+        *************************************************************************************/
+        void ReloadProjectAudioAssets()
+        {
+            SoundManager::getInstance().stopAllSounds();
+            SoundManager::getInstance().unloadAllSounds();
+
+            for (auto it = Resource_Manager::resources_map.begin();
+                 it != Resource_Manager::resources_map.end();)
+            {
+                if (it->second.type == Resource_Manager::Resource_Type::Sound)
+                    it = Resource_Manager::resources_map.erase(it);
+                else
+                    ++it;
+            }
+
+#if !SOFASPUDS_DISABLE_AUDIO
+            namespace fs = std::filesystem;
+            fs::path audioPath = Framework::ResolveAssetPath("Audio");
+            if (!fs::exists(audioPath))
+            {
+                const fs::path fallbackAudioPath = Framework::ResolveAssetPath("Audio__OFF_WEB");
+                if (fs::exists(fallbackAudioPath))
+                    audioPath = fallbackAudioPath;
+            }
+
+            if (!audioPath.empty() && fs::exists(audioPath))
+                Resource_Manager::loadAll(audioPath.string());
+#endif
         }
 
         inline void RefreshSpriteComponentsForKey(const std::string& key)
@@ -536,6 +734,8 @@ namespace Framework {
         if (assetsRoot.empty())
             assetsRoot = FindAssetsRoot();
 
+        SetSpawnPanelAssetsRoot(assetsRoot);
+
         if (!assetsRoot.empty())
         {
             assetBrowser.Initialize(assetsRoot);
@@ -550,11 +750,17 @@ namespace Framework {
             jsonEditor.Initialize(dataFilesRoot);
         else
             jsonEditor.Initialize({});
+
+        SetSpawnPanelEditorCallbacks(mygame::IsEditorSimulationRunning, mygame::LoadLevelFromEditor);
         if (editorProjectRootsCallback)
             editorProjectRootsCallback(assetsRoot, dataFilesRoot);
     }
 
-    bool RenderSystem::CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message)
+    /*************************************************************************************
+     \brief  Resolve the repository `Games` directory relative to the active project or repo root.
+     \return Canonical absolute path to the `Games` directory, or an empty path on failure.
+    *************************************************************************************/
+    std::filesystem::path RenderSystem::ResolveGamesRoot() const
     {
         namespace fs = std::filesystem;
 
@@ -568,18 +774,43 @@ namespace Framework {
         if (gamesRoot.empty())
             gamesRoot = AssetManager::ProjectRoot() / "..";
 
+        return CanonicalOrAbsolute(std::move(gamesRoot));
+    }
+
+    /*************************************************************************************
+     \brief  Create a new game project with both content folders and a sandbox code project.
+     \param  createdRoot  Output path for the created game content root under `Games/`.
+     \param  message      Output status/error message for the editor UI.
+     \return True if both the content project and code template are created successfully.
+    *************************************************************************************/
+    bool RenderSystem::CreateNewGameProject(std::filesystem::path& createdRoot, std::string& message)
+    {
+        namespace fs = std::filesystem;
+
         std::error_code ec;
-        gamesRoot = fs::weakly_canonical(gamesRoot, ec);
-        if (ec)
-            gamesRoot = fs::absolute(gamesRoot, ec);
+        fs::path gamesRoot = ResolveGamesRoot();
+        const fs::path repoRoot = gamesRoot.empty() ? fs::path{} : gamesRoot.parent_path();
+        const fs::path sandboxRoot = repoRoot.empty() ? fs::path{} : CanonicalOrAbsolute(repoRoot / "Sandbox");
+        const fs::path templateRoot = sandboxRoot.empty() ? fs::path{} : CanonicalOrAbsolute(sandboxRoot / "GameTemplate");
 
         if (gamesRoot.empty())
         {
             message = "Could not determine the Games directory.";
             return false;
         }
+        if (sandboxRoot.empty())
+        {
+            message = "Could not determine the Sandbox directory.";
+            return false;
+        }
+        if (templateRoot.empty() || !fs::exists(templateRoot, ec))
+        {
+            message = "Could not find the game code template in Sandbox/GameTemplate.";
+            return false;
+        }
 
         fs::path projectRoot;
+        fs::path codeRoot;
         std::string projectName;
         for (int index = 0; index < 100; ++index)
         {
@@ -587,12 +818,17 @@ namespace Framework {
                 ? "NewGame"
                 : "NewGame" + std::to_string(index + 1);
             projectRoot = gamesRoot / projectName;
+            codeRoot = sandboxRoot / projectName;
 
-            if (!fs::exists(projectRoot, ec))
+            const bool projectExists = fs::exists(projectRoot, ec);
+            ec.clear();
+            const bool codeExists = fs::exists(codeRoot, ec);
+            ec.clear();
+            if (!projectExists && !codeExists)
                 break;
         }
 
-        if (projectRoot.empty() || fs::exists(projectRoot, ec))
+        if (projectRoot.empty() || codeRoot.empty() || fs::exists(projectRoot, ec) || fs::exists(codeRoot, ec))
         {
             message = "Could not find an available NewGame folder name.";
             return false;
@@ -623,32 +859,49 @@ namespace Framework {
             return false;
         }
 
+        const std::string windowJson =
+            "{\n"
+            "  \"window\": {\n"
+            "    \"width\": 1280,\n"
+            "    \"height\": 720,\n"
+            "    \"title\": \"" + projectName + "\",\n"
+            "    \"fullscreen\": false\n"
+            "  }\n"
+            "}\n";
+        if (!WriteTextFile(dataDir / "window.json", windowJson))
         {
-            std::ofstream out(dataDir / "window.json", std::ios::trunc);
-            out << "{\n"
-                << "  \"window\": {\n"
-                << "    \"width\": 1280,\n"
-                << "    \"height\": 720,\n"
-                << "    \"title\": \"MyGame - " << projectName << "\",\n"
-                << "    \"fullscreen\": false\n"
-                << "  }\n"
-                << "}\n";
+            message = "Failed to create window.json in: " + dataDir.string();
+            return false;
         }
 
+        constexpr std::string_view kStarterLevelJson =
+            "{\n"
+            "  \"Level\": {\n"
+            "    \"name\": \"level\",\n"
+            "    \"GameObjects\": []\n"
+            "  }\n"
+            "}\n";
+        if (!WriteTextFile(dataDir / "level.json", kStarterLevelJson))
         {
-            std::ofstream out(dataDir / "level.json", std::ios::trunc);
-            out << "{\n"
-                << "  \"Level\": {\n"
-                << "    \"GameObjects\": []\n"
-                << "  }\n"
-                << "}\n";
+            message = "Failed to create level.json in: " + dataDir.string();
+            return false;
         }
 
-        Framework::SetCurrentProjectRoot(projectRoot);
-        createdRoot = Framework::GetCurrentProjectRoot();
-        message = "Created project " + projectName;
-        return !createdRoot.empty();
+        if (!CopyProjectCodeTemplate(
+                templateRoot,
+                codeRoot,
+                "__SOFASPUDS_PROJECT_NAME__",
+                projectName,
+                message))
+        {
+            return false;
+        }
+
+        createdRoot = CanonicalOrAbsolute(projectRoot);
+        message = "Created project " + projectName + " with code in " + codeRoot.string();
+        return true;
     }
+
 #endif
 
     /*************************************************************************************
@@ -3000,7 +3253,6 @@ namespace Framework {
                             std::string message;
                             if (CreateNewGameProject(createdRoot, message))
                             {
-                                RefreshEditorProjectRoots();
                                 projectMenuStatusMessage = message + ": " + createdRoot.string();
                                 projectMenuStatusIsError = false;
                             }
@@ -3010,6 +3262,7 @@ namespace Framework {
                                 projectMenuStatusIsError = true;
                             }
                         }
+
                         ImGui::EndMenu();
                     }
 
@@ -3049,6 +3302,7 @@ namespace Framework {
                 mygame::DrawInspectorWindow();
                 mygame::DrawAnimationEditor(showAnimationEditor);
                 mygame::DrawAssetManagerPanel(&jsonEditor);
+                Framework::DrawSpawnPanel();
                 if (editorPanelsCallback)
                     editorPanelsCallback();
 
