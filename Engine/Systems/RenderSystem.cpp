@@ -227,11 +227,11 @@ namespace Framework {
         *************************************************************************************/
         bool WriteTextFile(const std::filesystem::path& path, std::string_view contents)
         {
-            std::ofstream out(path, std::ios::trunc);
+            std::ofstream out(path, std::ios::binary | std::ios::trunc);
             if (!out.is_open())
                 return false;
 
-            out << contents;
+            out.write(contents.data(), static_cast<std::streamsize>(contents.size()));
             return out.good();
         }
 
