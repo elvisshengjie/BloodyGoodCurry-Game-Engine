@@ -211,6 +211,10 @@ Install first:
 - Python 3
 - EMSDK
 
+Recommended install commands:
+- winget install Kitware.CMake
+- winget install Ninja-build.Ninja
+- winget install Python.Python.3.12
 Quick checks:
 ```powershell
 cmake --version
