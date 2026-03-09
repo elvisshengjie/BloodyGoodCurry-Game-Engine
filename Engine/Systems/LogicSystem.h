@@ -88,6 +88,10 @@ namespace Framework {
         /*! \brief Reload current level and refresh object references. */
         void ReloadLevel();
         void LoadLevel(const std::filesystem::path& levelPath);
+        void PrepareForIncrementalLevelLoad();
+        void FinalizeIncrementalLevelLoad(const std::filesystem::path& levelPath,
+            const std::string& levelName,
+            const std::vector<GOC*>& loadedObjects);
         void RegisterBehaviour(const std::string& key, BehaviourFCT fct);
         void SetStartupLevelPath(std::filesystem::path levelPath) { startupLevelPath = std::move(levelPath); }
         void SetPostLevelLoadCallback(std::function<void(LogicSystem&)> callback) { postLevelLoadCallback = std::move(callback); }

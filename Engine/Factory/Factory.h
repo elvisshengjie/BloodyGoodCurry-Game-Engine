@@ -228,6 +228,9 @@ namespace Framework {
 
         /// File path used during the last save/load operation.
         const std::filesystem::path& LastLevelPath() const { return LastLevelPathCache; }
+        void SetLastLevelMetadata(const std::filesystem::path& levelPath,
+            const std::string& levelName,
+            const std::vector<GOC*>& levelObjects);
 
         // Example iteration usage (pseudo-code):
         // void Update(float dt) override {

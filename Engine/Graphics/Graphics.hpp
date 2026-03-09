@@ -55,6 +55,7 @@ namespace gfx {
        /* static void renderBackground();*/
 
         static void renderFullscreenTexture(unsigned tex);
+        static void renderFullscreenTextureColorKey(unsigned tex, float thresholdLow, float thresholdHigh);
 
         /**
          * \brief Configure the active camera view/projection used for world-space rendering.
@@ -176,6 +177,7 @@ namespace gfx {
 
         // Programs
         static unsigned int bgShader;
+        static unsigned int bgColorKeyShader;
         static unsigned int objectShader;
         static unsigned int VAO_sprite, VBO_sprite, EBO_sprite;
         static unsigned int spriteShader;

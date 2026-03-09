@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      Game.cpp
  \par       SofaSpuds
  \author    All TEAM MEMBERS
@@ -40,6 +40,7 @@
 #include <DefeatScreenPage.hpp>
 #include "EngineCall.hpp"
 #include "HealthPresentation.hpp"
+#include "LevelLoader.hpp"
 #include "VfxPresets.hpp"
 
 #include "Common/CRTDebug.h"   
@@ -144,7 +145,7 @@ namespace mygame {
         Framework::ParticleSystem* gParticleSystem = nullptr;
         Framework::ZoomTriggerSystem* gZoomTriggerSystem = nullptr;
 
-        enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, PLAYING, PAUSED, DEFEAT, EXIT };
+        enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, LOADING_TRANSITION, PLAYING, PAUSED, DEFEAT, EXIT };
         GameState currentState = GameState::MAIN_MENU;
         bool editorSimulationRunning = false;
        
@@ -153,8 +154,19 @@ namespace mygame {
         PauseMenuPage pauseMenu;
         DefeatScreenPage defeatScreen;
         Framework::VideoPlayer cutscenePlayer;
+        Framework::VideoPlayer transitionPlayer;
+        LevelLoader levelLoader;
         bool cutsceneReady = false;
         bool cutsceneAudioPlaying = false;
+        bool transitionReady = false;
+        bool loadingTransitionSkipRequested = false;
+        bool loadingTransitionResumeSimulation = true;
+        GameState loadingTransitionNextState = GameState::PLAYING;
+        constexpr std::size_t kLoadingObjectsPerTick = 8;
+        constexpr float kTransitionColorKeyLow = 0.02f;
+        constexpr float kTransitionColorKeyHigh = 0.18f;
+        const std::filesystem::path kTransitionVideoRelativePath =
+            "Textures/UI/Transition screen/Transition screen.mpg";
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
@@ -167,6 +179,31 @@ namespace mygame {
         void allocatorDumpCallback(const void* block, unsigned int blockIndex)
         {
             std::cout << "[Allocator] Leak: block #" << blockIndex << " at " << block << "\n";
+        }
+
+        bool StartGameplayLoadTransition(const std::filesystem::path& levelPath,
+            bool resumeSimulationAfterLoad,
+            GameState nextStateAfterLoad = GameState::PLAYING)
+        {
+            if (!gLogicSystem || levelPath.empty() || levelLoader.IsActive())
+                return false;
+
+            if (transitionReady) {
+                transitionPlayer.Start();
+            }
+
+            if (!levelLoader.BeginLoad(*gLogicSystem, levelPath))
+            {
+                std::cerr << "[LoadingTransition] Failed to begin load: " << levelPath << "\n";
+                return false;
+            }
+
+            loadingTransitionSkipRequested = false;
+            loadingTransitionResumeSimulation = resumeSimulationAfterLoad;
+            loadingTransitionNextState = nextStateAfterLoad;
+            editorSimulationRunning = false;
+            currentState = GameState::LOADING_TRANSITION;
+            return true;
         }
 
     }
@@ -239,6 +276,16 @@ namespace mygame {
         cutsceneReady = !cutscenePath.empty() && cutscenePlayer.Load(cutscenePath);
         if (!cutsceneReady) {
             std::cerr << "[Cutscene] Warning: Could not load output.mpg from Video/ or Video__OFF_WEB/.\n";
+        }
+        const auto transitionVideoPath = Framework::ResolveAssetPath(kTransitionVideoRelativePath);
+        transitionReady = std::filesystem::exists(transitionVideoPath) &&
+            transitionPlayer.Load(transitionVideoPath.string());
+        if (transitionReady) {
+            transitionPlayer.SetColorKeyEnabled(true, kTransitionColorKeyLow, kTransitionColorKeyHigh);
+        }
+        else {
+            std::cerr << "[LoadingTransition] Warning: Could not load "
+                << transitionVideoPath.string() << "\n";
         }
         if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
             const std::string cutsceneAudioPath = ResolveFirstExistingAsset({
@@ -360,11 +407,40 @@ namespace mygame {
                 break;
             }
 
+            case GameState::LOADING_TRANSITION:
+            {
+                handlePerfToggle();
+                levelLoader.TickLoadStep(kLoadingObjectsPerTick);
+
+                if (transitionReady && !loadingTransitionSkipRequested && !transitionPlayer.IsFinished()) {
+                    transitionPlayer.Update(dt);
+                }
+
+                const bool skipTransition = gInputSystem &&
+                    (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
+                if (skipTransition) {
+                    loadingTransitionSkipRequested = true;
+                }
+
+                const bool loadingFinished = levelLoader.IsDone() && levelLoader.Succeeded();
+                const bool transitionFinished =
+                    !transitionReady || loadingTransitionSkipRequested || transitionPlayer.IsFinished();
+
+                if (loadingFinished && transitionFinished)
+                {
+                    currentState = loadingTransitionNextState;
+                    editorSimulationRunning = loadingTransitionResumeSimulation;
+                }
+                break;
+            }
+
             case GameState::PLAYING:
                 if (editorSimulationRunning)
                 {
                     UpdateHealthPresentationDelta(dt);
                     gSystems.UpdateAll(dt);
+                    if (currentState != GameState::PLAYING)
+                        break;
                 }
                 // When simulation is not running we already refreshed input above.
                 handlePerfToggle();
@@ -427,13 +503,19 @@ namespace mygame {
                         SoundManager::getInstance().fadeInMusic(MAIN_MENU_BGM, kBGMFadeDuration, 0.4f);
                         mainMenuBGMPlaying = true;
                     }
-                    if (gLogicSystem)
+                    if (gLogicSystem &&
+                        StartGameplayLoadTransition(gLogicSystem->Factory()->LastLevelPath().empty()
+                            ? gLogicSystem->ResolveDataPath("level.json")
+                            : gLogicSystem->Factory()->LastLevelPath(),
+                            false,
+                            GameState::MAIN_MENU))
                     {
-                        gLogicSystem->ReloadLevel();
+                        ResetPlayerDefeat();
+                        ResetPlayerKeyCount();
+                        break;
                     }
                     ResetPlayerDefeat();
                     ResetPlayerKeyCount();
-
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
                     break;
@@ -498,15 +580,11 @@ namespace mygame {
                     }
 
                     defeatSoundStarted = false;
-                    if (gLogicSystem)
+                    if (RequestReloadLevel())
                     {
-                        gLogicSystem->ReloadLevel();
+                        ResetPlayerDefeat();
+                        ResetPlayerKeyCount();
                     }
-                    ResetPlayerDefeat();
-                    ResetPlayerKeyCount();
-
-                    editorSimulationRunning = true;
-                    currentState = GameState::PLAYING;
                 }
                 break;
 
@@ -563,6 +641,19 @@ namespace mygame {
                         static_cast<float>(gRenderSystem->ScreenHeight()),
                         0.0f, 0.0f, 0.0f, normalized,
                         gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
+                    gRenderSystem->EndMenuFrame();
+                    gRenderSystem->RenderBrightnessOverlay();
+                }
+                break;
+
+            case GameState::LOADING_TRANSITION:
+                gSystems.DrawAll();
+                if (gRenderSystem) {
+                    DrawHealthPresentation(*gRenderSystem);
+                    gRenderSystem->BeginMenuFrame();
+                    if (transitionReady && !loadingTransitionSkipRequested && !transitionPlayer.IsFinished()) {
+                        transitionPlayer.Draw();
+                    }
                     gRenderSystem->EndMenuFrame();
                     gRenderSystem->RenderBrightnessOverlay();
                 }
@@ -633,6 +724,10 @@ namespace mygame {
     {
         std::cout << "[Game] Shutting down systems...\n";
 
+        levelLoader.Reset();
+        transitionPlayer.Stop();
+        cutscenePlayer.Stop();
+
         if (gLogicSystem && gLogicSystem->hitBoxSystem)
         {
             gLogicSystem->SetPostUpdateCallback({});
@@ -646,7 +741,7 @@ namespace mygame {
 
         const unsigned leaks = Framework::GameObjectPool::Storage().Allocator().DumpMemoryInUse(&allocatorDumpCallback);
         std::cout << "[Allocator] DumpMemoryInUse found " << leaks << " live blocks at shutdown.\n";
-        // Null out global pointers so you donâ€™t accidentally access them later
+        // Null out global pointers so you donÃ¢â‚¬â„¢t accidentally access them later
         gEnemySystem = nullptr;
         gAiSystem = nullptr;
         gRenderSystem = nullptr;
@@ -694,6 +789,26 @@ namespace mygame {
             Framework::FACTORY->Layers().LogVisibilitySummary("EditorStopSimulation");
     }
 
+    bool RequestReloadLevel()
+    {
+        if (!gLogicSystem || !gLogicSystem->Factory())
+            return false;
+
+        std::filesystem::path levelPath = gLogicSystem->Factory()->LastLevelPath();
+        if (levelPath.empty())
+            levelPath = gLogicSystem->ResolveDataPath("level.json");
+
+        return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING);
+    }
+
+    bool RequestLoadLevel(const std::filesystem::path& levelPath)
+    {
+        if (!gLogicSystem || levelPath.empty())
+            return false;
+
+        return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING);
+    }
+
     /*************************************************************************************
      \brief  Loads a level selected through the editor bridge.
      \param  levelPath  The level file to load.
@@ -704,12 +819,14 @@ namespace mygame {
         if (!gLogicSystem || levelPath.empty())
             return false;
 
-        gLogicSystem->LoadLevel(levelPath);
-
-        ResetPlayerDefeat();
-        ResetPlayerKeyCount();
-
-        return true;
+        const bool beganLoad = StartGameplayLoadTransition(
+            levelPath, editorSimulationRunning, GameState::PLAYING);
+        if (beganLoad)
+        {
+            ResetPlayerDefeat();
+            ResetPlayerKeyCount();
+        }
+        return beganLoad;
     }
 
 } // namespace mygame
