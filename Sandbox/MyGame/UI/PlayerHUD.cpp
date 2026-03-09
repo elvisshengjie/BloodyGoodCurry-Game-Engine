@@ -12,6 +12,7 @@
 
 #include "Components/PlayerHealthComponent.h"
 #include "Core/PathUtils.h"
+#include "EngineCall.hpp"
 #include "Resource_Asset_Manager/Resource_Manager.h"
 
 #include <algorithm>
@@ -121,6 +122,18 @@ namespace Framework
         texBottleFull = LoadTexture("hud_bottle", "Textures/UI/Health Bar/Health_Life.png");
         texBottleBreak = LoadTexture("hud_bottle_break", "Textures/UI/Health Bar/Broken_Life_VFX_Sprite.png");
         texBottleBroken = LoadTexture("hud_bottle_broken", "Textures/UI/Health Bar/Health_BrokenLife.png");
+        texMeleeReady = LoadTexture("hud_melee_ready", "Textures/UI/No melee.png");
+        texMeleeCooldown = LoadTexture("hud_melee_cooldown", "Textures/UI/Melee.png");
+        texRangeReady = LoadTexture("hud_range_ready", "Textures/UI/No range.png");
+        texRangeCooldown = LoadTexture("hud_range_cooldown", "Textures/UI/Range.png");
+        texTalismanReady = LoadTexture("hud_talisman_ready", "Textures/UI/No tailsman.png");
+        texTalismanCooldown = LoadTexture("hud_talisman_cooldown", "Textures/UI/Tailsman.png");
+        texBubble1 = LoadTexture("hud_bubble_1", "Textures/UI/Bubble count/Bubble1.png");
+        texBubble1Appear = LoadTexture("hud_bubble_1_appear", "Textures/UI/Bubble count/Bubble1_appear.png");
+        texBubble1Pop = LoadTexture("hud_bubble_1_pop", "Textures/UI/Bubble count/Bubble1_pop.png");
+        texBubble2 = LoadTexture("hud_bubble_2", "Textures/UI/Bubble count/Bubble2.png");
+        texBubble2Appear = LoadTexture("hud_bubble_2_appear", "Textures/UI/Bubble count/Bubble2_appear.png");
+        texBubble2Pop = LoadTexture("hud_bubble_2_pop", "Textures/UI/Bubble count/Bubble2_pop.png");
     }
 
     /*****************************************************************************************
@@ -181,6 +194,8 @@ namespace Framework
     *****************************************************************************************/
     void PlayerHUDComponent::Update(float dt)
     {
+        UpdateAbilityBubbleStates(dt);
+
         if (!health)
             return;
 
@@ -244,6 +259,99 @@ namespace Framework
         }
     }
 
+    void PlayerHUDComponent::UpdateAbilityBubbleStates(float dt)
+    {
+        const mygame::PlayerAbilityHudState abilityHudState =
+            mygame::GetPlayerAbilityHudState(GetOwner());
+
+        const std::array<const mygame::AbilityCooldownUiState*, 3> cooldownStates{ {
+            &abilityHudState.talisman,
+            &abilityHudState.ranged,
+            &abilityHudState.melee
+        } };
+
+        for (std::size_t i = 0; i < cooldownStates.size(); ++i)
+        {
+            const auto& state = *cooldownStates[i];
+            int targetCount = 0;
+
+            if (!state.ready && state.duration > 0.0f && state.remaining > 0.0f)
+            {
+                const float remainingRatio = std::clamp(state.remaining / state.duration, 0.0f, 1.0f);
+                targetCount = (remainingRatio > 0.5f) ? COOLDOWN_BUBBLE_STEPS : 1;
+            }
+
+            AdvanceAbilityBubbleState(abilityBubbleStates[i], targetCount, dt);
+            AdvanceAbilityIconState(abilityIconStates[i], state.ready, dt);
+        }
+    }
+
+    void PlayerHUDComponent::AdvanceAbilityBubbleState(AbilityBubbleState& bubbleState, int targetCount, float dt)
+    {
+        bubbleState.pendingCount = std::clamp(targetCount, 0, COOLDOWN_BUBBLE_STEPS);
+
+        if (bubbleState.animKind != BubbleAnimKind::None)
+        {
+            bubbleState.animTimer = std::max(0.0f, bubbleState.animTimer - dt);
+            if (bubbleState.animTimer > 0.0f)
+                return;
+
+            if (bubbleState.animKind == BubbleAnimKind::Pop)
+            {
+                bubbleState.displayedCount = 0;
+                bubbleState.animKind = BubbleAnimKind::None;
+
+                if (bubbleState.pendingCount > 0)
+                {
+                    bubbleState.displayedCount = bubbleState.pendingCount;
+                    bubbleState.animKind = BubbleAnimKind::Appear;
+                    bubbleState.animTimer = BUBBLE_ANIM_DURATION;
+                    return;
+                }
+            }
+            else
+            {
+                bubbleState.animKind = BubbleAnimKind::None;
+            }
+        }
+
+        if (bubbleState.displayedCount == bubbleState.pendingCount)
+            return;
+
+        if (bubbleState.displayedCount > 0)
+        {
+            bubbleState.animKind = BubbleAnimKind::Pop;
+            bubbleState.animTimer = BUBBLE_ANIM_DURATION;
+            return;
+        }
+
+        if (bubbleState.pendingCount > 0)
+        {
+            bubbleState.displayedCount = bubbleState.pendingCount;
+            bubbleState.animKind = BubbleAnimKind::Appear;
+            bubbleState.animTimer = BUBBLE_ANIM_DURATION;
+        }
+    }
+
+    void PlayerHUDComponent::AdvanceAbilityIconState(AbilityIconState& iconState, bool ready, float dt)
+    {
+        if (ready)
+        {
+            iconState.cooldownBlend = 0.0f;
+            return;
+        }
+
+        const float targetBlend = 1.0f;
+        if (ICON_BLEND_DURATION <= 0.0f)
+        {
+            iconState.cooldownBlend = targetBlend;
+            return;
+        }
+
+        const float blendStep = dt / ICON_BLEND_DURATION;
+        iconState.cooldownBlend = std::min(targetBlend, iconState.cooldownBlend + blendStep);
+    }
+
     /*****************************************************************************************
      \brief Draws the player's health HUD in screen-space.
      \param screenW Current viewport width in pixels.
@@ -291,6 +399,8 @@ namespace Framework
         const float bottleSpacing = -10.0f * scaleFactor;
         const float bottleStartX = faceX + faceW - (10.0f * scaleFactor);
         const float bottleY = faceY + (5.0f * scaleFactor);
+        const mygame::PlayerAbilityHudState abilityHudState =
+            mygame::GetPlayerAbilityHudState(GetOwner());
 
         glm::mat4 uiOrtho = glm::ortho(0.0f, static_cast<float>(screenW),
             0.0f, static_cast<float>(screenH),
@@ -350,6 +460,163 @@ namespace Framework
                     Graphics::renderSpriteFrame(
                         texBottleFull, xPos + bottleW / 2, yPos + bottleH / 2, 0.0f, bottleW, bottleH, 0, 1, 1);
                 }
+            }
+        }
+
+        const float panelWidth = 110.0f * scaleFactor;
+        const float panelHeight = 300.0f * scaleFactor;
+        const float panelX = static_cast<float>(screenW) - panelWidth - (24.0f * scaleFactor);
+        const float panelY = 30.0f * scaleFactor;
+
+        struct AbilityIconDraw
+        {
+            const mygame::AbilityCooldownUiState& state;
+            unsigned readyTexture;
+            unsigned cooldownTexture;
+        };
+
+        const std::array<AbilityIconDraw, 3> abilityIcons{ {
+            { abilityHudState.talisman, texTalismanReady, texTalismanCooldown },
+            { abilityHudState.ranged, texRangeReady, texRangeCooldown },
+            { abilityHudState.melee, texMeleeReady, texMeleeCooldown }
+        } };
+
+        const float iconSize = 74.0f * scaleFactor;
+        const float iconGap = 18.0f * scaleFactor;
+        const float iconX = panelX + ((panelWidth - iconSize) * 0.5f);
+        const float iconTopY = panelY + panelHeight - iconSize - (18.0f * scaleFactor);
+        constexpr float kReadyIconScale = 1.0f;
+        constexpr float kCooldownIconScale = 1.10f;
+
+        for (std::size_t i = 0; i < abilityIcons.size(); ++i)
+        {
+            const auto& icon = abilityIcons[i];
+            const auto& bubbleState = abilityBubbleStates[i];
+            const auto& iconState = abilityIconStates[i];
+            const float iconY = iconTopY - (static_cast<float>(i) * (iconSize + iconGap));
+            const float cooldownBlend = std::clamp(iconState.cooldownBlend, 0.0f, 1.0f);
+            const float iconCenterX = iconX + (iconSize * 0.5f);
+            const float iconCenterY = iconY + (iconSize * 0.5f);
+
+            auto drawCenteredIcon = [&](unsigned texture, float alpha, float scale)
+                {
+                    if (texture == 0u || alpha <= 0.0f)
+                        return;
+
+                    const float drawSize = iconSize * scale;
+                    Graphics::renderSpriteUI(
+                        texture,
+                        iconCenterX - (drawSize * 0.5f),
+                        iconCenterY - (drawSize * 0.5f),
+                        drawSize,
+                        drawSize,
+                        1.0f, 1.0f, 1.0f, alpha,
+                        screenW, screenH);
+                };
+
+            auto drawPartialIcon = [&](unsigned texture, float scale, float yOffsetUv, float yScaleUv)
+                {
+                    if (texture == 0u || yScaleUv <= 0.0f)
+                        return;
+
+                    const float drawSize = iconSize * scale;
+                    const float drawX = iconCenterX - (drawSize * 0.5f);
+                    const float drawY = iconCenterY - (drawSize * 0.5f);
+                    const float drawHeight = drawSize * yScaleUv;
+
+                    if (drawHeight <= 0.0f)
+                        return;
+
+                    Graphics::SpriteInstance fillInstance{};
+                    fillInstance.model = glm::mat4(1.0f);
+                    fillInstance.model = glm::translate(
+                        fillInstance.model,
+                        glm::vec3(
+                            drawX + (drawSize * 0.5f),
+                            drawY + (drawSize * yOffsetUv) + (drawHeight * 0.5f),
+                            0.0f));
+                    fillInstance.model = glm::scale(
+                        fillInstance.model,
+                        glm::vec3(drawSize, drawHeight, 1.0f));
+                    fillInstance.tint = glm::vec4(1.0f);
+                    fillInstance.uv = glm::vec4(0.0f, yOffsetUv, 1.0f, yScaleUv);
+
+                    Graphics::renderSpriteBatchInstanced(
+                        texture,
+                        &fillInstance,
+                        1);
+                };
+
+            if (cooldownBlend <= 0.0f)
+            {
+                drawCenteredIcon(icon.readyTexture, 1.0f, kReadyIconScale);
+            }
+            else if (cooldownBlend >= 1.0f)
+            {
+                drawCenteredIcon(icon.cooldownTexture, 1.0f, kCooldownIconScale);
+            }
+            else
+            {
+                drawPartialIcon(icon.readyTexture, kReadyIconScale, cooldownBlend, 1.0f - cooldownBlend);
+                drawPartialIcon(icon.cooldownTexture, kCooldownIconScale, 0.0f, cooldownBlend);
+            }
+
+            if (bubbleState.displayedCount > 0)
+            {
+                const float bubbleSize = 80.0f * scaleFactor;
+                const float bubbleX = iconX + iconSize - (bubbleSize * 0.75f);
+                const float bubbleY = iconY + iconSize - (bubbleSize * 0.70f);
+                int bubbleCountToDraw = bubbleState.displayedCount;
+                BubbleAnimKind bubbleAnimKind = bubbleState.animKind;
+
+                auto selectBubbleTexture = [&](int count, BubbleAnimKind animKind) -> unsigned
+                    {
+                        if (count == 2)
+                        {
+                            if (animKind == BubbleAnimKind::Appear)
+                                return texBubble2Appear;
+                            if (animKind == BubbleAnimKind::Pop)
+                                return texBubble2Pop;
+                            return texBubble2;
+                        }
+
+                        if (animKind == BubbleAnimKind::Appear)
+                            return texBubble1Appear;
+                        if (animKind == BubbleAnimKind::Pop)
+                            return texBubble1Pop;
+                        return texBubble1;
+                    };
+
+                const unsigned bubbleTexture =
+                    selectBubbleTexture(bubbleCountToDraw, bubbleAnimKind);
+
+                if (bubbleTexture == 0u)
+                    continue;
+
+                if (bubbleAnimKind == BubbleAnimKind::None)
+                {
+                    Graphics::renderSpriteUI(
+                        bubbleTexture, bubbleX, bubbleY, bubbleSize, bubbleSize,
+                        1.0f, 1.0f, 1.0f, 1.0f, screenW, screenH);
+                    continue;
+                }
+
+                const float animProgress = 1.0f - (bubbleState.animTimer / BUBBLE_ANIM_DURATION);
+                const int frame = std::clamp(
+                    static_cast<int>(animProgress * static_cast<float>(BUBBLE_ANIM_FRAMES)),
+                    0,
+                    BUBBLE_ANIM_FRAMES - 1);
+
+                Graphics::renderSpriteFrame(
+                    bubbleTexture,
+                    bubbleX + (bubbleSize * 0.5f),
+                    bubbleY + (bubbleSize * 0.5f),
+                    0.0f,
+                    bubbleSize,
+                    bubbleSize,
+                    frame,
+                    BUBBLE_ANIM_FRAMES,
+                    1);
             }
         }
 

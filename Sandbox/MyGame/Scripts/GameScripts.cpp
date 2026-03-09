@@ -31,6 +31,7 @@
 #include "Systems/HitBoxSystem.h"
 #include "Factory/Factory.h"
 #include "Core/PathUtils.h"
+#include "../EngineCall.hpp"
 #include "Systems/RenderSystem.h"
 #include "Systems/ParticleSystem.h"
 #include "../VfxPresets.hpp"
@@ -156,11 +157,13 @@ namespace {
         int frame{ 0 };                                     ///< Current frame index (local)
         float frameClock{ 0.0f };                            ///< Accumulator for frame advance
         float attackTimer{ 0.0f };                           ///< Remaining time for attack anim
+        float attackDurationTotal{ 0.0f };                   ///< Total duration of the current attack anim
         int comboStep{ 0 };                                  ///< 1..3 combo cycle step
         float knockbackAnimTimer{ 0.0f };                    ///< Remaining knockback anim time
         PendingThrow pendingThrow{};                         ///< Queued throw spawn data
         PendingThrow pendingSlow{};
         float throwCooldownTimer{ 0.0f };                    ///< Cooldown gate for throw
+        float throwCooldownDuration{ 0.0f };                 ///< Total throw cooldown length for HUD display
         bool throwRequestQueued{ false };                    ///< RMB held/queued request
         float runParticleTimer{ 0.0f };                      ///< Timer for run particle cadence
         float footstepTimer{ 0.0f };                         ///< Timer for footstep sound cadence
@@ -300,6 +303,13 @@ namespace {
             state == PlayerAnimState::Attack3 ||
             state == PlayerAnimState::Throw ||
             state == PlayerAnimState::SlowAttack;
+    }
+
+    bool IsMeleeAttackState(PlayerAnimState state)
+    {
+        return state == PlayerAnimState::Attack1 ||
+            state == PlayerAnimState::Attack2 ||
+            state == PlayerAnimState::Attack3;
     }
 
     /*****************************************************************************************
@@ -757,6 +767,7 @@ namespace {
             const auto comboState = AttackStateForIndex(state.comboStep);
             SetAnimState(obj, state, comboState);
             state.attackTimer = AttackDurationForState(obj, comboState);
+            state.attackDurationTotal = state.attackTimer;
         }
         /*************************************************************************************
           \brief Input: RMB throw request queues a projectile to be spawned after throw animation.
@@ -779,7 +790,9 @@ namespace {
 
                 SetAnimState(obj, state, PlayerAnimState::Throw);
                 state.attackTimer = AttackDurationForState(obj, PlayerAnimState::Throw);
+                state.attackDurationTotal = state.attackTimer;
                 state.throwCooldownTimer = std::max(state.throwCooldownTimer, state.attackTimer);
+                state.throwCooldownDuration = state.throwCooldownTimer;
                 state.throwRequestQueued = false;
             }
         }
@@ -798,6 +811,7 @@ namespace {
 
             SetAnimState(obj, state, PlayerAnimState::SlowAttack);
             state.attackTimer = kSlowAttackAnimDuration;
+            state.attackDurationTotal = state.attackTimer;
             state.slowAttackCooldownTimer = kSlowAttackCooldown;
         }
 
@@ -815,7 +829,9 @@ namespace {
             if (state.animState != PlayerAnimState::Knockback)
             {
                 state.pendingThrow.active = false;
+                state.pendingSlow.active = false;
                 state.attackTimer = 0.0f;
+                state.attackDurationTotal = 0.0f;
             }
             if (state.knockbackAnimTimer <= 0.0f)
                 state.knockbackAnimTimer = AttackDurationForState(obj, PlayerAnimState::Knockback);
@@ -831,6 +847,7 @@ namespace {
             if (state.attackTimer <= 0.0f)
             {
                 state.attackTimer = 0.0f;
+                state.attackDurationTotal = 0.0f;
                 SetAnimState(obj, state, wantRun ? PlayerAnimState::Run : PlayerAnimState::Idle);
             }
         }
@@ -1234,6 +1251,51 @@ namespace mygame {
     int GetPlayerKeyCount()
     {
         return std::max(0, gPlayerKeyCount);
+    }
+
+    PlayerAbilityHudState GetPlayerAbilityHudState(const Framework::GameObjectComposition* player)
+    {
+        PlayerAbilityHudState hudState{};
+        if (!player)
+            return hudState;
+
+        const auto it = gPlayerStates.find(player->GetId());
+        if (it == gPlayerStates.end())
+            return hudState;
+
+        const PlayerControllerState& state = it->second;
+        const bool knockbackActive = state.knockbackAnimTimer > 0.0f;
+        const bool meleeAnimActive = IsMeleeAttackState(state.animState) && state.attackTimer > 0.0f;
+        const bool slowAnimActive = state.animState == PlayerAnimState::SlowAttack && state.attackTimer > 0.0f;
+        const bool throwAnimActive = state.animState == PlayerAnimState::Throw && state.attackTimer > 0.0f;
+
+        hudState.melee.ready = !meleeAnimActive && !knockbackActive;
+        hudState.melee.remaining = meleeAnimActive ? state.attackTimer : 0.0f;
+        hudState.melee.duration = meleeAnimActive
+            ? std::max(state.attackDurationTotal, state.attackTimer)
+            : 0.0f;
+
+        hudState.ranged.ready = state.throwCooldownTimer <= 0.0f &&
+            !state.pendingThrow.active &&
+            !throwAnimActive &&
+            !knockbackActive;
+        hudState.ranged.remaining = std::max(
+            state.throwCooldownTimer,
+            throwAnimActive ? state.attackTimer : 0.0f);
+        hudState.ranged.duration = std::max(
+            state.throwCooldownDuration,
+            hudState.ranged.remaining);
+
+        hudState.talisman.ready = state.slowAttackCooldownTimer <= 0.0f &&
+            !state.pendingSlow.active &&
+            !slowAnimActive &&
+            !knockbackActive;
+        hudState.talisman.remaining = std::max(
+            state.slowAttackCooldownTimer,
+            slowAnimActive ? state.attackTimer : 0.0f);
+        hudState.talisman.duration = std::max(kSlowAttackCooldown, hudState.talisman.remaining);
+
+        return hudState;
     }
 
     /*****************************************************************************************

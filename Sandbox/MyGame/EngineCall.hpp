@@ -20,12 +20,26 @@
 
 namespace Framework {
     class AiSystem;
+    class GameObjectComposition;
     class LogicSystem;
     class HealthSystem;
     class RenderSystem;
 }
 
 namespace mygame {
+    struct AbilityCooldownUiState
+    {
+        bool ready{ true };
+        float remaining{ 0.0f };
+        float duration{ 0.0f };
+    };
+
+    struct PlayerAbilityHudState
+    {
+        AbilityCooldownUiState melee{};
+        AbilityCooldownUiState ranged{};
+        AbilityCooldownUiState talisman{};
+    };
 
     /*************************************************************************************
       \brief Registers all game behaviours/scripts with the engine's LogicSystem.
@@ -69,6 +83,12 @@ namespace mygame {
       \brief Returns current player key inventory count used by key-door gameplay.
     **************************************************************************************/
     int GetPlayerKeyCount();
+
+    /*************************************************************************************
+      \brief Returns the current HUD-facing readiness/cooldown state for the player's abilities.
+      \param player Player object to query.
+    **************************************************************************************/
+    PlayerAbilityHudState GetPlayerAbilityHudState(const Framework::GameObjectComposition* player);
 
     /*************************************************************************************
       \brief Clears player key inventory and key-door runtime unlock state.
