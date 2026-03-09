@@ -160,19 +160,19 @@ namespace
 
         audio->volume = prefabAudio->volume;
         for (const auto& [action, info] : prefabAudio->GetSounds())
-            audio->AddSound(action, info.id, info.loop, info.spatial);
+            audio->AddSound(action, info.id, info.loop, info.spatial, info.volume);
     }
 
     void ForceAllSoundsSpatial(Framework::AudioComponent& audio)
     {
-        std::vector<std::tuple<std::string, std::string, bool>> sounds;
+        std::vector<std::tuple<std::string, std::string, bool, float>> sounds;
         sounds.reserve(audio.GetSounds().size());
 
         for (const auto& [action, info] : audio.GetSounds())
-            sounds.emplace_back(action, info.id, info.loop);
+            sounds.emplace_back(action, info.id, info.loop, info.volume);
 
-        for (const auto& [action, id, loop] : sounds)
-            audio.AddSound(action, id, loop, true);
+        for (const auto& [action, id, loop, actionVolume] : sounds)
+            audio.AddSound(action, id, loop, true, actionVolume);
     }
 
     bool IsEnemyObject(const Framework::GOC& obj)

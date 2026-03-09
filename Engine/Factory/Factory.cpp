@@ -444,7 +444,8 @@ namespace Framework {
                 soundMap[actionName] = {
                     {"id", info.id},
                     {"loop", info.loop},
-                    {"spatial", info.spatial}
+                    {"spatial", info.spatial},
+                    {"volume", info.volume}
                 };
             }
 
@@ -1016,6 +1017,7 @@ namespace Framework {
                     std::string soundId = actionName;
                     bool loop = false;
                     bool spatial = false;
+                    float actionVolume = 1.0f;
 
                     auto idIt = soundData.find("id");
                     if (idIt != soundData.end() && idIt->is_string())
@@ -1039,7 +1041,14 @@ namespace Framework {
                             spatial = (spatialIt->get<int>() != 0);
                     }
 
-                    audio.AddSound(actionName, soundId, loop, spatial);
+                    auto volumeIt = soundData.find("volume");
+                    if (volumeIt != soundData.end() &&
+                        (volumeIt->is_number_float() || volumeIt->is_number_integer()))
+                    {
+                        actionVolume = volumeIt->get<float>();
+                    }
+
+                    audio.AddSound(actionName, soundId, loop, spatial, actionVolume);
                 }
             }
             break;

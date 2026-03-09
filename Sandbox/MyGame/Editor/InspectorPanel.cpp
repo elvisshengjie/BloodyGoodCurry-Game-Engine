@@ -115,21 +115,39 @@ namespace
         //    own data (loop is stored inside SoundInfo which is value-type in the map).
         //    To allow toggling loop in the inspector we need a mutable ref, so we use
         //    a small helper: re-register the sound with the updated flag via AddSound().
+        std::vector<std::pair<std::string, Framework::SoundInfo>> soundEntries;
+        soundEntries.reserve(audio.GetSounds().size());
         for (const auto& [action, info] : audio.GetSounds())
+            soundEntries.emplace_back(action, info);
+
+        for (const auto& [action, info] : soundEntries)
         {
             if (ImGui::TreeNode(action.c_str()))
             {
                 // Sound ID is data-driven from the prefab JSON — show as read-only.
-                ImGui::TextDisabled("ID: %s", info.id.c_str());
+                std::array<char, 256> idBuffer{};
+                std::snprintf(idBuffer.data(), idBuffer.size(), "%s", info.id.c_str());
+                std::string idLabel = "Sound ID##" + action;
+                if (ImGui::InputText(idLabel.c_str(), idBuffer.data(), idBuffer.size()))
+                {
+                    audio.AddSound(action, idBuffer.data(), info.loop, info.spatial, info.volume);
+                }
 
-                // Loop toggle: copy current state, let user flip it, re-register.
+                float actionVolume = info.volume;
+                std::string volumeLabel = "Action Volume##" + action;
+                if (ImGui::DragFloat(volumeLabel.c_str(), &actionVolume, 0.01f, 0.0f, 3.0f, "%.2f"))
+                {
+                    audio.AddSound(action, info.id, info.loop, info.spatial, actionVolume);
+                }
+
                 bool loopFlag = info.loop;
                 std::string loopLabel = "Loop##" + action;
                 if (ImGui::Checkbox(loopLabel.c_str(), &loopFlag))
                 {
-                    // Preserve spatial metadata when the loop flag is edited in the inspector.
-                    audio.AddSound(action, info.id, loopFlag, info.spatial);
+                    audio.AddSound(action, info.id, loopFlag, info.spatial, info.volume);
                 }
+
+                ImGui::TextDisabled("Spatial: %s", info.spatial ? "true" : "false");
 
                 ImGui::TreePop();
             }

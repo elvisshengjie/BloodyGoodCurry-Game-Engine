@@ -39,11 +39,18 @@ namespace mygame
     void EnemyAudioController::PlayClip3D(const std::string& clip, float posX, float posY)
     {
         if (clip.empty()) return;
+        if (!m_Audio) return;
+
+        const auto it = m_Audio->GetSounds().find(clip);
+        if (it == m_Audio->GetSounds().end()) return;
+        if (!SoundManager::getInstance().isSoundLoaded(it->second.id)) return;
 
         FMOD_VECTOR pos = { posX, posY, 0.0f };
         FMOD_VECTOR vel = { 0.0f, 0.0f, 0.0f };
 
-        auto channelId = SoundManager::getInstance().playSound3DChannel(clip, 1.0f, 1.0f, false, &pos, &vel);
+        const float playbackVolume = m_Audio->volume * it->second.volume;
+        auto channelId = SoundManager::getInstance().playSound3DChannel(
+            it->second.id, playbackVolume, 1.0f, it->second.loop, &pos, &vel);
         if (channelId != 0)
         {
             // Optional: store for per-frame update
