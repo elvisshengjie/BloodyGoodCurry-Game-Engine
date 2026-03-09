@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyBehaviorTree.h
  \par       SofaSpuds
- \author
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
  \brief     Declares the sandbox enemy behaviour-tree construction helpers.
  \details   Exposes the game-layer functions that assemble and configure enemy
             behaviour trees using the engine AI framework.

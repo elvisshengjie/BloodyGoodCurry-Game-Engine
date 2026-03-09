@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyConditions.h
  \par       SofaSpuds
- \author
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
  \brief     Declares game-specific condition helpers for enemy AI decision logic.
  \details   Contains condition predicates used by the sandbox enemy AI to evaluate
             player distance, line-of-sight, attack readiness, and similar gameplay checks.
@@ -23,16 +23,35 @@
 namespace mygame
 {
     using GOC = Framework::GameObjectComposition;
-
-    static constexpr float kMeleeDetectionRadius = 0.3f;        // detect player very close
-    static constexpr float kMeleeChaseRetentionRadius = 1.2f;   // stops chasing sooner
-    static constexpr float kRangedDetectionRadius = 0.5f;       // detect player only nearby
-    static constexpr float kRangedChaseRetentionRadius = 2.0f;  // stop chasing sooner
+    /*****************************************************************************************
+      \brief Detection and chase retention radii for each enemy type.
+      \details
+      Melee enemies have a tighter detection radius but shorter retention range,
+      making them aggressive only up close and quick to disengage.
+      Ranged enemies detect slightly further and retain the chase longer.
+      kDetectionRadius and kChaseRetentionRadius are aliases for the ranged values,
+      used by EnemyActions.h for backwards-compatible projectile fire distance checks.
+    *****************************************************************************************/
+    static constexpr float kMeleeDetectionRadius = 0.3f;        //< Aggro radius for melee enemies; triggers chase when player is within this distance.
+    static constexpr float kMeleeChaseRetentionRadius = 1.2f;   ///< Melee enemies disengage if the player exceeds this distance.
+    static constexpr float kRangedDetectionRadius = 0.5f;       ///< Aggro radius for ranged enemies; slightly wider than melee.
+    static constexpr float kRangedChaseRetentionRadius = 2.0f;  ///< Ranged enemies retain chase longer before disengaging.
 
     // Aliases so EnemyActions.h references compile without changes.
     static constexpr float kDetectionRadius = kRangedDetectionRadius;
     static constexpr float kChaseRetentionRadius = kRangedChaseRetentionRadius;
-
+    /*****************************************************************************************
+      \brief Condition predicate: returns true if the enemy should be actively chasing the player.
+      \param ctx BehaviorContext containing the owner enemy and blackboard.
+      \return True if the enemy has the player in aggro range or is still in chase retention.
+      \details
+      - Iterates the factory to locate the owner's AI/transform components and the player transform.
+      - Selects detection and retention radii based on EnemyTypeComponent (melee vs ranged).
+      - Sets hasSeenPlayer and syncs the blackboard when the player enters detection radius.
+      - Clears hasSeenPlayer when the player moves beyond the retention radius.
+      - Once aggroed, the enemy remains in chase state until the player exceeds retentionR,
+        providing hysteresis to prevent rapid toggling between patrol and attack.
+    *****************************************************************************************/
     inline bool HasTargetInRange(Framework::BehaviorContext& ctx)
     {
         if (!ctx.owner) return false;

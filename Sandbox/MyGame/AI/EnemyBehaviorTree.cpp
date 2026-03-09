@@ -1,7 +1,7 @@
 ﻿/*********************************************************************************************
  \file      EnemyBehaviorTree.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu)
+ \author     jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Implements tree construction and per-frame update for default enemy AI.
 
@@ -35,9 +35,14 @@
 
 namespace mygame
 {
-        // --------------------------------------------------------
-        // Shared Alive Guard Wrapper
-        // --------------------------------------------------------
+    /*****************************************************************************************
+      \brief Wraps an AI action with a health guard so dead enemies skip execution.
+      \tparam T    Callable type matching void(Framework::BehaviorContext&).
+      \param action Action to wrap.
+      \return Lambda that checks EnemyHealthComponent before forwarding to the action.
+      \details Used by all leaf nodes in both melee and ranged trees to avoid running
+               movement or attack logic on enemies that have already died.
+    *****************************************************************************************/
         template<typename T>
         auto AliveGuardedAction(T&& action)
         {
@@ -52,9 +57,16 @@ namespace mygame
                     action(ctx);
                 };
         }
-        // ========================================================
-        // MELEE TREE
-        // ========================================================
+        /*****************************************************************************************
+          \brief Constructs the decision tree for a melee-type enemy.
+          \param enemy Owner game object composition the tree will be bound to.
+          \return Owning pointer to the built DecisionTree, or nullptr if enemy is null.
+          \details
+          Tree structure:
+          - Root: HasTargetInRange?
+            - YES : MeleeAttack (AliveGuarded)
+            - NO  : Patrol      (AliveGuarded)
+        *****************************************************************************************/
         std::unique_ptr<Framework::DecisionTree> BuildMeleeEnemyTree(GOC* enemy)
         {
             if (!enemy) return nullptr;
@@ -88,9 +100,16 @@ namespace mygame
             return std::make_unique<Framework::DecisionTree>(std::move(root));
         }
 
-        // ========================================================
-        // RANGED TREE
-        // ========================================================
+        /*****************************************************************************************
+          \brief Constructs the decision tree for a ranged-type enemy.
+          \param enemy Owner game object composition the tree will be bound to.
+          \return Owning pointer to the built DecisionTree, or nullptr if enemy is null.
+          \details
+          Tree structure:
+          - Root: HasTargetInRange?
+            - YES : RangedAttack (AliveGuarded)
+            - NO  : Patrol       (AliveGuarded)
+        *****************************************************************************************/
         std::unique_ptr<Framework::DecisionTree> BuildRangedEnemyTree(GOC* enemy)
         {
             if (!enemy) return nullptr;
@@ -127,6 +146,14 @@ namespace mygame
 
 namespace 
 {
+    /*****************************************************************************************
+      \struct EnemyTreeRegistrar
+      \brief Static registrar that inserts enemy tree factory functions at program startup.
+      \details
+      Registers "enemy_melee" and "enemy_ranged" keys into BehaviorTreeComponent::Registry()
+      so the engine can construct the correct tree from a string key stored in level data,
+      without this file needing to be called explicitly.
+    *****************************************************************************************/
     struct EnemyTreeRegistrar
     {
         EnemyTreeRegistrar()

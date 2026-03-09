@@ -43,6 +43,12 @@ namespace mygame
     static constexpr float kEnemyProjectileBaseSpeed = 0.6f;
     static constexpr float kRangedAttackFireDist = kDetectionRadius;  // 3.5f
     static constexpr float kMeleeAttackDist = 0.8f;
+    /*****************************************************************************************
+      \brief Performs a case-insensitive search for an animation by name.
+      \param anim    SpriteAnimationComponent to search within.
+      \param desired Target animation name to match.
+      \return Index of the matching animation, or -1 if not found.
+    *****************************************************************************************/
 
     inline int FindAnimationIndex(Framework::SpriteAnimationComponent* anim, std::string_view desired)
     {
@@ -66,7 +72,13 @@ namespace mygame
         }
         return -1;
     }
-
+    /*****************************************************************************************
+      \brief Sets the active animation on an object's SpriteAnimationComponent by name.
+      \param goc  Game object composition that owns the animation component.
+      \param name Name of the animation to activate (case-insensitive).
+      \details No-op if the object, component, or named animation cannot be found,
+               or if the animation is already active.
+    *****************************************************************************************/
     inline void PlayAnim(Framework::GOC* goc, std::string_view name)
     {
         if (!goc) return;
@@ -77,7 +89,12 @@ namespace mygame
         if (idx >= 0 && idx != anim->ActiveAnimationIndex())
             anim->SetActiveAnimation(idx);
     }
-
+    /*****************************************************************************************
+      \brief Returns the total playback duration in seconds for a named animation.
+      \param goc  Game object composition that owns the animation component.
+      \param name Exact name of the animation to query.
+      \return Duration in seconds (totalFrames / fps), or 0.2f as a safe fallback.
+    *****************************************************************************************/
     inline float GetAnimDuration(Framework::GOC* goc, const std::string& name)
     {
         if (!goc) return 0.2f;
@@ -91,7 +108,10 @@ namespace mygame
 
         return 0.2f;
     }
-
+    /*****************************************************************************************
+      \brief Searches the factory object list for the first object with a PlayerComponent.
+      \return Pointer to the player game object, or nullptr if none exists.
+    *****************************************************************************************/
     inline Framework::GOC* FindPlayer()
     {
         for (auto& pair : Framework::FACTORY->Objects())
@@ -103,7 +123,14 @@ namespace mygame
         }
         return nullptr;
     }
-
+    /*****************************************************************************************
+      \brief Applies a speed penalty to the enemy's rigidbody if a slow effect is active.
+      \param enemy Enemy game object that owns EnemyComponent.
+      \param rb    RigidBodyComponent to scale velocity on.
+      \param dt    Delta time in seconds, used to tick down slowTimer.
+      \details Scales velX and velY by slowMultiplier each frame the timer is active.
+               Resets slowMultiplier to 1.0f and clears slowTimer when it expires.
+    *****************************************************************************************/
     inline void ApplySlow(Framework::GOC* enemy, Framework::RigidBodyComponent* rb, float dt)
     {
         auto* enemyComp = enemy->GetComponentType<Framework::EnemyComponent>(CT_EnemyComponent());
@@ -124,9 +151,15 @@ namespace mygame
         }
     }
 
-
-
-    // ------------------------ PATROL ------------------------
+    /*****************************************************************************************
+      \brief AI action: moves the enemy back and forth along a fixed horizontal patrol range.
+      \param ctx BehaviorContext containing owner, dt, and blackboard.
+      \details
+      - Initialises patrolOriginX/Y on first call.
+      - Reverses direction at patrol range edges or on wall collision.
+      - Pauses briefly at each turn-around point.
+      - Respects knockback guard and applies slow effect each frame.
+    *****************************************************************************************/
     inline void Patrol(Framework::BehaviorContext& ctx)
     {
         GOC* enemy = ctx.owner;
@@ -214,7 +247,16 @@ namespace mygame
         ApplySlow(enemy, rb, ctx.dt);
     }
 
-    // ------------------------ MELEE ATTACK ------------------------
+    /*****************************************************************************************
+      \brief AI action: chases the player and delivers a melee hitbox strike.
+      \param ctx BehaviorContext containing owner, dt, spawnHitBox callback, and blackboard.
+      \details
+      - Accelerates toward the player until within kMeleeAttackDist.
+      - Spawns a hitbox when attack_timer exceeds attack_speed.
+      - Holds position and waits for the hitbox duration to expire before re-enabling input.
+      - Tracks chase retention; clears hasSeenPlayer if the player is out of range too long.
+      - Respects knockback guard and applies slow effect each frame.
+    *****************************************************************************************/
     inline void MeleeAttack(Framework::BehaviorContext& ctx)
     {
         Framework::GameObjectComposition* enemy = ctx.owner;
@@ -302,7 +344,7 @@ namespace mygame
                 if (audio)
                 {
                     GameAudio gameAudio(audio, GameAudio::Entity::Enemy);
-                    gameAudio.PlayAttack(tr->x, tr->x);
+                    gameAudio.PlayAttack(tr->x, tr->y);
                 }
                 PlayAnim(enemy, "slashattack");
             }
@@ -326,7 +368,17 @@ namespace mygame
         ApplySlow(enemy, rb, ctx.dt);
     }
 
-    // ------------------------ RANGED ATTACK ------------------------
+    /*****************************************************************************************
+      \brief AI action: maintains distance from the player and fires projectiles.
+      \param ctx BehaviorContext containing owner, dt, spawnProjectile callback, and blackboard.
+      \details
+      - Retreats when too close (< minDist) and advances when too far (> maxDist).
+      - Fires a projectile after attack_speed elapses if within kRangedAttackFireDist.
+      - Projectile spawn is deferred to the end of the rangeattack animation via pendingProjectile.
+      - Enters a retreat phase after each shot using retreatTimer.
+      - Tracks chase retention; clears hasSeenPlayer if the player is out of range too long.
+      - Respects knockback guard and applies slow effect each frame.
+    *****************************************************************************************/
     inline void RangedAttack(Framework::BehaviorContext& ctx)
     {
         GOC* enemy = ctx.owner;

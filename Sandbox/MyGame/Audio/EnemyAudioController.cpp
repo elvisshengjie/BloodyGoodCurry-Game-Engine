@@ -1,9 +1,9 @@
 /*********************************************************************************************
  \file      EnemyAudioController.cpp
  \par       SofaSpuds
- \author    Choo Jian Wei - Primary Author (100%)
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
- \brief     Implementation of EnemyAudioController.
+ \brief     Spatialised 3D audio controller for enemy hurt, attack, and death sounds.
 
  \copyright
             All content  2025 DigiPen Institute of Technology Singapore.
@@ -13,6 +13,16 @@
 
 namespace mygame
 {
+    /*****************************************************************************************
+      \brief Constructs the controller and buckets audio clips from the AudioComponent.
+      \param audio AudioComponent pre-loaded with sound keys from the enemy's prefab JSON.
+      \details
+      Scans every registered sound key and sorts them into hurt, attack, and death pools
+      by substring matching. This works for both melee (water) and ranged (fire) enemy
+      prefabs without branching — the pool contents simply differ based on what the JSON
+      declared. Logs a warning if the AudioComponent is null.
+    *****************************************************************************************/
+
     EnemyAudioController::EnemyAudioController(Framework::AudioComponent* audio)
         : m_Audio(audio)
         , m_Rng(std::random_device{}())
@@ -35,7 +45,15 @@ namespace mygame
             else if (key.find("FireGhostExplosion") != std::string::npos) m_DeathClips.push_back(key);
         }
     }
-
+    /*****************************************************************************************
+      \brief Plays a named sound clip at a 3D world position.
+      \param clip  Key of the sound clip to play.
+      \param posX  World X position for 3D spatialisation.
+      \param posY  World Y position for 3D spatialisation.
+      \details
+      Submits the clip to SoundManager as a 3D channel, then stores the returned channel ID
+      in m_ActiveChannels so Update() can reposition it each frame. No-op if clip is empty.
+    *****************************************************************************************/
     void EnemyAudioController::PlayClip3D(const std::string& clip, float posX, float posY)
     {
         if (clip.empty()) return;
@@ -61,31 +79,46 @@ namespace mygame
             audio.setChannel3DPosition(channelId, &pos, &vel);
         }
     }
-    // ---------------------------------------------------------------------------------
-    // Play helpers
-    // ---------------------------------------------------------------------------------
+    /*****************************************************************************************
+    \brief Plays a randomly selected attack sound at the given world position.
+    \param posX  World X position for 3D spatialisation.
+    \param posY  World Y position for 3D spatialisation.
+  *****************************************************************************************/
 
     void EnemyAudioController::PlayAttack(float posX, float posY)
     {
         std::string clip = GetRandom(m_AttackClips);
         PlayClip3D(clip, posX, posY);
     }
-
+    /*****************************************************************************************
+      \brief Plays a randomly selected hurt sound at the given world position.
+      \param posX  World X position for 3D spatialisation.
+      \param posY  World Y position for 3D spatialisation.
+    *****************************************************************************************/
     void EnemyAudioController::PlayHurt(float posX, float posY)
     {
         std::string clip = GetRandom(m_HurtClips);
         PlayClip3D(clip, posX, posY);
     }
-
+    /*****************************************************************************************
+      \brief Plays a randomly selected death sound at the given world position.
+      \param posX  World X position for 3D spatialisation.
+      \param posY  World Y position for 3D spatialisation.
+    *****************************************************************************************/
     void EnemyAudioController::PlayDeath(float posX, float posY)
     {
         std::string clip = GetRandom(m_DeathClips);
         PlayClip3D(clip, posX, posY);
     }
 
-    // ---------------------------------------------------------------------------------
-    // Per-frame 3D position update
-    // ---------------------------------------------------------------------------------
+    /*****************************************************************************************
+      \brief Per-frame update that repositions active 3D audio channels and prunes stopped ones.
+      \param posX  Current world X position of the enemy.
+      \param posY  Current world Y position of the enemy.
+      \details
+      Pushes the new position to every channel ID in m_ActiveChannels via SoundManager,
+      then removes any channels that are no longer playing to prevent the list growing unbounded.
+    *****************************************************************************************/
     void EnemyAudioController::Update(float posX, float posY)
     {
         FMOD_VECTOR enemyPos = { posX, posY, 0.0f };
@@ -106,11 +139,11 @@ namespace mygame
                 }),
             m_ActiveChannels.end());
     }
-
-    // ---------------------------------------------------------------------------------
-    // Internal
-    // ---------------------------------------------------------------------------------
-
+    /*****************************************************************************************
+      \brief Returns a uniformly random element from a string pool.
+      \param pool Vector of sound clip keys to sample from.
+      \return A randomly selected key, or an empty string if the pool is empty.
+    *****************************************************************************************/
     std::string EnemyAudioController::GetRandom(const std::vector<std::string>& pool)
     {
         if (pool.empty()) return "";
