@@ -1,9 +1,9 @@
 /*********************************************************************************************
- \file      GameAudio.cpp
+ \file      GameAudioSetup.cpp
  \par       SofaSpuds
  \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
- \brief     Implementation of GameAudio.
+ \brief     Implementation of GameAudioSetup.
 
  \copyright
             All content  2025 DigiPen Institute of Technology Singapore.
