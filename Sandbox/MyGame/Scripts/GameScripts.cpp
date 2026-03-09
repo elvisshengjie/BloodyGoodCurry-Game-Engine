@@ -99,11 +99,12 @@ namespace {
     std::unordered_set<Framework::GOCId> gUnlockedDoorObjects;
 
     /*****************************************************************************************
-      \brief Ranged attack constants for change
+      \brief Tunable constants for player attack timing and projectile behaviour.
     *****************************************************************************************/
     constexpr float kProjectileSpeed = 1.2f;
     constexpr float kProjectileLifetime = 0.80f;
     constexpr float kMeleeCooldown = 0.4f;
+    constexpr float kThrowCooldown = 1.2f;
     /*****************************************************************************************
       \brief Slow down attack constants
     *****************************************************************************************/
@@ -778,6 +779,7 @@ namespace {
             SetAnimState(obj, state, comboState);
             state.attackTimer = AttackDurationForState(obj, comboState);
             state.attackDurationTotal = state.attackTimer;
+            state.meleeCooldownTimer = kMeleeCooldown;
         }
         /*************************************************************************************
           \brief Input: RMB throw request queues a projectile to be spawned after throw animation.
@@ -801,7 +803,7 @@ namespace {
                 SetAnimState(obj, state, PlayerAnimState::Throw);
                 state.attackTimer = AttackDurationForState(obj, PlayerAnimState::Throw);
                 state.attackDurationTotal = state.attackTimer;
-                state.throwCooldownTimer = std::max(state.throwCooldownTimer, state.attackTimer);
+                state.throwCooldownTimer = std::max(state.throwCooldownTimer, kThrowCooldown);
                 state.throwCooldownDuration = state.throwCooldownTimer;
                 state.throwRequestQueued = false;
             }
