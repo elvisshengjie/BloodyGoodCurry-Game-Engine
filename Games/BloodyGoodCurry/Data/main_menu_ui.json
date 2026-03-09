@@ -1,7 +1,7 @@
 {
   "background": {
     "key": "menu_bg",
-    "path": "Textures/UI/Start Menu/Start Menu Screen.jpg"
+    "path": "Textures/UI/Start Menu/Start Menu.mpg"
   },
   "layout": {
     "button_width": 372.0,

@@ -21,6 +21,7 @@
 #include "Systems/RenderSystem.h"
 #include "Systems/InputSystem.h"
 #include "Audio/SoundManager.h"
+#include "Video/VideoPlayer.hpp"
 #include <chrono>
 #include <array>
 #include <vector>
@@ -97,7 +98,12 @@ namespace mygame {
         int sh = 720;                  //Screen height in pixels.
 
         // --- Background ------------------------------------------------------------------
-        unsigned menuBgTex = 0;       
+        unsigned menuBgTex = 0;
+        Framework::VideoPlayer menuBgVideo;
+        bool useVideoBackground = false;
+        std::chrono::steady_clock::time_point lastMenuBgVideoTick{};
+        bool menuBgVideoTimerInitialized = false;
+        unsigned menuLogoTex = 0;
 
         // --- Button textures --------------------------------------------------------------
         unsigned startBtnIdleTex = 0;  //Start button idle texture.
@@ -179,6 +185,7 @@ namespace mygame {
         RectF optionsBtn{ 100.f, 260.f, 220.f, 58.f }; //options button rectangle.
         RectF howToBtn{ 100.f, 180.f, 220.f, 58.f }; //how to play button rectangle.
         RectF exitBtn{ 100.f, 180.f, 220.f, 58.f }; //Exit button rectangle.
+        RectF menuLogo{ 0.f, 0.f, 0.f, 0.f }; //Main menu logo rectangle.
         RectF howToPopup{ 72.f, 420.f, 520.f, 320.f }; //Popup background rectangle.
         RectF closeBtn{ 0.f, 0.f, 56.f, 56.f };
         RectF optionsPopup{ 0.f, 0.f, 520.f, 320.f };   //Options popup rectangle.
@@ -197,6 +204,7 @@ namespace mygame {
         RectF exitTitle{ 0.f, 0.f, 220.f, 80.f };      //Exit popup title texture rect.
         RectF exitPrompt{ 0.f, 0.f, 340.f, 96.f };     //Exit popup prompt texture rect.//Close button rectangle.
         bool layoutInitialized = false;
+        void UpdateBackgroundVideo();
         void BuildGui();
         void BuildGui(float x, float bottomY, float w, float h, float spacing);
     };
