@@ -269,6 +269,11 @@ namespace Framework
             &abilityHudState.ranged,
             &abilityHudState.melee
         } };
+        const std::array<int, 3> maxBubbleCounts{ {
+            COOLDOWN_BUBBLE_STEPS,
+            COOLDOWN_BUBBLE_STEPS,
+            1
+        } };
 
         for (std::size_t i = 0; i < cooldownStates.size(); ++i)
         {
@@ -278,11 +283,11 @@ namespace Framework
             if (!state.ready && state.duration > 0.0f && state.remaining > 0.0f)
             {
                 const float remainingRatio = std::clamp(state.remaining / state.duration, 0.0f, 1.0f);
-                targetCount = (remainingRatio > 0.5f) ? COOLDOWN_BUBBLE_STEPS : 1;
+                targetCount = (remainingRatio > 0.5f) ? maxBubbleCounts[i] : 1;
             }
 
             AdvanceAbilityBubbleState(abilityBubbleStates[i], targetCount, dt);
-            AdvanceAbilityIconState(abilityIconStates[i], state.ready, dt);
+            AdvanceAbilityIconState(abilityIconStates[i], state.ready, state.remaining, state.duration);
         }
     }
 
@@ -333,23 +338,15 @@ namespace Framework
         }
     }
 
-    void PlayerHUDComponent::AdvanceAbilityIconState(AbilityIconState& iconState, bool ready, float dt)
+    void PlayerHUDComponent::AdvanceAbilityIconState(AbilityIconState& iconState, bool ready, float remaining, float duration)
     {
-        if (ready)
+        if (ready || duration <= 0.0f || remaining <= 0.0f)
         {
             iconState.cooldownBlend = 0.0f;
             return;
         }
 
-        const float targetBlend = 1.0f;
-        if (ICON_BLEND_DURATION <= 0.0f)
-        {
-            iconState.cooldownBlend = targetBlend;
-            return;
-        }
-
-        const float blendStep = dt / ICON_BLEND_DURATION;
-        iconState.cooldownBlend = std::min(targetBlend, iconState.cooldownBlend + blendStep);
+        iconState.cooldownBlend = std::clamp(1.0f - (remaining / duration), 0.0f, 1.0f);
     }
 
     /*****************************************************************************************

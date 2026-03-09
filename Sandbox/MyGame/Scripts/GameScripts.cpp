@@ -779,7 +779,7 @@ namespace {
             SetAnimState(obj, state, comboState);
             state.attackTimer = AttackDurationForState(obj, comboState);
             state.attackDurationTotal = state.attackTimer;
-            state.meleeCooldownTimer = kMeleeCooldown;
+            state.meleeCooldownTimer = std::max(state.meleeCooldownTimer, kMeleeCooldown);
         }
         /*************************************************************************************
           \brief Input: RMB throw request queues a projectile to be spawned after throw animation.
@@ -1292,11 +1292,15 @@ namespace mygame {
         const bool slowAnimActive = state.animState == PlayerAnimState::SlowAttack && state.attackTimer > 0.0f;
         const bool throwAnimActive = state.animState == PlayerAnimState::Throw && state.attackTimer > 0.0f;
 
-        hudState.melee.ready = !meleeAnimActive && !knockbackActive;
-        hudState.melee.remaining = meleeAnimActive ? state.attackTimer : 0.0f;
-        hudState.melee.duration = meleeAnimActive
-            ? std::max(state.attackDurationTotal, state.attackTimer)
-            : 0.0f;
+        hudState.melee.ready = state.meleeCooldownTimer <= 0.0f &&
+            !meleeAnimActive &&
+            !knockbackActive;
+        hudState.melee.remaining = std::max(
+            state.meleeCooldownTimer,
+            meleeAnimActive ? state.attackTimer : 0.0f);
+        hudState.melee.duration = std::max(
+            kMeleeCooldown,
+            hudState.melee.remaining);
 
         hudState.ranged.ready = state.throwCooldownTimer <= 0.0f &&
             !state.pendingThrow.active &&
