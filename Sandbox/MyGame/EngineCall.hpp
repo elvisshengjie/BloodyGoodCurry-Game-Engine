@@ -41,6 +41,13 @@ namespace mygame {
         AbilityCooldownUiState talisman{};
     };
 
+    struct PlayerAimIndicatorState
+    {
+        bool valid{ false };
+        float dirX{ 1.0f };
+        float dirY{ 0.0f };
+    };
+
     /*************************************************************************************
       \brief Registers all game behaviours/scripts with the engine's LogicSystem.
       \param logic Reference to the engine LogicSystem used for behaviour orchestration.
@@ -89,6 +96,12 @@ namespace mygame {
       \param player Player object to query.
     **************************************************************************************/
     PlayerAbilityHudState GetPlayerAbilityHudState(const Framework::GameObjectComposition* player);
+
+    /*************************************************************************************
+      \brief Returns the current aim direction used for player-facing presentation.
+      \param player Player object to query.
+    **************************************************************************************/
+    PlayerAimIndicatorState GetPlayerAimIndicatorState(const Framework::GameObjectComposition* player);
 
     /*************************************************************************************
       \brief Clears player key inventory and key-door runtime unlock state.
