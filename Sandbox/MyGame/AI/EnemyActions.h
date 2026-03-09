@@ -137,6 +137,16 @@ namespace mygame
         auto* ai = enemy->GetComponentType<Framework::EnemyDecisionTreeComponent>(Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
 
         if (!rb || !tr || !ai) return;
+        // KNOCKBACK GUARD
+        if (ai->knockbackTimer > 0.0f)
+        {
+            ai->knockbackTimer -= ctx.dt;
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            if (ai->knockbackTimer <= 0.0f)
+                PlayAnim(enemy, "idle");
+            return;
+        }
 
         if (!ai->patrolOriginSet)
         {
@@ -217,7 +227,16 @@ namespace mygame
         auto* audio = enemy->GetComponentType<Framework::AudioComponent>(Framework::ComponentTypeId::CT_AudioComponent);
         auto* player = FindPlayer();
         if (!attack || !rb || !tr || !ai || !player) return;
-
+        // KNOCKBACK GUARD
+        if (ai->knockbackTimer > 0.0f)
+        {
+            ai->knockbackTimer -= ctx.dt;
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            if (ai->knockbackTimer <= 0.0f)
+                PlayAnim(enemy, "idle");
+            return;
+        }
         auto* trPlayer = player->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
         if (!trPlayer) return;
 
@@ -321,7 +340,16 @@ namespace mygame
 
         auto* player = FindPlayer();
         if (!attack || !rb || !tr || !ai || !player) return;
-
+        // KNOCKBACK GUARD
+        if (ai->knockbackTimer > 0.0f)
+        {
+            ai->knockbackTimer -= ctx.dt;
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            if (ai->knockbackTimer <= 0.0f)
+                PlayAnim(enemy, "idle");
+            return;
+        }
         auto* trPlayer = player->GetComponentType<Framework::TransformComponent>
             (Framework::ComponentTypeId::CT_TransformComponent);
         if (!trPlayer) return;

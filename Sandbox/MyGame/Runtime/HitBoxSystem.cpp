@@ -10,6 +10,7 @@
 
 #include "Systems/HitBoxSystem.h"
 #include "Components/EnemyComponent.h"
+#include "Components/EnemyDecisionTreeComponent.h"
 #include "Components/EnemyHealthComponent.h"
 #include "Components/EnemyTypeComponent.h"
 #include "Components/PlayerComponent.h"
@@ -522,8 +523,21 @@ namespace Framework
                             rb->knockVelY = dy * knockStrength * 0.4f;
                             rb->knockbackTime = 0.25f;
                         }
-
-                        PlayAnimationIfAvailable(obj, "knockback");
+                        if (auto* anim = obj->GetComponentType<SpriteAnimationComponent>(
+                            ComponentTypeId::CT_SpriteAnimationComponent))
+                        {
+                            const int idx = FindAnimationIndex(anim, "knockback");
+                            if (idx >= 0)
+                                anim->SetActiveAnimation(idx);
+                        }
+                        if (isEnemy)
+                        {
+                            if (auto* dtComp = obj->GetComponentType<EnemyDecisionTreeComponent>(
+                                ComponentTypeId::CT_EnemyDecisionTreeComponent))
+                            {
+                                dtComp->knockbackTimer = 0.5f;
+                            }
+                        }
                     }
                 }
 

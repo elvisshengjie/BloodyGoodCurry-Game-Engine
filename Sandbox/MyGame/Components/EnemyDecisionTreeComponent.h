@@ -70,6 +70,7 @@ namespace Framework {
         float chaseTimer = 0.0f;             ///< Accumulated time spent in chase mode.
         float maxChaseDuration = 3.0f;       ///< Maximum allowed chase time before reset.
         float retreatTimer = 0.0f;           ///< Retreat Timer
+        float knockbackTimer = 0.0f;
         
         bool  pendingProjectile = false;
         float pendingProjectileDirX = 0.0f;
@@ -120,6 +121,7 @@ namespace Framework {
             dir = 1.0f;
             prevX = prevY = 0.0f;
             stuckXTimer = stuckYTimer = 0.0f;
+            knockbackTimer = 0.0f;
 
             std::cout << "[EnemyDecisionTreeComponent] State initialized.\n";   
         }
@@ -162,6 +164,7 @@ namespace Framework {
             copy->hasSeenPlayer = hasSeenPlayer;
             copy->currentPathNodeIDs = currentPathNodeIDs;
             copy->currentPathIndex = currentPathIndex;
+            copy->knockbackTimer = knockbackTimer;
 
             return copy;
         }
