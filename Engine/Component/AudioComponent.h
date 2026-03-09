@@ -45,7 +45,8 @@ namespace Framework
       \brief  Lightweight metadata for a single registered sound.
 
       \var id    The asset identifier used by SoundManager to locate and play the sound.
-      \var loop  Whether the sound should loop on playback.
+      \var loop     Whether the sound should loop on playback.
+      \var spatial  Whether the sound should be treated as spatial/3D audio.
     *****************************************************************************************/
     struct SoundInfo
     {
@@ -161,11 +162,12 @@ namespace Framework
 
           \param action  Logical name used as a lookup key.
           \param id      Asset identifier forwarded to SoundManager.
-          \param loop    True if the sound should loop when played.
+          \param loop     True if the sound should loop when played.
+          \param spatial  True if the sound should be treated as spatial/3D audio.
         *************************************************************************************/
-        void AddSound(const std::string& action, const std::string& id, bool loop = false)
+        void AddSound(const std::string& action, const std::string& id, bool loop = false, bool spatial = false)
         {
-            m_sounds[action] = { id, loop };
+            m_sounds[action] = { id, loop, spatial };
             m_playing[action] = false;
         }
 

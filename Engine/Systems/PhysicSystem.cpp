@@ -27,6 +27,16 @@
 #endif
 namespace Framework {
 
+    namespace
+    {
+        constexpr float kCollisionEpsilon = 0.0005f;
+
+        bool RangesOverlap(float minA, float maxA, float minB, float maxB)
+        {
+            return minA < maxB && maxA > minB;
+        }
+    }
+
     /*************************************************************************************
       \brief  Construct the physics system.
     *************************************************************************************/
@@ -101,16 +111,12 @@ namespace Framework {
             // END OF KNOCKBACK APPLICATION
             // ------------------------------
             
+            const float oldX = tr->x;
+            const float oldY = tr->y;
+
             // Integrate proposed new position
             float newX = tr->x + totalVelX * dt;
             float newY = tr->y + totalVelY * dt;
-
-            // Sweep volumes prevent tunnelling when velocity * dt exceeds wall thickness.
-                        // Center is midpoint of start/end; width/height span covers full travel distance.
-            AABB playerBoxX((tr->x + newX) * 0.5f, tr->y,
-                std::fabs(newX - tr->x) + rb->width, rb->height);
-            AABB playerBoxY(tr->x, (tr->y + newY) * 0.5f,
-                rb->width, std::fabs(newY - tr->y) + rb->height);
 
 
             // Sweep all objects on the same layer, checking solid rigidbodies.
@@ -120,12 +126,65 @@ namespace Framework {
             // now, the logic will only check the objects that are near.
             std::vector<GOCId> candidates;
 
-            // Query grid using the object's current bounds
-            AABB selfBox(tr->x, tr->y, rb->width, rb->height);
-            m_grid.Query(selfBox, candidates);
+            // Query using the full swept bounds so edge/corner contacts are not missed.
+            AABB broadphaseBox((oldX + newX) * 0.5f, (oldY + newY) * 0.5f,
+                std::fabs(newX - oldX) + rb->width,
+                std::fabs(newY - oldY) + rb->height);
+            m_grid.Query(broadphaseBox, candidates);
 
-            for (GOCId otherId : candidates) 
-            { 
+            const float selfHalfW = rb->width * 0.5f;
+            const float selfHalfH = rb->height * 0.5f;
+
+            // Resolve X against all nearby solids first.
+            for (GOCId otherId : candidates)
+            {
+                auto it = objects.find(otherId);
+                if (it == objects.end())
+                    continue;
+
+                auto& otherObj = it->second;
+                if (!otherObj || otherObj == obj)
+                    continue;
+
+                const LayerKey otherLayer = layers.LayerKeyFor(otherObj->GetId());
+                if (!layers.IsLayerEnabled(otherLayer) || otherLayer != objectLayer)
+                    continue;
+
+                auto* rbO = otherObj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+                auto* trO = otherObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                if (!rbO || !trO)
+                    continue;
+
+                const float otherHalfW = rbO->width * 0.5f;
+                const float otherHalfH = rbO->height * 0.5f;
+                if (!RangesOverlap(oldY - selfHalfH, oldY + selfHalfH,
+                    trO->y - otherHalfH, trO->y + otherHalfH))
+                    continue;
+
+                AABB otherBox(trO->x, trO->y, rbO->width, rbO->height);
+                AABB proposedXBox(newX, oldY, rb->width, rb->height);
+                if (!Collision::CheckCollisionRectToRect(proposedXBox, otherBox))
+                    continue;
+
+                if (totalVelX > 0.0f)
+                {
+                    const float otherLeft = trO->x - otherHalfW;
+                    newX = std::min(newX, otherLeft - selfHalfW - kCollisionEpsilon);
+                    rb->velX = 0.0f;
+                    rb->knockVelX = 0.0f;
+                }
+                else if (totalVelX < 0.0f)
+                {
+                    const float otherRight = trO->x + otherHalfW;
+                    newX = std::max(newX, otherRight + selfHalfW + kCollisionEpsilon);
+                    rb->velX = 0.0f;
+                    rb->knockVelX = 0.0f;
+                }
+            }
+
+            // Resolve Y using the X-resolved position.
+            for (GOCId otherId : candidates)
+            {
                 auto it = objects.find(otherId);
                 if (it == objects.end())
                     continue;
@@ -145,24 +204,31 @@ namespace Framework {
                 if (!rbO || !trO)
                     continue;
 
-                // Solid collision (same-layer rigidbodies).
+                const float otherHalfW = rbO->width * 0.5f;
+                const float otherHalfH = rbO->height * 0.5f;
+                if (!RangesOverlap(newX - selfHalfW, newX + selfHalfW,
+                    trO->x - otherHalfW, trO->x + otherHalfW))
+                    continue;
 
                 AABB otherBox(trO->x, trO->y, rbO->width, rbO->height);
-                // Resolve X then Y independently
-                if (Collision::CheckCollisionRectToRect(playerBoxX, otherBox))
-                {
-                    newX = tr->x;
-                    rb->velX = 0.0f;
-                    rb->knockVelX = 0.0f;   // ? cancel knockback on X
-                }
-                if (Collision::CheckCollisionRectToRect(playerBoxY, otherBox))
-                {
-                    newY = tr->y;
-                    rb->velY = 0.0f;
-                    rb->knockVelY = 0.0f;   // ? cancel knockback on Y
-                }
-                
+                AABB proposedYBox(newX, newY, rb->width, rb->height);
+                if (!Collision::CheckCollisionRectToRect(proposedYBox, otherBox))
+                    continue;
 
+                if (totalVelY > 0.0f)
+                {
+                    const float otherBottom = trO->y - otherHalfH;
+                    newY = std::min(newY, otherBottom - selfHalfH - kCollisionEpsilon);
+                    rb->velY = 0.0f;
+                    rb->knockVelY = 0.0f;
+                }
+                else if (totalVelY < 0.0f)
+                {
+                    const float otherTop = trO->y + otherHalfH;
+                    newY = std::max(newY, otherTop + selfHalfH + kCollisionEpsilon);
+                    rb->velY = 0.0f;
+                    rb->knockVelY = 0.0f;
+                }
             }
             // Commit final position
             tr->x = newX;

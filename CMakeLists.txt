@@ -1,7 +1,6 @@
 # Project Settings
 cmake_minimum_required(VERSION 3.20...3.30 FATAL_ERROR)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT MyGame)
 
 project(giraphics VERSION 0.1 LANGUAGES C CXX)
 # Enable /MP for all targets globally
@@ -14,6 +13,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Feature toggles used across engine/game targets.
 option(SOFASPUDS_ENABLE_EDITOR "Enable in-engine editor and ImGui tooling" ON)
 option(SOFASPUDS_DISABLE_AUDIO "Disable FMOD audio backend and use no-audio stubs" OFF)
+set(SOFASPUDS_GAME_NAME "BloodyGoodCurry" CACHE STRING "Game project folder under Games/ to build as the active target")
+
+if(NOT SOFASPUDS_GAME_NAME MATCHES "^[A-Za-z0-9_][A-Za-z0-9_.-]*$")
+  message(FATAL_ERROR "SOFASPUDS_GAME_NAME='${SOFASPUDS_GAME_NAME}' is invalid. Use letters, digits, underscore, dot, or dash.")
+endif()
+
+set(SOFASPUDS_GAME_CODE_DIR "")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Sandbox/${SOFASPUDS_GAME_NAME}")
+  set(SOFASPUDS_GAME_CODE_DIR "${SOFASPUDS_GAME_NAME}")
+elseif(SOFASPUDS_GAME_NAME STREQUAL "BloodyGoodCurry" AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Sandbox/MyGame")
+  set(SOFASPUDS_GAME_CODE_DIR "MyGame")
+else()
+  message(FATAL_ERROR
+    "Could not find a code project for SOFASPUDS_GAME_NAME='${SOFASPUDS_GAME_NAME}'. "
+    "Expected Sandbox/${SOFASPUDS_GAME_NAME} or the legacy Sandbox/MyGame fallback.")
+endif()
+
+message(STATUS "[SofaSpuds] Game target: ${SOFASPUDS_GAME_NAME}")
+message(STATUS "[SofaSpuds] Game code dir: Sandbox/${SOFASPUDS_GAME_CODE_DIR}")
 
 if(EMSCRIPTEN)
   # Browser target should ship as gameplay-only and avoid native FMOD linkage.
@@ -40,8 +58,8 @@ endif()
 add_subdirectory(Engine)
 add_subdirectory(Sandbox)
 
-# Set startup project to BloodyGoodCurry
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT BloodyGoodCurry)
+# Set startup project to the selected game target
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${SOFASPUDS_GAME_NAME})
 
 # Optional test/setup module (only include if present)
 include(BuildTest OPTIONAL)   # or include(BuildTests OPTIONAL) if that's the filename

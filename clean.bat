@@ -20,6 +20,13 @@ for %%D in (build build_game) do (
     )
 )
 
+for /D %%D in (build_*) do (
+    if exist "%%D" (
+        echo Removing %%D ...
+        rmdir /S /Q "%%D"
+    )
+)
+
 REM ------------------------------------------
 REM Remove in-source CMake artifacts (if present)
 REM ------------------------------------------

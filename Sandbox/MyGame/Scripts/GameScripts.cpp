@@ -101,8 +101,9 @@ namespace {
     /*****************************************************************************************
       \brief Ranged attack constants for change
     *****************************************************************************************/
-    constexpr float kProjectileSpeed = 10.0f;
-    constexpr float kProjectileLifetime = 0.35f;
+    constexpr float kProjectileSpeed = 1.2f;
+    constexpr float kProjectileLifetime = 0.80f;
+    constexpr float kMeleeCooldown = 0.4f;
     /*****************************************************************************************
       \brief Slow down attack constants
     *****************************************************************************************/
@@ -173,8 +174,8 @@ namespace {
         bool usingControllerLast{ false };                  ///< Checks if player is using controller or not
         float lastMouseX{ 0.0f };                           ///< To store mouse's X coordinates
         float lastMouseY{ 0.0f };                           ///< To store mouse's Y coordinates
-
         float slowAttackCooldownTimer{ 0.0f };
+        float meleeCooldownTimer{ 0.0f };
     };
 
     /*****************************************************************************************
@@ -660,18 +661,23 @@ namespace {
         }
         else if (!isKnockback && !isThrowing && !isMeleeAttacking && !isSlowAttacking) // [Balancing #5][#6]
         {
+            const bool movingRight = input.MoveRight() && !input.MoveLeft();
+            const bool movingLeft = input.MoveLeft() && !input.MoveRight();
+            const bool movingUp = input.MoveUp() && !input.MoveDown();
+            const bool movingDown = input.MoveDown() && !input.MoveUp();
+
             const float forwardX = (rc->w >= 0.0f) ? 1.0f : -1.0f;
             float speedModifier = 1.0f;
-            if ((input.MoveRight() && forwardX < 0) || (input.MoveLeft() && forwardX > 0))
+            if ((movingRight && forwardX < 0) || (movingLeft && forwardX > 0))
                 speedModifier = 0.75f;
 
-            if (input.MoveRight()) rb->velX = std::max(rb->velX, 1.f * speedModifier);
-            if (input.MoveLeft()) rb->velX = std::min(rb->velX, -1.f * speedModifier);
-            if (!input.MoveLeft() && !input.MoveRight()) rb->velX *= rb->dampening;
+            if (movingRight) rb->velX = std::max(rb->velX, 1.f * speedModifier);
+            if (movingLeft)  rb->velX = std::min(rb->velX, -1.f * speedModifier);
+            if (!movingLeft && !movingRight) rb->velX *= rb->dampening;
 
-            if (input.MoveUp()) rb->velY = std::max(rb->velY, 1.f);
-            if (input.MoveDown()) rb->velY = std::min(rb->velY, -1.f);
-            if (!input.MoveUp() && !input.MoveDown()) rb->velY *= rb->dampening;
+            if (movingUp)   rb->velY = std::max(rb->velY, 1.f);
+            if (movingDown) rb->velY = std::min(rb->velY, -1.f);
+            if (!movingUp && !movingDown) rb->velY *= rb->dampening;
         }
         else if ((isThrowing || isMeleeAttacking || isSlowAttacking) && !isKnockback) // [Balancing #6]
         {
@@ -722,6 +728,9 @@ namespace {
         if (state.slowAttackCooldownTimer > 0.0f)
             state.slowAttackCooldownTimer = std::max(0.0f, state.slowAttackCooldownTimer - dt);
 
+        if (state.meleeCooldownTimer > 0.0f)
+            state.meleeCooldownTimer = std::max(0.0f, state.meleeCooldownTimer - dt);
+
         // DEBUG: print state when F is held so we can see what's blocking re-fire
         if (input.IsKeyHeld(GLFW_KEY_F))
         {
@@ -744,7 +753,7 @@ namespace {
         /*************************************************************************************
           \brief Input: LMB melee attack triggers hitbox + combo animation.
         **************************************************************************************/
-        const bool canStartMelee = !IsAttackState(state.animState) && !knockbackActive;
+        const bool canStartMelee = !IsAttackState(state.animState) && !knockbackActive && state.meleeCooldownTimer <= 0.0f;
         if (input.MeleeAttack() && canStartMelee &&
             (aimDirX != 0.0f || aimDirY != 0.0f))
         {
@@ -878,9 +887,9 @@ namespace {
                 gLogicSystem->hitBoxSystem->SpawnProjectile(obj,
                     state.pendingThrow.spawnX, state.pendingThrow.spawnY,
                     state.pendingThrow.dirX, state.pendingThrow.dirY,
-                    kProjectileLifetime,
+                    kProjectileSpeed,
                     0.1f, 0.1f,
-                    1.0f, kProjectileSpeed, Framework::HitBoxComponent::Team::Thrown);
+                    1.0f, kProjectileLifetime, Framework::HitBoxComponent::Team::Thrown);
             }
             if (state.audio)
                 state.audio->PlayGrapple();
@@ -893,10 +902,10 @@ namespace {
                 state.pendingSlow.spawnY,
                 state.pendingSlow.dirX,
                 state.pendingSlow.dirY,
-                kProjectileLifetime,
+                kProjectileSpeed,
                 0.1f, 0.1f,
                 0.0f,
-                kProjectileSpeed,
+                kProjectileLifetime,
                 Framework::HitBoxComponent::Team::PlayerSlow);
             if (state.audio)          
                 state.audio->PlayGrapple();

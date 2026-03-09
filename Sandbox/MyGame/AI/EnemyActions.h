@@ -40,7 +40,7 @@
 namespace mygame
 {
 
-    static constexpr float kEnemyProjectileBaseSpeed = 1.2f;
+    static constexpr float kEnemyProjectileBaseSpeed = 0.6f;
     static constexpr float kRangedAttackFireDist = kDetectionRadius;  // 3.5f
     static constexpr float kMeleeAttackDist = 0.8f;
 
@@ -337,6 +337,15 @@ namespace mygame
             ai->rangedAttackTimer += ctx.dt;
             if (ai->rangedAttackTimer >= ai->rangedAttackDuration)
             {
+                if (ai->pendingProjectile)
+                {
+                    ctx.spawnProjectile(enemy,
+                        ai->pendingProjectileSpawnX, ai->pendingProjectileSpawnY,
+                        ai->pendingProjectileDirX, ai->pendingProjectileDirY,
+                        kEnemyProjectileBaseSpeed, 0.15f, 0.08f,
+                        static_cast<float>(attack->damage), 3.0f);
+                    ai->pendingProjectile = false;
+                }
                 ai->rangedAttackActive = false;
                 ai->rangedAttackTimer = 0.0f;
                 ai->rangedAttackDuration = 0.0f;
@@ -384,11 +393,11 @@ namespace mygame
         {
             attack->attack_timer = 0.0f;
 
-            float spawnX = tr->x + dirX * (std::max(rb->width, rb->height) * 0.5f + 0.1f);
-            float spawnY = tr->y + dirY * (std::max(rb->width, rb->height) * 0.5f + 0.1f);
-
-            ctx.spawnProjectile(enemy, spawnX, spawnY, dirX, dirY, kEnemyProjectileBaseSpeed, 0.3f, 0.15f,
-                static_cast<float>(attack->damage), 3.0f);
+            ai->pendingProjectileDirX = dirX;
+            ai->pendingProjectileDirY = dirY;
+            ai->pendingProjectileSpawnX = tr->x + dirX * (std::max(rb->width, rb->height));
+            ai->pendingProjectileSpawnY = tr->y + dirY * (std::max(rb->width, rb->height));
+            ai->pendingProjectile = true;
 
             if (audio)
             {
@@ -399,6 +408,7 @@ namespace mygame
             ai->rangedAttackActive = true;
             ai->rangedAttackTimer = 0.0f;
             ai->rangedAttackDuration = GetAnimDuration(enemy, "rangeattack");
+            std::cout << "[RangedAttack] animDuration=" << ai->rangedAttackDuration << "\n";
             rb->velX = 0.0f;
             rb->velY = 0.0f;
             retreatTimer = retreatDuration;

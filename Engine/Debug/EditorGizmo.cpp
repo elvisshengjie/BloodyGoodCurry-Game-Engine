@@ -242,6 +242,84 @@ namespace Framework {
         }
 
         /*************************************************************************************
+         \brief Returns true if the mouse is over any currently interactive gizmo handle.
+        *************************************************************************************/
+        bool IsMouseOverGizmo(const glm::mat4& view,
+            const glm::mat4& projection,
+            const ViewportRect& viewportRect)
+        {
+            if (gGizmoState.activePart != GizmoPart::None || !FACTORY ||
+                viewportRect.width <= 1.0f || viewportRect.height <= 1.0f)
+                return gGizmoState.activePart != GizmoPart::None;
+
+            const auto selectedId = mygame::GetSelectedObjectId();
+            if (selectedId == 0)
+                return false;
+
+            auto* obj = FACTORY->GetObjectWithId(selectedId);
+            if (!obj)
+                return false;
+
+            auto* tr = obj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            if (!tr)
+                return false;
+
+            ImGuiIO& io = ImGui::GetIO();
+            const ImVec2 mouse = io.MousePos;
+            if (!MouseInRect(viewportRect, mouse))
+                return false;
+
+            const glm::vec2 position(tr->x, tr->y);
+            const float rotation = tr->rot;
+            const ImVec2 originScreen = WorldToScreen(position, view, projection, viewportRect);
+
+            const glm::vec2 axisX(std::cos(rotation), std::sin(rotation));
+            const glm::vec2 axisY(-std::sin(rotation), std::cos(rotation));
+
+            constexpr float axisPixels = 72.0f;
+            constexpr float handleBox = 8.0f;
+            constexpr float axisHit = 10.0f;
+            constexpr float ringPixels = 60.0f;
+            constexpr float ringHit = 7.0f;
+
+            const float axisWorldX = PixelsToWorldAlong(position, axisX, axisPixels, view, projection, viewportRect);
+            const float axisWorldY = PixelsToWorldAlong(position, axisY, axisPixels, view, projection, viewportRect);
+
+            const ImVec2 xEnd = WorldToScreen(position + axisX * axisWorldX, view, projection, viewportRect);
+            const ImVec2 yEnd = WorldToScreen(position + axisY * axisWorldY, view, projection, viewportRect);
+
+            glm::vec2 uniformDir = axisX + axisY;
+            if (glm::length(uniformDir) <= 0.0001f)
+                uniformDir = glm::vec2(1.0f, 0.0f);
+            uniformDir = glm::normalize(uniformDir);
+            const float uniformWorld = PixelsToWorldAlong(position, uniformDir, axisPixels * 0.65f,
+                view, projection, viewportRect);
+            const ImVec2 uniformEnd = WorldToScreen(position + uniformDir * uniformWorld,
+                view, projection, viewportRect);
+
+            const float distToCenter = std::sqrt(std::pow(mouse.x - originScreen.x, 2.0f) +
+                std::pow(mouse.y - originScreen.y, 2.0f));
+
+            switch (gCurrentTransformMode)
+            {
+            case EditorTransformMode::Translate:
+                return DistanceToSegment(mouse, originScreen, xEnd) <= axisHit ||
+                    DistanceToSegment(mouse, originScreen, yEnd) <= axisHit ||
+                    ((std::fabs(mouse.x - originScreen.x) <= handleBox * 1.3f) &&
+                        (std::fabs(mouse.y - originScreen.y) <= handleBox * 1.3f));
+            case EditorTransformMode::Rotate:
+                return std::fabs(distToCenter - ringPixels) <= ringHit;
+            case EditorTransformMode::Scale:
+                return std::sqrt(std::pow(mouse.x - xEnd.x, 2.0f) + std::pow(mouse.y - xEnd.y, 2.0f)) <= handleBox * 1.8f ||
+                    std::sqrt(std::pow(mouse.x - yEnd.x, 2.0f) + std::pow(mouse.y - yEnd.y, 2.0f)) <= handleBox * 1.8f ||
+                    std::sqrt(std::pow(mouse.x - uniformEnd.x, 2.0f) + std::pow(mouse.y - uniformEnd.y, 2.0f)) <= handleBox * 1.8f;
+            default:
+                return false;
+            }
+        }
+
+        /*************************************************************************************
          \brief Get the current transform mode (Translate / Rotate / Scale).
         *************************************************************************************/
         EditorTransformMode GetCurrentTransformMode()

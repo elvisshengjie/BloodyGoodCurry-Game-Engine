@@ -46,6 +46,16 @@ namespace Framework {
         };
 
         /*************************************************************************************
+         \brief Returns true if the mouse is currently over any interactive gizmo handle.
+         \param view         Camera view matrix used for the game world.
+         \param projection   Projection matrix used for the game world.
+         \param viewportRect Screen-space rectangle of the game viewport.
+        *************************************************************************************/
+        bool IsMouseOverGizmo(const glm::mat4& view,
+            const glm::mat4& projection,
+            const ViewportRect& viewportRect);
+
+        /*************************************************************************************
          \enum EditorTransformMode
          \brief Represents the current type of transform operation for the gizmo.
         *************************************************************************************/

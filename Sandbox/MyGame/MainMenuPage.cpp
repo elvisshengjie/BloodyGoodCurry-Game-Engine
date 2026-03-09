@@ -19,6 +19,7 @@
 #include "Graphics/Graphics.hpp"
 #include "Resource_Asset_Manager/Resource_Manager.h"
 #include <algorithm>
+#include <cctype>
 #include "Audio/SoundManager.h"
 #include <glm/vec3.hpp>
 #include <filesystem>
@@ -100,6 +101,14 @@ namespace {
     *************************************************************************************/
     TextureField MakeTextureField(const std::string& key, const std::string& path) {
         return TextureField{ key, path };
+    }
+
+    bool IsVideoBackgroundPath(const std::string& path)
+    {
+        std::string extension = std::filesystem::path(path).extension().string();
+        std::transform(extension.begin(), extension.end(), extension.begin(),
+            [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+        return extension == ".mpg" || extension == ".mpeg";
     }
 
     float BrightnessFromSlider(float value) {
@@ -397,7 +406,28 @@ void MainMenuPage::Init(int screenW, int screenH)
     g_MenuConfig = LoadMainMenuConfig();
 
     // 2. Load Background
-    menuBgTex = ResolveTex(g_MenuConfig.background);
+    menuBgTex = 0;
+    useVideoBackground = false;
+    menuBgVideoTimerInitialized = false;
+    menuBgVideo.Stop();
+
+    if (IsVideoBackgroundPath(g_MenuConfig.background.path)) {
+        const std::string backgroundVideoPath = Framework::ResolveAssetPath(g_MenuConfig.background.path).string();
+        if (menuBgVideo.Load(backgroundVideoPath)) {
+            menuBgVideo.Start();
+            useVideoBackground = true;
+        }
+        else {
+            std::cerr << "[MainMenu] Warning: Could not load background video: " << backgroundVideoPath
+                << ". Falling back to Start Menu Screen.jpg.\n";
+            menuBgTex = ResolveTex(MakeTextureField("menu_bg_fallback",
+                "Textures/UI/Start Menu/Start Menu Screen.jpg"));
+        }
+    }
+    else {
+        menuBgTex = ResolveTex(g_MenuConfig.background);
+    }
+    menuLogoTex = ResolveTex(MakeTextureField("menu_logo", "Textures/UI/Start Menu/Logo.png"));
 
     // 3. Load Button Textures
     g_ButtonTextures.clear();
@@ -480,6 +510,29 @@ void MainMenuPage::Init(int screenW, int screenH)
     SyncLayout(sw, sh);
 }
 
+void MainMenuPage::UpdateBackgroundVideo()
+{
+    if (!useVideoBackground || !menuBgVideo.IsLoaded()) {
+        menuBgVideoTimerInitialized = false;
+        return;
+    }
+
+    const auto now = std::chrono::steady_clock::now();
+    if (!menuBgVideoTimerInitialized) {
+        lastMenuBgVideoTick = now;
+        menuBgVideoTimerInitialized = true;
+        return;
+    }
+
+    const std::chrono::duration<float> delta = now - lastMenuBgVideoTick;
+    lastMenuBgVideoTick = now;
+
+    menuBgVideo.Update(std::min(delta.count(), 0.1f));
+    if (menuBgVideo.IsFinished()) {
+        menuBgVideo.Start();
+    }
+}
+
 /*************************************************************************************
   \brief  Update animation timers and forward input to the GUI system.
   \param  input  Pointer to the InputSystem used by the GUI helper.
@@ -488,6 +541,8 @@ void MainMenuPage::Init(int screenW, int screenH)
 *************************************************************************************/
 void MainMenuPage::Update(Framework::InputSystem* input)
 {
+    UpdateBackgroundVideo();
+
     const auto now = std::chrono::steady_clock::now();
     if (showHowToPopup) {
         if (!iconTimerInitialized) {
@@ -627,8 +682,15 @@ void MainMenuPage::Draw(Framework::RenderSystem* render)
     }
 
     // Background
-    if (menuBgTex) {
+    if (useVideoBackground && menuBgVideo.IsLoaded()) {
+        menuBgVideo.Draw();
+    }
+    else if (menuBgTex) {
         gfx::Graphics::renderFullscreenTexture(menuBgTex);
+    }
+    if (menuLogoTex) {
+        gfx::Graphics::renderSpriteUI(menuLogoTex, menuLogo.x, menuLogo.y, menuLogo.w, menuLogo.h,
+            1.f, 1.f, 1.f, 1.f, sw, sh);
     }
     auto textureAspect = [](unsigned tex, float fallback) {
         int texW = 0, texH = 0;
@@ -982,6 +1044,33 @@ void MainMenuPage::SyncLayout(int screenW, int screenH)
             }
             return fallback;
         };
+
+    const float logoAspect = textureAspect(menuLogoTex, 2.6f);
+    float logoW = btnW * 3.8f;
+    float logoH = logoW / logoAspect;
+    const float maxLogoH = sh * 0.62f;
+    if (logoH > maxLogoH) {
+        logoH = maxLogoH;
+        logoW = logoH * logoAspect;
+    }
+
+    const float topButtonY = bottomY + ((count > 0 ? static_cast<float>(count - 1) : 0.0f) * (btnH + vSpace));
+    const float topButtonTop = topButtonY + btnH;
+    const float logoGap = sh * 0.15f;
+    const float logoTopMargin = sh * 0.002f;
+    const float logoVerticalNudge = sh * 0.2f;
+    const float logoTopOverflow = sh * 0.04f;
+    const float logoCenterX = leftAlignedX + (btnW * 0.5f) - (btnW * 0.08f);
+    const float logoX = std::clamp(logoCenterX - (logoW * 0.5f), 0.0f, static_cast<float>(sw) - logoW);
+    const float baseLogoY = std::min(topButtonTop + logoGap, static_cast<float>(sh) - logoH - logoTopMargin);
+    const float logoY = std::clamp(baseLogoY + logoVerticalNudge, 0.0f, static_cast<float>(sh) - logoH + logoTopOverflow);
+
+    menuLogo = {
+        logoX,
+        logoY,
+        logoW,
+        logoH
+    };
 
     int optionsNoteW = 0, optionsNoteH = 0;
     const bool hasOptionsNoteSize = optionsNoteTex && gfx::Graphics::getTextureSize(optionsNoteTex, optionsNoteW, optionsNoteH);

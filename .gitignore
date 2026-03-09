@@ -1,2 +1,7 @@
-# Ignore build directory
+# Generated build directories
 /build/
+/build_*/
+
+# Visual Studio user state
+/.vs/
+**/.vs/

@@ -96,7 +96,8 @@ target_include_directories(${ENGINE_NAME} PUBLIC
 # Expose top-level engine folder so headers are visible to game target(s)
 # ---------------------------------------------------------------------------
 target_include_directories(${ENGINE_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-target_include_directories(${ENGINE_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/Sandbox/MyGame)
+target_include_directories(${ENGINE_NAME} PRIVATE
+    ${CMAKE_SOURCE_DIR}/Sandbox/${SOFASPUDS_GAME_CODE_DIR})
 
 # ---------------------------------------------------------------------------
 # Core engine links (OpenGL stack + math + fonts)

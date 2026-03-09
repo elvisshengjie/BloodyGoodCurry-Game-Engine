@@ -28,9 +28,11 @@
 #include "Components/WayPointComponent.h"
 #include "Components/ZoomTriggerComponent.h"
 #include "Composition/ComponentCreator.h"
+#include "Debug/SpawnPanel.h"
 #include "Editor/InspectorPanel.h"
-#include "Editor/Spawn.h"
+#include "Editor/SpawnExtensions.h"
 #include "Game.hpp"
+#include "Component/BehaviourComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
 #include "Core/PathUtils.h"
@@ -39,7 +41,10 @@
 #include "Systems/RenderSystem.h"
 
 #include <array>
+#include <algorithm>
+#include <cctype>
 #include <filesystem>
+#include <initializer_list>
 #include <iostream>
 #include <optional>
 #include <vector>
@@ -47,6 +52,24 @@
 
 namespace
 {
+    std::string ChooseProjectLevelFile(std::initializer_list<const char*> preferredFiles)
+    {
+        std::error_code ec;
+        for (const char* file : preferredFiles)
+        {
+            if (!file || *file == '\0')
+                continue;
+
+            const auto candidate = Framework::ResolveDataPath(file);
+            if (std::filesystem::exists(candidate, ec) && std::filesystem::is_regular_file(candidate, ec))
+                return file;
+
+            ec.clear();
+        }
+
+        return "level.json";
+    }
+
     void ReadJsonFloat(const Framework::json& data, const char* key, float& out)
     {
         auto it = data.find(key);
@@ -137,7 +160,66 @@ namespace
 
         audio->volume = prefabAudio->volume;
         for (const auto& [action, info] : prefabAudio->GetSounds())
-            audio->AddSound(action, info.id, info.loop);
+            audio->AddSound(action, info.id, info.loop, info.spatial);
+    }
+
+    void ForceAllSoundsSpatial(Framework::AudioComponent& audio)
+    {
+        std::vector<std::tuple<std::string, std::string, bool>> sounds;
+        sounds.reserve(audio.GetSounds().size());
+
+        for (const auto& [action, info] : audio.GetSounds())
+            sounds.emplace_back(action, info.id, info.loop);
+
+        for (const auto& [action, id, loop] : sounds)
+            audio.AddSound(action, id, loop, true);
+    }
+
+    bool IsEnemyObject(const Framework::GOC& obj)
+    {
+        return obj.GetComponentType<Framework::EnemyComponent>(mygame::CT_EnemyComponent()) != nullptr;
+    }
+
+    bool IsEnemyObject(const Framework::json& objectData)
+    {
+        const auto compsIt = objectData.find("Components");
+        if (compsIt == objectData.end() || !compsIt->is_object())
+            return false;
+
+        return compsIt->contains("EnemyComponent") || compsIt->contains("EnemyTypeComponent");
+    }
+
+    void ForceSavedEnemyAudioSpatial(Framework::json& gameObjects)
+    {
+        if (!gameObjects.is_array())
+            return;
+
+        for (auto& go : gameObjects)
+        {
+            if (!go.is_object() || !IsEnemyObject(go))
+                continue;
+
+            auto compsIt = go.find("Components");
+            if (compsIt == go.end() || !compsIt->is_object())
+                continue;
+
+            auto audioIt = compsIt->find("AudioComponent");
+            if (audioIt == compsIt->end() || !audioIt->is_object())
+                continue;
+
+            auto soundsIt = audioIt->find("sounds");
+            if (soundsIt == audioIt->end() || !soundsIt->is_object())
+                continue;
+
+            for (auto& [actionName, soundData] : soundsIt->items())
+            {
+                (void)actionName;
+                if (!soundData.is_object())
+                    continue;
+
+                soundData["spatial"] = true;
+            }
+        }
     }
 
     /*************************************************************************************
@@ -156,25 +238,33 @@ namespace
 
             auto* audio = obj->GetComponentType<Framework::AudioComponent>(
                 Framework::ComponentTypeId::CT_AudioComponent);
-            if (audio && !audio->GetSounds().empty())
-                continue;
-
             if (obj->GetComponentType<Framework::PlayerComponent>(mygame::CT_PlayerComponent()))
             {
+                if (audio && !audio->GetSounds().empty())
+                    continue;
+
                 RestoreAudioFromPrefab(obj, "player");
                 continue;
             }
 
-            auto* enemyType = obj->GetComponentType<Framework::EnemyTypeComponent>(
-                mygame::CT_EnemyTypeComponent());
-            if (enemyType && enemyType->Etype == Framework::EnemyTypeComponent::EnemyType::ranged)
-            {
-                RestoreAudioFromPrefab(obj, "enemyranged");
+            if (!IsEnemyObject(*obj))
                 continue;
+
+            if (!audio || audio->GetSounds().empty())
+            {
+                auto* enemyType = obj->GetComponentType<Framework::EnemyTypeComponent>(
+                    mygame::CT_EnemyTypeComponent());
+                if (enemyType && enemyType->Etype == Framework::EnemyTypeComponent::EnemyType::ranged)
+                    RestoreAudioFromPrefab(obj, "enemyranged");
+                else
+                    RestoreAudioFromPrefab(obj, "enemy");
+
+                audio = obj->GetComponentType<Framework::AudioComponent>(
+                    Framework::ComponentTypeId::CT_AudioComponent);
             }
 
-            if (obj->GetComponentType<Framework::EnemyComponent>(mygame::CT_EnemyComponent()))
-                RestoreAudioFromPrefab(obj, "enemy");
+            if (audio)
+                ForceAllSoundsSpatial(*audio);
         }
     }
 
@@ -235,6 +325,7 @@ namespace
 
         factory->SetLevelSaveFinalizeCallback([](Framework::json& gameObjects)
         {
+            ForceSavedEnemyAudioSpatial(gameObjects);
             EnsureBehaviourObject(gameObjects, "CombatDirector");
             EnsureBehaviourObject(gameObjects, "VfxCleanup");
         });
@@ -582,6 +673,7 @@ namespace
     void DrawMyGameOverlay(Framework::RenderSystem& render)
     {
         int enemiesLeft = 0;
+        bool hasGateDoorObjective = false;
         if (Framework::FACTORY)
         {
             for (const auto& [id, objPtr] : Framework::FACTORY->Objects())
@@ -590,6 +682,37 @@ namespace
                 auto* obj = objPtr.get();
                 if (!obj)
                     continue;
+
+                auto* behaviour = obj->GetComponentType<Framework::BehaviourComponent>(
+                    Framework::ComponentTypeId::CT_BehaviourComponent);
+                auto* gateTarget = obj->GetComponentType<Framework::GateTargetComponent>(
+                    mygame::CT_GateTargetComponent());
+                if (!hasGateDoorObjective && behaviour && gateTarget && behaviour->behaviourKey == "GateLogic")
+                {
+                    std::string objectName = obj->GetObjectName();
+                    std::transform(objectName.begin(), objectName.end(), objectName.begin(),
+                        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
+                    bool looksLikeDoor = (objectName.find("door") != std::string::npos);
+                    if (!looksLikeDoor)
+                    {
+                        if (auto* renderComp = obj->GetComponentType<Framework::RenderComponent>(
+                            Framework::ComponentTypeId::CT_RenderComponent))
+                        {
+                            std::string textureKey = renderComp->texture_key;
+                            std::string texturePath = renderComp->texture_path;
+                            std::transform(textureKey.begin(), textureKey.end(), textureKey.begin(),
+                                [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                            std::transform(texturePath.begin(), texturePath.end(), texturePath.begin(),
+                                [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                            looksLikeDoor = textureKey.find("door") != std::string::npos ||
+                                texturePath.find("door") != std::string::npos;
+                        }
+                    }
+
+                    if (looksLikeDoor)
+                        hasGateDoorObjective = true;
+                }
 
                 if (!obj->GetComponentType<Framework::EnemyComponent>(mygame::CT_EnemyComponent()))
                     continue;
@@ -601,7 +724,9 @@ namespace
             }
         }
 
-        std::string text = "Objective: Go to the gate";
+        std::string text = hasGateDoorObjective
+            ? "Objective: Go to the door"
+            : "Objective: Go to the gate";
         if (enemiesLeft > 0)
         {
             const char* enemyLabel = (enemiesLeft == 1) ? "enemy" : "enemies";
@@ -697,7 +822,8 @@ namespace mygame
         });
         logic.SetFindPlayerCallback(&FindAlivePlayer);
         logic.SetPostAudioRestoreCallback(&RestoreMissingLevelAudio);
-        logic.SetStartupLevelPath(logic.ResolveDataPath("level_RealTutorial.json"));
+        logic.SetStartupLevelPath(
+            logic.ResolveDataPath(ChooseProjectLevelFile({ "level_RealTutorial.json", "level.json" })));
         logic.SetPostLevelLoadCallback([](Framework::LogicSystem& runtime)
         {
             InstallFactorySavePolicy(runtime);
@@ -721,17 +847,10 @@ namespace mygame
             DrawMyGameOverlay(runtime);
         });
 #if SOFASPUDS_ENABLE_EDITOR
-        render.SetEditorProjectRootsCallback(
-            [](const std::filesystem::path& assetsRoot, const std::filesystem::path&)
-            {
-                if (!assetsRoot.empty())
-                    SetSpawnPanelAssetsRoot(assetsRoot);
-                SetSpawnPanelLevelDefaults("level_RealTutorial.json", "RealLevel1.json");
-                SetSpawnPanelEditorCallbacks(IsEditorSimulationRunning, LoadLevelFromEditor);
-            });
+        Framework::ClearSpawnPanelExtensions();
+        RegisterMyGameSpawnPanelExtensions();
         render.SetEditorPanelsCallback([]()
         {
-            DrawSpawnPanel();
             DrawPropertiesEditor();
         });
 #endif

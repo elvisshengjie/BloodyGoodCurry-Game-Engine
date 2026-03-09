@@ -1,46 +1,59 @@
 cmake_minimum_required(VERSION 3.20)
 
-# Create the game executable
-add_executable(BloodyGoodCurry)
+set(GAME_NAME "${SOFASPUDS_GAME_NAME}")
+set(GAME_TARGET "${GAME_NAME}")
+set(GAME_CODE_ROOT "${CMAKE_CURRENT_LIST_DIR}/${SOFASPUDS_GAME_CODE_DIR}")
 
-set(GAME_NAME BloodyGoodCurry)
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/Games/${GAME_NAME}")
+  message(FATAL_ERROR "Game project '${GAME_NAME}' does not exist under ${CMAKE_SOURCE_DIR}/Games.")
+endif()
+if(NOT EXISTS "${GAME_CODE_ROOT}")
+  message(FATAL_ERROR "Game code directory '${GAME_CODE_ROOT}' does not exist.")
+endif()
+
+# Create the selected game executable
+add_executable(${GAME_TARGET})
+
 set(GAME_PROJECT_ROOT "${CMAKE_SOURCE_DIR}/Games/${GAME_NAME}")
 set(GAME_PROJECT_METADATA_FILE "${CMAKE_CURRENT_BINARY_DIR}/${GAME_NAME}.project_root.txt")
 file(GENERATE OUTPUT "${GAME_PROJECT_METADATA_FILE}" CONTENT "${GAME_PROJECT_ROOT}\n")
 
-if (EXISTS "${GAME_PROJECT_ROOT}/Assets" AND EXISTS "${GAME_PROJECT_ROOT}/Data")
-  set(GAME_ASSETS_SOURCE "${GAME_PROJECT_ROOT}/Assets")
-  set(GAME_DATA_SOURCE "${GAME_PROJECT_ROOT}/Data")
-else()
-  set(GAME_ASSETS_SOURCE "${CMAKE_SOURCE_DIR}/assets")
-  set(GAME_DATA_SOURCE "${CMAKE_SOURCE_DIR}/Data_Files")
-endif()
+# Git does not preserve empty folders, so ensure a newly cloned game project
+# always has the expected runtime content directories before build steps run.
+file(MAKE_DIRECTORY
+  "${GAME_PROJECT_ROOT}/Assets"
+  "${GAME_PROJECT_ROOT}/Data"
+  "${GAME_PROJECT_ROOT}/Saves"
+)
+
+set(GAME_ASSETS_SOURCE "${GAME_PROJECT_ROOT}/Assets")
+set(GAME_DATA_SOURCE "${GAME_PROJECT_ROOT}/Data")
 
 # Automatically collect source files from MyGame folder
 file(GLOB_RECURSE MYGAME_SRC
   CONFIGURE_DEPENDS
-  ${CMAKE_CURRENT_LIST_DIR}/MyGame/*.[cC]pp
+  ${GAME_CODE_ROOT}/*.[cC]pp
 )
 
 file(GLOB_RECURSE MYGAME_HDR
   CONFIGURE_DEPENDS
-  ${CMAKE_CURRENT_LIST_DIR}/MyGame/*.[hH]
-  ${CMAKE_CURRENT_LIST_DIR}/MyGame/*.hpp
+  ${GAME_CODE_ROOT}/*.[hH]
+  ${GAME_CODE_ROOT}/*.hpp
 )
 
-# Attach files to BloodyGoodCurry
-target_sources(BloodyGoodCurry PRIVATE ${MYGAME_SRC} ${MYGAME_HDR})
+# Attach files to the selected game target
+target_sources(${GAME_TARGET} PRIVATE ${MYGAME_SRC} ${MYGAME_HDR})
 
 # Link against the engine
-target_link_libraries(BloodyGoodCurry PRIVATE MyEngine)
+target_link_libraries(${GAME_TARGET} PRIVATE MyEngine)
 
 if(EMSCRIPTEN)
     if(NOT DEFINED SOFASPUDS_WEB_SINGLE_FILE)
         set(SOFASPUDS_WEB_SINGLE_FILE ON)
     endif()
 
-    set_target_properties(BloodyGoodCurry PROPERTIES SUFFIX ".html")
-    target_link_options(BloodyGoodCurry PRIVATE
+    set_target_properties(${GAME_TARGET} PROPERTIES SUFFIX ".html")
+    target_link_options(${GAME_TARGET} PRIVATE
         -sWASM=1
         -sALLOW_MEMORY_GROWTH=1
         -sDISABLE_EXCEPTION_CATCHING=0
@@ -51,20 +64,20 @@ if(EMSCRIPTEN)
         "SHELL:--shell-file ${CMAKE_SOURCE_DIR}/app_resources/web/index_shell.html"
     )
     if(SOFASPUDS_WEB_SINGLE_FILE)
-        target_link_options(BloodyGoodCurry PRIVATE
+        target_link_options(${GAME_TARGET} PRIVATE
             "SHELL:--embed-file ${GAME_ASSETS_SOURCE}@/Assets"
             "SHELL:--embed-file ${GAME_DATA_SOURCE}@/Data"
         )
-        target_link_options(BloodyGoodCurry PRIVATE -sSINGLE_FILE=1)
+        target_link_options(${GAME_TARGET} PRIVATE -sSINGLE_FILE=1)
         message(STATUS "[SofaSpuds] Web packaging: SINGLE_FILE=ON (slow link/load, single output HTML)")
     else()
         # Faster dev mode: keep wasm small and place assets/data in a separate .data package.
-        target_link_options(BloodyGoodCurry PRIVATE
+        target_link_options(${GAME_TARGET} PRIVATE
             "SHELL:--preload-file ${GAME_ASSETS_SOURCE}@/Assets"
             "SHELL:--preload-file ${GAME_DATA_SOURCE}@/Data"
         )
         if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-            target_link_options(BloodyGoodCurry PRIVATE
+            target_link_options(${GAME_TARGET} PRIVATE
                 -sASSERTIONS=2
                 -sSAFE_HEAP=1
                 -sSTACK_OVERFLOW_CHECK=2
@@ -77,7 +90,7 @@ endif()
 #  Console Window Management (MSVC specific)
 # Debug -> Show Console. Release -> Hide Console.
 if (MSVC)
-    target_link_options(BloodyGoodCurry PRIVATE
+    target_link_options(${GAME_TARGET} PRIVATE
         # Debug: Keep Console
         $<$<CONFIG:Debug>:/SUBSYSTEM:CONSOLE>
         
@@ -101,22 +114,22 @@ if(NOT SOFASPUDS_DISABLE_AUDIO)
     set(FMOD_LIBRARY_DIR ${CMAKE_SOURCE_DIR}/Engine/ThirdParty/fmod/lib/x64)
 
     # Include FMOD headers
-    target_include_directories(BloodyGoodCurry PRIVATE ${FMOD_INCLUDE_DIR})
+    target_include_directories(${GAME_TARGET} PRIVATE ${FMOD_INCLUDE_DIR})
 
     # Link FMOD libraries
-    target_link_directories(BloodyGoodCurry PRIVATE ${FMOD_LIBRARY_DIR})
-    target_link_libraries(BloodyGoodCurry PRIVATE fmod_vc)
+    target_link_directories(${GAME_TARGET} PRIVATE ${FMOD_LIBRARY_DIR})
+    target_link_libraries(${GAME_TARGET} PRIVATE fmod_vc)
 endif()
 
 # Includes for headers
-target_include_directories(BloodyGoodCurry PRIVATE ${CMAKE_CURRENT_LIST_DIR}/MyGame)
+target_include_directories(${GAME_TARGET} PRIVATE ${GAME_CODE_ROOT})
 
 # C++ standard & warnings
-set_property(TARGET BloodyGoodCurry PROPERTY CXX_STANDARD 20)
+set_property(TARGET ${GAME_TARGET} PROPERTY CXX_STANDARD 20)
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-  target_compile_options(BloodyGoodCurry PRIVATE -Wall -Wextra)
+  target_compile_options(${GAME_TARGET} PRIVATE -Wall -Wextra)
 elseif (MSVC)
-  target_compile_options(BloodyGoodCurry PRIVATE /W4 /WX-)
+  target_compile_options(${GAME_TARGET} PRIVATE /W4 /WX-)
 endif()
 
 if(NOT SOFASPUDS_DISABLE_AUDIO)
@@ -125,47 +138,47 @@ if(NOT SOFASPUDS_DISABLE_AUDIO)
     set(FMOD_DLL_FILE "${FMOD_DLL_DIR}/fmod.dll")
 
     # Copy FMOD DLL after build
-    add_custom_command(TARGET BloodyGoodCurry POST_BUILD
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${FMOD_DLL_FILE}"
-        "$<TARGET_FILE_DIR:BloodyGoodCurry>/"
+        "$<TARGET_FILE_DIR:${GAME_TARGET}>/"
         COMMENT "Copying FMOD DLL to build directory"
         VERBATIM
     )
 endif()
 
-add_custom_command(TARGET BloodyGoodCurry POST_BUILD
+add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${GAME_PROJECT_METADATA_FILE}"
-    "$<TARGET_FILE_DIR:BloodyGoodCurry>/sofaspuds_project_root.txt"
+    "$<TARGET_FILE_DIR:${GAME_TARGET}>/sofaspuds_project_root.txt"
     COMMENT "Copying project root metadata"
     VERBATIM
 )
 
 if(NOT EMSCRIPTEN)
     # Copy runtime folders next to exe
-    add_custom_command(TARGET BloodyGoodCurry POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/assets"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Assets"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data_Files"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/logs"
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/assets"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Assets"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data_Files"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
 
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Assets"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:BloodyGoodCurry>/logs"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Assets"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
 
         COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${GAME_ASSETS_SOURCE}"
-                "$<TARGET_FILE_DIR:BloodyGoodCurry>/Assets"
+                "$<TARGET_FILE_DIR:${GAME_TARGET}>/Assets"
 
         COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${GAME_DATA_SOURCE}"
-                "$<TARGET_FILE_DIR:BloodyGoodCurry>/Data"
+                "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
 
         COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${CMAKE_SOURCE_DIR}/logs"
-                "$<TARGET_FILE_DIR:BloodyGoodCurry>/logs"
+                "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
 
         COMMENT "Reset & Copy Assets, Data, logs"
         VERBATIM
@@ -173,4 +186,4 @@ if(NOT EMSCRIPTEN)
 endif()
 
 # Nice grouping in IDEs
-source_group(TREE ${CMAKE_CURRENT_LIST_DIR}/MyGame FILES ${MYGAME_SRC} ${MYGAME_HDR})
+source_group(TREE ${GAME_CODE_ROOT} FILES ${MYGAME_SRC} ${MYGAME_HDR})
