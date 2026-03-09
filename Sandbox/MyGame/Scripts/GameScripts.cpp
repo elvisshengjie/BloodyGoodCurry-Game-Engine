@@ -118,7 +118,7 @@ namespace {
       \enum PlayerAnimState
       \brief High-level animation state machine used by PlayerController.
     *****************************************************************************************/
-    enum class PlayerAnimState { Idle, Run, Attack1, Attack2, Attack3, Throw, SlowAttack, Knockback, Death };
+    enum class PlayerAnimState { Idle, Run, Walkback, Attack1, Attack2, Attack3, Throw, SlowAttack, Knockback, Death };
 
     /*****************************************************************************************
       \struct PlayerAnimConfig
@@ -246,6 +246,7 @@ namespace {
         switch (state)
         {
         case PlayerAnimState::Run: desired = "run"; break;
+        case PlayerAnimState::Walkback: desired = "walkback"; break;
         case PlayerAnimState::Attack1: desired = "attack1"; break;
         case PlayerAnimState::Attack2: desired = "attack2"; break;
         case PlayerAnimState::Attack3: desired = "attack3"; break;
@@ -862,7 +863,18 @@ namespace {
         }
         else
         {
-            SetAnimState(obj, state, wantRun ? PlayerAnimState::Run : PlayerAnimState::Idle);
+            if (wantRun)
+            {
+                const float forwardX = (rc->w >= 0.0f) ? 1.0f : -1.0f;
+                const bool movingRight = input.MoveRight() && !input.MoveLeft();
+                const bool movingLeft = input.MoveLeft() && !input.MoveRight();
+                const bool movingBackward = (movingRight && forwardX < 0.0f) || (movingLeft && forwardX > 0.0f);
+                SetAnimState(obj, state, movingBackward ? PlayerAnimState::Walkback : PlayerAnimState::Run);
+            }
+            else
+            {
+                SetAnimState(obj, state, PlayerAnimState::Idle);
+            }
         }
 
         /*************************************************************************************

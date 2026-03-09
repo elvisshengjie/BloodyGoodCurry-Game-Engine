@@ -647,7 +647,9 @@ namespace
         Resource_Manager::load(
             "talisman_throw",
             Framework::ResolveProjectAssetPath("Textures/Character/Ming_Sprite/Shooting Talismans_Sprite.png").string());
-        
+        Resource_Manager::load(
+            "player_walkback",
+            Framework::ResolveProjectAssetPath("Textures/Character/Ming_Sprite/Jogging Backwards_Sprite.png").string());
 
         render.SetLegacyAnimationTextures(
             LoadTextureHandle("ming_idle", "Textures/Idle Sprite .png"),

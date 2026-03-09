@@ -7592,6 +7592,21 @@
               },
               {
                 "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "walkback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Jogging Backwards_Sprite.png",
+                "textureKey": "player_walkback"
+              },
+              {
+                "config": {
                   "columns": 13,
                   "endFrame": 12,
                   "fps": 18.0,
