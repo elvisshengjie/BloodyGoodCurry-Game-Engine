@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      GameAudio.h
  \par       SofaSpuds
- \author    Choo Jian Wei - Primary Author
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Declares GameAudio, a lightweight facade that behaviour scripts use to trigger
             audio without needing to know which controller is active.
@@ -59,81 +59,28 @@ namespace mygame
             Player,  ///< Creates a PlayerAudioController internally.
             Enemy    ///< Creates an EnemyAudioController internally.
         };
-
-        /*************************************************************************************
-          \brief Construct GameAudio and create the appropriate internal controller.
-
-          \param audio   Pointer to the game object's AudioComponent.
-          \param entity  Whether this object is a player or enemy.
-        *************************************************************************************/
         GameAudio(Framework::AudioComponent* audio, Entity entity);
-
-        // ---------------------------------------------------------------------------------
-        // Unified audio interface  (behaviour scripts call these)
-        // ---------------------------------------------------------------------------------
-
-        /*************************************************************************************
-          \brief Play the primary attack sound for this entity.
-
-          \details  Player  → PlaySlash()
-                    Enemy   → PlayAttack()
-        *************************************************************************************/
         void PlayAttack(float posX = 0.0f, float posY = 0.0f);
-
-        /*************************************************************************************
-          \brief Play a hurt / damage-received sound.
-
-          \details  Player  → PlayPlayerHit()
-                    Enemy   → PlayHurt()
-        *************************************************************************************/
         void PlayHurt(float posX = 0.0f, float posY = 0.0f);
-
-        /*************************************************************************************
-          \brief Play a death sound.
-
-          \details  Player  → PlayPlayerDead()
-                    Enemy   → PlayDeath()
-        *************************************************************************************/
         void PlayDeath(float posX = 0.0f, float posY = 0.0f);
-
-        /*************************************************************************************
-          \brief Play a footstep sound (player only; no-op for enemies).
-        *************************************************************************************/
         void PlayFootstep();
-
-        /*************************************************************************************
-          \brief Play a secondary attack / punch sound (player only; no-op for enemies).
-        *************************************************************************************/
         void PlayPunch();
-
-        /*************************************************************************************
-          \brief Play a grapple sound (player only; no-op for enemies).
-        *************************************************************************************/
         void PlayGrapple();
-
-        /*************************************************************************************
-          \brief Play an ineffective-hit sound (player only; no-op for enemies).
-        *************************************************************************************/
         void PlayBoink();
-
-        /*************************************************************************************
-          \brief Per-frame update. Forwards to EnemyAudioController::Update() for 3D
-                 position tracking. Pass the owning object's world position.
-
-          \param posX  World X position of the owner.
-          \param posY  World Y position of the owner.
-          \note        No-op for players (player sounds are not spatialised).
-        *************************************************************************************/
         void Update(float posX, float posY);
 
-        // ---------------------------------------------------------------------------------
-        // Direct controller access (for behaviour scripts that need specific calls)
-        // ---------------------------------------------------------------------------------
-
-        /// Returns the player controller, or nullptr if this is an enemy.
+        /*************************************************************************************
+         \brief Returns the player audio controller.
+         \return Pointer to the PlayerAudioController, or nullptr if this instance was
+                 constructed with Entity::Enemy.
+       *************************************************************************************/
         PlayerAudioController* GetPlayerController() const { return m_Player.get(); }
 
-        /// Returns the enemy controller, or nullptr if this is a player.
+        /*************************************************************************************
+         \brief Returns the enemy audio controller.
+         \return Pointer to the EnemyAudioController, or nullptr if this instance was
+                 constructed with Entity::Player.
+         *************************************************************************************/
         EnemyAudioController* GetEnemyController()  const { return m_Enemy.get(); }
 
     private:

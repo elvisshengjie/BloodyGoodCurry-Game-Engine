@@ -307,7 +307,9 @@ namespace {
             state == PlayerAnimState::Throw ||
             state == PlayerAnimState::SlowAttack;
     }
-
+    /*****************************************************************************************
+      \brief Returns true if the state is one of the melee attack states (excludes throw and slow).
+    *****************************************************************************************/
     bool IsMeleeAttackState(PlayerAnimState state)
     {
         return state == PlayerAnimState::Attack1 ||

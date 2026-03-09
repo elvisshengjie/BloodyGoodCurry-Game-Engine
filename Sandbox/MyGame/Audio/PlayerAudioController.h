@@ -1,9 +1,9 @@
 /*********************************************************************************************
  \file      PlayerAudioController.h
  \par       SofaSpuds
- \author    Choo Jian Wei - Primary Author
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
 
- \brief     Game-side controller that organises player audio pools and drives the engine-side
+ \brief     Decleration of Game-side controller that organises player audio pools and drives the engine-side
             AudioComponent.
 
  \details
@@ -49,38 +49,13 @@ namespace mygame
     class PlayerAudioController
     {
     public:
-
-        /*************************************************************************************
-          \brief Construct and build all sound pools from the AudioComponent's loaded keys.
-
-          \param audio  Pointer to the sibling AudioComponent on the player object.
-                        Must not be null; asserted in debug.
-        *************************************************************************************/
         explicit PlayerAudioController(Framework::AudioComponent* audio);
-
-        // ---------------------------------------------------------------------------------
-        // Play helpers  (called by player behaviour scripts)
-        // ---------------------------------------------------------------------------------
-
-        /// Play a random concrete footstep clip.
         void PlayFootstep();
-
-        /// Play a random slash-on-enemy clip.
         void PlaySlash();
-
-        /// Play a random air-slash / punch clip.
         void PlayPunch();
-
-        /// Play a random grapple-shoot clip.
         void PlayGrapple();
-
-        /// Play a random ineffective-hit (boink) clip.
         void PlayBoink();
-
-        /// Play the player-hit (damage received) sound.
         void PlayPlayerHit();
-
-        /// Play the player-death sound.
         void PlayPlayerDead();
 
     private:
@@ -96,13 +71,6 @@ namespace mygame
 
         // ---- RNG -----------------------------------------------------------------------
         std::mt19937 m_Rng;
-
-        /*************************************************************************************
-          \brief Return a uniformly random element from a pool.
-
-          \param pool  The clip pool to sample from.
-          \return      A random key string, or an empty string if the pool is empty.
-        *************************************************************************************/
         std::string GetRandom(const std::vector<std::string>& pool);
     };
 
