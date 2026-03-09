@@ -87,13 +87,12 @@ namespace Framework
         static constexpr int COOLDOWN_BUBBLE_STEPS = 2;
         static constexpr int BUBBLE_ANIM_FRAMES = 7;
         static constexpr float BUBBLE_ANIM_DURATION = 0.28f;
-        static constexpr float ICON_BLEND_DURATION = 0.75f;
 
         void LoadTextures();
         void ResetBottles();
         void SyncFromHealth();
         void UpdateAbilityBubbleStates(float dt);
         void AdvanceAbilityBubbleState(AbilityBubbleState& bubbleState, int targetCount, float dt);
-        void AdvanceAbilityIconState(AbilityIconState& iconState, bool ready, float dt);
+        void AdvanceAbilityIconState(AbilityIconState& iconState, bool ready, float remaining, float duration);
     };
 }
