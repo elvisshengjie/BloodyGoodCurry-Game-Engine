@@ -1324,6 +1324,30 @@ namespace mygame {
         return hudState;
     }
 
+    PlayerAimIndicatorState GetPlayerAimIndicatorState(const Framework::GameObjectComposition* player)
+    {
+        PlayerAimIndicatorState aimState{};
+        if (!player)
+            return aimState;
+
+        const auto it = gPlayerStates.find(player->GetId());
+        if (it == gPlayerStates.end())
+            return aimState;
+
+        const PlayerControllerState& state = it->second;
+        const float dirLenSq =
+            state.lastAimDirX * state.lastAimDirX +
+            state.lastAimDirY * state.lastAimDirY;
+
+        if (dirLenSq <= 1e-6f)
+            return aimState;
+
+        aimState.valid = true;
+        aimState.dirX = state.lastAimDirX;
+        aimState.dirY = state.lastAimDirY;
+        return aimState;
+    }
+
     /*****************************************************************************************
       \brief Resets key inventory and key-door runtime state.
     *****************************************************************************************/
