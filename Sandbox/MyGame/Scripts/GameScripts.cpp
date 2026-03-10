@@ -1066,7 +1066,7 @@ namespace {
         {
             (void)id;
             auto* obj = ptr.get();
-            if (!obj || !mygame::IsImpactVfxObject(obj))
+            if (!obj || (!mygame::IsImpactVfxObject(obj) && !mygame::IsHeiBangAttack2BeamVfxObject(obj)))
                 continue;
 
             auto* anim = SafeGetComponent<Framework::SpriteAnimationComponent>(obj, Framework::ComponentTypeId::CT_SpriteAnimationComponent);
@@ -1075,7 +1075,7 @@ namespace {
 
             if (auto* active = anim->ActiveAnimation())
             {
-                if (!active->config.loop && active->name == "impact")
+                if (!active->config.loop)
                 {
                     const int total = std::max(1, active->config.totalFrames);
                     const int start = std::clamp(active->config.startFrame, 0, total - 1);
