@@ -52,6 +52,8 @@ if(EMSCRIPTEN)
         set(SOFASPUDS_WEB_SINGLE_FILE ON)
     endif()
 
+    # Build a browser entry point instead of a native .exe.
+    # Emscripten will emit HTML plus the matching JS/wasm runtime files.
     set_target_properties(${GAME_TARGET} PROPERTIES SUFFIX ".html")
     target_link_options(${GAME_TARGET} PRIVATE
         -sWASM=1
@@ -61,9 +63,12 @@ if(EMSCRIPTEN)
         -sMIN_WEBGL_VERSION=2
         -sMAX_WEBGL_VERSION=2
         -sGL_ENABLE_GET_PROC_ADDRESS=1
+        # Use our custom HTML page shell instead of Emscripten's default page.
         "SHELL:--shell-file ${CMAKE_SOURCE_DIR}/app_resources/web/index_shell.html"
     )
     if(SOFASPUDS_WEB_SINGLE_FILE)
+        # Single-file mode embeds project assets/data directly into the output,
+        # then inlines the generated JS/wasm into one large HTML file.
         target_link_options(${GAME_TARGET} PRIVATE
             "SHELL:--embed-file ${GAME_ASSETS_SOURCE}@/Assets"
             "SHELL:--embed-file ${GAME_DATA_SOURCE}@/Data"
@@ -71,12 +76,19 @@ if(EMSCRIPTEN)
         target_link_options(${GAME_TARGET} PRIVATE -sSINGLE_FILE=1)
         message(STATUS "[SofaSpuds] Web packaging: SINGLE_FILE=ON (slow link/load, single output HTML)")
     else()
-        # Faster dev mode: keep wasm small and place assets/data in a separate .data package.
+        # Split-file mode keeps the main wasm/html smaller and packages the game's
+        # runtime files into a separate Emscripten data bundle.
+        #
+        # The @/Assets and @/Data mount points matter: when the game later calls
+        # ResolveAssetPath(...) or ResolveDataPath(...), it reads from these virtual
+        # filesystem locations created by Emscripten at startup.
         target_link_options(${GAME_TARGET} PRIVATE
             "SHELL:--preload-file ${GAME_ASSETS_SOURCE}@/Assets"
             "SHELL:--preload-file ${GAME_DATA_SOURCE}@/Data"
         )
         if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+            # Extra runtime checks are useful in browser debug builds, where native
+            # debugging tools are more limited than desktop.
             target_link_options(${GAME_TARGET} PRIVATE
                 -sASSERTIONS=2
                 -sSAFE_HEAP=1

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>BloodyGoodCurry</title>
   <style>
+    /* Full-page canvas shell used by the generated Emscripten loader. */
     html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #111; color: #ddd; font-family: sans-serif; }
     #status { position: fixed; top: 10px; left: 10px; z-index: 10; font-size: 12px; }
     #canvas { width: 100%; height: 100%; display: block; outline: none; }
@@ -14,11 +15,16 @@
   <div id="status">Loading...</div>
   <canvas id="canvas" tabindex="-1"></canvas>
   <script>
+    // This file is only the HTML shell. Emscripten injects the generated JS
+    // loader at the placeholder near the bottom of this file, and that JS
+    // boots the wasm runtime.
     var statusEl = document.getElementById("status");
     var totalDependencies = 0;
     var canvasEl = document.getElementById("canvas");
     var webgl2Ctx = null;
 
+    // Create WebGL2 up front so we can fail early with a readable message
+    // instead of letting the generated runtime fail later.
     try {
       webgl2Ctx = canvasEl.getContext("webgl2", {
         alpha: false,
@@ -45,6 +51,12 @@
       e.preventDefault();
     }, { capture: true });
 
+    // Emscripten reads the global Module object during startup.
+    // The generated JS will:
+    // 1. use this canvas
+    // 2. reuse the WebGL2 context created above
+    // 3. fetch/load the wasm + packaged data files
+    // 4. call into C++ main()
     var Module = {
       canvas: canvasEl,
       preinitializedWebGLContext: webgl2Ctx,
@@ -52,9 +64,11 @@
         majorVersion: 2,
         minorVersion: 0
       },
+      // Status text shown while the JS runtime loads wasm and packaged assets.
       setStatus: function(text) {
         if (statusEl) statusEl.textContent = text || "";
       },
+      // Fired while Emscripten is loading dependencies such as the .data package.
       monitorRunDependencies: function(left) {
         if (!statusEl) return;
         totalDependencies = Math.max(totalDependencies, left);
@@ -62,9 +76,11 @@
           statusEl.textContent = "Loading files... " + (totalDependencies - left) + "/" + totalDependencies;
         }
       },
+      // Once the runtime is ready and C++ startup has finished, hide the status text.
       onRuntimeInitialized: function() {
         if (statusEl) statusEl.style.display = "none";
       },
+      // Surface startup failures to the page instead of only the browser console.
       onAbort: function(reason) {
         if (statusEl) {
           statusEl.style.display = "block";
@@ -73,6 +89,7 @@
       }
     };
   </script>
+  <!-- Replaced by Emscripten with the generated JS loader for this build. -->
   {{{ SCRIPT }}}
 </body>
 </html>
