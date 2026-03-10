@@ -30,6 +30,7 @@
 #include "Composition/ComponentCreator.h"
 #include "Debug/SpawnPanel.h"
 #include "Editor/InspectorPanel.h"
+#include "Editor/ParticlePresetEditor.h"
 #include "Editor/SpawnExtensions.h"
 #include "Game.hpp"
 #include "Component/BehaviourComponent.h"
@@ -854,6 +855,7 @@ namespace mygame
         render.SetEditorPanelsCallback([]()
         {
             DrawPropertiesEditor();
+            DrawParticlePresetEditor();
         });
 #endif
     }

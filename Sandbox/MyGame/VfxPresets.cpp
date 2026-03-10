@@ -32,6 +32,12 @@ namespace mygame {
     namespace {
         constexpr std::string_view kImpactVfxName = "HitImpactVFX";
         constexpr std::string_view kImpactVfxTextureKey = "impact_vfx_sheet";
+        HitImpactBurstPreset DefaultHitImpactBurstPreset()
+        {
+            return {};
+        }
+
+        HitImpactBurstPreset gHitImpactBurstPreset = DefaultHitImpactBurstPreset();
 
         void EnsureImpactTextureLoaded()
         {
@@ -102,14 +108,26 @@ namespace mygame {
             if (!particleSystem)
                 return;
 
+            const HitImpactBurstPreset& preset = gHitImpactBurstPreset;
+            if (preset.count <= 0)
+                return;
+
             static std::mt19937 rng(std::random_device{}());
             std::uniform_real_distribution<float> angleDist(0.0f, 6.283185f);
-            std::uniform_real_distribution<float> speedDist(0.08f, 0.22f);
-            std::uniform_real_distribution<float> lifeDist(0.18f, 0.32f);
-            std::uniform_real_distribution<float> radiusDist(0.02f, 0.045f);
-            std::uniform_real_distribution<float> offsetDist(-0.03f, 0.03f);
+            std::uniform_real_distribution<float> speedDist(
+                std::min(preset.speedMin, preset.speedMax),
+                std::max(preset.speedMin, preset.speedMax));
+            std::uniform_real_distribution<float> lifeDist(
+                std::min(preset.lifeMin, preset.lifeMax),
+                std::max(preset.lifeMin, preset.lifeMax));
+            std::uniform_real_distribution<float> radiusDist(
+                std::min(preset.radiusMin, preset.radiusMax),
+                std::max(preset.radiusMin, preset.radiusMax));
+            std::uniform_real_distribution<float> offsetDist(
+                std::min(preset.offsetMin, preset.offsetMax),
+                std::max(preset.offsetMin, preset.offsetMax));
 
-            for (int i = 0; i < 7; ++i)
+            for (int i = 0; i < preset.count; ++i)
             {
                 const float angle = angleDist(rng);
                 const float speed = speedDist(rng);
@@ -127,12 +145,12 @@ namespace mygame {
                 };
                 spec.life = lifeDist(rng);
                 spec.startRadius = radius;
-                spec.endRadius = radius * 0.25f;
-                spec.r = 1.0f;
-                spec.g = 0.68f;
-                spec.b = 0.28f;
-                spec.startAlpha = 0.9f;
-                spec.endAlpha = 0.0f;
+                spec.endRadius = radius * preset.endRadiusScale;
+                spec.r = preset.red;
+                spec.g = preset.green;
+                spec.b = preset.blue;
+                spec.startAlpha = preset.startAlpha;
+                spec.endAlpha = preset.endAlpha;
 
                 particleSystem->SpawnCircleParticle(spec);
             }
@@ -150,6 +168,22 @@ namespace mygame {
                 SpawnHitImpactVfx(worldPos);
                 SpawnHitImpactBurst(worldPos);
             });
+    }
+
+    HitImpactBurstPreset& GetHitImpactBurstPreset()
+    {
+        return gHitImpactBurstPreset;
+    }
+
+    void ResetHitImpactBurstPreset()
+    {
+        gHitImpactBurstPreset = DefaultHitImpactBurstPreset();
+    }
+
+    void SpawnHitImpactPreview(const glm::vec2& worldPos)
+    {
+        SpawnHitImpactVfx(worldPos);
+        SpawnHitImpactBurst(worldPos);
     }
 
     bool IsImpactVfxObject(const Framework::GOC* obj)

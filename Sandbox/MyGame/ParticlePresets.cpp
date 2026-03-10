@@ -17,21 +17,68 @@
 #include <random>
 
 namespace mygame {
+    namespace
+    {
+        EnemyDeathParticlePreset DefaultEnemyDeathParticlePreset()
+        {
+            return {};
+        }
+
+        RunParticlePreset DefaultRunParticlePreset()
+        {
+            return {};
+        }
+
+        EnemyDeathParticlePreset gEnemyDeathPreset = DefaultEnemyDeathParticlePreset();
+        RunParticlePreset gRunParticlePreset = DefaultRunParticlePreset();
+    }
+
+    EnemyDeathParticlePreset& GetEnemyDeathParticlePreset()
+    {
+        return gEnemyDeathPreset;
+    }
+
+    RunParticlePreset& GetRunParticlePreset()
+    {
+        return gRunParticlePreset;
+    }
+
+    void ResetEnemyDeathParticlePreset()
+    {
+        gEnemyDeathPreset = DefaultEnemyDeathParticlePreset();
+    }
+
+    void ResetRunParticlePreset()
+    {
+        gRunParticlePreset = DefaultRunParticlePreset();
+    }
 
     void SpawnEnemyDeathParticles(
         Framework::ParticleSystem& particleSystem,
         const glm::vec2& worldPos,
         std::size_t count)
     {
+        const EnemyDeathParticlePreset& preset = gEnemyDeathPreset;
+        if (count == 0)
+            count = preset.count;
+
         if (count == 0)
             return;
 
         static std::mt19937 rng(std::random_device{}());
         std::uniform_real_distribution<float> angleDist(0.0f, 6.283185f);
-        std::uniform_real_distribution<float> speedDist(0.15f, 0.45f);
-        std::uniform_real_distribution<float> lifeDist(0.35f, 0.6f);
-        std::uniform_real_distribution<float> radiusDist(0.02f, 0.05f);
-        std::uniform_real_distribution<float> hueJitter(-0.05f, 0.05f);
+        std::uniform_real_distribution<float> speedDist(
+            std::min(preset.speedMin, preset.speedMax),
+            std::max(preset.speedMin, preset.speedMax));
+        std::uniform_real_distribution<float> lifeDist(
+            std::min(preset.lifeMin, preset.lifeMax),
+            std::max(preset.lifeMin, preset.lifeMax));
+        std::uniform_real_distribution<float> radiusDist(
+            std::min(preset.radiusMin, preset.radiusMax),
+            std::max(preset.radiusMin, preset.radiusMax));
+        std::uniform_real_distribution<float> greenJitterDist(
+            std::min(preset.greenJitterMin, preset.greenJitterMax),
+            std::max(preset.greenJitterMin, preset.greenJitterMax));
 
         for (std::size_t i = 0; i < count; ++i)
         {
@@ -44,16 +91,16 @@ namespace mygame {
             spec.position = worldPos;
             spec.velocity = {
                 std::cos(angle) * speed,
-                std::sin(angle) * speed + 0.05f
+                std::sin(angle) * speed + preset.upwardVelocityBias
             };
             spec.life = lifeDist(rng);
             spec.startRadius = baseRadius;
-            spec.endRadius = baseRadius * 0.2f;
-            spec.r = 1.0f;
-            spec.g = 0.45f + hueJitter(rng);
-            spec.b = 0.1f;
-            spec.startAlpha = 0.95f;
-            spec.endAlpha = 0.0f;
+            spec.endRadius = baseRadius * preset.endRadiusScale;
+            spec.r = preset.red;
+            spec.g = preset.green + greenJitterDist(rng);
+            spec.b = preset.blue;
+            spec.startAlpha = preset.startAlpha;
+            spec.endAlpha = preset.endAlpha;
 
             particleSystem.SpawnCircleParticle(spec);
         }
@@ -65,16 +112,30 @@ namespace mygame {
         float facingDir,
         std::size_t count)
     {
+        const RunParticlePreset& preset = gRunParticlePreset;
+        if (count == 0)
+            count = preset.count;
+
         if (count == 0)
             return;
 
         static std::mt19937 rng(std::random_device{}());
         const float dir = (facingDir >= 0.0f) ? 1.0f : -1.0f;
-        std::uniform_real_distribution<float> speedDist(0.05f, 0.18f);
-        std::uniform_real_distribution<float> lifeDist(0.2f, 0.35f);
-        std::uniform_real_distribution<float> sizeDist(0.04f, 0.07f);
-        std::uniform_real_distribution<float> jitterDist(-0.015f, 0.015f);
-        std::uniform_real_distribution<float> riseDist(0.01f, 0.06f);
+        std::uniform_real_distribution<float> speedDist(
+            std::min(preset.speedMin, preset.speedMax),
+            std::max(preset.speedMin, preset.speedMax));
+        std::uniform_real_distribution<float> lifeDist(
+            std::min(preset.lifeMin, preset.lifeMax),
+            std::max(preset.lifeMin, preset.lifeMax));
+        std::uniform_real_distribution<float> sizeDist(
+            std::min(preset.sizeMin, preset.sizeMax),
+            std::max(preset.sizeMin, preset.sizeMax));
+        std::uniform_real_distribution<float> jitterDist(
+            std::min(preset.jitterMin, preset.jitterMax),
+            std::max(preset.jitterMin, preset.jitterMax));
+        std::uniform_real_distribution<float> riseDist(
+            std::min(preset.riseMin, preset.riseMax),
+            std::max(preset.riseMin, preset.riseMax));
 
         for (std::size_t i = 0; i < count; ++i)
         {
@@ -85,8 +146,8 @@ namespace mygame {
             spec.textureKey = "particle_ui";
             spec.texturePath = "Textures/UI/Particle.png";
             spec.position = {
-                worldPos.x + (-dir * 0.08f) + jitterDist(rng),
-                worldPos.y - 0.03f + jitterDist(rng)
+                worldPos.x + (dir * preset.offsetX) + jitterDist(rng),
+                worldPos.y + preset.offsetY + jitterDist(rng)
             };
             spec.velocity = {
                 -dir * speedDist(rng) + jitterDist(rng),
@@ -94,12 +155,12 @@ namespace mygame {
             };
             spec.life = lifeDist(rng);
             spec.startSize = baseSize;
-            spec.endSize = baseSize * 1.5f;
-            spec.r = 1.0f;
-            spec.g = 1.0f;
-            spec.b = 1.0f;
-            spec.startAlpha = 0.7f;
-            spec.endAlpha = 0.0f;
+            spec.endSize = baseSize * preset.endSizeScale;
+            spec.r = preset.red;
+            spec.g = preset.green;
+            spec.b = preset.blue;
+            spec.startAlpha = preset.startAlpha;
+            spec.endAlpha = preset.endAlpha;
 
             particleSystem.SpawnSpriteParticle(spec);
         }

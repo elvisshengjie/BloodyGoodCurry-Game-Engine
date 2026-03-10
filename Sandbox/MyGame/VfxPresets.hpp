@@ -13,13 +13,37 @@
 
 #include "Composition/Composition.h"
 #include "Systems/HitBoxSystem.h"
+#include <glm/vec2.hpp>
 
 namespace Framework {
     class LogicSystem;
 }
 
 namespace mygame {
+    struct HitImpactBurstPreset
+    {
+        int count{ 7 };
+        float speedMin{ 0.08f };
+        float speedMax{ 0.22f };
+        float lifeMin{ 0.18f };
+        float lifeMax{ 0.32f };
+        float radiusMin{ 0.02f };
+        float radiusMax{ 0.045f };
+        float offsetMin{ -0.03f };
+        float offsetMax{ 0.03f };
+        float endRadiusScale{ 0.25f };
+        float red{ 1.0f };
+        float green{ 0.68f };
+        float blue{ 0.28f };
+        float startAlpha{ 0.9f };
+        float endAlpha{ 0.0f };
+    };
+
+    HitImpactBurstPreset& GetHitImpactBurstPreset();
+    void ResetHitImpactBurstPreset();
+
     void BindCombatVfx(Framework::LogicSystem& logic);
+    void SpawnHitImpactPreview(const glm::vec2& worldPos);
 
     bool IsImpactVfxObject(const Framework::GOC* obj);
 }
