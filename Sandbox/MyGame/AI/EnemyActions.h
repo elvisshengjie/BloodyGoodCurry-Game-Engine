@@ -30,6 +30,7 @@
 #include "Common/GameComponentIDs.h"
 #include "Physics/System/Physics.h"
 #include "Factory/Factory.h"
+#include "../VfxPresets.hpp"
 #include "../Audio/GameAudioSetup.h"
 #include "EnemyConditions.h" 
 #include <cmath>
@@ -37,6 +38,7 @@
 #include <array>
 #include <utility>
 #include <cctype>
+#include <string>
 #include <string_view>
 
 namespace mygame
@@ -109,6 +111,59 @@ namespace mygame
                 return a.config.totalFrames / a.config.fps;
 
         return 0.2f;
+    }
+
+    inline bool EqualsIgnoreCase(std::string_view a, std::string_view b)
+    {
+        if (a.size() != b.size())
+            return false;
+
+        for (std::size_t i = 0; i < a.size(); ++i)
+        {
+            if (std::tolower(static_cast<unsigned char>(a[i])) !=
+                std::tolower(static_cast<unsigned char>(b[i])))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    inline bool HasAnim(Framework::GOC* goc, std::string_view name)
+    {
+        if (!goc)
+            return false;
+
+        auto* anim = goc->GetComponentType<Framework::SpriteAnimationComponent>(
+            Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+        return FindAnimationIndex(anim, name) >= 0;
+    }
+
+    inline std::string_view ActiveAnimName(Framework::GOC* goc)
+    {
+        if (!goc)
+            return {};
+
+        auto* anim = goc->GetComponentType<Framework::SpriteAnimationComponent>(
+            Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+        const auto* active = anim ? anim->ActiveAnimation() : nullptr;
+        return active ? std::string_view(active->name) : std::string_view{};
+    }
+
+    inline std::string_view ResolveHeiBangAttack2FollowupAnim(Framework::GOC* goc)
+    {
+        static constexpr std::array<std::string_view, 3> kCandidateNames{
+            "attack2_laser", "attack2_beam", "laserbeam2"
+        };
+
+        for (const auto name : kCandidateNames)
+        {
+            if (HasAnim(goc, name))
+                return name;
+        }
+
+        return {};
     }
     /*****************************************************************************************
       \brief Searches the factory object list for the first object with a PlayerComponent.
@@ -306,8 +361,31 @@ namespace mygame
             attack->hitboxElapsed += ctx.dt;
             if (attack->hitboxElapsed >= attack->hitbox->duration)
             {
+                const std::string_view activeAnim = ActiveAnimName(enemy);
+                if (isHeiBang && ai->currentPathIndex == 1 &&
+                    !attack->attack2BeamPhaseActive &&
+                    EqualsIgnoreCase(activeAnim, "attack2"))
+                {
+                    attack->attack2BeamPhaseActive = true;
+                    attack->hitboxElapsed = 0.0f;
+                    attack->hitbox->duration = 14.0f / 12.0f;
+                    const glm::vec2 beamTarget{ trPlayer->x, trPlayer->y };
+                    mygame::SpawnHeiBangAttack2BeamVfx(*enemy, beamTarget);
+                    if (ctx.spawnHitBox)
+                    {
+                        const float beamDamageWidth = std::max(0.18f, rb->width * 1.15f);
+                        const float beamDamageHeight = std::max(0.22f, rb->height * 1.15f);
+                        ctx.spawnHitBox(enemy, beamTarget.x, beamTarget.y,
+                            beamDamageWidth, beamDamageHeight,
+                            static_cast<float>(attack->damage),
+                            attack->hitbox->duration, 0.0f);
+                    }
+                    return;
+                }
+
                 attack->hitbox->active = false;
                 attack->hitboxElapsed = 0.0f;
+                attack->attack2BeamPhaseActive = false;
                 PlayAnim(enemy, "idle");
                 if (isHeiBang)
                     ai->currentPathIndex = (ai->currentPathIndex + 1) % kHeiBangAttackPoints.size();
@@ -348,6 +426,7 @@ namespace mygame
                 {
                     attack->hitbox->active = true;
                     attack->hitboxElapsed = 0.0f;
+                    attack->attack2BeamPhaseActive = false;
                     const float direction = (ai->facing == Framework::Facing::LEFT) ? -1.0f : 1.0f;
                     const float hbWidth = rb->width * 1.2f;
                     const float hbHeight = rb->height * 0.8f;
