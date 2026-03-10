@@ -129,8 +129,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 8,
-            "enemyMaxhealth": 5
+            "enemyHealth": 16,
+            "enemyMaxhealth": 16
           },
           "EnemyTypeComponent": {
             "type": "physical"
@@ -199,6 +199,21 @@
                 "name": "attack2",
                 "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/2nd Attack_Sprite .png",
                 "textureKey": "heibang_attack2"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "attack2_laser",
+                "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/2nd Laser Beam_Sprite .png",
+                "textureKey": "heibang_attack2_laser"
               },
               {
                 "config": {

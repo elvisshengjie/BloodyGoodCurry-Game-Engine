@@ -19,7 +19,6 @@
 
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/TransformComponent.h"
-#include "Components/PlayerComponent.h"
 #include "Factory/Factory.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
@@ -57,8 +56,7 @@ namespace Framework {
 
         bool IsPlayerBody(const GOC* obj)
         {
-            return obj &&
-                obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
+            return obj && obj->GetComponent(ComponentTypeId::CT_PlayerComponent) != nullptr;
         }
 
         bool IsHeiBangDashing(const GOC* obj)
