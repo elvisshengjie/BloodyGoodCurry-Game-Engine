@@ -45,6 +45,8 @@ namespace Framework
     class PlayerHealthComponent : public GameComponent
     {
     public:
+        static constexpr float kInvulnerabilityDuration = 1.15f;
+
         int playerHealth{ 100 };        ///< Current health of the player.
         int playerMaxhealth{ 100 };     ///< Maximum health value of the player.
         bool isInvulnerable = false;
@@ -109,7 +111,7 @@ namespace Framework
             if (isInvulnerable)
                 return;
             isInvulnerable = true;
-            invulnTime = 2.0f;
+            invulnTime = kInvulnerabilityDuration;
             playerHealth = std::max(playerHealth - dmg, 0);
             std::cout << "[PlayerHealthComponent] Took " << dmg
                 << " damage, current health = " << playerHealth << "\n";
