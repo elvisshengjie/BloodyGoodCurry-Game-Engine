@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 142.69085693359375,
-            "y": 142.43099975585938
+            "x": 151.48602294921875,
+            "y": 151.22616577148438
           }
         },
         "layer": "Gameplay:0",
@@ -58,91 +58,135 @@
             "sounds": {
               "ConcreteFootsteps1": {
                 "id": "ConcreteFootsteps1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps2": {
                 "id": "ConcreteFootsteps2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps3": {
                 "id": "ConcreteFootsteps3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps4": {
                 "id": "ConcreteFootsteps4",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps5": {
                 "id": "ConcreteFootsteps5",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps6": {
                 "id": "ConcreteFootsteps6",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot1": {
                 "id": "GrappleShoot1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot2": {
                 "id": "GrappleShoot2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot3": {
                 "id": "GrappleShoot3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot4": {
                 "id": "GrappleShoot4",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Ineffective Boink1": {
                 "id": "Ineffective Boink1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Ineffective Boink2": {
                 "id": "Ineffective Boink2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Ineffective Boink3": {
                 "id": "Ineffective Boink3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "PlayerDead": {
                 "id": "PlayerDead",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "PlayerHit": {
                 "id": "PlayerHit",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch1": {
                 "id": "Punch1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch2": {
                 "id": "Punch2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch3": {
                 "id": "Punch3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch4": {
                 "id": "Punch4",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Slash1": {
                 "id": "Slash1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Slash2": {
                 "id": "Slash2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Slash3": {
                 "id": "Slash3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               }
             },
             "volume": 1.0
@@ -178,12 +222,12 @@
           },
           "RigidBodyComponent": {
             "height": 0.20999999344348907,
-            "velocity_x": 6.366801699186908e-07,
-            "velocity_y": 1.401298464324817e-45,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 0,
+            "activeAnimation": 2,
             "animations": [
               {
                 "config": {
@@ -195,7 +239,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 3,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -210,7 +254,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 6,
+                "currentFrame": 0,
                 "name": "run",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -225,7 +269,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "attack1",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -312,14 +356,14 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "idle_sheet"
+            "texture_key": "attack1_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.1324881911277771,
-            "y": -1.1106306314468384
+            "x": 0.16575594246387482,
+            "y": -1.0782090425491333
           }
         },
         "layer": "Gameplay:2",
@@ -1548,7 +1592,7 @@
             "y": 0.2849999964237213
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1579,7 +1623,7 @@
             "y": -1.5014173984527588
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1610,7 +1654,7 @@
             "y": -0.5526067614555359
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1641,7 +1685,7 @@
             "y": -0.49146711826324463
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1672,7 +1716,7 @@
             "y": -0.9004428386688232
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1703,7 +1747,7 @@
             "y": -0.15698163211345673
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1734,7 +1778,7 @@
             "y": -0.25840285420417786
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1765,7 +1809,7 @@
             "y": -0.6537831425666809
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1796,7 +1840,7 @@
             "y": -0.25372791290283203
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1827,7 +1871,7 @@
             "y": -0.9238565564155579
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -1858,7 +1902,7 @@
             "y": -1.3727102279663086
           }
         },
-        "layer": "Gameplay:5",
+        "layer": "Gameplay:2",
         "name": "Rect"
       }
     ],
