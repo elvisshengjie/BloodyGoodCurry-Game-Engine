@@ -1,4 +1,4 @@
-/*********************************************************************************************
+﻿/*********************************************************************************************
  \file      Window.hpp
  \par       SofaSpuds
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
@@ -6,7 +6,7 @@
  \brief    setup window
 
  \copyright
-            All content � 2025 DigiPen Institute of Technology Singapore.
+            All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
@@ -15,6 +15,7 @@
 
 // Forward-declare GLFWwindow to avoid leaking GLFW headers in the header file
 struct GLFWwindow;
+struct GLFWcursor;
 
 namespace gfx {
 
@@ -88,6 +89,8 @@ namespace gfx {
         int  m_windowedHeight = 0;
         bool m_iconified = false;
         bool m_focused = true;
+        GLFWcursor* m_cursor = nullptr;
     };
 
 } // namespace gfx
+

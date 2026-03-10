@@ -20,10 +20,12 @@
 #include "Graphics/Window.hpp"
 
 // Keep GL/GLFW only in the .cpp to avoid polluting headers.
+#include "Core/PathUtils.h"
 #include "Graphics/GLHeaders.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <stdexcept>
+#include "stb_image.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
 #ifdef _DEBUG
@@ -34,6 +36,29 @@ namespace {
     // Prefer constexpr over macros (resolves your VCR101 suggestion)
     constexpr int kGlMajor = 3; ///< Requested OpenGL major version.
     constexpr int kGlMinor = 3; ///< Requested OpenGL minor version.
+
+    GLFWcursor* CreateProjectCursor()
+    {
+        const auto cursorPath = Framework::ResolveProjectAssetPath("Textures/UI/Cursor.png");
+        int width = 0;
+        int height = 0;
+        int channels = 0;
+        stbi_uc* pixels = stbi_load(cursorPath.string().c_str(), &width, &height, &channels, 4);
+        if (!pixels || width <= 0 || height <= 0)
+        {
+            stbi_image_free(pixels);
+            return nullptr;
+        }
+
+        GLFWimage image{};
+        image.width = width;
+        image.height = height;
+        image.pixels = pixels;
+
+        GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
+        stbi_image_free(pixels);
+        return cursor;
+    }
 
 } // anonymous namespace
 
@@ -158,6 +183,10 @@ namespace gfx {
 #if !defined(__EMSCRIPTEN__)
         glfwSwapInterval(1); // vsync on
 #endif
+
+        m_cursor = CreateProjectCursor();
+        if (m_cursor)
+            glfwSetCursor(s_window, m_cursor);
     }
 
     /*************************************************************************************
@@ -167,6 +196,10 @@ namespace gfx {
       Window instance managing GLFW.
     *************************************************************************************/
     Window::~Window() {
+        if (m_cursor) {
+            glfwDestroyCursor(m_cursor);
+            m_cursor = nullptr;
+        }
         if (s_window) {
             glfwDestroyWindow(s_window);
             s_window = nullptr;
@@ -432,3 +465,4 @@ namespace gfx {
     }
 
 } // namespace gfx
+
