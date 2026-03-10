@@ -2,7 +2,7 @@
  \file      EnemyConditions.h
  \par       SofaSpuds
  \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
- \brief     Declares game-specific condition helpers for enemy AI decision logic.
+ \brief     Declares and implements game-specific condition helpers for enemy AI decision logic.
  \details   Contains condition predicates used by the sandbox enemy AI to evaluate
             player distance, line-of-sight, attack readiness, and similar gameplay checks.
  \copyright

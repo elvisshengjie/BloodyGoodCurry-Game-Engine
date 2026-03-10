@@ -2,7 +2,7 @@
  \file      EnemyActions.h
  \par       SofaSpuds
  \author    Choo Jian Wei - Primary Author (100%)
- \brief     Declares game-specific AI action helpers for enemy behaviour execution.
+ \brief     Declares and defines game-specific AI action helpers for enemy behaviour execution.
  \details   Provides small action routines used by the sandbox enemy AI layer to
             drive movement, attacks, and state changes through the engine AI context.
 
