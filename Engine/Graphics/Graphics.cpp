@@ -65,6 +65,7 @@ namespace gfx {
     unsigned int Graphics::VBO_bg = 0;
     unsigned int Graphics::bgTexture = 0;
     unsigned int Graphics::bgShader = 0;
+    unsigned int Graphics::bgColorKeyShader = 0;
     unsigned int Graphics::objectShader = 0;
     unsigned int Graphics::VAO_sprite = 0;
     unsigned int Graphics::VBO_sprite = 0;
@@ -375,6 +376,22 @@ namespace gfx {
             "uniform sampler2D backgroundTex;\n"
             "void main(){FragColor=texture(backgroundTex,TexCoord);} \n";
         bgShader = createShaderProgram(bgVertexSrc, bgFragmentSrc);
+
+        const char* bgColorKeyFragmentSrc =
+            SOFASPUDS_GLSL_VERSION
+            SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
+            "out vec4 FragColor;\n"
+            "in vec2 TexCoord;\n"
+            "uniform sampler2D backgroundTex;\n"
+            "uniform float uThresholdLow;\n"
+            "uniform float uThresholdHigh;\n"
+            "void main(){\n"
+            "  vec3 c = texture(backgroundTex, TexCoord).rgb;\n"
+            "  float k = length(c);\n"
+            "  float a = smoothstep(uThresholdLow, uThresholdHigh, k);\n"
+            "  FragColor = vec4(c, a);\n"
+            "}\n";
+        bgColorKeyShader = createShaderProgram(bgVertexSrc, bgColorKeyFragmentSrc);
 
         // ----- Object (rect/circle) shader -----
         const char* objVertexSrc =
@@ -751,6 +768,7 @@ namespace gfx {
         glDeleteBuffers(1, &VBO_bg);
         glDeleteTextures(1, &bgTexture);
         glDeleteProgram(bgShader);
+        glDeleteProgram(bgColorKeyShader);
 
         glDeleteProgram(objectShader);
 
@@ -1031,6 +1049,29 @@ namespace gfx {
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
         GL_THROW_IF_ERROR("renderFullscreenTexture");
+    }
+
+    void Graphics::renderFullscreenTextureColorKey(unsigned tex, float thresholdLow, float thresholdHigh) {
+        if (!tex || !bgColorKeyShader || !VAO_bg) return;
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glUseProgram(bgColorKeyShader);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glUniform1i(glGetUniformLocation(bgColorKeyShader, "backgroundTex"), 0);
+        glUniform1f(glGetUniformLocation(bgColorKeyShader, "uThresholdLow"), thresholdLow);
+        glUniform1f(glGetUniformLocation(bgColorKeyShader, "uThresholdHigh"),
+            std::max(thresholdHigh, thresholdLow));
+
+        glBindVertexArray(VAO_bg);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glUseProgram(0);
+        GL_THROW_IF_ERROR("renderFullscreenTextureColorKey");
     }
 
     /*****************************************************************************************

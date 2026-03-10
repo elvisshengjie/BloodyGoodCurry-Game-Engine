@@ -368,6 +368,17 @@ namespace Framework {
         if (!factory)
             return;
 
+        PrepareForIncrementalLevelLoad();
+
+        levelObjects = factory->CreateLevel(levelPath.string());
+        FinalizeIncrementalLevelLoad(levelPath, factory->LastLevelName(), levelObjects);
+    }
+
+    void LogicSystem::PrepareForIncrementalLevelLoad()
+    {
+        if (!factory)
+            return;
+
         EndAllBehaviours();
 
         for (auto const& [id, obj] : factory->Objects())
@@ -386,7 +397,22 @@ namespace Framework {
             }
         }
 
-        levelObjects = factory->CreateLevel(levelPath.string());
+        levelObjects.clear();
+        player = nullptr;
+        collisionTarget = nullptr;
+        animInfo = AnimationInfo{};
+        collisionInfo = CollisionInfo{};
+    }
+
+    void LogicSystem::FinalizeIncrementalLevelLoad(const std::filesystem::path& levelPath,
+        const std::string& levelName,
+        const std::vector<GOC*>& loadedObjects)
+    {
+        if (!factory)
+            return;
+
+        levelObjects = loadedObjects;
+        factory->SetLastLevelMetadata(levelPath, levelName, loadedObjects);
         if (postAudioRestoreCallback)
             postAudioRestoreCallback(*this, levelObjects);
         if (postLevelLoadCallback)

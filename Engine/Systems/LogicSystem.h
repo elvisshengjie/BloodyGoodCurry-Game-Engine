@@ -88,6 +88,14 @@ namespace Framework {
         /*! \brief Reload current level and refresh object references. */
         void ReloadLevel();
         void LoadLevel(const std::filesystem::path& levelPath);
+
+        /*! \brief Destroy the current world so the next level can be built incrementally over multiple frames. */
+        void PrepareForIncrementalLevelLoad();
+
+        /*! \brief Apply the same post-load restoration and cache refresh used by the normal synchronous load path. */
+        void FinalizeIncrementalLevelLoad(const std::filesystem::path& levelPath,
+            const std::string& levelName,
+            const std::vector<GOC*>& loadedObjects);
         void RegisterBehaviour(const std::string& key, BehaviourFCT fct);
         void SetStartupLevelPath(std::filesystem::path levelPath) { startupLevelPath = std::move(levelPath); }
         void SetPostLevelLoadCallback(std::function<void(LogicSystem&)> callback) { postLevelLoadCallback = std::move(callback); }

@@ -1161,6 +1161,15 @@ namespace Framework {
         return InstantiateFromSnapshotInternal(data);
     }
 
+    void GameObjectFactory::SetLastLevelMetadata(const std::filesystem::path& levelPath,
+        const std::string& levelName,
+        const std::vector<GOC*>& levelObjects)
+    {
+        LastLevelPathCache = levelPath;
+        LastLevelNameCache = levelName;
+        LastLevelCache = levelObjects;
+    }
+
     void GameObjectFactory::CancelDestroy(GOCId id)
     {
         ObjectsToBeDeleted.erase(id);

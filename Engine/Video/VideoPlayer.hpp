@@ -19,7 +19,7 @@
             - Load() implicitly calls Stop() first to release any previous resources.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -109,6 +109,14 @@ namespace Framework {
         void Draw() const;
 
         /*************************************************************************************
+          \brief Toggle near-black color-key composition for Draw().
+          \param enabled        True to route drawing through the color-key fullscreen shader.
+          \param thresholdLow   Lower smoothstep edge used for alpha generation.
+          \param thresholdHigh  Upper smoothstep edge used for alpha generation.
+        *************************************************************************************/
+        void SetColorKeyEnabled(bool enabled, float thresholdLow = 0.02f, float thresholdHigh = 0.10f);
+
+        /*************************************************************************************
           \brief Returns whether a movie is currently loaded.
           \return true if the internal decoder handle exists; false otherwise.
         *************************************************************************************/
@@ -158,6 +166,9 @@ namespace Framework {
         // Playback state
         bool finished = false;        // set when stream reaches end
         bool started = false;         // true after Start() is called
+        bool colorKeyEnabled = false;
+        float colorKeyThresholdLow = 0.02f;
+        float colorKeyThresholdHigh = 0.10f;
 
         // CPU-side buffers
         std::vector<std::uint8_t> rgbBuffer;  // RGB24 pixel buffer (width * height * 3)
