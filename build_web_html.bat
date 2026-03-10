@@ -1,17 +1,16 @@
 @echo off
-setlocal
+setlocal EnableExtensions EnableDelayedExpansion
 
 set "PRESET=web-release-split"
 set "GAME_NAME=BloodyGoodCurry"
 set "FORCE_CONFIGURE=0"
-set "AUTO_SERVE=0"
+set "AUTO_SERVE=1"
 
 if "%~1"=="" if "%~2"=="" if "%~3"=="" (
     set "FORCE_CONFIGURE=1"
-    set "AUTO_SERVE=1"
 )
 
-for %%A in ("%~1" "%~2" "%~3") do (
+for %%A in ("%~1" "%~2" "%~3" "%~4") do (
     if /I "%%~A"=="debug" set "PRESET=web-debug"
     if /I "%%~A"=="fast" set "PRESET=web-debug"
     if /I "%%~A"=="dev" set "PRESET=web-debug"
@@ -19,11 +18,13 @@ for %%A in ("%~1" "%~2" "%~3") do (
     if /I "%%~A"=="release-split" set "PRESET=web-release-split"
     if /I "%%~A"=="releasefast" set "PRESET=web-release-split"
     if /I "%%~A"=="reconfigure" set "FORCE_CONFIGURE=1"
+    if /I "%%~A"=="noserve" set "AUTO_SERVE=0"
+    if /I "%%~A"=="serve" set "AUTO_SERVE=1"
 )
 
-for %%A in ("%~1" "%~2" "%~3") do (
+for %%A in ("%~1" "%~2" "%~3" "%~4") do (
     if not "%%~A"=="" (
-        if /I not "%%~A"=="debug" if /I not "%%~A"=="fast" if /I not "%%~A"=="dev" if /I not "%%~A"=="release" if /I not "%%~A"=="release-split" if /I not "%%~A"=="releasefast" if /I not "%%~A"=="reconfigure" (
+        if /I not "%%~A"=="debug" if /I not "%%~A"=="fast" if /I not "%%~A"=="dev" if /I not "%%~A"=="release" if /I not "%%~A"=="release-split" if /I not "%%~A"=="releasefast" if /I not "%%~A"=="reconfigure" if /I not "%%~A"=="noserve" if /I not "%%~A"=="serve" (
             set "GAME_NAME=%%~A"
         )
     )
@@ -48,8 +49,16 @@ if not defined EMSDK (
     exit /b 1
 )
 
-where ninja >nul 2>nul
-if errorlevel 1 (
+set "NINJA_EXE="
+set "WINGET_NINJA=%LOCALAPPDATA%\Microsoft\WinGet\Packages\Ninja-build.Ninja_Microsoft.Winget.Source_8wekyb3d8bbwe\ninja.exe"
+if exist "%WINGET_NINJA%" (
+    set "NINJA_EXE=%WINGET_NINJA%"
+)
+if not defined NINJA_EXE (
+    where ninja >nul 2>nul
+    if not errorlevel 1 set "NINJA_EXE=ninja"
+)
+if not defined NINJA_EXE (
     echo [ERROR] Ninja is not installed or not in PATH.
     echo Install Ninja, then run this script again.
     echo Example:
@@ -70,11 +79,22 @@ if "%AUTO_SERVE%"=="1" (
 
 set "BUILD_DIR=%~dp0build\%PRESET%"
 if not exist "%BUILD_DIR%\CMakeCache.txt" set "FORCE_CONFIGURE=1"
+if exist "%BUILD_DIR%\CMakeCache.txt" (
+    set "CACHED_GAME="
+    for /f "tokens=2 delims==" %%I in ('findstr /b /c:"SOFASPUDS_GAME_NAME:STRING=" "%BUILD_DIR%\CMakeCache.txt" 2^>nul') do (
+        set "CACHED_GAME=%%I"
+    )
+    if defined CACHED_GAME if /I not "!CACHED_GAME!"=="%GAME_NAME%" (
+        echo [INFO] Cached web build is configured for !CACHED_GAME!.
+        echo [INFO] Forcing reconfigure for requested game %GAME_NAME%.
+        set "FORCE_CONFIGURE=1"
+    )
+)
 
 echo.
 if "%FORCE_CONFIGURE%"=="1" (
     echo [1/2] Configuring CMake...
-    cmake --preset %PRESET% -DSOFASPUDS_GAME_NAME=%GAME_NAME%
+    cmake --preset %PRESET% -DSOFASPUDS_GAME_NAME=%GAME_NAME% -DCMAKE_MAKE_PROGRAM=%NINJA_EXE%
     if errorlevel 1 (
         echo [ERROR] CMake configure failed.
         exit /b 1
@@ -119,6 +139,7 @@ echo   build_web_html.bat dev
 echo   build_web_html.bat release
 echo   build_web_html.bat release-split
 echo   build_web_html.bat NewGame
+echo   build_web_html.bat NewGame noserve
 echo   build_web_html.bat BloodyGoodCurry release-split reconfigure
 echo   build_web_html.bat release-split NewGame reconfigure
 
