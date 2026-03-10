@@ -1,4 +1,4 @@
-/*********************************************************************************************
+﻿/*********************************************************************************************
  \file      ImGuiLayer.cpp
  \par       SofaSpuds
  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
@@ -16,7 +16,7 @@
             when ImGui is not initialized or has already been shut down.
 
  \copyright
-            All content � 2025 DigiPen Institute of Technology Singapore.
+            All content © 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -58,6 +58,7 @@ void ImGuiLayer::Initialize(gfx::Window& win, const ImGuiLayerConfig& cfg) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     if (cfg.gamepad)  io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     if (cfg.dockspace) io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
     ImGui::StyleColorsDark();
 
@@ -130,3 +131,4 @@ void ImGuiLayer::Shutdown() {
     s_imguiReady = false;
 }
 #endif
+
