@@ -292,7 +292,7 @@ namespace mygame
         std::transform(enemyName.begin(), enemyName.end(), enemyName.begin(),
             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         const bool isHeiBang = (enemyName == "heibang");
-
+        const bool isNancie = (enemyName == "nancie");
         static constexpr std::array<std::pair<float, float>, 3> kHeiBangAttackPoints{ {
             {0.704178f, -1.02655f},
             {1.21166f, -2.18211f},
@@ -409,8 +409,16 @@ namespace mygame
                 float hbHeight = rb->height * 0.8f;
                 float spawnX = tr->x + (direction * hbWidth * 0.25f);
                 float spawnY = tr->y;
+               
+                std::string meleeAnim = "slashattack";
+                if (isNancie)
+                {
+                    // alternate between slashattack1 and slamattack2 each hit
+                    meleeAnim = (ai->currentPathIndex % 2 == 0) ? "slashattack1" : "slamattack2";
+                    ai->currentPathIndex++;
+                }
 
-                attack->hitbox->duration = GetAnimDuration(enemy, "slashattack");
+                attack->hitbox->duration = GetAnimDuration(enemy, meleeAnim);
                 ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
                     static_cast<float>(attack->damage),
                     attack->hitbox->duration, 0.0f);
@@ -420,7 +428,7 @@ namespace mygame
                     GameAudio gameAudio(audio, GameAudio::Entity::Enemy);
                     gameAudio.PlayAttack(tr->x, tr->y);
                 }
-                PlayAnim(enemy, "slashattack");
+                PlayAnim(enemy, meleeAnim);
             }
         }
 

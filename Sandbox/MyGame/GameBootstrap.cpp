@@ -478,7 +478,9 @@ namespace
             {
                 auto const& type = static_cast<const Framework::EnemyTypeComponent&>(component);
                 return Framework::json{
-                    {"type", type.Etype == Framework::EnemyTypeComponent::EnemyType::ranged ? "ranged" : "physical"}
+                    {"type", type.Etype == Framework::EnemyTypeComponent::EnemyType::ranged ? "ranged"
+                       : type.Etype == Framework::EnemyTypeComponent::EnemyType::neutral ? "neutral"
+                       : "physical"}
                 };
             },
             [](Framework::GameComponent& component, const Framework::json& data) -> bool
@@ -488,6 +490,8 @@ namespace
                 ReadJsonString(data, "type", typeName);
                 type.Etype = (typeName == "ranged")
                     ? Framework::EnemyTypeComponent::EnemyType::ranged
+                    : (typeName == "neutral")
+                    ? Framework::EnemyTypeComponent::EnemyType::neutral
                     : Framework::EnemyTypeComponent::EnemyType::physical;
                 return true;
             });
@@ -614,6 +618,34 @@ namespace
         Resource_Manager::load(
             "fire_death",
             Framework::ResolveProjectAssetPath("Textures/Character/Fire Enemy_Sprite/Death_Sprite.png").string());
+    }
+    /*************************************************************************************
+     \brief  Preloads all textures used by the Nancie enemy variant.
+     \details Registers idle, attack, knockback, dash, and death sprite sheets into
+              the resource manager so they are available when a Nancie enemy is
+              spawned into the level. Must be called after the resource manager
+              is initialized and before Nancie objects are first rendered.
+    *************************************************************************************/
+    void PreloadNancieTextures()
+    {
+        Resource_Manager::load(
+            "nancie_idle",
+            Framework::ResolveProjectAssetPath("Textures/Character/Nancie_Sprite/Idle_Sprite.png").string());
+        Resource_Manager::load(
+            "nancie_slash1",
+            Framework::ResolveProjectAssetPath("Textures/Character/Nancie_Sprite/Slash Attack 1_Sprite.png").string());
+        Resource_Manager::load(
+            "nancie_slam2",
+            Framework::ResolveProjectAssetPath("Textures/Character/Nancie_Sprite/Slam Attack 2_Sprite.png").string());
+        Resource_Manager::load(
+            "nancie_knockback",
+            Framework::ResolveProjectAssetPath("Textures/Character/Nancie_Sprite/Knockback_Sprite.png").string());
+        Resource_Manager::load(
+            "nancie_dash",
+            Framework::ResolveProjectAssetPath("Textures/Character/Nancie_Sprite/Dash_Sprite.png").string());
+        Resource_Manager::load(
+            "nancie_death",
+            Framework::ResolveProjectAssetPath("Textures/Character/Nancie_Sprite/Death_Sprite.png").string());
     }
 
     /*************************************************************************************
@@ -832,6 +864,7 @@ namespace mygame
             InstallFactorySavePolicy(runtime);
             EnsureAnimatedStore(runtime);
             PreloadFireEnemyTextures();
+            PreloadNancieTextures();
         });
     }
 
