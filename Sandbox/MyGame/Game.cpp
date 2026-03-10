@@ -422,8 +422,11 @@ namespace mygame {
                         currentState = GameState::CUTSCENE;
                     }
                     else {
-                        currentState = GameState::TRANSITIONING;
-                        transitionTimer = kStartTransitionDuration;
+                        if (!RequestReloadLevel())
+                        {
+                            currentState = GameState::TRANSITIONING;
+                            transitionTimer = kStartTransitionDuration;
+                        }
                     }
                     editorSimulationRunning = false;
                     pauseMenu.ResetLatches();
@@ -456,8 +459,11 @@ namespace mygame {
                         SoundManager::getInstance().stopSound(CUTSCENE_AUDIO);
                     }
                     cutsceneAudioPlaying = false;
-                    currentState = GameState::PLAYING;
-                    editorSimulationRunning = true;
+                    if (!RequestReloadLevel())
+                    {
+                        currentState = GameState::PLAYING;
+                        editorSimulationRunning = true;
+                    }
                 }
                 break;
             }
@@ -466,18 +472,24 @@ namespace mygame {
             {
                 handlePerfToggle();
                 levelLoader.TickLoadStep(kLoadingObjectsPerTick);
-                UpdateHealthPresentationDelta(dt);
-                if (gLogicSystem)
-                    gLogicSystem->Update(dt);
-                FreezeLoadingTransitionActors();
-                if (gPhysicsSystem)
-                    gPhysicsSystem->Update(dt);
-                if (gHealthSystem)
-                    gHealthSystem->Update(dt);
-                if (gParticleSystem)
-                    gParticleSystem->Update(dt);
-                if (gZoomTriggerSystem)
-                    gZoomTriggerSystem->Update(dt);
+                const bool showMainMenuDuringTransition =
+                    loadingTransitionNextState == GameState::MAIN_MENU;
+
+                if (!showMainMenuDuringTransition)
+                {
+                    UpdateHealthPresentationDelta(dt);
+                    if (gLogicSystem)
+                        gLogicSystem->Update(dt);
+                    FreezeLoadingTransitionActors();
+                    if (gPhysicsSystem)
+                        gPhysicsSystem->Update(dt);
+                    if (gHealthSystem)
+                        gHealthSystem->Update(dt);
+                    if (gParticleSystem)
+                        gParticleSystem->Update(dt);
+                    if (gZoomTriggerSystem)
+                        gZoomTriggerSystem->Update(dt);
+                }
 
                 if (loadingTransitionVideoEnabled &&
                     !loadingTransitionSkipRequested &&
@@ -716,10 +728,18 @@ namespace mygame {
                 break;
 
             case GameState::LOADING_TRANSITION:
-                gSystems.DrawAll();
+                if (loadingTransitionNextState != GameState::MAIN_MENU)
+                {
+                    gSystems.DrawAll();
+                }
                 if (gRenderSystem) {
-                    DrawHealthPresentation(*gRenderSystem);
+                    if (loadingTransitionNextState != GameState::MAIN_MENU)
+                    {
+                        DrawHealthPresentation(*gRenderSystem);
+                    }
                     gRenderSystem->BeginMenuFrame();
+                    if (loadingTransitionNextState == GameState::MAIN_MENU)
+                        mainMenu.Draw(gRenderSystem);
                     if (loadingTransitionVideoEnabled &&
                         !loadingTransitionSkipRequested &&
                         !transitionPlayer.IsFinished()) {
