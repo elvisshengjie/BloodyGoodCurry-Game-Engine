@@ -185,7 +185,7 @@ namespace Framework {
 
     private:
         // --- Filesystem / asset resolution ------------------------------------------------
-        std::string             FindRoboto() const;
+        std::string             FindUIFont() const;
         std::filesystem::path FindAssetsRoot() const;
         std::filesystem::path FindDataFilesRoot() const;
 

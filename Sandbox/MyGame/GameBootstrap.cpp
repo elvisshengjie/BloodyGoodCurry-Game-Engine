@@ -37,6 +37,7 @@
 #include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
 #include "Core/PathUtils.h"
+#include "Graphics/Graphics.hpp"
 #include "Resource_Asset_Manager/Resource_Manager.h"
 #include "Systems/LogicSystem.h"
 #include "Systems/RenderSystem.h"
@@ -49,10 +50,93 @@
 #include <iostream>
 #include <optional>
 #include <vector>
+#include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
 
 namespace
 {
+    struct ObjectiveTabUiState
+    {
+        float reveal{ 0.0f };
+        double lastFrameTime{ -1.0 };
+    };
+
+    ObjectiveTabUiState gObjectiveTabUiState;
+
+    float AdvanceObjectiveTabReveal(bool hovered)
+    {
+        const double now = glfwGetTime();
+        if (gObjectiveTabUiState.lastFrameTime < 0.0)
+            gObjectiveTabUiState.lastFrameTime = now;
+
+        const float dt = std::clamp(
+            static_cast<float>(now - gObjectiveTabUiState.lastFrameTime),
+            0.0f,
+            0.05f);
+        gObjectiveTabUiState.lastFrameTime = now;
+
+        const float speed = hovered ? 8.0f : 6.0f;
+        const float target = hovered ? 1.0f : 0.0f;
+        if (gObjectiveTabUiState.reveal < target)
+            gObjectiveTabUiState.reveal = std::min(target, gObjectiveTabUiState.reveal + dt * speed);
+        else
+            gObjectiveTabUiState.reveal = std::max(target, gObjectiveTabUiState.reveal - dt * speed);
+
+        const float t = std::clamp(gObjectiveTabUiState.reveal, 0.0f, 1.0f);
+        return t * t * (3.0f - 2.0f * t);
+    }
+
+    std::vector<std::string> WrapObjectiveText(const std::string& text, std::size_t preferredLineLength = 18)
+    {
+        auto trim = [](std::string value)
+            {
+                const std::size_t first = value.find_first_not_of(' ');
+                if (first == std::string::npos)
+                    return std::string{};
+                const std::size_t last = value.find_last_not_of(' ');
+                return value.substr(first, last - first + 1);
+            };
+
+        std::vector<std::string> lines;
+        const std::string cleaned = trim(text);
+        if (cleaned.empty())
+            return lines;
+
+        if (cleaned.size() <= preferredLineLength)
+        {
+            lines.push_back(cleaned);
+            return lines;
+        }
+
+        std::size_t split = cleaned.rfind(' ', preferredLineLength);
+        if (split == std::string::npos)
+            split = cleaned.find(' ', preferredLineLength);
+
+        if (split == std::string::npos)
+        {
+            lines.push_back(cleaned);
+            return lines;
+        }
+
+        lines.push_back(trim(cleaned.substr(0, split)));
+        const std::string remaining = trim(cleaned.substr(split + 1));
+        if (!remaining.empty())
+            lines.push_back(remaining);
+        return lines;
+    }
+
+    unsigned ResolveObjectiveTabTexture()
+    {
+        constexpr const char* kTextureKey = "objective_tab_ui";
+        if (const unsigned cached = Resource_Manager::getTexture(kTextureKey))
+            return cached;
+
+        Resource_Manager::load(
+            kTextureKey,
+            Framework::ResolveProjectAssetPath("Textures/UI/Objective Tab.png").string());
+        return Resource_Manager::getTexture(kTextureKey);
+    }
+
     std::string ChooseProjectLevelFile(std::initializer_list<const char*> preferredFiles)
     {
         std::error_code ec;
@@ -728,20 +812,117 @@ namespace
         }
 
         std::string text = hasGateDoorObjective
-            ? "Objective: Go to the door"
-            : "Objective: Go to the gate";
+            ? "Go to the door"
+            : "Go to the gate";
         if (enemiesLeft > 0)
         {
-            const char* enemyLabel = (enemiesLeft == 1) ? "enemy" : "enemies";
-            text = "Objective: Kill all enemies (" + std::to_string(enemiesLeft) + " " + enemyLabel + " remaining)";
+            text = "Kill all enemies (" + std::to_string(enemiesLeft) + " left)";
         }
 
-        render.GetTextHint().RenderText(
-            text,
-            static_cast<float>(render.ScreenWidth()) / 3.0f,
-            static_cast<float>(render.ScreenHeight()) - 64.0f,
-            0.75f,
-            glm::vec3(1.0f, 0.2f, 0.2f));
+        const int screenW = render.ScreenWidth();
+        const int screenH = render.ScreenHeight();
+        const float uiScale = std::max(0.75f, static_cast<float>(screenH) / 1080.0f);
+        int viewportX = 0;
+        int viewportY = 0;
+        int viewportW = screenW;
+        int viewportH = screenH;
+        render.GetGameViewportRect(viewportX, viewportY, viewportW, viewportH);
+
+        const unsigned objectiveTabTexture = ResolveObjectiveTabTexture();
+        if (objectiveTabTexture != 0u)
+        {
+            int texW = 0;
+            int texH = 0;
+            if (!gfx::Graphics::getTextureSize(objectiveTabTexture, texW, texH) || texW <= 0 || texH <= 0)
+            {
+                texW = 480;
+                texH = 160;
+            }
+
+            const float tabW = texW * 0.72f * uiScale;
+            const float tabH = texH * 0.72f * uiScale;
+            const float tabY = viewportY + viewportH - tabH - (18.0f * uiScale);
+            const float handleWidth = std::min(tabW * 0.2f, 92.0f * uiScale);
+            const float expandedTabX = viewportX + viewportW - tabW;
+            const float collapsedTabX = viewportX + viewportW - handleWidth;
+
+            double mouseX = -1000.0;
+            double mouseY = -1000.0;
+            if (GLFWwindow* window = glfwGetCurrentContext())
+            {
+                glfwGetCursorPos(window, &mouseX, &mouseY);
+                mouseY = static_cast<double>(screenH) - mouseY;
+            }
+
+            const bool mouseOverHandle =
+                mouseX >= (viewportX + viewportW - handleWidth) &&
+                mouseX <= (viewportX + viewportW) &&
+                mouseY >= tabY &&
+                mouseY <= (tabY + tabH);
+
+            const float currentTabXPreAnim =
+                collapsedTabX + (expandedTabX - collapsedTabX) * gObjectiveTabUiState.reveal;
+            const bool mouseOverOpenTab =
+                mouseX >= currentTabXPreAnim &&
+                mouseX <= (currentTabXPreAnim + tabW) &&
+                mouseY >= tabY &&
+                mouseY <= (tabY + tabH);
+
+            const float reveal = AdvanceObjectiveTabReveal(mouseOverHandle || mouseOverOpenTab);
+            const float tabX = collapsedTabX + (expandedTabX - collapsedTabX) * reveal;
+
+            gfx::Graphics::renderSpriteUI(
+                objectiveTabTexture,
+                tabX,
+                tabY,
+                tabW,
+                tabH,
+                1.0f, 1.0f, 1.0f, 0.96f,
+                screenW, screenH);
+
+            if (render.IsTextReadyHint() && reveal > 0.2f)
+            {
+                const std::vector<std::string> wrappedText = WrapObjectiveText(text);
+                const float textX = tabX + tabW * 0.24f;
+                const glm::vec3 textColor(1.0f, 0.95f, 0.85f);
+
+                if (wrappedText.size() > 1)
+                {
+                    render.GetTextHint().RenderText(
+                        wrappedText[0],
+                        textX,
+                        tabY + tabH * 0.54f,
+                        0.46f * uiScale,
+                        textColor);
+                    render.GetTextHint().RenderText(
+                        wrappedText[1],
+                        textX,
+                        tabY + tabH * 0.31f,
+                        0.46f * uiScale,
+                        textColor);
+                }
+                else if (!wrappedText.empty())
+                {
+                    render.GetTextHint().RenderText(
+                        wrappedText[0],
+                        textX,
+                        tabY + tabH * 0.43f,
+                        0.56f * uiScale,
+                        textColor);
+                }
+            }
+            return;
+        }
+
+        if (render.IsTextReadyHint())
+        {
+            render.GetTextHint().RenderText(
+                text,
+                static_cast<float>(screenW) / 3.0f,
+                static_cast<float>(screenH) - 64.0f,
+                0.75f,
+                glm::vec3(1.0f, 0.2f, 0.2f));
+        }
     }
 }
 
