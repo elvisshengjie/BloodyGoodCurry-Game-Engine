@@ -26,12 +26,12 @@
           {
             "config": {
               "columns": 10,
-              "endFrame": 9,
+              "endFrame": 8,
               "fps": 18.0,
               "loop": false,
               "rows": 1,
               "startFrame": 0,
-              "totalFrames": 10
+              "totalFrames": 9
             },
             "currentFrame": 0,
             "name": "slashattack1",
@@ -41,12 +41,12 @@
           {
             "config": {
               "columns": 10,
-              "endFrame": 9,
+              "endFrame": 8,
               "fps": 18.0,
               "loop": false,
               "rows": 1,
               "startFrame": 0,
-              "totalFrames": 10
+              "totalFrames": 9
             },
             "currentFrame": 0,
             "name": "slamattack2",

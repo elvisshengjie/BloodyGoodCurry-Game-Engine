@@ -465,6 +465,10 @@ namespace mygame
             float targetVY = (dy / norm) * speed;
             rb->velX += (targetVX - rb->velX) * std::min(accel * ctx.dt, 1.0f);
             rb->velY += (targetVY - rb->velY) * std::min(accel * ctx.dt, 1.0f);
+            if (isNancie)
+                PlayAnim(enemy, "dash");
+            else
+                PlayAnim(enemy, "idle");
         }
         else
         {
