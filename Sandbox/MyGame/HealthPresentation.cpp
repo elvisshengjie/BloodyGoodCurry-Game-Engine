@@ -26,8 +26,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cctype>
 #include "Graphics/GLHeaders.h"
 #include <string>
+#include <string_view>
 #include <utility>
 
 namespace mygame {
@@ -87,6 +89,23 @@ namespace mygame {
                 gAimArrowTexture = Resource_Manager::getTexture(kTextureKey);
 
             return gAimArrowTexture;
+        }
+
+        bool EqualsIgnoreCase(std::string_view a, std::string_view b)
+        {
+            if (a.size() != b.size())
+                return false;
+
+            for (std::size_t i = 0; i < a.size(); ++i)
+            {
+                if (std::tolower(static_cast<unsigned char>(a[i])) !=
+                    std::tolower(static_cast<unsigned char>(b[i])))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /*************************************************************************************
@@ -320,17 +339,20 @@ namespace mygame {
             }
             healthRatio = std::clamp(healthRatio, 0.0f, 1.0f);
 
-            const float barWidth = viewportW * 0.05f;
-            const float barHeight = viewportH * 0.015f;
+            const bool isHeiBang = EqualsIgnoreCase(gocPtr->GetObjectName(), "heibang");
+            const float barWidth = isHeiBang ? viewportW * 0.34f : viewportW * 0.05f;
+            const float barHeight = isHeiBang ? viewportH * 0.04f : viewportH * 0.015f;
+            const float barCenterX = isHeiBang ? (viewportW * 0.5f) : screenPos.first;
+            const float barCenterY = isHeiBang ? (viewportH * 0.08f) : screenPos.second;
 
             gfx::Graphics::renderRectangleUI(
-                screenPos.first - barWidth * 0.5f, screenPos.second - barHeight * 0.5f,
+                barCenterX - barWidth * 0.5f, barCenterY - barHeight * 0.5f,
                 barWidth, barHeight,
                 0.2f, 0.2f, 0.2f, 1.0f,
                 viewportW, viewportH);
 
             gfx::Graphics::renderRectangleUI(
-                screenPos.first - barWidth * 0.5f, screenPos.second - barHeight * 0.5f,
+                barCenterX - barWidth * 0.5f, barCenterY - barHeight * 0.5f,
                 barWidth * healthRatio, barHeight,
                 0.0f, 1.0f, 0.0f, 1.0f,
                 viewportW, viewportH);

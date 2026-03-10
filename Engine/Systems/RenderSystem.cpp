@@ -513,15 +513,31 @@ namespace Framework {
     }
 
     /*************************************************************************************
-      \brief  Probe for a Roboto font file in common asset locations.
-      \return Absolute/relative path string to a usable Roboto .ttf, or empty if not found.
-      \details Tries several relative paths and ascends parents to locate assets/Fonts.
+      \brief  Probe for a UI font file in common asset locations.
+      \return Absolute/relative path string to a usable UI font, or empty if not found.
+      \details Prefers Providence Pro, then falls back to Roboto if needed.
     *************************************************************************************/
-    std::string RenderSystem::FindRoboto() const
+    std::string RenderSystem::FindUIFont() const
     {
         namespace fs = std::filesystem;
 
         const char* rels[] = {
+            "Assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "Assets/Textures/UI/FONTS/Providence Pro.otf",
+            "assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "assets/Textures/UI/FONTS/Providence Pro.otf",
+            "../Assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "../Assets/Textures/UI/FONTS/Providence Pro.otf",
+            "../assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "../assets/Textures/UI/FONTS/Providence Pro.otf",
+            "../../Assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "../../Assets/Textures/UI/FONTS/Providence Pro.otf",
+            "../../assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "../../assets/Textures/UI/FONTS/Providence Pro.otf",
+            "../../../Assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "../../../Assets/Textures/UI/FONTS/Providence Pro.otf",
+            "../../../assets/Textures/UI/FONTS/Providence Pro_Bold.otf",
+            "../../../assets/Textures/UI/FONTS/Providence Pro.otf",
             "Assets/Fonts/Roboto-Black.ttf",
             "Assets/Fonts/Roboto-Regular.ttf",
             "Assets/Fonts/Roboto-VariableFont_wdth,wght.ttf",
@@ -556,6 +572,12 @@ namespace Framework {
             "../../../assets/Fonts/Roboto-Italic-VariableFont_wdth,wght.ttf"
         };
         // Prefer resolved asset roots when available (packaged builds).
+        const auto resolvedProvidenceBold = Framework::ResolveAssetPath("Textures/UI/FONTS/Providence Pro_Bold.otf");
+        if (fs::exists(resolvedProvidenceBold))
+            return resolvedProvidenceBold.string();
+        const auto resolvedProvidence = Framework::ResolveAssetPath("Textures/UI/FONTS/Providence Pro.otf");
+        if (fs::exists(resolvedProvidence))
+            return resolvedProvidence.string();
         const auto resolvedBlack = Framework::ResolveAssetPath("Fonts/Roboto-Black.ttf");
         if (fs::exists(resolvedBlack))
             return resolvedBlack.string();
@@ -570,6 +592,10 @@ namespace Framework {
         std::vector<fs::path> roots{ fs::current_path(), Framework::GetExecutableDir() };
 
         auto try_pick = [&](const fs::path& fontsDir) -> std::string {
+            fs::path pb = fontsDir / "Providence Pro_Bold.otf";
+            if (fs::exists(pb)) return pb.string();
+            fs::path pr = fontsDir / "Providence Pro.otf";
+            if (fs::exists(pr)) return pr.string();
             fs::path rb = fontsDir / "Roboto-Black.ttf";
             if (fs::exists(rb)) return rb.string();
             fs::path rr = fontsDir / "Roboto-Regular.ttf";
@@ -580,6 +606,8 @@ namespace Framework {
                 {
                     if (!e.is_regular_file()) continue;
                     auto name = e.path().filename().string();
+                    if (name.rfind("Providence Pro", 0) == 0 && e.path().extension() == ".otf")
+                        return e.path().string();
                     if (name.rfind("Roboto", 0) == 0 && e.path().extension() == ".ttf")
                         return e.path().string();
                 }
@@ -592,7 +620,13 @@ namespace Framework {
             auto p = root;
             for (int up = 0; up < 7 && !p.empty(); ++up)
             {
-                auto base = p / "Assets" / "Fonts";
+                auto base = p / "Assets" / "Textures" / "UI" / "FONTS";
+                if (auto picked = try_pick(base); !picked.empty())
+                    return picked;
+                base = p / "assets" / "Textures" / "UI" / "FONTS";
+                if (auto picked = try_pick(base); !picked.empty())
+                    return picked;
+                base = p / "Assets" / "Fonts";
                 if (auto picked = try_pick(base); !picked.empty())
                     return picked;
                 base = p / "assets" / "Fonts";
@@ -2324,7 +2358,7 @@ namespace Framework {
 #if SOFASPUDS_ENABLE_EDITOR
         imguiLayoutPath = resolveData("imgui_layout.ini");
 #endif
-        if (auto fontPath = FindRoboto(); !fontPath.empty())
+        if (auto fontPath = FindUIFont(); !fontPath.empty())
         {
             std::cout << "[Text] Using font: " << fontPath << "\n";
             textTitle.initialize(fontPath.c_str(), screenW, screenH);
@@ -2334,7 +2368,7 @@ namespace Framework {
         }
         else
         {
-            std::cout << "[Text] Roboto not found. Text will be skipped.\n";
+            std::cout << "[Text] UI font not found. Text will be skipped.\n";
             textReadyTitle = textReadyHint = false;
         }
 
