@@ -17,7 +17,9 @@
 #include <algorithm>
 #include <cmath>
 
+#include "Component/SpriteAnimationComponent.h"
 #include "Component/TransformComponent.h"
+#include "Components/PlayerComponent.h"
 #include "Factory/Factory.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
@@ -31,9 +33,49 @@ namespace Framework {
     {
         constexpr float kCollisionEpsilon = 0.0005f;
 
+        bool EqualsIgnoreCase(std::string_view a, std::string_view b)
+        {
+            if (a.size() != b.size())
+                return false;
+
+            for (std::size_t i = 0; i < a.size(); ++i)
+            {
+                if (std::tolower(static_cast<unsigned char>(a[i])) !=
+                    std::tolower(static_cast<unsigned char>(b[i])))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         bool RangesOverlap(float minA, float maxA, float minB, float maxB)
         {
             return minA < maxB && maxA > minB;
+        }
+
+        bool IsPlayerBody(const GOC* obj)
+        {
+            return obj &&
+                obj->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent) != nullptr;
+        }
+
+        bool IsHeiBangDashing(const GOC* obj)
+        {
+            if (!obj || !EqualsIgnoreCase(obj->GetObjectName(), "heibang"))
+                return false;
+
+            auto* anim =
+                obj->GetComponentType<SpriteAnimationComponent>(ComponentTypeId::CT_SpriteAnimationComponent);
+            const auto* active = anim ? anim->ActiveAnimation() : nullptr;
+            return active && EqualsIgnoreCase(active->name, "dash");
+        }
+
+        bool ShouldIgnoreBodyCollision(const GOC* a, const GOC* b)
+        {
+            return (IsHeiBangDashing(a) && IsPlayerBody(b)) ||
+                (IsHeiBangDashing(b) && IsPlayerBody(a));
         }
     }
 
@@ -154,6 +196,8 @@ namespace Framework {
                 auto* trO = otherObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 if (!rbO || !trO)
                     continue;
+                if (ShouldIgnoreBodyCollision(obj.get(), otherObj.get()))
+                    continue;
 
                 const float otherHalfW = rbO->width * 0.5f;
                 const float otherHalfH = rbO->height * 0.5f;
@@ -202,6 +246,8 @@ namespace Framework {
                 auto* rbO = otherObj->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
                 auto* trO = otherObj->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
                 if (!rbO || !trO)
+                    continue;
+                if (ShouldIgnoreBodyCollision(obj.get(), otherObj.get()))
                     continue;
 
                 const float otherHalfW = rbO->width * 0.5f;

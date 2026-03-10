@@ -22,6 +22,7 @@
 
 #include "HealthSystem.h"
 #include "Factory/Factory.h"
+#include "Component/RenderComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include <algorithm>
 #include <cmath>
@@ -253,9 +254,20 @@ namespace Framework
                             float& timer = deathTimers[id];
                             auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
                                 ComponentTypeId::CT_SpriteAnimationComponent);
+                            const bool hasDeathAnimation = FindAnimationIndex(anim, "death") >= 0;
                             if (timer <= 0.0f)
                             {
-                                PlayAnimationIfAvailable(goc, "death");
+                                if (!hasDeathAnimation)
+                                {
+                                    if (auto* render = goc->GetComponentType<RenderComponent>(
+                                        ComponentTypeId::CT_RenderComponent))
+                                    {
+                                        render->visible = false;
+                                    }
+                                }
+
+                                if (hasDeathAnimation)
+                                    PlayAnimationIfAvailable(goc, "death");
                                 EmitCombatAudio(combatAudioCallback, goc, CombatAudioEvent::EnemyDeath);
                                 timer = std::max(AnimationDuration(anim, "death"), 0.2f);
                             }
@@ -264,7 +276,8 @@ namespace Framework
                                 timer = std::max(0.0f, timer - dt);
                             }
 
-                            const bool finished = anim ? IsAnimationFinished(anim, "death") : true;
+                            // Enemies without a death clip should still be removed once the timer expires.
+                            const bool finished = !hasDeathAnimation || IsAnimationFinished(anim, "death");
                             if (timer <= 0.0f && finished)
                             {
                                 FACTORY->Destroy(goc);
