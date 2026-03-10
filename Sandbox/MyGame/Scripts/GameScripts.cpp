@@ -546,6 +546,28 @@ namespace {
         if (!(tr && rc && rb && attack && health) || health->isDead)
             return;
 
+        // Loading transitions keep camera/animation updates alive, but gameplay control is
+        // intentionally blocked so the player settles into idle while the new level streams in.
+        if (mygame::IsGameplayInputBlocked())
+        {
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            rb->knockVelX = 0.0f;
+            rb->knockVelY = 0.0f;
+            rb->knockbackTime = 0.0f;
+            rb->lungeTime = 0.0f;
+            state.knockbackAnimTimer = 0.0f;
+            state.attackTimer = 0.0f;
+            state.attackDurationTotal = 0.0f;
+            state.pendingThrow.active = false;
+            state.pendingSlow.active = false;
+            state.throwRequestQueued = false;
+
+            SetAnimState(obj, state, PlayerAnimState::Idle);
+            attack->Update(dt, tr);
+            return;
+        }
+
         auto mouse = input.Manager().GetMouseState();
         float mouseWorldX = 0.0f;
         float mouseWorldY = 0.0f;

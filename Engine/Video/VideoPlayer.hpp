@@ -108,6 +108,12 @@ namespace Framework {
         *************************************************************************************/
         void Draw() const;
 
+        /*************************************************************************************
+          \brief Toggle near-black color-key composition for Draw().
+          \param enabled        True to route drawing through the color-key fullscreen shader.
+          \param thresholdLow   Lower smoothstep edge used for alpha generation.
+          \param thresholdHigh  Upper smoothstep edge used for alpha generation.
+        *************************************************************************************/
         void SetColorKeyEnabled(bool enabled, float thresholdLow = 0.02f, float thresholdHigh = 0.10f);
 
         /*************************************************************************************

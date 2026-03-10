@@ -228,6 +228,8 @@ namespace Framework {
 
         /// File path used during the last save/load operation.
         const std::filesystem::path& LastLevelPath() const { return LastLevelPathCache; }
+
+        /// Overwrite the cached "last loaded level" metadata after a staged/incremental load completes.
         void SetLastLevelMetadata(const std::filesystem::path& levelPath,
             const std::string& levelName,
             const std::vector<GOC*>& levelObjects);

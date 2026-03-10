@@ -52,9 +52,16 @@ namespace gfx {
         /**
          * \brief Draw fullscreen textured background.
          */
-       /* static void renderBackground();*/
+        /* static void renderBackground();*/
 
         static void renderFullscreenTexture(unsigned tex);
+
+        /**
+         * \brief Draw a fullscreen texture while fading near-black pixels to transparent.
+         * \param tex            GL texture handle.
+         * \param thresholdLow   Lower smoothstep edge for color-key alpha generation.
+         * \param thresholdHigh  Upper smoothstep edge for color-key alpha generation.
+         */
         static void renderFullscreenTextureColorKey(unsigned tex, float thresholdLow, float thresholdHigh);
 
         /**

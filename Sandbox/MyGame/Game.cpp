@@ -27,6 +27,7 @@
 #include "Debug/Perf.h"
 #include "Memory/GameObjectPool.h"
 #include "Memory/ObjectAllocator.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Video/VideoPlayer.hpp"
 #include <algorithm>
 #include <array>
@@ -41,6 +42,9 @@
 #include "EngineCall.hpp"
 #include "HealthPresentation.hpp"
 #include "LevelLoader.hpp"
+#include "Common/GameComponentIDs.h"
+#include "Components/EnemyComponent.h"
+#include "Components/PlayerComponent.h"
 #include "VfxPresets.hpp"
 
 #include "Common/CRTDebug.h"   
@@ -159,6 +163,7 @@ namespace mygame {
         bool cutsceneReady = false;
         bool cutsceneAudioPlaying = false;
         bool transitionReady = false;
+        bool loadingTransitionVideoEnabled = true;
         bool loadingTransitionSkipRequested = false;
         bool loadingTransitionResumeSimulation = true;
         GameState loadingTransitionNextState = GameState::PLAYING;
@@ -181,14 +186,64 @@ namespace mygame {
             std::cout << "[Allocator] Leak: block #" << blockIndex << " at " << block << "\n";
         }
 
+        /*************************************************************************************
+         \brief  Freezes gameplay actors that must not advance during the loading transition.
+         \details
+                 - Enemy velocities and knockback state are cleared every frame so AI/pathing
+                   cannot produce visible movement while the loader is active.
+                 - Player movement velocity is also zeroed, but the player object still goes
+                   through logic/camera updates so idle animation and follow-camera behavior remain live.
+        *************************************************************************************/
+        void FreezeLoadingTransitionActors()
+        {
+            if (!Framework::FACTORY)
+                return;
+
+            for (const auto& [id, obj] : Framework::FACTORY->Objects())
+            {
+                (void)id;
+                if (!obj)
+                    continue;
+
+                auto* body = obj->GetComponentType<Framework::RigidBodyComponent>(
+                    Framework::ComponentTypeId::CT_RigidBodyComponent);
+                if (!body)
+                    continue;
+
+                if (obj->GetComponentType<Framework::EnemyComponent>(mygame::CT_EnemyComponent()))
+                {
+                    body->velX = 0.0f;
+                    body->velY = 0.0f;
+                    body->knockVelX = 0.0f;
+                    body->knockVelY = 0.0f;
+                    body->knockbackTime = 0.0f;
+                }
+                else if (obj->GetComponentType<Framework::PlayerComponent>(mygame::CT_PlayerComponent()))
+                {
+                    body->velX = 0.0f;
+                    body->velY = 0.0f;
+                }
+            }
+        }
+
+        /*************************************************************************************
+         \brief  Enters the staged level-loading state machine and optionally starts the transition video.
+         \param  levelPath                 Level file to load.
+         \param  resumeSimulationAfterLoad Whether gameplay simulation should resume when loading finishes.
+         \param  nextStateAfterLoad        State to switch to once both loading and the video are done.
+         \param  playVideo                 True to show the transition video; false for editor-triggered loads.
+         \return True if the staged load was successfully started.
+        *************************************************************************************/
         bool StartGameplayLoadTransition(const std::filesystem::path& levelPath,
             bool resumeSimulationAfterLoad,
-            GameState nextStateAfterLoad = GameState::PLAYING)
+            GameState nextStateAfterLoad = GameState::PLAYING,
+            bool playVideo = true)
         {
             if (!gLogicSystem || levelPath.empty() || levelLoader.IsActive())
                 return false;
 
-            if (transitionReady) {
+            loadingTransitionVideoEnabled = playVideo && transitionReady;
+            if (loadingTransitionVideoEnabled) {
                 transitionPlayer.Start();
             }
 
@@ -198,7 +253,7 @@ namespace mygame {
                 return false;
             }
 
-            loadingTransitionSkipRequested = false;
+            loadingTransitionSkipRequested = !loadingTransitionVideoEnabled;
             loadingTransitionResumeSimulation = resumeSimulationAfterLoad;
             loadingTransitionNextState = nextStateAfterLoad;
             editorSimulationRunning = false;
@@ -411,14 +466,28 @@ namespace mygame {
             {
                 handlePerfToggle();
                 levelLoader.TickLoadStep(kLoadingObjectsPerTick);
+                UpdateHealthPresentationDelta(dt);
+                if (gLogicSystem)
+                    gLogicSystem->Update(dt);
+                FreezeLoadingTransitionActors();
+                if (gPhysicsSystem)
+                    gPhysicsSystem->Update(dt);
+                if (gHealthSystem)
+                    gHealthSystem->Update(dt);
+                if (gParticleSystem)
+                    gParticleSystem->Update(dt);
+                if (gZoomTriggerSystem)
+                    gZoomTriggerSystem->Update(dt);
 
-                if (transitionReady && !loadingTransitionSkipRequested && !transitionPlayer.IsFinished()) {
+                if (loadingTransitionVideoEnabled &&
+                    !loadingTransitionSkipRequested &&
+                    !transitionPlayer.IsFinished()) {
                     transitionPlayer.Update(dt);
                 }
 
                 const bool skipTransition = gInputSystem &&
                     (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
-                if (skipTransition) {
+                if (skipTransition && loadingTransitionVideoEnabled) {
                     loadingTransitionSkipRequested = true;
                 }
 
@@ -651,7 +720,9 @@ namespace mygame {
                 if (gRenderSystem) {
                     DrawHealthPresentation(*gRenderSystem);
                     gRenderSystem->BeginMenuFrame();
-                    if (transitionReady && !loadingTransitionSkipRequested && !transitionPlayer.IsFinished()) {
+                    if (loadingTransitionVideoEnabled &&
+                        !loadingTransitionSkipRequested &&
+                        !transitionPlayer.IsFinished()) {
                         transitionPlayer.Draw();
                     }
                     gRenderSystem->EndMenuFrame();
@@ -789,6 +860,10 @@ namespace mygame {
             Framework::FACTORY->Layers().LogVisibilitySummary("EditorStopSimulation");
     }
 
+    /*************************************************************************************
+     \brief  Requests a staged reload of the current gameplay level using the transition video.
+     \return True if the loading transition was started.
+    *************************************************************************************/
     bool RequestReloadLevel()
     {
         if (!gLogicSystem || !gLogicSystem->Factory())
@@ -798,15 +873,20 @@ namespace mygame {
         if (levelPath.empty())
             levelPath = gLogicSystem->ResolveDataPath("level.json");
 
-        return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING);
+        return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING, true);
     }
 
+    /*************************************************************************************
+     \brief  Requests a staged load of a specific gameplay level using the transition video.
+     \param  levelPath  Target level path to load.
+     \return True if the loading transition was started.
+    *************************************************************************************/
     bool RequestLoadLevel(const std::filesystem::path& levelPath)
     {
         if (!gLogicSystem || levelPath.empty())
             return false;
 
-        return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING);
+        return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING, true);
     }
 
     /*************************************************************************************
@@ -820,13 +900,23 @@ namespace mygame {
             return false;
 
         const bool beganLoad = StartGameplayLoadTransition(
-            levelPath, editorSimulationRunning, GameState::PLAYING);
+            levelPath, editorSimulationRunning, GameState::PLAYING, false);
         if (beganLoad)
         {
             ResetPlayerDefeat();
             ResetPlayerKeyCount();
         }
         return beganLoad;
+    }
+
+    /*************************************************************************************
+     \brief  Reports whether gameplay scripts should ignore player-driven controls this frame.
+     \details Used by game-side behaviours so camera/animation can continue updating while
+              combat and movement input stay disabled during the loading transition.
+    *************************************************************************************/
+    bool IsGameplayInputBlocked()
+    {
+        return currentState == GameState::LOADING_TRANSITION;
     }
 
 } // namespace mygame

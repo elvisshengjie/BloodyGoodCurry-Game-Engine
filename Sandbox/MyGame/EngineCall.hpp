@@ -120,4 +120,9 @@ namespace mygame {
     **************************************************************************************/
     bool RequestLoadLevel(const std::filesystem::path& levelPath);
 
+    /*************************************************************************************
+      \brief Returns whether gameplay input should be ignored by game-side scripts this frame.
+    **************************************************************************************/
+    bool IsGameplayInputBlocked();
+
 }
