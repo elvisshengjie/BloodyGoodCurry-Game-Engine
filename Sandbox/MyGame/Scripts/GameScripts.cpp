@@ -104,7 +104,7 @@ namespace {
     constexpr float kProjectileSpeed = 1.2f;
     constexpr float kProjectileLifetime = 0.80f;
     constexpr float kMeleeCooldown = 0.4f;
-    constexpr float kThrowCooldown = 1.2f;
+    constexpr float kThrowCooldown = 2.2f;
     /*****************************************************************************************
       \brief Slow down attack constants
     *****************************************************************************************/
@@ -114,7 +114,7 @@ namespace {
     constexpr float kSlowSpeedMultiplier = 0.35f;
     constexpr float kSlowEffectDuration = 2.5f;
     constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock â€” avoids bad sprite sheet fps giving huge values
-    constexpr float kSlowAttackCooldown = 0.9f;   ///< Total cooldown after slow attack fires
+    constexpr float kSlowAttackCooldown = 1.9f;   ///< Total cooldown after slow attack fires
     /*****************************************************************************************
       \enum PlayerAnimState
       \brief High-level animation state machine used by PlayerController.
