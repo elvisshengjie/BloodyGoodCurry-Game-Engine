@@ -2,143 +2,121 @@
   "GameObject": {
     "name": "nancie",
     "Components": {
-      "TransformComponent": {
-        "x": 0.0,
-        "y": 0.0,
-        "rot": 0.0
-      },
-      "RenderComponent": {
-        "w": 0.25,
-        "h": 0.25,
-        "r": 1,
-        "g": 1,
-        "b": 1,
-        "a": 1,
-        "layer": 1
-      },
-      "RigidBodyComponent": {
-        "velocity_x": 0.0,
-        "velocity_y": 0.0,
-        "width": 0.1,
-        "height": 0.21
-      },
-      "EnemyComponent": {},
-      "EnemyTypeComponent": { "type": "physical" },
-      "EnemyHealthComponent": {
-        "enemyHealth": 6,
-        "enemyMaxhealth": 6
-      },
-      "EnemyAttackComponent": {
-        "damage": 2,
-        "attack_speed": 1.2
-      },
-      "EnemyDecisionTreeComponent": {},
-      "BehaviorTreeComponent": {
-        "treeKey": "nancie"
-      },
+      "TransformComponent": { "x": 0.0, "y": 0.0, "rot": 0.0 },
+      "RenderComponent": { "w": 0.3, "h": 0.3, "r": 1, "g": 1, "b": 1, "a": 1 },
+      "SpriteComponent": { "texture_key": "nancie_idle" },
       "SpriteAnimationComponent": {
         "activeAnimation": 0,
         "animations": [
           {
-            "name": "idle",
-            "textureKey": "nancie_idle",
-            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Idle_Sprite.png",
-            "currentFrame": 0,
             "config": {
               "columns": 5,
-              "rows": 1,
-              "totalFrames": 5,
-              "startFrame": 0,
               "endFrame": 4,
               "fps": 8.0,
-              "loop": true
-            }
+              "loop": true,
+              "rows": 1,
+              "startFrame": 0,
+              "totalFrames": 5
+            },
+            "currentFrame": 0,
+            "name": "idle",
+            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Idle_Sprite.png",
+            "textureKey": "nancie_idle"
           },
           {
+            "config": {
+              "columns": 10,
+              "endFrame": 9,
+              "fps": 18.0,
+              "loop": false,
+              "rows": 1,
+              "startFrame": 0,
+              "totalFrames": 10
+            },
+            "currentFrame": 0,
             "name": "slashattack1",
-            "textureKey": "nancie_slash1",
             "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Slash Attack 1_Sprite.png",
-            "currentFrame": 0,
-            "config": {
-              "columns": 10,
-              "rows": 1,
-              "totalFrames": 10,
-              "startFrame": 0,
-              "endFrame": 9,
-              "fps": 18.0,
-              "loop": false
-            }
+            "textureKey": "nancie_slash1"
           },
           {
+            "config": {
+              "columns": 10,
+              "endFrame": 9,
+              "fps": 18.0,
+              "loop": false,
+              "rows": 1,
+              "startFrame": 0,
+              "totalFrames": 10
+            },
+            "currentFrame": 0,
             "name": "slamattack2",
-            "textureKey": "nancie_slam2",
             "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Slam Attack 2_Sprite.png",
-            "currentFrame": 0,
-            "config": {
-              "columns": 10,
-              "rows": 1,
-              "totalFrames": 10,
-              "startFrame": 0,
-              "endFrame": 9,
-              "fps": 18.0,
-              "loop": false
-            }
+            "textureKey": "nancie_slam2"
           },
           {
-            "name": "knockback",
-            "textureKey": "nancie_knockback",
-            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Knockback_Sprite.png",
-            "currentFrame": 0,
             "config": {
               "columns": 5,
-              "rows": 1,
-              "totalFrames": 5,
-              "startFrame": 0,
               "endFrame": 4,
               "fps": 10.0,
-              "loop": false
-            }
+              "loop": false,
+              "rows": 1,
+              "startFrame": 0,
+              "totalFrames": 5
+            },
+            "currentFrame": 0,
+            "name": "knockback",
+            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Knockback_Sprite.png",
+            "textureKey": "nancie_knockback"
           },
           {
-            "name": "dash",
-            "textureKey": "nancie_dash",
-            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Dash_Sprite.png",
-            "currentFrame": 0,
             "config": {
               "columns": 3,
-              "rows": 1,
-              "totalFrames": 3,
-              "startFrame": 0,
               "endFrame": 2,
               "fps": 10.0,
-              "loop": true
-            }
+              "loop": true,
+              "rows": 1,
+              "startFrame": 0,
+              "totalFrames": 3
+            },
+            "currentFrame": 0,
+            "name": "dash",
+            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Dash_Sprite.png",
+            "textureKey": "nancie_dash"
           },
           {
-            "name": "death",
-            "textureKey": "nancie_death",
-            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Death_Sprite.png",
-            "currentFrame": 0,
             "config": {
               "columns": 20,
-              "rows": 1,
-              "totalFrames": 20,
-              "startFrame": 0,
               "endFrame": 19,
               "fps": 12.0,
-              "loop": false
-            }
+              "loop": false,
+              "rows": 1,
+              "startFrame": 0,
+              "totalFrames": 20
+            },
+            "currentFrame": 0,
+            "name": "death",
+            "spriteSheetPath": "../../Assets/Textures/Character/Nancie_Sprite/Death_Sprite.png",
+            "textureKey": "nancie_death"
           }
         ],
         "fps": 8.0,
+        "frames": [],
         "loop": true,
         "play": true
       },
-      "HitBoxComponent": {
-        "width": 0.15,
-        "height": 0.15,
-        "duration": 0.15
+      "RigidBodyComponent": { "velocity_x": 0, "velocity_y": 0, "width": 0.1, "height": 0.21 },
+      "EnemyComponent": {},
+      "EnemyAttackComponent": {
+        "damage": 2,
+        "attack_speed": 1.2
       },
+      "EnemyHealthComponent": {
+        "enemyHealth": 6,
+        "enemyMaxhealth": 6
+      },
+      "EnemyDecisionTreeComponent": {},
+      "BehaviorTreeComponent": { "treeType": "nancie" },
+      "EnemyTypeComponent": { "type": "neutral" },
       "AudioComponent": {
         "sounds": {
           "Slash1": { "id": "Slash1", "loop": false, "spatial": true },
