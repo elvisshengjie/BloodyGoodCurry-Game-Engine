@@ -119,10 +119,11 @@
       "EnemyTypeComponent": { "type": "neutral" },
       "AudioComponent": {
         "sounds": {
-          "Slash1": { "id": "Slash1", "loop": false, "spatial": true },
-          "Slash2": { "id": "Slash2", "loop": false, "spatial": true },
-          "Punch1": { "id": "Punch1", "loop": false, "spatial": true },
-          "Punch2": { "id": "Punch2", "loop": false, "spatial": true }
+        "GhostHurt1": { "id": "GhostHurt1", "loop": false, "spatial": true },
+        "GhostHurt2": { "id": "GhostHurt2", "loop": false, "spatial": true },
+        "GhostHurt3": { "id": "GhostHurt3", "loop": false, "spatial": true },
+        "WaterGhostAttack": { "id": "WaterGhostAttack", "loop": false, "spatial": true },
+        "WaterGhostExplosion": { "id": "WaterGhostExplosion", "loop": false, "spatial": true }
         },
         "volume": 1.0
       }
