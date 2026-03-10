@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      GameScripts.cpp
  \par       SofaSpuds
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
@@ -23,7 +23,7 @@
             - gPlayerStates           : Per-player controller state keyed by object ID.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -113,7 +113,7 @@ namespace {
     constexpr float kSlowAttackDamage = 0.0f;
     constexpr float kSlowSpeedMultiplier = 0.35f;
     constexpr float kSlowEffectDuration = 2.5f;
-    constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock — avoids bad sprite sheet fps giving huge values
+    constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock â€” avoids bad sprite sheet fps giving huge values
     constexpr float kSlowAttackCooldown = 0.9f;   ///< Total cooldown after slow attack fires
     /*****************************************************************************************
       \enum PlayerAnimState
@@ -235,7 +235,7 @@ namespace {
       \return Animation index if found, otherwise -1.
 
       \details
-      This maps PlayerAnimState → animation name string:
+      This maps PlayerAnimState â†’ animation name string:
       idle/run/attack1/attack2/attack3/throw/knockback/death.
     *****************************************************************************************/
     int AnimationIndexForState(const Framework::SpriteAnimationComponent* comp, PlayerAnimState state)
@@ -545,6 +545,28 @@ namespace {
 
         if (!(tr && rc && rb && attack && health) || health->isDead)
             return;
+
+        // Loading transitions keep camera/animation updates alive, but gameplay control is
+        // intentionally blocked so the player settles into idle while the new level streams in.
+        if (mygame::IsGameplayInputBlocked())
+        {
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            rb->knockVelX = 0.0f;
+            rb->knockVelY = 0.0f;
+            rb->knockbackTime = 0.0f;
+            rb->lungeTime = 0.0f;
+            state.knockbackAnimTimer = 0.0f;
+            state.attackTimer = 0.0f;
+            state.attackDurationTotal = 0.0f;
+            state.pendingThrow.active = false;
+            state.pendingSlow.active = false;
+            state.throwRequestQueued = false;
+
+            SetAnimState(obj, state, PlayerAnimState::Idle);
+            attack->Update(dt, tr);
+            return;
+        }
 
         auto mouse = input.Manager().GetMouseState();
         float mouseWorldX = 0.0f;
@@ -1138,7 +1160,7 @@ namespace {
       - No remaining enemies exist.
       - Player is alive.
       - Player AABB overlaps gate AABB.
-      Then it resolves GateTargetComponent.levelPath (relative → data path) and calls
+      Then it resolves GateTargetComponent.levelPath (relative â†’ data path) and calls
       LogicSystem::LoadLevel(). A guard flag prevents repeated triggers.
     *****************************************************************************************/
     void GateLogic_Update(Framework::GameObjectComposition* gateObject, float)
@@ -1164,8 +1186,7 @@ namespace {
         if (!ResolveGateTargetPath(gateObject, targetPath))
             return;
 
-        gPendingGateTransition = true;
-        gLogicSystem->LoadLevel(targetPath);
+        gPendingGateTransition = mygame::RequestLoadLevel(targetPath);
     }
 
     /*****************************************************************************************
@@ -1218,8 +1239,7 @@ namespace {
         if (!ResolveGateTargetPath(doorObject, targetPath))
             return;
 
-        gPendingGateTransition = true;
-        gLogicSystem->LoadLevel(targetPath);
+        gPendingGateTransition = mygame::RequestLoadLevel(targetPath);
     }
 
     /*****************************************************************************************
@@ -1325,6 +1345,30 @@ namespace mygame {
         hudState.talisman.duration = std::max(kSlowAttackCooldown, hudState.talisman.remaining);
 
         return hudState;
+    }
+
+    PlayerAimIndicatorState GetPlayerAimIndicatorState(const Framework::GameObjectComposition* player)
+    {
+        PlayerAimIndicatorState aimState{};
+        if (!player)
+            return aimState;
+
+        const auto it = gPlayerStates.find(player->GetId());
+        if (it == gPlayerStates.end())
+            return aimState;
+
+        const PlayerControllerState& state = it->second;
+        const float dirLenSq =
+            state.lastAimDirX * state.lastAimDirX +
+            state.lastAimDirY * state.lastAimDirY;
+
+        if (dirLenSq <= 1e-6f)
+            return aimState;
+
+        aimState.valid = true;
+        aimState.dirX = state.lastAimDirX;
+        aimState.dirY = state.lastAimDirY;
+        return aimState;
     }
 
     /*****************************************************************************************

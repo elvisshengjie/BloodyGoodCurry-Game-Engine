@@ -52,9 +52,17 @@ namespace gfx {
         /**
          * \brief Draw fullscreen textured background.
          */
-       /* static void renderBackground();*/
+        /* static void renderBackground();*/
 
         static void renderFullscreenTexture(unsigned tex);
+
+        /**
+         * \brief Draw a fullscreen texture while fading near-black pixels to transparent.
+         * \param tex            GL texture handle.
+         * \param thresholdLow   Lower smoothstep edge for color-key alpha generation.
+         * \param thresholdHigh  Upper smoothstep edge for color-key alpha generation.
+         */
+        static void renderFullscreenTextureColorKey(unsigned tex, float thresholdLow, float thresholdHigh);
 
         /**
          * \brief Configure the active camera view/projection used for world-space rendering.
@@ -176,6 +184,7 @@ namespace gfx {
 
         // Programs
         static unsigned int bgShader;
+        static unsigned int bgColorKeyShader;
         static unsigned int objectShader;
         static unsigned int VAO_sprite, VBO_sprite, EBO_sprite;
         static unsigned int spriteShader;

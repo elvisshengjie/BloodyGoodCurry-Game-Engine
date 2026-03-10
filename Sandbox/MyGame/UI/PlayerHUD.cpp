@@ -122,12 +122,12 @@ namespace Framework
         texBottleFull = LoadTexture("hud_bottle", "Textures/UI/Health Bar/Health_Life.png");
         texBottleBreak = LoadTexture("hud_bottle_break", "Textures/UI/Health Bar/Broken_Life_VFX_Sprite.png");
         texBottleBroken = LoadTexture("hud_bottle_broken", "Textures/UI/Health Bar/Health_BrokenLife.png");
-        texMeleeReady = LoadTexture("hud_melee_ready", "Textures/UI/No melee.png");
-        texMeleeCooldown = LoadTexture("hud_melee_cooldown", "Textures/UI/Melee.png");
-        texRangeReady = LoadTexture("hud_range_ready", "Textures/UI/No range.png");
-        texRangeCooldown = LoadTexture("hud_range_cooldown", "Textures/UI/Range.png");
-        texTalismanReady = LoadTexture("hud_talisman_ready", "Textures/UI/No tailsman.png");
-        texTalismanCooldown = LoadTexture("hud_talisman_cooldown", "Textures/UI/Tailsman.png");
+        texMeleeReady = LoadTexture("hud_melee_ready", "Textures/UI/Melee.png");
+        texMeleeCooldown = LoadTexture("hud_melee_cooldown", "Textures/UI/No melee.png");
+        texRangeReady = LoadTexture("hud_range_ready", "Textures/UI/Range.png");
+        texRangeCooldown = LoadTexture("hud_range_cooldown", "Textures/UI/No range.png");
+        texTalismanReady = LoadTexture("hud_talisman_ready", "Textures/UI/Tailsman.png");
+        texTalismanCooldown = LoadTexture("hud_talisman_cooldown", "Textures/UI/No tailsman.png");
         texBubble1 = LoadTexture("hud_bubble_1", "Textures/UI/Bubble count/Bubble1.png");
         texBubble1Appear = LoadTexture("hud_bubble_1_appear", "Textures/UI/Bubble count/Bubble1_appear.png");
         texBubble1Pop = LoadTexture("hud_bubble_1_pop", "Textures/UI/Bubble count/Bubble1_pop.png");
@@ -342,7 +342,7 @@ namespace Framework
     {
         if (ready || duration <= 0.0f || remaining <= 0.0f)
         {
-            iconState.cooldownBlend = 0.0f;
+            iconState.cooldownBlend = 1.0f;
             return;
         }
 
@@ -482,8 +482,8 @@ namespace Framework
         const float iconGap = 18.0f * scaleFactor;
         const float iconX = panelX + ((panelWidth - iconSize) * 0.5f);
         const float iconTopY = panelY + panelHeight - iconSize - (18.0f * scaleFactor);
-        constexpr float kReadyIconScale = 1.0f;
-        constexpr float kCooldownIconScale = 1.10f;
+        constexpr float kOrangeIconScale = 1.10f;
+        constexpr float kNonOrangeIconScale = 0.92f;
 
         for (std::size_t i = 0; i < abilityIcons.size(); ++i)
         {
@@ -546,16 +546,16 @@ namespace Framework
 
             if (cooldownBlend <= 0.0f)
             {
-                drawCenteredIcon(icon.readyTexture, 1.0f, kReadyIconScale);
+                drawCenteredIcon(icon.cooldownTexture, 1.0f, kNonOrangeIconScale);
             }
             else if (cooldownBlend >= 1.0f)
             {
-                drawCenteredIcon(icon.cooldownTexture, 1.0f, kCooldownIconScale);
+                drawCenteredIcon(icon.readyTexture, 1.0f, kOrangeIconScale);
             }
             else
             {
-                drawPartialIcon(icon.readyTexture, kReadyIconScale, cooldownBlend, 1.0f - cooldownBlend);
-                drawPartialIcon(icon.cooldownTexture, kCooldownIconScale, 0.0f, cooldownBlend);
+                drawPartialIcon(icon.cooldownTexture, kNonOrangeIconScale, cooldownBlend, 1.0f - cooldownBlend);
+                drawPartialIcon(icon.readyTexture, kOrangeIconScale, 0.0f, cooldownBlend);
             }
 
             if (bubbleState.displayedCount > 0)

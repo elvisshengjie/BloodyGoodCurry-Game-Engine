@@ -34,6 +34,8 @@
 #include "EnemyConditions.h" 
 #include <cmath>
 #include <algorithm>
+#include <array>
+#include <utility>
 #include <cctype>
 #include <string_view>
 
@@ -286,6 +288,17 @@ namespace mygame
         float dy = trPlayer->y - tr->y;
         float distance = std::sqrt(dx * dx + dy * dy);
 
+        std::string enemyName = enemy->GetObjectName();
+        std::transform(enemyName.begin(), enemyName.end(), enemyName.begin(),
+            [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        const bool isHeiBang = (enemyName == "heibang");
+
+        static constexpr std::array<std::pair<float, float>, 3> kHeiBangAttackPoints{ {
+            {0.704178f, -1.02655f},
+            {1.21166f, -2.18211f},
+            {1.61999f, -1.57658f}
+        } };
+
         if (attack->hitbox->active)
         {
             rb->velX = 0.0f;
@@ -296,6 +309,67 @@ namespace mygame
                 attack->hitbox->active = false;
                 attack->hitboxElapsed = 0.0f;
                 PlayAnim(enemy, "idle");
+                if (isHeiBang)
+                    ai->currentPathIndex = (ai->currentPathIndex + 1) % kHeiBangAttackPoints.size();
+            }
+            return;
+        }
+
+        if (isHeiBang)
+        {
+            if (ai->currentPathIndex >= kHeiBangAttackPoints.size())
+                ai->currentPathIndex = 0;
+
+            const auto [targetX, targetY] = kHeiBangAttackPoints[ai->currentPathIndex];
+            float pDx = targetX - tr->x;
+            float pDy = targetY - tr->y;
+            float pointDistance = std::sqrt(pDx * pDx + pDy * pDy);
+
+            constexpr float dashSpeed = 2.6f;
+            constexpr float pointArriveDist = 0.08f;
+            if (pointDistance > pointArriveDist)
+            {
+                float pointNorm = (pointDistance > 0.001f) ? pointDistance : 1.0f;
+                rb->velX = (pDx / pointNorm) * dashSpeed;
+                rb->velY = (pDy / pointNorm) * dashSpeed;
+                PlayAnim(enemy, "dash");
+                ApplySlow(enemy, rb, ctx.dt);
+                return;
+            }
+
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+            ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
+            attack->attack_timer += ctx.dt;
+            if (attack->attack_timer >= attack->attack_speed)
+            {
+                attack->attack_timer = 0.0f;
+                if (ctx.spawnHitBox)
+                {
+                    attack->hitbox->active = true;
+                    attack->hitboxElapsed = 0.0f;
+                    const float direction = (ai->facing == Framework::Facing::LEFT) ? -1.0f : 1.0f;
+                    const float hbWidth = rb->width * 1.2f;
+                    const float hbHeight = rb->height * 0.8f;
+                    const float spawnX = tr->x + (direction * hbWidth * 0.25f);
+                    const float spawnY = tr->y;
+
+                    static constexpr std::array<std::string_view, 3> kHeiBangAttackAnims{
+                        "attack1", "attack2", "attack3"
+                    };
+                    const std::string attackAnim = std::string(kHeiBangAttackAnims[ai->currentPathIndex]);
+                    attack->hitbox->duration = GetAnimDuration(enemy, attackAnim);
+                    ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
+                        static_cast<float>(attack->damage),
+                        attack->hitbox->duration, 0.0f);
+
+                    if (audio)
+                    {
+                        GameAudio gameAudio(audio, GameAudio::Entity::Enemy);
+                        gameAudio.PlayAttack(tr->x, tr->y);
+                    }
+                    PlayAnim(enemy, attackAnim);
+                }
             }
             return;
         }

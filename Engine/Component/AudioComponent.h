@@ -44,15 +44,17 @@ namespace Framework
       \struct SoundInfo
       \brief  Lightweight metadata for a single registered sound.
 
-      \var id    The asset identifier used by SoundManager to locate and play the sound.
-      \var loop     Whether the sound should loop on playback.
-      \var spatial  Whether the sound should be treated as spatial/3D audio.
+      \var id      The asset identifier used by SoundManager to locate and play the sound.
+      \var loop    Whether the sound should loop on playback.
+      \var spatial Whether the sound should be treated as spatial/3D audio.
+      \var volume  Per-action volume multiplier applied on top of the component volume.
     *****************************************************************************************/
     struct SoundInfo
     {
         std::string id;
         bool        loop{ false };
         bool spatial { false };
+        float volume{ 1.0f };
     };
 
     /*****************************************************************************************
@@ -164,10 +166,17 @@ namespace Framework
           \param id      Asset identifier forwarded to SoundManager.
           \param loop     True if the sound should loop when played.
           \param spatial  True if the sound should be treated as spatial/3D audio.
+          \param actionVolume Per-action volume multiplier applied on playback.
         *************************************************************************************/
-        void AddSound(const std::string& action, const std::string& id, bool loop = false, bool spatial = false)
+        void AddSound(const std::string& action, const std::string& id,
+            bool loop = false, bool spatial = false, float actionVolume = 1.0f)
         {
-            m_sounds[action] = { id, loop, spatial };
+            SoundInfo info{};
+            info.id = id;
+            info.loop = loop;
+            info.spatial = spatial;
+            info.volume = actionVolume;
+            m_sounds[action] = info;
             m_playing[action] = false;
         }
 
@@ -223,7 +232,8 @@ namespace Framework
             if (it == m_sounds.end())                                      return;
             if (!SoundManager::getInstance().isSoundLoaded(it->second.id)) return;
 
-            SoundManager::getInstance().playSound(it->second.id, volume, 1.0f, it->second.loop);
+            const float playbackVolume = volume * it->second.volume;
+            SoundManager::getInstance().playSound(it->second.id, playbackVolume, 1.0f, it->second.loop);
             m_playing[action] = true;
 
             if (is3D)
@@ -334,7 +344,7 @@ namespace Framework
 
           \details  The JSON "sounds" block is the single source of truth for which clips
                     this component owns. Each key in the block becomes a logical action name;
-                    its "id" and "loop" fields populate the SoundInfo entry.
+                    its "id", "loop", and optional "volume" fields populate the SoundInfo entry.
 
           \param s  Reference to the serializer.
         *************************************************************************************/
@@ -357,6 +367,7 @@ namespace Framework
                     StreamRead(s, "id", info.id);
                     if (s.HasKey("loop"))    StreamRead(s, "loop", info.loop);
                     if (s.HasKey("spatial")) StreamRead(s, "spatial", info.spatial);
+                    if (s.HasKey("volume"))  StreamRead(s, "volume", info.volume);
 
                     m_sounds[action] = std::move(info);
                     m_playing[action] = false;

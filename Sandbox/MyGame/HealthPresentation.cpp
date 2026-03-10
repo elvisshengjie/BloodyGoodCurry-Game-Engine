@@ -11,6 +11,7 @@
 *********************************************************************************************/
 #include "HealthPresentation.hpp"
 
+#include "EngineCall.hpp"
 #include "Factory/Factory.h"
 #include "Components/PlayerHUD.h"
 #include "Core/PathUtils.h"
@@ -30,15 +31,13 @@
 #include <utility>
 
 namespace mygame {
-    int GetPlayerKeyCount();
-}
-
-namespace mygame {
     namespace {
         bool gPlayerDefeated = false;
         float gLastHealthUiDt = 0.0f;
         unsigned gKeyUiTexture = 0u;
         bool gTriedLoadKeyUiTexture = false;
+        unsigned gAimArrowTexture = 0u;
+        bool gTriedLoadAimArrowTexture = false;
 
         /*************************************************************************************
          \brief  Lazily loads and returns the key UI icon texture.
@@ -63,6 +62,31 @@ namespace mygame {
                 gKeyUiTexture = Resource_Manager::getTexture(kTextureKey);
 
             return gKeyUiTexture;
+        }
+
+        /*************************************************************************************
+         \brief  Lazily loads and returns the world-space aim arrow texture.
+         \return OpenGL texture id, or 0 when loading fails.
+        *************************************************************************************/
+        unsigned ResolveAimArrowTexture()
+        {
+            if (gAimArrowTexture != 0u || gTriedLoadAimArrowTexture)
+                return gAimArrowTexture;
+
+            gTriedLoadAimArrowTexture = true;
+            constexpr const char* kTextureKey = "hud_aim_arrow";
+
+            if (const unsigned cached = Resource_Manager::getTexture(kTextureKey))
+            {
+                gAimArrowTexture = cached;
+                return gAimArrowTexture;
+            }
+
+            const std::string texturePath = Framework::ResolveAssetPath("Textures/UI/Arrow.png").string();
+            if (Resource_Manager::load(kTextureKey, texturePath))
+                gAimArrowTexture = Resource_Manager::getTexture(kTextureKey);
+
+            return gAimArrowTexture;
         }
 
         /*************************************************************************************
@@ -118,6 +142,55 @@ namespace mygame {
             const float x = (ndc.x * 0.5f + 0.5f) * screenW;
             const float y = (ndc.y * 0.5f + 0.5f) * screenH;
             return { x, y };
+        }
+
+        /*************************************************************************************
+         \brief  Draws an aim arrow orbiting around the player using the current aim direction.
+         \param  render          Active render system.
+         \param  player          Player object composition.
+         \param  transform       Player transform.
+         \param  renderComponent Player render component for size/orbit estimates.
+        *************************************************************************************/
+        void DrawPlayerAimArrow(Framework::RenderSystem& render,
+            Framework::GameObjectComposition* player,
+            Framework::TransformComponent* transform,
+            Framework::RenderComponent* renderComponent)
+        {
+            if (!(player && transform))
+                return;
+
+            const mygame::PlayerAimIndicatorState aimState =
+                mygame::GetPlayerAimIndicatorState(player);
+            if (!aimState.valid)
+                return;
+
+            const unsigned arrowTexture = ResolveAimArrowTexture();
+            if (arrowTexture == 0u)
+                return;
+
+            const float halfW = renderComponent
+                ? std::max(0.05f, std::abs(renderComponent->w * transform->scaleX) * 0.5f)
+                : 0.12f;
+            const float halfH = renderComponent
+                ? std::max(0.05f, std::abs(renderComponent->h * transform->scaleY) * 0.5f)
+                : 0.12f;
+
+            const float orbitRadius = std::max(halfW, halfH) + 0.04f;
+            const float arrowX = transform->x + aimState.dirX * orbitRadius;
+            const float arrowY = transform->y + aimState.dirY * orbitRadius;
+            const float arrowRotation = std::atan2(aimState.dirY, aimState.dirX);
+            const float arrowScale = std::max(halfW, halfH) * 0.92f;
+
+            gfx::Graphics::setViewProjection(glm::mat4(1.0f), render.GetWorldViewProjectionMatrix());
+            gfx::Graphics::renderSprite(
+                arrowTexture,
+                arrowX,
+                arrowY,
+                arrowRotation,
+                arrowScale,
+                arrowScale,
+                1.0f, 1.0f, 1.0f, 1.0f);
+            gfx::Graphics::resetViewProjection();
         }
     } // namespace
 
@@ -199,6 +272,13 @@ namespace mygame {
                 Framework::ComponentTypeId::CT_PlayerHUDComponent);
             if (!hud)
                 continue;
+
+            auto* transform = gocPtr->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            auto* renderComponent = gocPtr->GetComponentType<Framework::RenderComponent>(
+                Framework::ComponentTypeId::CT_RenderComponent);
+
+            DrawPlayerAimArrow(render, gocPtr.get(), transform, renderComponent);
 
             hud->Update(gLastHealthUiDt);
             hud->Draw(viewportW, viewportH);

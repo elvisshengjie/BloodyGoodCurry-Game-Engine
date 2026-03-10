@@ -18,7 +18,7 @@
             - Stop() is responsible for releasing both resources safely.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -180,9 +180,24 @@ namespace Framework {
     *************************************************************************************/
     void VideoPlayer::Draw() const
     {
-        if (textureId) {
+        if (!textureId) {
+            return;
+        }
+
+        if (colorKeyEnabled) {
+            gfx::Graphics::renderFullscreenTextureColorKey(
+                textureId, colorKeyThresholdLow, colorKeyThresholdHigh);
+        }
+        else {
             gfx::Graphics::renderFullscreenTexture(textureId);
         }
+    }
+
+    void VideoPlayer::SetColorKeyEnabled(bool enabled, float thresholdLow, float thresholdHigh)
+    {
+        colorKeyEnabled = enabled;
+        colorKeyThresholdLow = thresholdLow;
+        colorKeyThresholdHigh = std::max(thresholdHigh, thresholdLow);
     }
 
     /*************************************************************************************

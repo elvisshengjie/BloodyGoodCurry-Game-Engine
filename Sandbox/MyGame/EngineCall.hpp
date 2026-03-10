@@ -1,4 +1,4 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      EngineCall.hpp
  \par       SofaSpuds
  \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
@@ -13,10 +13,12 @@
             the engine remains generic.
 
  \copyright
-            All content © 2025 DigiPen Institute of Technology Singapore.
+            All content Â© 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
+
+#include <filesystem>
 
 namespace Framework {
     class AiSystem;
@@ -41,12 +43,19 @@ namespace mygame {
         AbilityCooldownUiState talisman{};
     };
 
+    struct PlayerAimIndicatorState
+    {
+        bool valid{ false };
+        float dirX{ 1.0f };
+        float dirY{ 0.0f };
+    };
+
     /*************************************************************************************
       \brief Registers all game behaviours/scripts with the engine's LogicSystem.
       \param logic Reference to the engine LogicSystem used for behaviour orchestration.
 
       \details
-      This is the main entry point from engine → game layer for behaviour setup.
+      This is the main entry point from engine â†’ game layer for behaviour setup.
       Implementations typically:
       - Bind any required script context into the LogicSystem.
       - Register behaviour keys to their Init/Update/End callbacks.
@@ -91,8 +100,29 @@ namespace mygame {
     PlayerAbilityHudState GetPlayerAbilityHudState(const Framework::GameObjectComposition* player);
 
     /*************************************************************************************
+      \brief Returns the current aim direction used for player-facing presentation.
+      \param player Player object to query.
+    **************************************************************************************/
+    PlayerAimIndicatorState GetPlayerAimIndicatorState(const Framework::GameObjectComposition* player);
+
+    /*************************************************************************************
       \brief Clears player key inventory and key-door runtime unlock state.
     **************************************************************************************/
     void ResetPlayerKeyCount();
+
+    /*************************************************************************************
+      \brief Requests an incremental reload of the currently active level.
+    **************************************************************************************/
+    bool RequestReloadLevel();
+
+    /*************************************************************************************
+      \brief Requests an incremental load of the specified level through the game state machine.
+    **************************************************************************************/
+    bool RequestLoadLevel(const std::filesystem::path& levelPath);
+
+    /*************************************************************************************
+      \brief Returns whether gameplay input should be ignored by game-side scripts this frame.
+    **************************************************************************************/
+    bool IsGameplayInputBlocked();
 
 }
