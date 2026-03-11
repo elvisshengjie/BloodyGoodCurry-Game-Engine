@@ -22,6 +22,7 @@
 #include "Components/EnemyTypeComponent.h"
 #include "Components/EnemyHealthComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
+#include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/AudioComponent.h"
@@ -208,6 +209,28 @@ namespace mygame
         }
     }
 
+    inline void FaceTargetHorizontally(
+        Framework::GOC* enemy,
+        Framework::EnemyDecisionTreeComponent* ai,
+        float dx)
+    {
+        if (!enemy || !ai || std::fabs(dx) <= 0.001f)
+            return;
+
+        ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
+
+        auto* render = enemy->GetComponentType<Framework::RenderComponent>(
+            Framework::ComponentTypeId::CT_RenderComponent);
+        if (!render)
+            return;
+
+        const float width = std::fabs(render->w);
+        if (width <= 0.0f)
+            return;
+
+        render->w = (ai->facing == Framework::Facing::LEFT) ? -width : width;
+    }
+
     /*****************************************************************************************
       \brief AI action: moves the enemy back and forth along a fixed horizontal patrol range.
       \param ctx BehaviorContext containing owner, dt, and blackboard.
@@ -353,6 +376,9 @@ namespace mygame
             {1.21166f, -2.18211f},
             {1.61999f, -1.57658f}
         } };
+
+        if (isNancie)
+            FaceTargetHorizontally(enemy, ai, dx);
 
         if (attack->hitbox->active)
         {
