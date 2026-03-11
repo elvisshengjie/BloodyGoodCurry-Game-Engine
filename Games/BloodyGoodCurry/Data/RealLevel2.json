@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 148.10787963867188,
-            "y": 147.8480224609375
+            "x": 163.8892059326172,
+            "y": 163.6293487548828
           }
         },
         "layer": "Gameplay:0",
@@ -58,91 +58,135 @@
             "sounds": {
               "ConcreteFootsteps1": {
                 "id": "ConcreteFootsteps1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps2": {
                 "id": "ConcreteFootsteps2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps3": {
                 "id": "ConcreteFootsteps3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps4": {
                 "id": "ConcreteFootsteps4",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps5": {
                 "id": "ConcreteFootsteps5",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "ConcreteFootsteps6": {
                 "id": "ConcreteFootsteps6",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot1": {
                 "id": "GrappleShoot1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot2": {
                 "id": "GrappleShoot2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot3": {
                 "id": "GrappleShoot3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "GrappleShoot4": {
                 "id": "GrappleShoot4",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Ineffective Boink1": {
                 "id": "Ineffective Boink1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Ineffective Boink2": {
                 "id": "Ineffective Boink2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Ineffective Boink3": {
                 "id": "Ineffective Boink3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "PlayerDead": {
                 "id": "PlayerDead",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "PlayerHit": {
                 "id": "PlayerHit",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch1": {
                 "id": "Punch1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch2": {
                 "id": "Punch2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch3": {
                 "id": "Punch3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Punch4": {
                 "id": "Punch4",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Slash1": {
                 "id": "Slash1",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Slash2": {
                 "id": "Slash2",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               },
               "Slash3": {
                 "id": "Slash3",
-                "loop": false
+                "loop": false,
+                "spatial": false,
+                "volume": 1.0
               }
             },
             "volume": 1.0
@@ -183,7 +227,7 @@
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 2,
+            "activeAnimation": 0,
             "animations": [
               {
                 "config": {
@@ -210,7 +254,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 6,
+                "currentFrame": 8,
                 "name": "run",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -225,7 +269,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 1,
+                "currentFrame": 12,
                 "name": "attack1",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -312,14 +356,14 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "attack1_sheet"
+            "texture_key": "idle_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.12327881157398224,
-            "y": -1.1037297248840332
+            "x": 0.1362815648317337,
+            "y": -1.0310089588165283
           }
         },
         "layer": "Gameplay:2",
@@ -1190,7 +1234,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 0.8519622683525085,
-            "y": 0.059912439435720444
+            "y": 0.05991244316101074
           }
         },
         "layer": "Gameplay:0",
@@ -2034,7 +2078,7 @@
             "y": -0.0725562646985054
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2064,7 +2108,7 @@
             "y": -0.5120000243186951
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2094,7 +2138,7 @@
             "y": 0.31649938225746155
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2124,7 +2168,7 @@
             "y": -0.012559764087200165
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2154,7 +2198,7 @@
             "y": 0.0589747317135334
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2184,7 +2228,7 @@
             "y": -1.4053014516830444
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2214,7 +2258,7 @@
             "y": -1.2769310474395752
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2244,7 +2288,7 @@
             "y": -1.1465574502944946
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2274,7 +2318,7 @@
             "y": -1.5047976970672607
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2300,11 +2344,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.0022828578948975,
+            "x": 1.897444248199463,
             "y": -0.5116569399833679
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2334,7 +2378,7 @@
             "y": -0.15844833850860596
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
       },
       {
@@ -2364,8 +2408,1203 @@
             "y": -0.744411826133728
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:2",
         "name": "Rect"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "GateLogic"
+          },
+          "GateTargetComponent": {
+            "level_path": "RealLevel1NoEnemy.json"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
+            "visible": false,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.3499999940395355,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "door"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.12823480367660522,
+            "y": -1.3534265756607056
+          }
+        },
+        "layer": "Background:2",
+        "name": "Enemy_Clear_Door"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "FireGhostExplosion": {
+                "id": "FireGhostExplosion",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "FireGhostProjectile1": {
+                "id": "FireGhostProjectile1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "FireGhostProjectile2": {
+                "id": "FireGhostProjectile2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              }
+            },
+            "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_ranged"
+          },
+          "EnemyAttackComponent": {
+            "attack_speed": 0.6000000238418579,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 5,
+            "enemyMaxhealth": 5
+          },
+          "EnemyTypeComponent": {
+            "type": "ranged"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 6,
+                  "endFrame": 5,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 6
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "fire_idle"
+              },
+              {
+                "config": {
+                  "columns": 15,
+                  "endFrame": 14,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 15
+                },
+                "currentFrame": 0,
+                "name": "rangeattack",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Fire Attack_Sprite.png",
+                "textureKey": "fire_attack"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "fire_knockback"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "fire_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "fire_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.9830822944641113,
+            "y": -0.43393850326538086
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "enemyranged"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "FireGhostExplosion": {
+                "id": "FireGhostExplosion",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "FireGhostProjectile1": {
+                "id": "FireGhostProjectile1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "FireGhostProjectile2": {
+                "id": "FireGhostProjectile2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              }
+            },
+            "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_ranged"
+          },
+          "EnemyAttackComponent": {
+            "attack_speed": 0.6000000238418579,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 5,
+            "enemyMaxhealth": 5
+          },
+          "EnemyTypeComponent": {
+            "type": "ranged"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 6,
+                  "endFrame": 5,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 6
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "fire_idle"
+              },
+              {
+                "config": {
+                  "columns": 15,
+                  "endFrame": 14,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 15
+                },
+                "currentFrame": 0,
+                "name": "rangeattack",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Fire Attack_Sprite.png",
+                "textureKey": "fire_attack"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "fire_knockback"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "fire_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "fire_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.4916958808898926,
+            "y": -0.1931503713130951
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "enemyranged"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "FireGhostExplosion": {
+                "id": "FireGhostExplosion",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "FireGhostProjectile1": {
+                "id": "FireGhostProjectile1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "FireGhostProjectile2": {
+                "id": "FireGhostProjectile2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              }
+            },
+            "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_ranged"
+          },
+          "EnemyAttackComponent": {
+            "attack_speed": 0.6000000238418579,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 5,
+            "enemyMaxhealth": 5
+          },
+          "EnemyTypeComponent": {
+            "type": "ranged"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 6,
+                  "endFrame": 5,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 6
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "fire_idle"
+              },
+              {
+                "config": {
+                  "columns": 15,
+                  "endFrame": 14,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 15
+                },
+                "currentFrame": 0,
+                "name": "rangeattack",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Fire Attack_Sprite.png",
+                "textureKey": "fire_attack"
+              },
+              {
+                "config": {
+                  "columns": 8,
+                  "endFrame": 7,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 8
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "fire_knockback"
+              },
+              {
+                "config": {
+                  "columns": 14,
+                  "endFrame": 13,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 14
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "fire_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "fire_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.4559418261051178,
+            "y": -0.17799672484397888
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "enemyranged"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "WaterGhostAttack": {
+                "id": "WaterGhostAttack",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "WaterGhostExplosion": {
+                "id": "WaterGhostExplosion",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              }
+            },
+            "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_melee"
+          },
+          "EnemyAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 5,
+            "enemyMaxhealth": 5
+          },
+          "EnemyTypeComponent": {
+            "type": "physical"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "water_idle"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "slashattack",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+                "textureKey": "water_slashattack"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "water_knockback"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "water_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "water_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.397146463394165,
+            "y": -1.1199030876159668
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "enemy"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "WaterGhostAttack": {
+                "id": "WaterGhostAttack",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "WaterGhostExplosion": {
+                "id": "WaterGhostExplosion",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              }
+            },
+            "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_melee"
+          },
+          "EnemyAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 5,
+            "enemyMaxhealth": 5
+          },
+          "EnemyTypeComponent": {
+            "type": "physical"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "water_idle"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "slashattack",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+                "textureKey": "water_slashattack"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "water_knockback"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "water_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "water_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7433187365531921,
+            "y": -0.6629384160041809
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "enemy"
+      },
+      {
+        "Components": {
+          "AudioComponent": {
+            "sounds": {
+              "GhostHurt1": {
+                "id": "GhostHurt1",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt2": {
+                "id": "GhostHurt2",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt3": {
+                "id": "GhostHurt3",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt4": {
+                "id": "GhostHurt4",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt5": {
+                "id": "GhostHurt5",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt6": {
+                "id": "GhostHurt6",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt7": {
+                "id": "GhostHurt7",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "GhostHurt8": {
+                "id": "GhostHurt8",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "WaterGhostAttack": {
+                "id": "WaterGhostAttack",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              },
+              "WaterGhostExplosion": {
+                "id": "WaterGhostExplosion",
+                "loop": false,
+                "spatial": true,
+                "volume": 1.0
+              }
+            },
+            "volume": 0.4000000059604645
+          },
+          "BehaviorTreeComponent": {
+            "treeType": "enemy_melee"
+          },
+          "EnemyAttackComponent": {
+            "attack_speed": 1.2000000476837158,
+            "damage": 1
+          },
+          "EnemyComponent": {},
+          "EnemyDecisionTreeComponent": {},
+          "EnemyHealthComponent": {
+            "enemyHealth": 5,
+            "enemyMaxhealth": 5
+          },
+          "EnemyTypeComponent": {
+            "type": "physical"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 10.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Idle_Sprite.png",
+                "textureKey": "water_idle"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 12.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "slashattack",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Attack.png",
+                "textureKey": "water_slashattack"
+              },
+              {
+                "config": {
+                  "columns": 9,
+                  "endFrame": 8,
+                  "fps": 10.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 9
+                },
+                "currentFrame": 0,
+                "name": "knockback",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Knockback_Sprite.png",
+                "textureKey": "water_knockback"
+              },
+              {
+                "config": {
+                  "columns": 11,
+                  "endFrame": 10,
+                  "fps": 8.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 11
+                },
+                "currentFrame": 0,
+                "name": "death",
+                "spriteSheetPath": "../../Assets/Textures/Character/Water Enemy_Sprite/Death_Sprite.png",
+                "textureKey": "water_death"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "water_idle"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.09916964173316956,
+            "y": -0.35345062613487244
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "enemy"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "KeyPickupLogic"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.11999999731779099,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "door_key_pickup",
+            "texture_path": "Textures/UI/Key.png",
+            "visible": true,
+            "w": 0.11999999731779099
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "door_key_pickup"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2670581340789795,
+            "y": -0.17477434873580933
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "Door_Key"
       }
     ],
     "name": "RealLevel2"
