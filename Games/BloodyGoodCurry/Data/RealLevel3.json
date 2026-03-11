@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 151.48602294921875,
-            "y": 151.22616577148438
+            "x": 151.64593505859375,
+            "y": 151.38607788085938
           }
         },
         "layer": "Gameplay:0",
@@ -227,7 +227,7 @@
             "width": 0.10000000149011612
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 2,
+            "activeAnimation": 0,
             "animations": [
               {
                 "config": {
@@ -239,7 +239,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 1,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -356,7 +356,7 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "attack1_sheet"
+            "texture_key": "idle_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
@@ -1904,6 +1904,85 @@
         },
         "layer": "Gameplay:2",
         "name": "Rect"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "GateLogic"
+          },
+          "GateTargetComponent": {
+            "level_path": "RealLevel1NoEnemy.json"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
+            "visible": false,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.3499999940395355,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "door"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.12494948506355286,
+            "y": -1.3876667022705078
+          }
+        },
+        "layer": "Background:2",
+        "name": "Enemy_Clear_Door"
+      },
+      {
+        "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "KeyPickupLogic"
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.11999999731779099,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "door_key_pickup",
+            "texture_path": "Textures/UI/Key.png",
+            "visible": true,
+            "w": 0.11999999731779099
+          },
+          "RigidBodyComponent": {
+            "height": 0.10000000149011612,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "door_key_pickup"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5534764528274536,
+            "y": -0.21322229504585266
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "Door_Key"
       }
     ],
     "name": "RealLevel3"
