@@ -23,8 +23,10 @@
 #include "Core/PathUtils.h"
 #include "Graphics/GLHeaders.h"
 #include <GLFW/glfw3.h>
+#include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 #include "stb_image.h"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 
@@ -36,6 +38,7 @@ namespace {
     // Prefer constexpr over macros (resolves your VCR101 suggestion)
     constexpr int kGlMajor = 3; ///< Requested OpenGL major version.
     constexpr int kGlMinor = 3; ///< Requested OpenGL minor version.
+    constexpr float kCursorScale = 0.85f;
 
     GLFWcursor* CreateProjectCursor()
     {
@@ -50,10 +53,29 @@ namespace {
             return nullptr;
         }
 
+        const int scaledWidth = std::max(1, static_cast<int>(width * kCursorScale));
+        const int scaledHeight = std::max(1, static_cast<int>(height * kCursorScale));
+        std::vector<stbi_uc> scaledPixels(static_cast<size_t>(scaledWidth) * static_cast<size_t>(scaledHeight) * 4u);
+
+        for (int y = 0; y < scaledHeight; ++y)
+        {
+            const int srcY = std::min(height - 1, static_cast<int>(y / kCursorScale));
+            for (int x = 0; x < scaledWidth; ++x)
+            {
+                const int srcX = std::min(width - 1, static_cast<int>(x / kCursorScale));
+                const int srcIndex = (srcY * width + srcX) * 4;
+                const int dstIndex = (y * scaledWidth + x) * 4;
+                scaledPixels[dstIndex + 0] = pixels[srcIndex + 0];
+                scaledPixels[dstIndex + 1] = pixels[srcIndex + 1];
+                scaledPixels[dstIndex + 2] = pixels[srcIndex + 2];
+                scaledPixels[dstIndex + 3] = pixels[srcIndex + 3];
+            }
+        }
+
         GLFWimage image{};
-        image.width = width;
-        image.height = height;
-        image.pixels = pixels;
+        image.width = scaledWidth;
+        image.height = scaledHeight;
+        image.pixels = scaledPixels.data();
 
         GLFWcursor* cursor = glfwCreateCursor(&image, 0, 0);
         stbi_image_free(pixels);
