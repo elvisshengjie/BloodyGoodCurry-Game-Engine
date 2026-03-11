@@ -43,6 +43,8 @@ namespace mygame {
     bool RequestLoadLevel(const std::filesystem::path& levelPath);
     /// Queue an incremental level load from editor UI without showing the transition video.
     bool LoadLevelFromEditor(const std::filesystem::path& levelPath);
+    /// Request that gameplay switch into the pause menu.
+    bool RequestPauseMenu();
     /// Returns true when gameplay scripts should ignore player-driven input for the current frame.
     bool IsGameplayInputBlocked();
 

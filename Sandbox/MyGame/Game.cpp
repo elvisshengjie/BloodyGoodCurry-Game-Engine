@@ -930,6 +930,23 @@ namespace mygame {
     }
 
     /*************************************************************************************
+     \brief  Requests that the active gameplay state enter the pause menu.
+     \return True when the request changed the state to paused.
+    *************************************************************************************/
+    bool RequestPauseMenu()
+    {
+        if (currentState != GameState::PLAYING)
+            return false;
+
+        if (Framework::RenderSystem::IsEditorVisible())
+            return false;
+
+        pauseMenu.ResetLatches();
+        currentState = GameState::PAUSED;
+        return true;
+    }
+
+    /*************************************************************************************
      \brief  Reports whether gameplay scripts should ignore player-driven controls this frame.
      \details Used by game-side behaviours so camera/animation can continue updating while
               combat and movement input stay disabled during the loading transition.

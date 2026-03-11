@@ -59,6 +59,7 @@ namespace
     {
         float reveal{ 0.0f };
         double lastFrameTime{ -1.0 };
+        bool pauseMouseDownPrev{ false };
     };
 
     ObjectiveTabUiState gObjectiveTabUiState;
@@ -134,6 +135,18 @@ namespace
         Resource_Manager::load(
             kTextureKey,
             Framework::ResolveProjectAssetPath("Textures/UI/Objective Tab.png").string());
+        return Resource_Manager::getTexture(kTextureKey);
+    }
+
+    unsigned ResolvePauseButtonTexture()
+    {
+        constexpr const char* kTextureKey = "pause_button_ui";
+        if (const unsigned cached = Resource_Manager::getTexture(kTextureKey))
+            return cached;
+
+        Resource_Manager::load(
+            kTextureKey,
+            Framework::ResolveProjectAssetPath("Textures/UI/Pause Button.png").string());
         return Resource_Manager::getTexture(kTextureKey);
     }
 
@@ -841,17 +854,20 @@ namespace
 
             const float tabW = texW * 0.72f * uiScale;
             const float tabH = texH * 0.72f * uiScale;
-            const float tabY = viewportY + viewportH - tabH - (18.0f * uiScale);
+            const float tabY = viewportY + viewportH - tabH - (168.0f * uiScale);
             const float handleWidth = std::min(tabW * 0.2f, 92.0f * uiScale);
-            const float expandedTabX = viewportX + viewportW - tabW;
-            const float collapsedTabX = viewportX + viewportW - handleWidth;
+            const float rightInset = 28.0f * uiScale;
+            const float expandedTabX = viewportX + viewportW - tabW - rightInset;
+            const float collapsedTabX = viewportX + viewportW - handleWidth - rightInset;
 
             double mouseX = -1000.0;
             double mouseY = -1000.0;
+            bool leftMouseDown = false;
             if (GLFWwindow* window = glfwGetCurrentContext())
             {
                 glfwGetCursorPos(window, &mouseX, &mouseY);
                 mouseY = static_cast<double>(screenH) - mouseY;
+                leftMouseDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
             }
 
             const bool mouseOverHandle =
@@ -870,6 +886,43 @@ namespace
 
             const float reveal = AdvanceObjectiveTabReveal(mouseOverHandle || mouseOverOpenTab);
             const float tabX = collapsedTabX + (expandedTabX - collapsedTabX) * reveal;
+
+            const unsigned pauseButtonTexture = ResolvePauseButtonTexture();
+            if (pauseButtonTexture != 0u)
+            {
+                int pauseTexW = 0;
+                int pauseTexH = 0;
+                if (!gfx::Graphics::getTextureSize(pauseButtonTexture, pauseTexW, pauseTexH) ||
+                    pauseTexW <= 0 || pauseTexH <= 0)
+                {
+                    pauseTexW = 120;
+                    pauseTexH = 120;
+                }
+
+                const float pauseScale = 0.72f * uiScale;
+                const float pauseW = pauseTexW * pauseScale;
+                const float pauseH = pauseTexH * pauseScale;
+                const float pauseX = viewportX + viewportW - pauseW - rightInset;
+                const float pauseY = viewportY + viewportH - pauseH - (22.0f * uiScale);
+                const bool pauseHovered =
+                    mouseX >= pauseX && mouseX <= (pauseX + pauseW) &&
+                    mouseY >= pauseY && mouseY <= (pauseY + pauseH);
+                const bool pauseClicked = pauseHovered && leftMouseDown && !gObjectiveTabUiState.pauseMouseDownPrev;
+
+                gfx::Graphics::renderSpriteUI(
+                    pauseButtonTexture,
+                    pauseX,
+                    pauseY,
+                    pauseW,
+                    pauseH,
+                    1.0f, 1.0f, 1.0f, pauseHovered ? 1.0f : 0.94f,
+                    screenW, screenH);
+
+                if (pauseClicked)
+                    mygame::RequestPauseMenu();
+            }
+
+            gObjectiveTabUiState.pauseMouseDownPrev = leftMouseDown;
 
             gfx::Graphics::renderSpriteUI(
                 objectiveTabTexture,
