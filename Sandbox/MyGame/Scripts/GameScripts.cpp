@@ -104,7 +104,7 @@ namespace {
     constexpr float kProjectileSpeed = 1.2f;
     constexpr float kProjectileLifetime = 0.80f;
     constexpr float kMeleeCooldown = 0.4f;
-    constexpr float kThrowCooldown = 1.2f;
+    constexpr float kThrowCooldown = 2.2f;
     /*****************************************************************************************
       \brief Slow down attack constants
     *****************************************************************************************/
@@ -114,7 +114,7 @@ namespace {
     constexpr float kSlowSpeedMultiplier = 0.35f;
     constexpr float kSlowEffectDuration = 2.5f;
     constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock â€” avoids bad sprite sheet fps giving huge values
-    constexpr float kSlowAttackCooldown = 0.9f;   ///< Total cooldown after slow attack fires
+    constexpr float kSlowAttackCooldown = 1.9f;   ///< Total cooldown after slow attack fires
     /*****************************************************************************************
       \enum PlayerAnimState
       \brief High-level animation state machine used by PlayerController.
@@ -1066,7 +1066,7 @@ namespace {
         {
             (void)id;
             auto* obj = ptr.get();
-            if (!obj || !mygame::IsImpactVfxObject(obj))
+            if (!obj || (!mygame::IsImpactVfxObject(obj) && !mygame::IsHeiBangAttack2BeamVfxObject(obj)))
                 continue;
 
             auto* anim = SafeGetComponent<Framework::SpriteAnimationComponent>(obj, Framework::ComponentTypeId::CT_SpriteAnimationComponent);
@@ -1075,7 +1075,7 @@ namespace {
 
             if (auto* active = anim->ActiveAnimation())
             {
-                if (!active->config.loop && active->name == "impact")
+                if (!active->config.loop)
                 {
                     const int total = std::max(1, active->config.totalFrames);
                     const int start = std::clamp(active->config.startFrame, 0, total - 1);

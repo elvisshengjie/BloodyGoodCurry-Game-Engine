@@ -38,10 +38,86 @@ namespace Framework
 {
     namespace
     {
+        static constexpr float kInvulnerabilityFlashFrequencyHz = 8.0f;
+        static constexpr BlendMode kInvulnerabilityBlendMode = BlendMode::Add;
+
         void EmitCombatAudio(const CombatAudioCallback& callback, GOC* source, CombatAudioEvent event)
         {
             if (callback && source)
                 callback(source, event);
+        }
+
+        void RestorePlayerRenderState(
+            GOC* goc,
+            GOCId id,
+            std::unordered_map<GOCId, PlayerInvulnerabilityRenderState>& states)
+        {
+            const auto it = states.find(id);
+            if (it == states.end())
+                return;
+
+            if (goc)
+            {
+                if (auto* render = goc->GetComponentType<RenderComponent>(
+                    ComponentTypeId::CT_RenderComponent))
+                {
+                    render->r = it->second.r;
+                    render->g = it->second.g;
+                    render->b = it->second.b;
+                    render->a = it->second.a;
+                    render->blendMode = it->second.blendMode;
+                }
+            }
+
+            states.erase(it);
+        }
+
+        void ApplyPlayerInvulnerabilityRenderState(
+            GOC* goc,
+            GOCId id,
+            const PlayerHealthComponent& playerHealth,
+            std::unordered_map<GOCId, PlayerInvulnerabilityRenderState>& states)
+        {
+            if (!goc)
+                return;
+
+            auto* render = goc->GetComponentType<RenderComponent>(
+                ComponentTypeId::CT_RenderComponent);
+            if (!render)
+            {
+                states.erase(id);
+                return;
+            }
+
+            auto [it, inserted] = states.try_emplace(id, PlayerInvulnerabilityRenderState{
+                render->r,
+                render->g,
+                render->b,
+                render->a,
+                render->blendMode
+                });
+            (void)inserted;
+
+            const auto& baseState = it->second;
+            const float elapsed = std::max(0.0f,
+                PlayerHealthComponent::kInvulnerabilityDuration - playerHealth.invulnTime);
+            const bool flashWhite = std::fmod(elapsed * kInvulnerabilityFlashFrequencyHz, 1.0f) < 0.5f;
+
+            if (flashWhite)
+            {
+                render->r = 1.0f;
+                render->g = 1.0f;
+                render->b = 1.0f;
+                render->a = baseState.a;
+                render->blendMode = kInvulnerabilityBlendMode;
+                return;
+            }
+
+            render->r = baseState.r;
+            render->g = baseState.g;
+            render->b = baseState.b;
+            render->a = baseState.a;
+            render->blendMode = baseState.blendMode;
         }
 
         /*****************************************************************************************
@@ -221,6 +297,7 @@ namespace Framework
         // Track by ID instead of raw pointers to avoid dangling references.
         gameObjectIds.clear();
         deathTimers.clear();
+        playerInvulnerabilityRenderStates.clear();
 
         RefreshTrackedObjects();
     }
@@ -240,6 +317,7 @@ namespace Framework
                     if (!goc)
                     {
                         deathTimers.erase(id);
+                        playerInvulnerabilityRenderStates.erase(id);
                         return true;
                     }
 
@@ -296,16 +374,26 @@ namespace Framework
                     if (auto* playerHealth = goc->GetComponentType<PlayerHealthComponent>(
                         ComponentTypeId::CT_PlayerHealthComponent))
                     {
-                        if (playerHealth->isInvulnerable)
+                        if (playerHealth->isInvulnerable && !playerHealth->isDead)
                         {
                             playerHealth->invulnTime = std::max(0.0f, playerHealth->invulnTime - dt);
+                            ApplyPlayerInvulnerabilityRenderState(goc, id, *playerHealth,
+                                playerInvulnerabilityRenderStates);
                             if (playerHealth->invulnTime <= 0.0f)
+                            {
                                 playerHealth->isInvulnerable = false;
+                                RestorePlayerRenderState(goc, id, playerInvulnerabilityRenderStates);
+                            }
+                        }
+                        else
+                        {
+                            RestorePlayerRenderState(goc, id, playerInvulnerabilityRenderStates);
                         }
 
                         if (playerHealth->playerHealth <= 0 && deathTimers.find(id) == deathTimers.end())
                         {
                             playerHealth->isDead = true;
+                            RestorePlayerRenderState(goc, id, playerInvulnerabilityRenderStates);
                             PlayAnimationIfAvailable(goc, "death");
                             if (!playerHealth->deathSoundPlayed)
                             {
@@ -320,6 +408,7 @@ namespace Framework
 
                         if (playerHealth->isDead)
                         {
+                            RestorePlayerRenderState(goc, id, playerInvulnerabilityRenderStates);
                             float& timer = deathTimers[id];
                             timer = std::max(0.0f, timer - dt);
                             auto* anim = goc->GetComponentType<SpriteAnimationComponent>(
@@ -350,6 +439,7 @@ namespace Framework
     {
         gameObjectIds.clear();
         deathTimers.clear();
+        playerInvulnerabilityRenderStates.clear();
     }
 
 } // namespace Framework

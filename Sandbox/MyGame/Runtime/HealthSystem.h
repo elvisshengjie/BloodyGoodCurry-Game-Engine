@@ -26,6 +26,7 @@
 #include "Factory/Factory.h"
 #include "Graphics/Window.hpp"
 #include "Serialization/Serialization.h"
+#include "Component/RenderComponent.h"
 #include "Components/PlayerComponent.h"
 #include "Components/PlayerHealthComponent.h"
 #include "Components/EnemyHealthComponent.h"
@@ -38,6 +39,14 @@
 
 namespace Framework {
 
+    struct PlayerInvulnerabilityRenderState
+    {
+        float r{ 1.0f };
+        float g{ 1.0f };
+        float b{ 1.0f };
+        float a{ 1.0f };
+        BlendMode blendMode{ BlendMode::Alpha };
+    };
 
     class HealthSystem : public Framework::ISystem {
     public:
@@ -72,6 +81,7 @@ namespace Framework {
         gfx::Window* window;          // Non-owning window handle used by the system.
         std::vector<GOCId> gameObjectIds;
         std::unordered_map<GOCId, float> deathTimers;
+        std::unordered_map<GOCId, PlayerInvulnerabilityRenderState> playerInvulnerabilityRenderStates;
 
         CombatAudioCallback combatAudioCallback;
         std::function<void()> playerDeathCompleteCallback;

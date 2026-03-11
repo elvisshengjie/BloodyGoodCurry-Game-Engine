@@ -45,7 +45,7 @@ namespace Framework
           \enum EnemyType
           \brief Defines the type of enemy.
         *************************************************************************************/
-        enum class EnemyType { physical, ranged };
+        enum class EnemyType { physical, ranged, neutral };
 
         EnemyType Etype{ EnemyType::physical };  ///< Current type of the enemy.
 

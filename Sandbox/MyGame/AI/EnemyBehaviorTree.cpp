@@ -142,6 +142,34 @@ namespace mygame
 
             return std::make_unique<Framework::DecisionTree>(std::move(root));
         }
+        
+        /*****************************************************************************************
+         \brief Constructs the decision tree for Nancie, a melee-only chase enemy.
+         \param enemy Owner game object composition the tree will be bound to.
+         \return Owning pointer to the built DecisionTree, or nullptr if enemy is null.
+         \details
+         Tree structure:
+         - Root: MeleeAttack (AliveGuarded)
+
+         Unlike standard melee enemies, Nancie has no patrol state. She always chases
+         and attacks the player regardless of detection range, making her an aggressive
+         persistent threat. MeleeAttack handles her slashattack1/slamattack2 animations
+         via the isNancie name check in EnemyActions.h.
+       *****************************************************************************************/
+        std::unique_ptr<Framework::DecisionTree> BuildNancieTree(GOC* enemy)
+        {
+            if (!enemy) return nullptr;
+
+            auto attackLeaf = std::make_unique<Framework::DecisionNode>(
+                nullptr, nullptr, nullptr,
+                AliveGuardedAction([](Framework::BehaviorContext& ctx)
+                    {
+                        MeleeAttack(ctx);
+                    })
+            );
+
+            return std::make_unique<Framework::DecisionTree>(std::move(attackLeaf));
+        }
 }
 
 namespace 
@@ -165,6 +193,10 @@ namespace
             Framework::BehaviorTreeComponent::Registry()["enemy_ranged"] =
                 [](Framework::GOC* owner)
                 { return mygame::BuildRangedEnemyTree(owner); };
+
+            Framework::BehaviorTreeComponent::Registry()["nancie"] =
+                [](Framework::GOC* owner)
+                { return mygame::BuildNancieTree(owner); };
         }
     };
     const EnemyTreeRegistrar gRegistrar;

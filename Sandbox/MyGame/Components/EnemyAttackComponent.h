@@ -52,6 +52,7 @@ namespace Framework
         float attack_speed{ 3.0f };     ///< Cooldown time (seconds) between consecutive attacks.
         float attack_timer{ 0.0f };     ///< Tracks elapsed time since the last attack.
         float hitboxElapsed{ 0.0f };
+        bool attack2BeamPhaseActive{ false };
         ComponentHandleT<HitBoxComponent> hitbox; ///< Managed hitbox instance used for attacks.
 
         /*************************************************************************************
@@ -120,6 +121,7 @@ namespace Framework
             auto copy = ComponentPool<EnemyAttackComponent>::CreateTyped();
             copy->damage = damage;
             copy->attack_speed = attack_speed;
+            copy->attack2BeamPhaseActive = false;
             copy->hitbox = ComponentPool<HitBoxComponent>::CreateTyped(*hitbox);
             return copy;
         }

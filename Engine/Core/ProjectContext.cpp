@@ -91,8 +91,11 @@ namespace Framework
             if (candidate.empty())
                 return false;
 
-            const bool modernLayout = HasDirectory(candidate, "Assets") && HasDirectory(candidate, "Data");
-            const bool legacyLayout = HasDirectory(candidate, "assets") && HasDirectory(candidate, "Data_Files");
+            // Generated projects can legitimately start with Data only and an empty Assets
+            // folder. In web builds, Emscripten may not materialize an empty /Assets mount,
+            // so accept either side of the recognized layout instead of requiring both.
+            const bool modernLayout = HasDirectory(candidate, "Assets") || HasDirectory(candidate, "Data");
+            const bool legacyLayout = HasDirectory(candidate, "assets") || HasDirectory(candidate, "Data_Files");
             if (!modernLayout && !legacyLayout)
                 return false;
 

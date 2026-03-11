@@ -137,6 +137,7 @@ namespace Framework
             using Team = HitBoxComponent::Team;
             using EType = EnemyTypeComponent::EnemyType;
 
+            if (enemyType == EType::neutral) return baseDamage;
             // Melee attack logic
             if (attackTeam == Team::Player)
             {

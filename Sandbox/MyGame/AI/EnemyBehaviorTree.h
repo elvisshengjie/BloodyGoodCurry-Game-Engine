@@ -22,4 +22,5 @@ namespace mygame
 	
 	std::unique_ptr<Framework::DecisionTree> BuildMeleeEnemyTree(Framework::GOC* enemy);
 	std::unique_ptr<Framework::DecisionTree> BuildRangedEnemyTree(Framework::GOC* enemy);
+	std::unique_ptr <Framework::DecisionTree>BuildNancieTree(Framework::GOC* enemy);
 }
