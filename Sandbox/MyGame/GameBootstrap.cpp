@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      GameBootstrap.cpp
  \par       SofaSpuds
- \author
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Installs BloodyGoodCurry-specific startup and render bootstrap defaults.
  \details   Provides the game-side bootstrap hooks that configure startup levels, editor
             defaults, save-time behaviour objects, fallback content spawns, and legacy
@@ -64,6 +64,11 @@ namespace
 
     ObjectiveTabUiState gObjectiveTabUiState;
 
+    /*************************************************************************************
+      \brief Advances the objective-tab reveal animation toward hovered/unhovered state.
+      \param hovered Whether the objective tab is currently hovered by the cursor.
+      \return Smoothed reveal amount in the range [0, 1].
+    *************************************************************************************/
     float AdvanceObjectiveTabReveal(bool hovered)
     {
         const double now = glfwGetTime();
@@ -87,6 +92,12 @@ namespace
         return t * t * (3.0f - 2.0f * t);
     }
 
+    /*************************************************************************************
+      \brief Wraps objective text into one or two shorter lines for UI display.
+      \param text                 Source objective string.
+      \param preferredLineLength  Preferred soft wrap length before splitting.
+      \return A vector of wrapped text lines.
+    *************************************************************************************/
     std::vector<std::string> WrapObjectiveText(const std::string& text, std::size_t preferredLineLength = 18)
     {
         auto trim = [](std::string value)
@@ -126,6 +137,10 @@ namespace
         return lines;
     }
 
+    /*************************************************************************************
+      \brief Resolves and caches the objective-tab UI texture.
+      \return Texture id for the objective tab, or 0 if loading fails.
+    *************************************************************************************/
     unsigned ResolveObjectiveTabTexture()
     {
         constexpr const char* kTextureKey = "objective_tab_ui";
@@ -138,6 +153,10 @@ namespace
         return Resource_Manager::getTexture(kTextureKey);
     }
 
+    /*************************************************************************************
+      \brief Resolves and caches the pause-button UI texture.
+      \return Texture id for the pause button, or 0 if loading fails.
+    *************************************************************************************/
     unsigned ResolvePauseButtonTexture()
     {
         constexpr const char* kTextureKey = "pause_button_ui";
@@ -150,6 +169,11 @@ namespace
         return Resource_Manager::getTexture(kTextureKey);
     }
 
+    /*************************************************************************************
+      \brief Chooses the first existing level file from a preferred list.
+      \param preferredFiles Ordered list of candidate level filenames.
+      \return The first existing filename, or `level.json` as a fallback.
+    *************************************************************************************/
     std::string ChooseProjectLevelFile(std::initializer_list<const char*> preferredFiles)
     {
         std::error_code ec;
@@ -168,6 +192,12 @@ namespace
         return "level.json";
     }
 
+    /*************************************************************************************
+      \brief Reads a float field from JSON when the key exists and has numeric data.
+      \param data JSON object to inspect.
+      \param key  Field name to read.
+      \param out  Output variable updated on success.
+    *************************************************************************************/
     void ReadJsonFloat(const Framework::json& data, const char* key, float& out)
     {
         auto it = data.find(key);
@@ -175,6 +205,12 @@ namespace
             out = static_cast<float>(it->get<double>());
     }
 
+    /*************************************************************************************
+      \brief Reads an integer field from JSON when the key exists and has integer data.
+      \param data JSON object to inspect.
+      \param key  Field name to read.
+      \param out  Output variable updated on success.
+    *************************************************************************************/
     void ReadJsonInt(const Framework::json& data, const char* key, int& out)
     {
         auto it = data.find(key);
@@ -182,6 +218,12 @@ namespace
             out = it->get<int>();
     }
 
+    /*************************************************************************************
+      \brief Reads a boolean field from JSON when the key exists and has boolean data.
+      \param data JSON object to inspect.
+      \param key  Field name to read.
+      \param out  Output variable updated on success.
+    *************************************************************************************/
     void ReadJsonBool(const Framework::json& data, const char* key, bool& out)
     {
         auto it = data.find(key);
@@ -189,6 +231,12 @@ namespace
             out = it->get<bool>();
     }
 
+    /*************************************************************************************
+      \brief Reads a string field from JSON when the key exists and has string data.
+      \param data JSON object to inspect.
+      \param key  Field name to read.
+      \param out  Output variable updated on success.
+    *************************************************************************************/
     void ReadJsonString(const Framework::json& data, const char* key, std::string& out)
     {
         auto it = data.find(key);

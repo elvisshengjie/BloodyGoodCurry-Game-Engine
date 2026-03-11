@@ -103,6 +103,11 @@ namespace {
         return TextureField{ key, path };
     }
 
+    /*************************************************************************************
+      \brief Checks whether a menu background path points to a supported MPEG video.
+      \param path Asset-relative background path from JSON/config.
+      \return True when the file extension is `.mpg` or `.mpeg`.
+    *************************************************************************************/
     bool IsVideoBackgroundPath(const std::string& path)
     {
         std::string extension = std::filesystem::path(path).extension().string();
@@ -111,6 +116,11 @@ namespace {
         return extension == ".mpg" || extension == ".mpeg";
     }
 
+    /*************************************************************************************
+      \brief Converts a UI slider value into the engine's brightness range.
+      \param value Slider value expected in the range [0, 1].
+      \return Brightness scalar used by the renderer.
+    *************************************************************************************/
     float BrightnessFromSlider(float value) {
         const float clamped = std::clamp(value, 0.0f, 1.0f);
         return 0.6f + (clamped * 0.8f);
@@ -120,12 +130,21 @@ namespace {
         "BGM"
     };
 
+    /*************************************************************************************
+      \brief Checks whether a loaded sound id belongs to the menu/background music group.
+      \param name Sound identifier to test.
+      \return True when the id should be treated as BGM instead of SFX.
+    *************************************************************************************/
     bool IsBgmSoundId(const std::string& name)
     {
         return std::any_of(kBgmSoundIds.begin(), kBgmSoundIds.end(),
             [&name](const char* id) { return name == id; });
     }
 
+    /*************************************************************************************
+      \brief Applies the current BGM volume to all loaded menu/background tracks.
+      \param volume Target volume scalar.
+    *************************************************************************************/
     void ApplyBgmVolume(float volume)
     {
         SoundManager& sm = SoundManager::getInstance();
@@ -136,6 +155,10 @@ namespace {
         }
     }
 
+    /*************************************************************************************
+      \brief Applies the current SFX volume to all loaded non-BGM sounds.
+      \param volume Target volume scalar.
+    *************************************************************************************/
     void ApplySfxVolume(float volume)
     {
         SoundManager& sm = SoundManager::getInstance();

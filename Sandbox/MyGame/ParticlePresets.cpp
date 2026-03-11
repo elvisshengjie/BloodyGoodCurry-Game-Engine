@@ -19,11 +19,19 @@
 namespace mygame {
     namespace
     {
+        /*************************************************************************************
+          \brief Builds the default enemy-death particle preset values.
+          \return Default-initialized enemy death particle settings.
+        *************************************************************************************/
         EnemyDeathParticlePreset DefaultEnemyDeathParticlePreset()
         {
             return {};
         }
 
+        /*************************************************************************************
+          \brief Builds the default run-trail particle preset values.
+          \return Default-initialized running particle settings.
+        *************************************************************************************/
         RunParticlePreset DefaultRunParticlePreset()
         {
             return {};
@@ -33,26 +41,46 @@ namespace mygame {
         RunParticlePreset gRunParticlePreset = DefaultRunParticlePreset();
     }
 
+    /*************************************************************************************
+      \brief Returns the mutable enemy-death preset used by the current game.
+      \return Reference to the shared enemy-death particle preset.
+    *************************************************************************************/
     EnemyDeathParticlePreset& GetEnemyDeathParticlePreset()
     {
         return gEnemyDeathPreset;
     }
 
+    /*************************************************************************************
+      \brief Returns the mutable running particle preset used by the current game.
+      \return Reference to the shared run particle preset.
+    *************************************************************************************/
     RunParticlePreset& GetRunParticlePreset()
     {
         return gRunParticlePreset;
     }
 
+    /*************************************************************************************
+      \brief Restores the enemy-death preset back to its default values.
+    *************************************************************************************/
     void ResetEnemyDeathParticlePreset()
     {
         gEnemyDeathPreset = DefaultEnemyDeathParticlePreset();
     }
 
+    /*************************************************************************************
+      \brief Restores the running particle preset back to its default values.
+    *************************************************************************************/
     void ResetRunParticlePreset()
     {
         gRunParticlePreset = DefaultRunParticlePreset();
     }
 
+    /*************************************************************************************
+      \brief Spawns the current enemy-death particle burst at a world position.
+      \param particleSystem Active engine particle system.
+      \param worldPos       World position used as the burst origin.
+      \param count          Optional override for particle count. Uses preset count when 0.
+    *************************************************************************************/
     void SpawnEnemyDeathParticles(
         Framework::ParticleSystem& particleSystem,
         const glm::vec2& worldPos,
@@ -106,6 +134,13 @@ namespace mygame {
         }
     }
 
+    /*************************************************************************************
+      \brief Spawns the current running-trail particles behind the player.
+      \param particleSystem Active engine particle system.
+      \param worldPos       World-space origin near the runner.
+      \param facingDir      Horizontal facing direction used to flip the spawn bias.
+      \param count          Optional override for particle count. Uses preset count when 0.
+    *************************************************************************************/
     void SpawnRunParticles(
         Framework::ParticleSystem& particleSystem,
         const glm::vec2& worldPos,

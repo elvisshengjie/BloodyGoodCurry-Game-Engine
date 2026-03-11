@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      HealthPresentation.hpp
  \par       SofaSpuds
- \author
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Declares sandbox-specific health UI and defeat presentation helpers.
  \details   Exposes the game-layer bindings and draw helpers that sit on top of the
             engine HealthSystem for UI and defeat-screen flow.

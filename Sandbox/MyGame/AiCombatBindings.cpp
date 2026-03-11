@@ -23,6 +23,16 @@ static constexpr float kEnemyMeleeHitboxScale = 1.4f;
 
 namespace mygame {
 
+    /*************************************************************************************
+      \brief Binds game-owned melee/projectile spawning callbacks into the engine AI system.
+      \param ai     Active engine AiSystem receiving the binding callbacks.
+      \param logic  Active LogicSystem that owns the game-side HitBoxSystem.
+
+      \details
+              Filters AI-controlled objects to enemies, then installs lambdas that route
+              melee hitbox and projectile spawning through the current game-side combat
+              runtime instead of hardcoded engine logic.
+    *************************************************************************************/
     void BindAiCombat(Framework::AiSystem& ai, Framework::LogicSystem& logic)
     {
         auto* const logicPtr = &logic;

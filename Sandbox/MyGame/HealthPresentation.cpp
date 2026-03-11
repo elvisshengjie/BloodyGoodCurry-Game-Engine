@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      HealthPresentation.cpp
  \par       SofaSpuds
- \author
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Implements sandbox-specific health UI and defeat presentation logic.
  \details   Owns the game-side player defeat latch, HUD rendering, and enemy health
             bar drawing layered on top of the engine's generic HealthSystem.
@@ -91,6 +91,12 @@ namespace mygame {
             return gAimArrowTexture;
         }
 
+        /*************************************************************************************
+         \brief Performs a case-insensitive comparison for two ASCII-like strings.
+         \param a First string.
+         \param b Second string.
+         \return True when both strings match ignoring ASCII letter case.
+        *************************************************************************************/
         bool EqualsIgnoreCase(std::string_view a, std::string_view b)
         {
             if (a.size() != b.size())
