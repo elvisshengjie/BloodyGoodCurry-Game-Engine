@@ -56,8 +56,10 @@
 #include <cctype>
 #include <cmath>
 #include <filesystem>
+#include <iomanip>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
@@ -91,12 +93,33 @@ namespace {
     /*****************************************************************************************
       \brief Tracks key pickup objects that have already been collected.
     *****************************************************************************************/
-    std::unordered_set<Framework::GOCId> gCollectedKeyObjects;
+    std::unordered_set<std::string> gCollectedKeyObjects;
 
     /*****************************************************************************************
       \brief Tracks key-locked doors that have already been unlocked.
     *****************************************************************************************/
-    std::unordered_set<Framework::GOCId> gUnlockedDoorObjects;
+    std::unordered_set<std::string> gUnlockedDoorObjects;
+
+    std::string MakePersistentLevelObjectKey(const Framework::GameObjectComposition* object)
+    {
+        if (!object)
+            return {};
+
+        std::ostringstream stream;
+        stream << object->GetObjectName() << "|" << object->GetLayerName();
+
+        if (gLogicSystem && gLogicSystem->Factory()) {
+            stream << "|" << gLogicSystem->Factory()->LastLevelPath().generic_string();
+        }
+
+        if (const auto* transform = object->GetComponentType<Framework::TransformComponent>(
+            Framework::ComponentTypeId::CT_TransformComponent)) {
+            stream << "|" << std::fixed << std::setprecision(3)
+                << transform->x << "|" << transform->y;
+        }
+
+        return stream.str();
+    }
 
     /*****************************************************************************************
       \brief Tunable constants for player attack timing and projectile behaviour.
@@ -1102,7 +1125,18 @@ namespace {
     /*****************************************************************************************
       \brief KeyPickupLogic behaviour: Init hook.
     *****************************************************************************************/
-    void KeyPickupLogic_Init(Framework::GameObjectComposition*) {}
+    void KeyPickupLogic_Init(Framework::GameObjectComposition* keyObject)
+    {
+        if (!gLogicSystem || !keyObject)
+            return;
+
+        const std::string persistentKey = MakePersistentLevelObjectKey(keyObject);
+        if (persistentKey.empty() || !gCollectedKeyObjects.contains(persistentKey))
+            return;
+
+        if (auto* factory = gLogicSystem->Factory())
+            factory->Destroy(keyObject);
+    }
 
     /*****************************************************************************************
       \brief KeyPickupLogic behaviour: Update hook.
@@ -1115,8 +1149,15 @@ namespace {
         if (!gLogicSystem || !keyObject)
             return;
 
-        if (gCollectedKeyObjects.contains(keyObject->GetId()))
+        const std::string persistentKey = MakePersistentLevelObjectKey(keyObject);
+        if (persistentKey.empty())
             return;
+
+        if (gCollectedKeyObjects.contains(persistentKey)) {
+            if (auto* factory = gLogicSystem->Factory())
+                factory->Destroy(keyObject);
+            return;
+        }
 
         auto* player = gLogicSystem->FindAnyAlivePlayer();
         if (!player)
@@ -1129,7 +1170,7 @@ namespace {
         if (!IsPlayerOverlappingObject(player, keyObject))
             return;
 
-        gCollectedKeyObjects.insert(keyObject->GetId());
+        gCollectedKeyObjects.insert(persistentKey);
         ++gPlayerKeyCount;
 
         if (auto* factory = gLogicSystem->Factory())
@@ -1220,15 +1261,16 @@ namespace {
         if (!IsPlayerOverlappingObject(player, doorObject))
             return;
 
-        const Framework::GOCId doorId = doorObject->GetId();
-        bool unlocked = gUnlockedDoorObjects.contains(doorId);
+        const std::string persistentDoorKey = MakePersistentLevelObjectKey(doorObject);
+        bool unlocked = !persistentDoorKey.empty() && gUnlockedDoorObjects.contains(persistentDoorKey);
         if (!unlocked)
         {
             if (gPlayerKeyCount <= 0)
                 return;
 
             --gPlayerKeyCount;
-            gUnlockedDoorObjects.insert(doorId);
+            if (!persistentDoorKey.empty())
+                gUnlockedDoorObjects.insert(persistentDoorKey);
             unlocked = true;
         }
 

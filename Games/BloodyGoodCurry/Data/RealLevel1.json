@@ -123,7 +123,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.2799999713897705,
+            "x": -1.2795456647872925,
             "y": -0.7599999904632568
           }
         },
@@ -317,8 +317,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.4416983127593994,
-            "y": -0.9184280633926392
+            "x": -1.4385497570037842,
+            "y": -0.9180307984352112
           }
         },
         "layer": "Gameplay:1",
@@ -1655,6 +1655,7 @@
             "h": 0.30000001192092896,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Plant.png",
             "visible": true,
             "w": 0.20000000298023224
           },
@@ -1665,11 +1666,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.4497463703155518,
-            "y": -0.8595033288002014
+            "x": -0.881230354309082,
+            "y": -0.8432652354240417
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Background:5",
         "name": "artassets"
       },
       {
@@ -1682,6 +1683,7 @@
             "h": 0.30000001192092896,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Altar Table.png",
             "visible": true,
             "w": 0.15000000596046448
           },
@@ -1690,10 +1692,10 @@
           },
           "TransformComponent": {
             "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -1.453493356704712,
-            "y": -0.7811310887336731
+            "scale_x": 1.0003199577331543,
+            "scale_y": 0.9290980100631714,
+            "x": -1.446143627166748,
+            "y": -0.8802735805511475
           }
         },
         "layer": "Background:1",
@@ -1867,8 +1869,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.4813657999038696,
-            "y": -0.7812130451202393
+            "x": -1.4696311950683594,
+            "y": -0.891377866268158
           }
         },
         "layer": "Gameplay:0",
@@ -2156,7 +2158,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2209,7 +2211,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 6,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -2289,7 +2291,7 @@
                   "startFrame": 0,
                   "totalFrames": 3
                 },
-                "currentFrame": 1,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Sleeping_Cat_Sprite.png",
                 "textureKey": "sleep_cat_sheet"
@@ -3815,7 +3817,7 @@
                   "startFrame": 0,
                   "totalFrames": 11
                 },
-                "currentFrame": 5,
+                "currentFrame": 9,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Pot_Sprite.png",
                 "textureKey": "cooking_pot_sheet"
@@ -4062,7 +4064,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": -0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -4142,7 +4144,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.7875949740409851,
+            "x": 1.0075948238372803,
             "y": -0.6409298777580261
           }
         },
@@ -4200,6 +4202,7 @@
             "h": 0.20000000298023224,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/locked room light.png",
             "visible": true,
             "w": 0.20000000298023224
           },
@@ -4211,7 +4214,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -1.430996298789978,
-            "y": -0.5952911972999573
+            "y": -0.5948939323425293
           }
         },
         "layer": "Gameplay:0",
@@ -4242,7 +4245,7 @@
             "height": 0.30000001192092896,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
-            "width": 0.4000000059604645
+            "width": 0.20000000298023224
           },
           "SpriteComponent": {
             "texture_key": "door"
@@ -4251,8 +4254,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.4886877536773682,
-            "y": -0.5851663947105408
+            "x": -1.4894822835922241,
+            "y": -0.5847691297531128
           }
         },
         "layer": "Background:2",
@@ -4482,7 +4485,7 @@
             "scale_y": 0.44999998807907104
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 0,
+            "activeAnimation": 3,
             "animations": [
               {
                 "config": {
@@ -4494,7 +4497,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 3,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -4509,7 +4512,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "run",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -4539,7 +4542,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "attack1",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -4569,7 +4572,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 0,
+                "currentFrame": 8,
                 "name": "attack3",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
                 "textureKey": "attack3_sheet"
@@ -4641,14 +4644,14 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "idle_sheet"
+            "texture_key": "attack1_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.2203915119171143,
-            "y": -0.8835417628288269
+            "x": -1.2787338495254517,
+            "y": -0.8764931559562683
           }
         },
         "layer": "Gameplay:0",
@@ -4750,7 +4753,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": -0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -4830,7 +4833,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.212996006011963,
+            "x": 1.8029954433441162,
             "y": 0.013639479875564575
           }
         },
@@ -4933,7 +4936,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": 0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5013,7 +5016,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.7412348985671997,
+            "x": 1.7024955749511719,
             "y": 0.10238057374954224
           }
         },
@@ -5116,7 +5119,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": 0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5196,7 +5199,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.9091390371322632,
+            "x": -0.7691391706466675,
             "y": 0.06552338600158691
           }
         },
@@ -5299,7 +5302,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": -0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5379,7 +5382,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.5037122964859009,
+            "x": -0.006287523545324802,
             "y": -0.3890458345413208
           }
         },
@@ -5482,7 +5485,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.0,
+            "velocity_x": 0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5562,7 +5565,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.806489109992981,
+            "x": -1.2764886617660522,
             "y": -0.21296420693397522
           }
         },
@@ -5671,7 +5674,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 10.0,
+            "velocity_x": -0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5688,7 +5691,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -5751,7 +5754,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.6707024574279785,
+            "x": 1.8007023334503174,
             "y": -0.7691999077796936
           }
         },
@@ -5860,7 +5863,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 10.0,
+            "velocity_x": -0.6000000238418579,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5877,7 +5880,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 0,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Fire Enemy_Sprite/Idle_Sprite.png",
                 "textureKey": "fire_idle"
@@ -5940,7 +5943,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.612243413925171,
+            "x": 1.8022432327270508,
             "y": -0.4153680205345154
           }
         },

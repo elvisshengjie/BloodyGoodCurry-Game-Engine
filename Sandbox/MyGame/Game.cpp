@@ -175,6 +175,23 @@ namespace mygame {
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
+        float stateAdvanceInputBlockTimer = 0.0f;
+        constexpr float kStateAdvanceInputBlockDuration = 0.2f;
+
+        void BlockStateAdvanceInput(float duration = kStateAdvanceInputBlockDuration)
+        {
+            stateAdvanceInputBlockTimer = std::max(stateAdvanceInputBlockTimer, duration);
+            if (gInputSystem) {
+                gInputSystem->Manager().ClearState();
+            }
+        }
+
+        bool IsStateAdvanceInputPressed()
+        {
+            return stateAdvanceInputBlockTimer <= 0.0f &&
+                gInputSystem &&
+                (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
+        }
 
         /*************************************************************************************
          \brief  Receives allocator leak records during shutdown diagnostics.
@@ -258,6 +275,7 @@ namespace mygame {
             loadingTransitionNextState = nextStateAfterLoad;
             editorSimulationRunning = false;
             currentState = GameState::LOADING_TRANSITION;
+            BlockStateAdvanceInput();
             return true;
         }
 
@@ -366,6 +384,7 @@ namespace mygame {
     void update(float dt)
     {
         TryGuard::Run([&] {
+            stateAdvanceInputBlockTimer = std::max(0.0f, stateAdvanceInputBlockTimer - dt);
             SoundManager::getInstance().update(dt);
             const bool editorMode = Framework::RenderSystem::IsEditorVisible();
             const bool systemsUpdating = (currentState == GameState::PLAYING && editorSimulationRunning);
@@ -412,6 +431,7 @@ namespace mygame {
                         SoundManager::getInstance().playSound(START_BUTTTON);
                     SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM);
                     SoundManager::getInstance().fadeOutMusic(MAIN_MENU_BGM, kBGMFadeDuration);
+                    BlockStateAdvanceInput();
                     if (cutsceneReady) {
                         cutscenePlayer.Start();
                         if (SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
@@ -445,14 +465,14 @@ namespace mygame {
                 {
                     currentState = GameState::PLAYING;
                     editorSimulationRunning = true;
+                    BlockStateAdvanceInput();
                 }
                 break;
 
             case GameState::CUTSCENE: {
                 cutscenePlayer.Update(dt);
                 handlePerfToggle();
-                const bool skipCutscene = gInputSystem &&
-                    (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
+                const bool skipCutscene = IsStateAdvanceInputPressed();
                 if (skipCutscene || cutscenePlayer.IsFinished())
                 {
                     if (cutsceneAudioPlaying && SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
@@ -463,6 +483,7 @@ namespace mygame {
                     {
                         currentState = GameState::PLAYING;
                         editorSimulationRunning = true;
+                        BlockStateAdvanceInput();
                     }
                 }
                 break;
@@ -497,8 +518,7 @@ namespace mygame {
                     transitionPlayer.Update(dt);
                 }
 
-                const bool skipTransition = gInputSystem &&
-                    (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
+                const bool skipTransition = IsStateAdvanceInputPressed();
                 if (skipTransition && loadingTransitionVideoEnabled) {
                     loadingTransitionSkipRequested = true;
                 }
@@ -511,6 +531,7 @@ namespace mygame {
                 {
                     currentState = loadingTransitionNextState;
                     editorSimulationRunning = loadingTransitionResumeSimulation;
+                    BlockStateAdvanceInput();
                 }
                 break;
             }
@@ -543,11 +564,11 @@ namespace mygame {
                     currentState = GameState::DEFEAT;
                     break;
                 }
-                if (gInputSystem && !editorMode &&
-                    (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY)))
+                if (!editorMode && IsStateAdvanceInputPressed())
                 {
                     pauseMenu.ResetLatches();
                     currentState = GameState::PAUSED;
+                    BlockStateAdvanceInput();
                 }
                 break;
 
@@ -560,13 +581,14 @@ namespace mygame {
                 pauseMenu.Update(gInputSystem);
                 handlePerfToggle();
                 if (pauseMenu.ConsumeResume() ||
-                    (gInputSystem && (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY))))
+                    IsStateAdvanceInputPressed())
                 {
                     // [UPDATED LOGIC] Resume based on previous state if possible, 
                     // or default to PLAYING. If we came from DEFEAT, going back to PLAYING
                     // might be weird if the player is still dead, but typically "Resume" means "Back to Game".
                     // If the player is dead, the next frame's check in PLAYING will send them back to DEFEAT screen.
                     currentState = GameState::PLAYING;
+                    BlockStateAdvanceInput();
                     break;
                 }
 
@@ -637,11 +659,11 @@ namespace mygame {
                 }
 
                 // [ADDED] Check for Pause input to go to Pause Menu
-                if (gInputSystem && !editorMode &&
-                    (gInputSystem->IsKeyPressed(PAUSE_KEY) || gInputSystem->IsKeyPressed(START_KEY)))
+                if (!editorMode && IsStateAdvanceInputPressed())
                 {
                     pauseMenu.ResetLatches();
                     currentState = GameState::PAUSED;
+                    BlockStateAdvanceInput();
                     break;
                 }
 
@@ -664,7 +686,6 @@ namespace mygame {
                     if (RequestReloadLevel())
                     {
                         ResetPlayerDefeat();
-                        ResetPlayerKeyCount();
                     }
                 }
                 break;
@@ -943,6 +964,7 @@ namespace mygame {
 
         pauseMenu.ResetLatches();
         currentState = GameState::PAUSED;
+        BlockStateAdvanceInput();
         return true;
     }
 
