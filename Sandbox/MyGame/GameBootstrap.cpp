@@ -54,6 +54,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
 
+extern int GetPlayerKeyCount();
+
 namespace
 {
     struct ObjectiveTabUiState
@@ -853,7 +855,7 @@ namespace
     *************************************************************************************/
     void DrawMyGameOverlay(Framework::RenderSystem& render)
     {
-        int enemiesLeft = 0;
+        int enemiesLeft = 0; 
         bool hasGateDoorObjective = false;
         if (Framework::FACTORY)
         {
@@ -906,11 +908,15 @@ namespace
         }
 
         std::string text = hasGateDoorObjective
-            ? "Go to the door"
+            ? "Find 2 keys to unlock the kitchen door"
             : "Go to the gate";
         if (enemiesLeft > 0)
         {
             text = "Kill all enemies (" + std::to_string(enemiesLeft) + " left)";
+        }
+        if (GetPlayerKeyCount() >= 2)
+        {
+            text = "Go to the kitchen door";
         }
 
         const int screenW = render.ScreenWidth();
