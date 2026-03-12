@@ -1,3 +1,15 @@
+# ------------------------------------------------------------------------------
+# Sandbox/CMakeLists.txt
+# SofaSpuds game-target build script.
+#
+# Responsibilities:
+# - Select the active game code directory via SOFASPUDS_GAME_NAME / SOFASPUDS_GAME_CODE_DIR.
+# - Gather sandbox game source/header files and attach them to the chosen executable.
+# - Link the game against MyEngine plus optional FMOD support.
+# - Package runtime Assets/Data for both native builds and Emscripten web builds.
+# - Emit project-root metadata so the runtime can locate the selected game content.
+# ------------------------------------------------------------------------------
+
 cmake_minimum_required(VERSION 3.20)
 
 set(GAME_NAME "${SOFASPUDS_GAME_NAME}")

@@ -1,12 +1,15 @@
 /*********************************************************************************************
  \file      GlowComponent.h
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
-
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 80%
+            yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Declares the GlowComponent class, a procedural glow renderer that supports
             freehand point strokes, configurable color/opacity, and radial falloff.
             Supports JSON serialization for data-driven initialization and cloning for
             prefab instancing.
+ \details   The component stores glow parameters in local space so authoring tools and
+            gameplay code can attach painted glow strokes to any transform without
+            requiring sprite-sheet assets.
 
  \copyright
             All content 2025 DigiPen Institute of Technology Singapore.
@@ -32,19 +35,33 @@ namespace Framework {
     *****************************************************************************************/
     class GlowComponent : public GameComponent {
     public:
-        float r{ 1.f }, g{ 0.8f }, b{ 0.3f };
-        float opacity{ 1.f };
-        float brightness{ 1.f };
-        float innerRadius{ 0.05f };
-        float outerRadius{ 0.2f };
-        float falloffExponent{ 1.0f };
-        bool  visible{ true };
+        float r{ 1.f }, g{ 0.8f }, b{ 0.3f }; ///< Base glow color.
+        float opacity{ 1.f }; ///< Alpha applied to the procedural glow.
+        float brightness{ 1.f }; ///< Intensity multiplier applied by the renderer.
+        float innerRadius{ 0.05f }; ///< Radius of the fully bright inner region.
+        float outerRadius{ 0.2f }; ///< Outer falloff radius for each glow point.
+        float falloffExponent{ 1.0f }; ///< Controls how quickly the glow fades to zero.
+        bool  visible{ true }; ///< Toggles rendering without discarding stored stroke data.
 
         std::vector<glm::vec2> points{}; ///< Local-space stroke points (relative to owner transform).
 
+        /*************************************************************************************
+          \brief  Initialize the component.
+          \details No runtime setup is currently required for procedural glow data.
+        *************************************************************************************/
         void initialize() override {}
+
+        /*************************************************************************************
+          \brief  Receive engine messages.
+          \param  m Message payload (unused).
+        *************************************************************************************/
         void SendMessage(Message& m) override { (void)m; }
 
+        /*************************************************************************************
+          \brief  Serialize glow parameters and local-space stroke points.
+          \param  s Serializer used for load/save.
+          \details Accepts both "opacity" and legacy "a" alpha keys for compatibility.
+        *************************************************************************************/
         void Serialize(ISerializer& s) override {
             if (s.HasKey("r")) StreamRead(s, "r", r);
             if (s.HasKey("g")) StreamRead(s, "g", g);
@@ -77,6 +94,10 @@ namespace Framework {
             }
         }
 
+        /*************************************************************************************
+          \brief  Clone the component for prefab instancing.
+          \return A deep-copied GlowComponent containing the same stroke and render data.
+        *************************************************************************************/
         ComponentHandle Clone() const override {
             auto copy = ComponentPool<GlowComponent>::CreateTyped();
             copy->r = r;

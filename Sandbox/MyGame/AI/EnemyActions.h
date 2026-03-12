@@ -1,14 +1,19 @@
 /*********************************************************************************************
  \file      EnemyActions.h
  \par       SofaSpuds
- \author    Choo Jian Wei - Primary Author (100%)
+ \author    Choo Jian Wei - Primary Author (80%)
+            yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Declares and defines game-specific AI action helpers for enemy behaviour execution.
- \details   Provides small action routines used by the sandbox enemy AI layer to
-            drive movement, attacks, and state changes through the engine AI context.
+ \details   Provides reusable helpers and action routines used by the sandbox enemy AI layer to
+            drive movement, attacks, animation selection, and special-case boss behaviour.
+            The file now covers generic melee/ranged enemies plus custom handling for HeiBang's
+            dash-and-laser attack cycle and Nancie's facing/orientation fixes.
 
  \changelog
             Applied slowTimer/slowMultiplier from EnemyComponent to all
             movement velocity sets in Patrol, MeleeAttack, RangedAttack.
+            Added HeiBang boss attack-point routing, attack2 beam follow-up support,
+            and Nancie horizontal facing correction.
 
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
@@ -114,6 +119,12 @@ namespace mygame
         return 0.2f;
     }
 
+    /*****************************************************************************************
+      \brief Performs a case-insensitive string comparison.
+      \param a Left-hand string.
+      \param b Right-hand string.
+      \return True when both strings match ignoring ASCII case.
+    *****************************************************************************************/
     inline bool EqualsIgnoreCase(std::string_view a, std::string_view b)
     {
         if (a.size() != b.size())
@@ -131,6 +142,12 @@ namespace mygame
         return true;
     }
 
+    /*****************************************************************************************
+      \brief Checks whether the object owns an animation clip with the given name.
+      \param goc  Game object composition to inspect.
+      \param name Animation name to search for.
+      \return True when the clip exists on the object's SpriteAnimationComponent.
+    *****************************************************************************************/
     inline bool HasAnim(Framework::GOC* goc, std::string_view name)
     {
         if (!goc)
@@ -141,6 +158,11 @@ namespace mygame
         return FindAnimationIndex(anim, name) >= 0;
     }
 
+    /*****************************************************************************************
+      \brief Retrieves the active animation name for an object, if any.
+      \param goc Game object composition to inspect.
+      \return A string_view into the active animation name, or an empty view when unavailable.
+    *****************************************************************************************/
     inline std::string_view ActiveAnimName(Framework::GOC* goc)
     {
         if (!goc)
@@ -152,6 +174,13 @@ namespace mygame
         return active ? std::string_view(active->name) : std::string_view{};
     }
 
+    /*****************************************************************************************
+      \brief Resolves HeiBang's follow-up animation name for attack2 beam variants.
+      \param goc Boss object whose animation set is being queried.
+      \return The first supported beam follow-up clip name, or an empty view if none exist.
+      \details This allows prefab animation naming to vary slightly without breaking the
+               attack2 beam phase logic.
+    *****************************************************************************************/
     inline std::string_view ResolveHeiBangAttack2FollowupAnim(Framework::GOC* goc)
     {
         static constexpr std::array<std::string_view, 3> kCandidateNames{
@@ -209,6 +238,14 @@ namespace mygame
         }
     }
 
+    /*****************************************************************************************
+      \brief Rotates a sprite-flip style enemy to face its target on the X axis.
+      \param enemy Enemy object whose render width should be mirrored.
+      \param ai    Decision-tree state storing the resolved facing direction.
+      \param dx    Horizontal delta from enemy to target.
+      \details Used for enemies such as Nancie whose visual orientation is driven by
+               the sign of RenderComponent::w rather than a dedicated rotation value.
+    *****************************************************************************************/
     inline void FaceTargetHorizontally(
         Framework::GOC* enemy,
         Framework::EnemyDecisionTreeComponent* ai,
@@ -335,6 +372,8 @@ namespace mygame
       - Spawns a hitbox when attack_timer exceeds attack_speed.
       - Holds position and waits for the hitbox duration to expire before re-enabling input.
       - Tracks chase retention; clears hasSeenPlayer if the player is out of range too long.
+      - HeiBang overrides the generic chase with scripted dash points and an attack2 beam phase.
+      - Nancie updates sprite facing to track the player before movement/attack decisions.
       - Respects knockback guard and applies slow effect each frame.
     *****************************************************************************************/
     inline void MeleeAttack(Framework::BehaviorContext& ctx)

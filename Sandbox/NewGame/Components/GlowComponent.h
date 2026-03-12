@@ -1,11 +1,11 @@
 /*********************************************************************************************
  \file      GlowComponent.h
-what \par       SofaSpuds
+\par       SofaSpuds
  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
  \brief     Declares the generated project's editor-compatible GlowComponent.
- \details   Provides the glow stroke data used by the editor's glow paint workflow and
-            supports cloning plus serializer-driven loading from level JSON.
+ \details   Stores procedural glow stroke settings in local space for the editor glow paint
+            workflow and supports cloning plus serializer-driven loading from level JSON.
 
  \copyright
             All content © 2025 DigiPen Institute of Technology Singapore.
@@ -30,16 +30,16 @@ namespace Framework
     class GlowComponent : public GameComponent
     {
     public:
-        float r{ 1.f };
-        float g{ 0.8f };
-        float b{ 0.3f };
-        float opacity{ 1.f };
-        float brightness{ 1.f };
-        float innerRadius{ 0.05f };
-        float outerRadius{ 0.2f };
-        float falloffExponent{ 1.0f };
-        bool visible{ true };
-        std::vector<glm::vec2> points{};
+        float r{ 1.f }; ///< Base glow color red channel.
+        float g{ 0.8f }; ///< Base glow color green channel.
+        float b{ 0.3f }; ///< Base glow color blue channel.
+        float opacity{ 1.f }; ///< Alpha applied to the glow stroke.
+        float brightness{ 1.f }; ///< Intensity multiplier used by the renderer.
+        float innerRadius{ 0.05f }; ///< Radius of the fully bright glow core.
+        float outerRadius{ 0.2f }; ///< Radius where the glow falls fully to zero.
+        float falloffExponent{ 1.0f }; ///< Controls the smoothness of the glow fade.
+        bool visible{ true }; ///< Toggles rendering while keeping stroke data intact.
+        std::vector<glm::vec2> points{}; ///< Local-space points that define the glow stroke.
 
         /*************************************************************************
           \brief  Initialize the glow component (no-op for the generated template).
@@ -52,6 +52,7 @@ namespace Framework
 
         /*************************************************************************
           \brief  Deserialize glow settings and points from the active serializer.
+          \details Accepts both "opacity" and legacy "a" for alpha compatibility.
         *************************************************************************/
         void Serialize(ISerializer& s) override
         {
@@ -89,6 +90,7 @@ namespace Framework
 
         /*************************************************************************
           \brief  Clone the full glow stroke state for prefab/editor duplication.
+          \return A deep-copied GlowComponent containing the same stroke data.
         *************************************************************************/
         ComponentHandle Clone() const override
         {
