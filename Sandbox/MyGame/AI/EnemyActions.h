@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyActions.h
  \par       SofaSpuds
- \author    Choo Jian Wei - Primary Author (80%)
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author (80%)
             yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Declares and defines game-specific AI action helpers for enemy behaviour execution.
  \details   Provides reusable helpers and action routines used by the sandbox enemy AI layer to

@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyAudioController.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Immplementation ofGame-side controller that organises enemy audio pools and drives the engine-side
             AudioComponent.

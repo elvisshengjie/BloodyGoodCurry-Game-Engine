@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      GameAudioSetup.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Declares GameAudioSetup, a lightweight facade that behaviour scripts use to trigger
             audio without needing to know which controller is active.
