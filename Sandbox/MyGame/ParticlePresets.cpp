@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      ParticlePresets.cpp
  \par       SofaSpuds
- \author
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Implements sandbox-specific particle effect presets.
  \details   Defines reusable game-layer particle bursts and trails built on top of the
             engine's generic ParticleSystem spawn primitives.

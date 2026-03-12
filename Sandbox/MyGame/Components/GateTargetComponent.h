@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      GateTargetComponent.h
  \par       SofaSpuds
- \author    
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
  \brief     Declares GateTargetComponent, which stores the level file to load when a gate
             is activated.

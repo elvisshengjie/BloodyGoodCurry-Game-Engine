@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      VfxPresets.hpp
  \par       SofaSpuds
- \author
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Declares sandbox-specific combat VFX preset bindings.
  \details   Exposes helpers that bind and identify the current game's hit-impact VFX
             while keeping the engine combat systems generic.

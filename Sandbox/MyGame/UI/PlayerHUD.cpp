@@ -1,7 +1,8 @@
 /*********************************************************************************************
  \file      PlayerHUD.cpp
  \par       SofaSpuds
- \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Author, adapted for game-side build ownership
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 80%
+            erika.ishii (erika.ishii@digipen.edu) - Author , 20%
  \brief     Game-side implementation of Framework::PlayerHUDComponent.
  \details   The component declaration remains in Engine/ for serialization and ECS
             registration, but BloodyGoodCurry now owns the HUD behavior/render code so

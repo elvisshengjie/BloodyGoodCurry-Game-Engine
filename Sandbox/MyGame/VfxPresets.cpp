@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      VfxPresets.cpp
  \par       SofaSpuds
- \author
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Implements sandbox-specific combat VFX presets and bindings.
  \details   Builds the current game's hit-impact sprite and particle effects, then
             binds them into engine combat callbacks from the game layer.
@@ -34,6 +34,11 @@ namespace mygame {
         constexpr std::string_view kImpactVfxTextureKey = "impact_vfx_sheet";
         constexpr std::string_view kHeiBangBeamVfxName = "HeiBangAttack2BeamVFX";
         constexpr std::string_view kHeiBangBeamTextureKey = "heibang_attack2_laser";
+
+        /*************************************************************************************
+          \brief Builds the default hit-impact burst preset values.
+          \return Default-initialized hit-impact particle settings.
+        *************************************************************************************/
         HitImpactBurstPreset DefaultHitImpactBurstPreset()
         {
             return {};
@@ -41,6 +46,9 @@ namespace mygame {
 
         HitImpactBurstPreset gHitImpactBurstPreset = DefaultHitImpactBurstPreset();
 
+        /*************************************************************************************
+          \brief Ensures the hit-impact sprite sheet is loaded into the resource manager.
+        *************************************************************************************/
         void EnsureImpactTextureLoaded()
         {
             const auto path = Framework::ResolveAssetPath("Textures/Character/Ming_Sprite/ImpactVFX_Sprite.png");
@@ -51,6 +59,9 @@ namespace mygame {
             }
         }
 
+        /*************************************************************************************
+          \brief Ensures HeiBang's attack2 beam sprite sheet is loaded into the resource manager.
+        *************************************************************************************/
         void EnsureHeiBangBeamTextureLoaded()
         {
             const auto path = Framework::ResolveAssetPath(
@@ -62,6 +73,11 @@ namespace mygame {
             }
         }
 
+        /*************************************************************************************
+          \brief Spawns the animated hit-impact sprite VFX at a world position.
+          \param worldPos World-space position where the impact should appear.
+          \return Newly created VFX object, or nullptr when creation fails.
+        *************************************************************************************/
         Framework::GOC* SpawnHitImpactVfx(const glm::vec2& worldPos)
         {
             if (!Framework::FACTORY)
@@ -115,6 +131,12 @@ namespace mygame {
             return vfx;
         }
 
+        /*************************************************************************************
+          \brief Spawns HeiBang's attack2 beam VFX aimed toward a target position.
+          \param owner     Owning game object used for origin, facing, and layer data.
+          \param targetPos World-space target used to orient and size the beam.
+          \return Newly created beam VFX object, or nullptr when creation fails.
+        *************************************************************************************/
         Framework::GOC* SpawnHeiBangBeamVfxInternal(const Framework::GOC& owner, const glm::vec2& targetPos)
         {
             if (!Framework::FACTORY)
@@ -219,6 +241,10 @@ namespace mygame {
             return vfx;
         }
 
+        /*************************************************************************************
+          \brief Spawns the preset-driven hit-impact particle burst at a world position.
+          \param worldPos World-space position used as the particle burst origin.
+        *************************************************************************************/
         void SpawnHitImpactBurst(const glm::vec2& worldPos)
         {
             auto* particleSystem = Framework::ParticleSystem::Instance();
@@ -274,6 +300,10 @@ namespace mygame {
         }
     } // namespace
 
+    /*************************************************************************************
+      \brief Binds the game-specific combat VFX callbacks into the engine hitbox system.
+      \param logic Active LogicSystem containing the gameplay hitbox system.
+    *************************************************************************************/
     void BindCombatVfx(Framework::LogicSystem& logic)
     {
         if (!logic.hitBoxSystem)
@@ -287,32 +317,59 @@ namespace mygame {
             });
     }
 
+    /*************************************************************************************
+      \brief Returns the mutable hit-impact burst preset used by the current game.
+      \return Reference to the shared hit-impact particle preset.
+    *************************************************************************************/
     HitImpactBurstPreset& GetHitImpactBurstPreset()
     {
         return gHitImpactBurstPreset;
     }
 
+    /*************************************************************************************
+      \brief Restores the hit-impact burst preset back to its default values.
+    *************************************************************************************/
     void ResetHitImpactBurstPreset()
     {
         gHitImpactBurstPreset = DefaultHitImpactBurstPreset();
     }
 
+    /*************************************************************************************
+      \brief Spawns both hit-impact VFX layers for editor or debug previewing.
+      \param worldPos World-space preview position for the spawned VFX.
+    *************************************************************************************/
     void SpawnHitImpactPreview(const glm::vec2& worldPos)
     {
         SpawnHitImpactVfx(worldPos);
         SpawnHitImpactBurst(worldPos);
     }
 
+    /*************************************************************************************
+      \brief Public wrapper that spawns HeiBang's attack2 beam effect.
+      \param owner     Owning game object used as the beam source.
+      \param targetPos World-space target used to orient the beam.
+      \return Newly created beam VFX object, or nullptr when creation fails.
+    *************************************************************************************/
     Framework::GOC* SpawnHeiBangAttack2BeamVfx(const Framework::GOC& owner, const glm::vec2& targetPos)
     {
         return SpawnHeiBangBeamVfxInternal(owner, targetPos);
     }
 
+    /*************************************************************************************
+      \brief Checks whether a game object is the spawned hit-impact sprite VFX.
+      \param obj Object pointer to inspect.
+      \return True when the object name matches the hit-impact VFX tag.
+    *************************************************************************************/
     bool IsImpactVfxObject(const Framework::GOC* obj)
     {
         return obj && obj->GetObjectName() == kImpactVfxName;
     }
 
+    /*************************************************************************************
+      \brief Checks whether a game object is HeiBang's attack2 beam VFX.
+      \param obj Object pointer to inspect.
+      \return True when the object name matches the beam VFX tag.
+    *************************************************************************************/
     bool IsHeiBangAttack2BeamVfxObject(const Framework::GOC* obj)
     {
         return obj && obj->GetObjectName() == kHeiBangBeamVfxName;
