@@ -636,7 +636,22 @@ void AudioManager::updateFades(float deltaTime)
     }
 
 }
-
+/*************************************************************************************
+ \brief  Plays a sound by name on a new FMOD channel with optional 3D positioning.
+ \param  name    Key of the sound to play, must match a loaded sound entry.
+ \param  volume  Playback volume in the range [0.0, 1.0].
+ \param  pitch   Playback pitch multiplier (1.0 = normal speed).
+ \param  loop    If true, the channel loops until explicitly stopped.
+ \param  pos     Optional world position for 3D spatialisation. Defaults to origin.
+ \param  vel     Optional velocity vector for Doppler effect. Defaults to zero.
+ \return Unique ChannelID for the spawned channel, or 0 if playback failed.
+ \details
+    Looks up the sound by name, plays it on a free FMOD channel, then applies
+    3D attributes, volume, pitch, and loop mode. If the sound was loaded with
+    FMOD_3D mode, min/max distance attenuation is set to [1.0, 50.0] units.
+    The returned ChannelID is registered in m_channelLookup for later
+    position updates and playback queries.
+*************************************************************************************/
 AudioManager::ChannelID AudioManager::playSoundChannel(
     const std::string& name,
     float volume,
@@ -664,11 +679,6 @@ AudioManager::ChannelID AudioManager::playSoundChannel(
 
     FMOD_MODE mode;
     FMOD_Sound_GetMode(sound, &mode);
-
-    // -----------------------------------------------------------------
-    // FIX (Jian Wei): Matched range to playSound fix above.
-    // Was 1.0f–5.0f which was far too close; increased to 1.0f–50.0f.
-    // -----------------------------------------------------------------
     if (mode & FMOD_3D)
         FMOD_Channel_Set3DMinMaxDistance(channel, 1.0f, 50.0f);
 
@@ -677,7 +687,16 @@ AudioManager::ChannelID AudioManager::playSoundChannel(
     m_channels[name].push_back(channel);
     return id;
 }
-
+/*************************************************************************************
+ \brief  Updates the 3D world position and velocity of an active audio channel.
+ \param  id   ChannelID returned from playSoundChannel to identify the channel.
+ \param  pos  New world position for the sound source.
+ \param  vel  Optional velocity vector for Doppler effect. Defaults to zero.
+ \details
+    Looks up the channel via m_channelLookup and pushes the new 3D attributes
+    to FMOD. No-op if the ChannelID is not found or the channel pointer is null.
+    Called every frame by EnemyAudioController::Update to track moving enemies.
+*************************************************************************************/
 void AudioManager::setChannel3DPosition(ChannelID id, const FMOD_VECTOR* pos, const FMOD_VECTOR* vel)
 {
     auto it = m_channelLookup.find(id);
@@ -689,7 +708,16 @@ void AudioManager::setChannel3DPosition(ChannelID id, const FMOD_VECTOR* pos, co
     FMOD_VECTOR defaultVel = { 0,0,0 };
     FMOD_Channel_Set3DAttributes(channel, pos, vel ? vel : &defaultVel);
 }
-
+/*************************************************************************************
+ \brief  Queries whether an audio channel is currently playing.
+ \param  id  ChannelID returned from playSoundChannel to identify the channel.
+ \return True if the channel exists and FMOD reports it as actively playing.
+ \details
+    Looks up the channel via m_channelLookup and polls FMOD_Channel_IsPlaying.
+    Returns false if the ChannelID is not found, the channel pointer is null,
+    or FMOD reports the channel as stopped. Used by EnemyAudioController to
+    prune finished channels from its active channel list each frame.
+*************************************************************************************/
 bool AudioManager::isChannelPlaying(ChannelID id)
 {
     auto it = m_channelLookup.find(id);

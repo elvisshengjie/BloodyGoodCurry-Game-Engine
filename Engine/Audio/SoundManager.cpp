@@ -502,8 +502,20 @@ std::vector<std::string> SoundManager::getLoadedSounds() const
 
     return local->getLoadedSounds();
 }
-
-//3D Sounds
+/*************************************************************************************
+ \brief  Plays a named sound as a 3D spatial channel with position and velocity.
+ \param  name    Key of the sound to play, must match a loaded sound entry.
+ \param  volume  Playback volume in the range [0.0, 1.0].
+ \param  pitch   Playback pitch multiplier (1.0 = normal speed).
+ \param  loop    If true, the channel loops until explicitly stopped.
+ \param  pos     World position of the sound source for 3D spatialisation.
+ \param  vel     Velocity vector of the sound source for Doppler effect.
+ \return Unique ChannelID for the spawned channel, or 0 if playback failed.
+ \details
+    Thread-safe wrapper around AudioManager::playSoundChannel. Acquires the
+    internal mutex before forwarding all parameters to the audio manager.
+    Returns 0 if the audio manager is not initialized.
+*************************************************************************************/
 AudioManager::ChannelID SoundManager::playSound3DChannel(
     const std::string& name,
     float volume,
@@ -516,14 +528,33 @@ AudioManager::ChannelID SoundManager::playSound3DChannel(
     if (!m_audioManager) return 0;
     return m_audioManager->playSoundChannel(name, volume, pitch, loop, pos, vel);
 }
-
+/*************************************************************************************
+ \brief  Updates the 3D world position and velocity of an active audio channel.
+ \param  id   ChannelID of the channel to reposition.
+ \param  pos  New world position of the sound source.
+ \param  vel  New velocity vector of the sound source for Doppler effect.
+ \details
+    Thread-safe wrapper around AudioManager::setChannel3DPosition. Acquires
+    the internal mutex before forwarding to the audio manager. No-op if the
+    audio manager is not initialized. Called every frame by
+    EnemyAudioController::Update to keep enemy sounds tracking their owner.
+*************************************************************************************/
 void SoundManager::setChannel3DPosition(AudioManager::ChannelID id, const FMOD_VECTOR* pos, const FMOD_VECTOR* vel)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     if (!m_audioManager) return;
     m_audioManager->setChannel3DPosition(id, pos, vel);
 }
-
+/*************************************************************************************
+ \brief  Queries whether an audio channel is currently playing.
+ \param  id  ChannelID of the channel to query.
+ \return True if the channel exists and is actively playing, false otherwise.
+ \details
+    Thread-safe wrapper around AudioManager::isChannelPlaying. Acquires the
+    internal mutex before forwarding to the audio manager. Returns false if
+    the audio manager is not initialized. Used by EnemyAudioController to
+    prune stopped channels from its active channel list each frame.
+*************************************************************************************/
 bool SoundManager::isChannelPlaying(AudioManager::ChannelID id)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
