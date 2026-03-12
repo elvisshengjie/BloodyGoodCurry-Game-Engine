@@ -129,8 +129,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 16,
-            "enemyMaxhealth": 16
+            "enemyHealth": 40,
+            "enemyMaxhealth": 40
           },
           "EnemyTypeComponent": {
             "type": "physical"

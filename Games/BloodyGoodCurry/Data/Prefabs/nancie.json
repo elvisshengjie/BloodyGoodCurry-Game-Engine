@@ -111,8 +111,8 @@
         "attack_speed": 1.2
       },
       "EnemyHealthComponent": {
-        "enemyHealth": 6,
-        "enemyMaxhealth": 6
+        "enemyHealth": 20,
+        "enemyMaxhealth": 20
       },
       "EnemyDecisionTreeComponent": {},
       "BehaviorTreeComponent": { "treeType": "nancie" },
