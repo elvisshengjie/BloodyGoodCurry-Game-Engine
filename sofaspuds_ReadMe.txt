@@ -170,6 +170,7 @@ Crash Logging Test
 Offline Build Notes
 -------------------
 - Use `clean.bat` before rebuilding if you need a clean local build.
+- Use `clean.bat NewGame2` to clean only that project's editor/game build folders and matching web outputs.
 - Run the game once as admin if your local machine setup requires it for audio/runtime access.
 
 Web Build and Run
