@@ -89,6 +89,9 @@ namespace Framework
 		m_rangedAttack = false;
 		m_rangedHeld = false;
 		m_rangedReleased = false;
+		m_slowAttack = false;
+		m_slowHeld = false;
+		m_slowReleased = false;
 
 		// Keyboard Movement
 		if (input.IsKeyHeld(GLFW_KEY_W)) m_moveUp = true;
@@ -121,6 +124,18 @@ namespace Framework
 		if (input.IsMouseReleased(GLFW_MOUSE_BUTTON_RIGHT) || input.IsGamepadButtonReleased(GLFW_GAMEPAD_BUTTON_LEFT_BUMPER))
 		{
 			m_rangedReleased = true;
+		}
+		if (input.IsKeyPressed(GLFW_KEY_F) || input.IsGamepadButtonPressed(GLFW_GAMEPAD_BUTTON_B))
+		{
+			m_slowAttack = true;
+		}
+		if (input.IsKeyHeld(GLFW_KEY_F) || input.IsGamepadButtonHeld(GLFW_GAMEPAD_BUTTON_B))
+		{
+			m_slowHeld = true;
+		}
+		if (input.IsKeyReleased(GLFW_KEY_F) || input.IsGamepadButtonReleased(GLFW_GAMEPAD_BUTTON_B))
+		{
+			m_slowReleased = true;
 		}
 	}
 

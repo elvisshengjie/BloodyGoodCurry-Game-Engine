@@ -63,6 +63,9 @@ namespace Framework
 		bool RangedAttack() const { return m_rangedAttack; }
 		bool RangedHeld() const { return m_rangedHeld; }
 		bool RangedReleased() const { return m_rangedReleased; }
+		bool SlowAttack() const { return m_slowAttack; }
+		bool SlowHeld() const { return m_slowHeld; }
+		bool SlowReleased() const { return m_slowReleased; }
 
 		/*************************************************************************
 		  \brief  True during the frame the key transitioned from up → down.
@@ -107,5 +110,8 @@ namespace Framework
 		bool m_rangedAttack = false;
 		bool m_rangedHeld = false;
 		bool m_rangedReleased = false;
+		bool m_slowAttack = false;
+		bool m_slowHeld = false;
+		bool m_slowReleased = false;
 	};
 }

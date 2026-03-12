@@ -612,8 +612,8 @@ namespace {
         bool controllerActive = false;
 
         // --------------------------------------------------
- // Controller Aim
- // --------------------------------------------------
+        // Controller Aim
+        // --------------------------------------------------
         if (std::fabs(stickX) > stickDeadzone || std::fabs(stickY) > stickDeadzone)
         {
             const float len = std::sqrt(stickX * stickX + stickY * stickY);
@@ -855,7 +855,7 @@ namespace {
                 state.throwRequestQueued = false;
             }
         }
-        else if (input.IsKeyPressed(GLFW_KEY_F) && canStartMelee
+        else if (input.SlowAttack() && canStartMelee
             && state.slowAttackCooldownTimer <= 0.0f && (aimDirX != 0.0f || aimDirY != 0.0f))
         {
             const float offset = 0.05f;
