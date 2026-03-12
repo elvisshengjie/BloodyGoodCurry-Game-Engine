@@ -254,7 +254,7 @@ Open:
 ```text
 http://localhost:8000/BloodyGoodCurry.html?v=1
 ```
-
+http://localhost:8000/NewGame.html
 13. Notes
 ---------
 - Do not open the web HTML directly from file explorer.
