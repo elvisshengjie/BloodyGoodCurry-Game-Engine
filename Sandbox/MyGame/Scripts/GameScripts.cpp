@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      GameScripts.cpp
  \par       SofaSpuds
- \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author    Ho Jun ( h.jun@digipen.edu ) - Primary Author, 100%
 
  \brief     Implements sandbox/game-layer behaviours (scripts) registered into the engine's
             LogicSystem via function-pointer tables (Init/Update/End).

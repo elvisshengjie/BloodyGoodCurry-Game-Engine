@@ -8,6 +8,7 @@
 			convenience queries for both high-level actions and raw key/mouse state checks.
 			Designed to run once per frame via SystemManager Update(dt).
 			Debug printing is available but commented out by default.
+			Also added inputs to the controllers.
  ©2025 DigiPen Institute of Technology Singapore. All rights reserved.
 *********************************************************************************************/
 
