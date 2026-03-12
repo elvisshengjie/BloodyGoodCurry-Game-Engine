@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      DecisionTree.h
  \par       SofaSpuds
- \author   Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Declaration of the DecisionTree class, which manages and executes a decision
             tree composed of interconnected DecisionNode objects.
