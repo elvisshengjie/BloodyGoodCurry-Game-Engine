@@ -396,6 +396,8 @@ namespace Framework
                             const bool finished = !hasDeathAnimation || IsAnimationFinished(anim, "death");
                             if (timer <= 0.0f && finished)
                             {
+                                if (enemyDeathCompleteCallback)
+                                    enemyDeathCompleteCallback(goc);
                                 FACTORY->Destroy(goc);
                                 deathTimers.erase(id);
                                 return true;

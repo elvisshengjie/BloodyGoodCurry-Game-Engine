@@ -75,6 +75,10 @@ namespace Framework {
         {
             playerDeathCompleteCallback = std::move(callback);
         }
+        void SetEnemyDeathCompleteCallback(std::function<void(GOC*)> callback)
+        {
+            enemyDeathCompleteCallback = std::move(callback);
+        }
 
 
     private:
@@ -85,6 +89,7 @@ namespace Framework {
 
         CombatAudioCallback combatAudioCallback;
         std::function<void()> playerDeathCompleteCallback;
+        std::function<void(GOC*)> enemyDeathCompleteCallback;
     };
 
 } // namespace Framework

@@ -149,7 +149,7 @@ namespace mygame {
         Framework::ParticleSystem* gParticleSystem = nullptr;
         Framework::ZoomTriggerSystem* gZoomTriggerSystem = nullptr;
 
-        enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, LOADING_TRANSITION, PLAYING, PAUSED, DEFEAT, EXIT };
+        enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, LOADING_TRANSITION, PLAYING, PAUSED, DEFEAT, WIN_VIDEO, EXIT };
         GameState currentState = GameState::MAIN_MENU;
         bool editorSimulationRunning = false;
        
@@ -159,10 +159,12 @@ namespace mygame {
         DefeatScreenPage defeatScreen;
         Framework::VideoPlayer cutscenePlayer;
         Framework::VideoPlayer transitionPlayer;
+        Framework::VideoPlayer winVideoPlayer;
         LevelLoader levelLoader;
         bool cutsceneReady = false;
         bool cutsceneAudioPlaying = false;
         bool transitionReady = false;
+        bool winVideoReady = false;
         bool loadingTransitionVideoEnabled = true;
         bool loadingTransitionSkipRequested = false;
         bool loadingTransitionResumeSimulation = true;
@@ -172,6 +174,8 @@ namespace mygame {
         constexpr float kTransitionColorKeyHigh = 0.18f;
         const std::filesystem::path kTransitionVideoRelativePath =
             "Textures/UI/Transition screen/Transition screen.mpg";
+        const std::filesystem::path kWinVideoRelativePath =
+            "Textures/UI/GameWinVideo/WinGame_plmpeg.mpg";
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
@@ -273,6 +277,7 @@ namespace mygame {
             loadingTransitionSkipRequested = !loadingTransitionVideoEnabled;
             loadingTransitionResumeSimulation = resumeSimulationAfterLoad;
             loadingTransitionNextState = nextStateAfterLoad;
+            ResetHeiBangDefeat();
             editorSimulationRunning = false;
             currentState = GameState::LOADING_TRANSITION;
             BlockStateAdvanceInput();
@@ -359,6 +364,13 @@ namespace mygame {
         else {
             std::cerr << "[LoadingTransition] Warning: Could not load "
                 << transitionVideoPath.string() << "\n";
+        }
+        const auto winVideoPath = Framework::ResolveAssetPath(kWinVideoRelativePath);
+        winVideoReady = std::filesystem::exists(winVideoPath) &&
+            winVideoPlayer.Load(winVideoPath.string());
+        if (!winVideoReady) {
+            std::cerr << "[WinVideo] Warning: Could not load "
+                << winVideoPath.string() << "\n";
         }
         if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
             const std::string cutsceneAudioPath = ResolveFirstExistingAsset({
@@ -451,6 +463,7 @@ namespace mygame {
                     editorSimulationRunning = false;
                     pauseMenu.ResetLatches();
                     ResetPlayerDefeat();
+                    ResetHeiBangDefeat();
                     ResetPlayerKeyCount();
                 }
                 if (mainMenu.ConsumeExit())
@@ -564,6 +577,42 @@ namespace mygame {
                     currentState = GameState::DEFEAT;
                     break;
                 }
+                if (!editorMode && IsHeiBangDefeated())
+                {
+                    if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    {
+                        SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
+                        gameplayBGMPlaying = false;
+                    }
+                    editorSimulationRunning = false;
+                    if (winVideoReady)
+                    {
+                        winVideoPlayer.Start();
+                        currentState = GameState::WIN_VIDEO;
+                        BlockStateAdvanceInput();
+                        break;
+                    }
+
+                    if (gLogicSystem &&
+                        StartGameplayLoadTransition(gLogicSystem->Factory()->LastLevelPath().empty()
+                            ? gLogicSystem->ResolveDataPath("level.json")
+                            : gLogicSystem->Factory()->LastLevelPath(),
+                            false,
+                            GameState::MAIN_MENU,
+                            false))
+                    {
+                        ResetPlayerDefeat();
+                        ResetPlayerKeyCount();
+                        break;
+                    }
+
+                    ResetPlayerDefeat();
+                    ResetHeiBangDefeat();
+                    ResetPlayerKeyCount();
+                    currentState = GameState::MAIN_MENU;
+                    BlockStateAdvanceInput();
+                    break;
+                }
                 if (!editorMode && IsStateAdvanceInputPressed())
                 {
                     pauseMenu.ResetLatches();
@@ -614,10 +663,12 @@ namespace mygame {
                             GameState::MAIN_MENU))
                     {
                         ResetPlayerDefeat();
+                        ResetHeiBangDefeat();
                         ResetPlayerKeyCount();
                         break;
                     }
                     ResetPlayerDefeat();
+                    ResetHeiBangDefeat();
                     ResetPlayerKeyCount();
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
@@ -687,6 +738,33 @@ namespace mygame {
                     {
                         ResetPlayerDefeat();
                     }
+                }
+                break;
+
+            case GameState::WIN_VIDEO:
+                handlePerfToggle();
+                winVideoPlayer.Update(dt);
+
+                if (winVideoPlayer.IsFinished())
+                {
+                    if (gLogicSystem &&
+                        StartGameplayLoadTransition(gLogicSystem->Factory()->LastLevelPath().empty()
+                            ? gLogicSystem->ResolveDataPath("level.json")
+                            : gLogicSystem->Factory()->LastLevelPath(),
+                            false,
+                            GameState::MAIN_MENU,
+                            false))
+                    {
+                        ResetPlayerDefeat();
+                        ResetPlayerKeyCount();
+                        break;
+                    }
+
+                    ResetPlayerDefeat();
+                    ResetHeiBangDefeat();
+                    ResetPlayerKeyCount();
+                    currentState = GameState::MAIN_MENU;
+                    BlockStateAdvanceInput();
                 }
                 break;
 
@@ -804,6 +882,16 @@ namespace mygame {
                 }
                 break;
 
+            case GameState::WIN_VIDEO:
+                if (gRenderSystem)
+                {
+                    gRenderSystem->BeginMenuFrame();
+                    winVideoPlayer.Draw();
+                    gRenderSystem->EndMenuFrame();
+                    gRenderSystem->RenderBrightnessOverlay();
+                }
+                break;
+
 
             case GameState::EXIT:
                 break;
@@ -839,6 +927,7 @@ namespace mygame {
         levelLoader.Reset();
         transitionPlayer.Stop();
         cutscenePlayer.Stop();
+        winVideoPlayer.Stop();
 
         if (gLogicSystem && gLogicSystem->hitBoxSystem)
         {

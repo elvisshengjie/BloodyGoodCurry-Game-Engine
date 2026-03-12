@@ -35,6 +35,7 @@
 namespace mygame {
     namespace {
         bool gPlayerDefeated = false;
+        bool gHeiBangDefeated = false;
         float gLastHealthUiDt = 0.0f;
         unsigned gKeyUiTexture = 0u;
         bool gTriedLoadKeyUiTexture = false;
@@ -226,6 +227,11 @@ namespace mygame {
     void BindHealthPresentation(Framework::HealthSystem& health)
     {
         health.SetPlayerDeathCompleteCallback([]() { gPlayerDefeated = true; });
+        health.SetEnemyDeathCompleteCallback([](Framework::GOC* enemy)
+        {
+            if (enemy && EqualsIgnoreCase(enemy->GetObjectName(), "heibang"))
+                gHeiBangDefeated = true;
+        });
     }
 
     /*************************************************************************************
@@ -252,6 +258,23 @@ namespace mygame {
     void ResetPlayerDefeat()
     {
         gPlayerDefeated = false;
+    }
+
+    /*************************************************************************************
+     \brief  Reports whether HeiBang's death sequence has completed.
+     \return True once HeiBang has finished the death flow and is ready to trigger victory.
+    *************************************************************************************/
+    bool IsHeiBangDefeated()
+    {
+        return gHeiBangDefeated;
+    }
+
+    /*************************************************************************************
+     \brief  Clears the game-side HeiBang victory latch.
+    *************************************************************************************/
+    void ResetHeiBangDefeat()
+    {
+        gHeiBangDefeated = false;
     }
 
     /*************************************************************************************
