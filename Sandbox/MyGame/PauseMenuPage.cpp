@@ -1164,6 +1164,7 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
 
         optionsLabelRects[i] = { labelX, labelY, labelW, labelH };
         float sliderXOffset = 0.0f;
+        if (i == 0) sliderXOffset = -optionsPopupW * 0.03f;
         if (i == 3) sliderXOffset = optionsPopupW * 0.02f;
         optionsSliderRects[i] = { sliderX + sliderXOffset, sliderY, sliderW, sliderHeight };
 
@@ -1172,7 +1173,6 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
         const float fillW = sliderW * value;
         const float knobX = sliderX + sliderXOffset + fillW - knobSize * 0.5f;
         optionsSliderFillRects[i] = { sliderX + sliderXOffset, sliderY, fillW, sliderHeight };
-        optionsSliderFillRects[i] = { sliderX, sliderY, fillW, sliderHeight };
         optionsSliderKnobRects[i] = { knobX, sliderY - (knobSize - sliderHeight) * 0.5f, knobSize, knobSize };
     }
 
