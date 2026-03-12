@@ -4,6 +4,9 @@
  \par       SofaSpuds
  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) -  Author, 100%
  \brief     Simple defeat overlay shown when the player dies outside of the editor.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
  *********************************************************************************************/
 
 #include "Systems/GUISystem.hpp"

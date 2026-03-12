@@ -1422,5 +1422,8 @@ namespace mygame {
         gCollectedKeyObjects.clear();
         gUnlockedDoorObjects.clear();
     }
-
+}
+int GetPlayerKeyCount()
+{
+    return gPlayerKeyCount;
 }

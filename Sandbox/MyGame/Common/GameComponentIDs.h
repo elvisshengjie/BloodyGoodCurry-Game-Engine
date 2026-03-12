@@ -1,7 +1,11 @@
 /*********************************************************************************************
  \file      GameComponentIDs.h
+  \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \par       SofaSpuds
  \brief     Registers BloodyGoodCurry gameplay component IDs with the runtime registry.
+  \copyright
+            All content © 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 #pragma once
 

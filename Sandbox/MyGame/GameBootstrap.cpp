@@ -34,6 +34,7 @@
 #include "Editor/ParticlePresetEditor.h"
 #include "Editor/SpawnExtensions.h"
 #include "Game.hpp"
+#include "ParticleVfxPresetPersistence.h"
 #include "Component/BehaviourComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
@@ -53,6 +54,8 @@
 #include <vector>
 #include <GLFW/glfw3.h>
 #include <glm/vec3.hpp>
+
+extern int GetPlayerKeyCount();
 
 namespace
 {
@@ -853,7 +856,7 @@ namespace
     *************************************************************************************/
     void DrawMyGameOverlay(Framework::RenderSystem& render)
     {
-        int enemiesLeft = 0;
+        int enemiesLeft = 0; 
         bool hasGateDoorObjective = false;
         if (Framework::FACTORY)
         {
@@ -906,11 +909,15 @@ namespace
         }
 
         std::string text = hasGateDoorObjective
-            ? "Go to the door"
+            ? "Find 2 keys to unlock the kitchen door"
             : "Go to the gate";
         if (enemiesLeft > 0)
         {
             text = "Kill all enemies (" + std::to_string(enemiesLeft) + " left)";
+        }
+        if (GetPlayerKeyCount() >= 2)
+        {
+            text = "Go to the kitchen door";
         }
 
         const int screenW = render.ScreenWidth();
@@ -1140,6 +1147,7 @@ namespace mygame
         });
         logic.SetFindPlayerCallback(&FindAlivePlayer);
         logic.SetPostAudioRestoreCallback(&RestoreMissingLevelAudio);
+        LoadParticleVfxPresetsFromDisk();
         logic.SetStartupLevelPath(
             logic.ResolveDataPath(ChooseProjectLevelFile({ "level_RealTutorial.json", "level.json" })));
         logic.SetPostLevelLoadCallback([](Framework::LogicSystem& runtime)
