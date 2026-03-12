@@ -2,7 +2,7 @@
  \file      InputSystem.h
  \par       SofaSpuds
  \author	Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
- \brief     Handles keyboard and mouse input mapping for gameplay actions.
+ \brief     Handles controller, keyboard and mouse input mapping for gameplay actions.
  \details   Wraps the engine InputManager to poll key and mouse states each frame, and
 			exposes high-level movement/attack queries for gameplay logic. Operates as a
 			core engine subsystem driven by SystemManager (Initialize → Update(dt) → Shutdown).
@@ -63,6 +63,9 @@ namespace Framework
 		bool RangedAttack() const { return m_rangedAttack; }
 		bool RangedHeld() const { return m_rangedHeld; }
 		bool RangedReleased() const { return m_rangedReleased; }
+		bool SlowAttack() const { return m_slowAttack; }
+		bool SlowHeld() const { return m_slowHeld; }
+		bool SlowReleased() const { return m_slowReleased; }
 
 		/*************************************************************************
 		  \brief  True during the frame the key transitioned from up → down.
@@ -107,5 +110,8 @@ namespace Framework
 		bool m_rangedAttack = false;
 		bool m_rangedHeld = false;
 		bool m_rangedReleased = false;
+		bool m_slowAttack = false;
+		bool m_slowHeld = false;
+		bool m_slowReleased = false;
 	};
 }

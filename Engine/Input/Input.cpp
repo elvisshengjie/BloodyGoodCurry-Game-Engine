@@ -4,7 +4,7 @@
  \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
 
  \brief     Implementation of the inputs. Captures and stores the position of the mouse,
-            along with multiple states of a key, be it mouse or keyboard.
+            along with multiple states of a key, be it controller, mouse or keyboard.
 
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.

@@ -133,8 +133,8 @@
         "attack_speed": 0.8
       },
       "EnemyHealthComponent": {
-        "enemyHealth": 16,
-        "enemyMaxhealth": 16
+        "enemyHealth": 40,
+        "enemyMaxhealth": 40
       },
       "EnemyDecisionTreeComponent": {},
       "BehaviorTreeComponent": {
