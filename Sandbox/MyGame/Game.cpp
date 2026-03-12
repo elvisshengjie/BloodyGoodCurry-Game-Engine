@@ -123,6 +123,33 @@ namespace mygame {
             }
         }
 
+        void PlayMainMenuMusic(float targetVolume = 0.3f)
+        {
+            SoundManager& sm = SoundManager::getInstance();
+            if (!sm.isSoundLoaded(MAIN_MENU_BGM)) {
+                mainMenuBGMPlaying = false;
+                return;
+            }
+
+            if (!sm.isSoundPlaying(MAIN_MENU_BGM)) {
+                sm.playSound(MAIN_MENU_BGM, 1.0f, 1.0f, true);
+                sm.setSoundVolume(MAIN_MENU_BGM, 0.0f);
+                sm.fadeInMusic(MAIN_MENU_BGM, kBGMFadeDuration, targetVolume);
+            }
+
+            mainMenuBGMPlaying = true;
+            gameplayBGMPlaying = false;
+        }
+
+        void FadeOutMainMenuMusic()
+        {
+            SoundManager& sm = SoundManager::getInstance();
+            if (sm.isSoundLoaded(MAIN_MENU_BGM) && sm.isSoundPlaying(MAIN_MENU_BGM)) {
+                sm.fadeOutMusic(MAIN_MENU_BGM, kBGMFadeDuration);
+            }
+            mainMenuBGMPlaying = false;
+        }
+
         std::string ResolveFirstExistingAsset(std::initializer_list<const char*> candidates)
         {
             for (const char* rel : candidates)
@@ -430,19 +457,15 @@ namespace mygame {
             case GameState::MAIN_MENU:
                 mainMenu.Update(gInputSystem);
                 handlePerfToggle();
-                if (!mainMenuBGMPlaying && SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM)) {
-                    SoundManager::getInstance().playSound(MAIN_MENU_BGM, 1.0f, 1.0f, true);
-                    SoundManager::getInstance().setSoundVolume(MAIN_MENU_BGM, 0.0f);
-                    SoundManager::getInstance().fadeInMusic(MAIN_MENU_BGM, kBGMFadeDuration, 0.3f);
-                    mainMenuBGMPlaying = true;
-                    gameplayBGMPlaying = false;
+                if ((!mainMenuBGMPlaying || !SoundManager::getInstance().isSoundPlaying(MAIN_MENU_BGM)) &&
+                    SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM)) {
+                    PlayMainMenuMusic();
                 }
                 if (mainMenu.ConsumeStart())
                 {
                     if (SoundManager::getInstance().isSoundLoaded(START_BUTTTON))
                         SoundManager::getInstance().playSound(START_BUTTTON);
-                    SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM);
-                    SoundManager::getInstance().fadeOutMusic(MAIN_MENU_BGM, kBGMFadeDuration);
+                    FadeOutMainMenuMusic();
                     BlockStateAdvanceInput();
                     if (cutsceneReady) {
                         cutscenePlayer.Start();
@@ -648,13 +671,7 @@ namespace mygame {
                         SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
                         gameplayBGMPlaying = false;
                     }
-                    if (SoundManager::getInstance().isSoundLoaded(MAIN_MENU_BGM))
-                    {
-                        SoundManager::getInstance().playSound(MAIN_MENU_BGM, true); // loop
-                        SoundManager::getInstance().setSoundVolume(MAIN_MENU_BGM, 0.0f);
-                        SoundManager::getInstance().fadeInMusic(MAIN_MENU_BGM, kBGMFadeDuration, 0.4f);
-                        mainMenuBGMPlaying = true;
-                    }
+                    PlayMainMenuMusic(0.4f);
                     if (gLogicSystem &&
                         StartGameplayLoadTransition(gLogicSystem->Factory()->LastLevelPath().empty()
                             ? gLogicSystem->ResolveDataPath("level.json")
