@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      CombatAudioEvents.h
  \par       SofaSpuds
- \author
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Declares shared combat-audio event types and callback signatures.
  \details   Lets engine combat systems emit generic hurt/death/hit events while the game
             layer decides how those events map to concrete sounds.
