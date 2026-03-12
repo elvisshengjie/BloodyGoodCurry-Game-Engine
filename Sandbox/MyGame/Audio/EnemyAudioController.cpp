@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      EnemyAudioController.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Spatialised 3D audio controller for enemy hurt, attack, and death sounds.
 

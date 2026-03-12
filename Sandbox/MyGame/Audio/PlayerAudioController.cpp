@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      PlayerAudioController.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Implementation of PlayerAudioController.
 

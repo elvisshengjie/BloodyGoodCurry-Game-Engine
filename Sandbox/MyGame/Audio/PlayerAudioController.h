@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      PlayerAudioController.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author   Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Decleration of Game-side controller that organises player audio pools and drives the engine-side
             AudioComponent.
