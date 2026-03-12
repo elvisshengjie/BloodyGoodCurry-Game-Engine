@@ -44,7 +44,11 @@ Runtime Controls
 - `W/A/S/D`: Move
 - `Left Mouse Button`: Physical attack
 - `Right Mouse Button`: Ranged attack
--  F to slow enemy
+- `F`: Slow enemy
+- `Controller Left Stick`: Move
+- `Controller Right Bumper (RB)`: Physical attack
+- `Controller Left Bumper (LB)`: Ranged attack
+- `Controller B`: Slow enemy
 - `Enter`: Start / skip cutscene / pause-resume in some flows
 - `Esc`: Pause / back / skip cutscene
 - `P`: Toggle FPS
