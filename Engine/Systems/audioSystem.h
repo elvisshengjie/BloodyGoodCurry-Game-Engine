@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      AudioSystem.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Declaration of the AudioSystem class, which manages all audio-related updates
             and interfaces within the game framework.

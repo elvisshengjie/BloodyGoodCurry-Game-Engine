@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      AiSystem.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Declaration of the AiSystem class, which manages all AI-related updates for
             enemy entities within the game world.

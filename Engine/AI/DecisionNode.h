@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      DecisionNode.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Declaration of the DecisionNode class, which represents a single node in a
             decision tree structure. Each node contains:

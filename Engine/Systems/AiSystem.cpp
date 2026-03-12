@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      AiSystem.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Implementation of the AiSystem class, which manages AI behavior for enemy entities.
 

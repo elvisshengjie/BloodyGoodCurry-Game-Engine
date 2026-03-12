@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      BehaviorContext.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
  \brief     Defines the runtime context passed into behavior execution.
  \details   Bundles the owner object, delta time, shared blackboard, and gameplay callback
             hooks used by behavior-tree and decision logic during evaluation.

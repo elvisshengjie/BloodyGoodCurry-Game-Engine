@@ -1,7 +1,7 @@
 ﻿/*********************************************************************************************
  \file      AudioSystem.cpp
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
 
  \brief     Implementation of the AudioSystem class, responsible for ticking the FMOD
             engine and keeping the spatial audio listener in sync with the player.

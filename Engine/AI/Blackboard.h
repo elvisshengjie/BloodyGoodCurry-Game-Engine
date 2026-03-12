@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      Blackboard.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
+ \author    Choo Jian Wei (jianwei.c@digipen.edu) - Primary Author, 100%
  \brief     Defines a lightweight key-value blackboard for AI state sharing.
  \details   Stores arbitrary values by string key using std::any so behavior logic can
             exchange simple state without tight coupling between nodes and systems.
