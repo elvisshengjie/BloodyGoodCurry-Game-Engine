@@ -1242,8 +1242,9 @@ namespace {
       \brief KeyDoorLogic behaviour: Update hook.
       \details
       Door unlock only happens when the player collides with the door hitbox and has at
-      least one key. One key is consumed on unlock. Once unlocked, this door follows
-      GateLogic transition behavior (enemy clear + collision + GateTargetComponent load).
+      least the required number of keys. Those keys are consumed on unlock. Once unlocked,
+      this door follows GateLogic transition behavior (enemy clear + collision +
+      GateTargetComponent load).
     *****************************************************************************************/
     void KeyDoorLogic_Update(Framework::GameObjectComposition* doorObject, float)
     {
@@ -1265,10 +1266,10 @@ namespace {
         bool unlocked = !persistentDoorKey.empty() && gUnlockedDoorObjects.contains(persistentDoorKey);
         if (!unlocked)
         {
-            if (gPlayerKeyCount <= 0)
+            if (gPlayerKeyCount < mygame::kKeysRequiredForDoorUnlock)
                 return;
 
-            --gPlayerKeyCount;
+            gPlayerKeyCount -= mygame::kKeysRequiredForDoorUnlock;
             if (!persistentDoorKey.empty())
                 gUnlockedDoorObjects.insert(persistentDoorKey);
             unlocked = true;

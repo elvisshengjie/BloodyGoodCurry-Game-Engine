@@ -909,13 +909,13 @@ namespace
         }
 
         std::string text = hasGateDoorObjective
-            ? "Find 2 keys to unlock the kitchen door"
+            ? "Find " + std::to_string(mygame::kKeysRequiredForDoorUnlock) + " keys to unlock the kitchen door"
             : "Go to the gate";
         if (enemiesLeft > 0)
         {
             text = "Kill all enemies (" + std::to_string(enemiesLeft) + " left)";
         }
-        if (GetPlayerKeyCount() >= 2)
+        if (GetPlayerKeyCount() >= mygame::kKeysRequiredForDoorUnlock)
         {
             text = "Go to the kitchen door";
         }

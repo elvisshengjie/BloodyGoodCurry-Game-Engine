@@ -29,6 +29,8 @@ namespace Framework {
 }
 
 namespace mygame {
+    inline constexpr int kKeysRequiredForDoorUnlock = 2;
+
     struct AbilityCooldownUiState
     {
         bool ready{ true };
