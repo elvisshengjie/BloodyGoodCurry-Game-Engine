@@ -1163,6 +1163,7 @@ void MainMenuPage::SyncLayout(int screenW, int screenH)
         if (i == 3) sliderY += rowHeight * 0.08f;
         optionsLabelRects[i] = { labelX, labelY, labelW, labelH };
         float sliderXOffset = 0.0f;
+        if (i == 0) sliderXOffset = -optionsPopupW * 0.03f;
         if (i == 3) sliderXOffset = optionsPopupW * 0.02f;
         optionsSliderRects[i] = { sliderX + sliderXOffset, sliderY, sliderW, sliderHeight };
 
