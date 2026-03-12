@@ -1,7 +1,8 @@
 /*********************************************************************************************
  \file      GameBootstrap.cpp
  \par       SofaSpuds
- \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 80%
+            erika.ishii (erika.ishii@digipen.edu) - Author, 20%
  \brief     Installs BloodyGoodCurry-specific startup and render bootstrap defaults.
  \details   Provides the game-side bootstrap hooks that configure startup levels, editor
             defaults, save-time behaviour objects, fallback content spawns, and legacy

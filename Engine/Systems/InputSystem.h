@@ -2,7 +2,7 @@
  \file      InputSystem.h
  \par       SofaSpuds
  \author	Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
- \brief     Handles keyboard and mouse input mapping for gameplay actions.
+ \brief     Handles controller, keyboard and mouse input mapping for gameplay actions.
  \details   Wraps the engine InputManager to poll key and mouse states each frame, and
 			exposes high-level movement/attack queries for gameplay logic. Operates as a
 			core engine subsystem driven by SystemManager (Initialize → Update(dt) → Shutdown).

@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      GlowComponent.h
  \par       SofaSpuds
- \author    OpenAI Assistant
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
  \brief     Declares the GlowComponent class, a procedural glow renderer that supports
             freehand point strokes, configurable color/opacity, and radial falloff.

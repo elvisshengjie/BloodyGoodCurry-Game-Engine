@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      ParticlePresets.hpp
  \par       SofaSpuds
- \author
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Declares sandbox-specific particle effect preset helpers.
  \details   Provides game-side convenience functions for spawning predefined particle
             effects using the engine's generic ParticleSystem.

@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      ParticlePresetEditor.cpp
  \par       SofaSpuds
- \author
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Implements a live particle/VFX preset editor with preview controls.
 *********************************************************************************************/
 
