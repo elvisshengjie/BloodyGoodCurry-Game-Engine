@@ -3,6 +3,9 @@
  \par       SofaSpuds
  \author     elvisshengjie.lim (elvisshengjie.lim@digipen.edu) -  Author, 100%
  \brief     Implements the defeat overlay and restart button for non-editor gameplay.
+ \copyright
+            All content ©2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 
 #include "DefeatScreenPage.hpp"

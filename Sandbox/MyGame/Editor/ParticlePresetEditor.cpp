@@ -3,6 +3,10 @@
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Implements a live particle/VFX preset editor with preview controls.
+
+ \copyright
+            All content (c) 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 
 #include "ParticlePresetEditor.h"
@@ -10,6 +14,7 @@
 #if SOFASPUDS_ENABLE_EDITOR
 
 #include "ParticlePresets.hpp"
+#include "ParticleVfxPresetPersistence.h"
 #include "VfxPresets.hpp"
 
 #include "Component/TransformComponent.h"
@@ -20,7 +25,9 @@
 #include <imgui.h>
 #include <glm/vec2.hpp>
 #include <algorithm>
+#include <filesystem>
 #include <string>
+#include <utility>
 
 namespace mygame
 {
@@ -38,12 +45,20 @@ namespace mygame
             bool useSelectedObject{ true };
             glm::vec2 manualPreviewPos{ 0.0f, 0.0f };
             float runFacingDir{ 1.0f };
+            std::string persistenceStatus{};
+            bool persistenceStatusIsError{ false };
             PreviewControlState enemyDeath{};
             PreviewControlState runTrail{};
             PreviewControlState hitImpact{};
         };
 
         ParticleEditorState gEditorState;
+
+        void SetPersistenceStatus(std::string status, bool isError)
+        {
+            gEditorState.persistenceStatus = std::move(status);
+            gEditorState.persistenceStatusIsError = isError;
+        }
 
         bool ResolveSelectedObjectPreviewPos(glm::vec2& outPos)
         {
@@ -156,8 +171,43 @@ namespace mygame
         const bool hasParticleSystem = HasParticleSystem();
         bool usingSelectedObject = false;
         const glm::vec2 previewPos = ResolvePreviewPosition(usingSelectedObject);
+        const auto presetFilePath = GetParticleVfxPresetFilePath();
+        const std::string presetFilePathText = presetFilePath.string();
 
         ImGui::TextDisabled("Live editor for gameplay particle presets and combat impact VFX.");
+        ImGui::TextWrapped("Saved presets are stored separately from level files: %s",
+            presetFilePathText.c_str());
+        if (ImGui::Button("Load Saved Presets"))
+        {
+            const bool fileExists = std::filesystem::exists(presetFilePath);
+            if (!fileExists)
+            {
+                SetPersistenceStatus("No saved preset file found.", true);
+            }
+            else if (LoadParticleVfxPresetsFromDisk())
+            {
+                SetPersistenceStatus("Loaded particle/VFX presets from disk.", false);
+            }
+            else
+            {
+                SetPersistenceStatus("Failed to load particle/VFX presets from disk.", true);
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Save Presets"))
+        {
+            if (SaveParticleVfxPresetsToDisk())
+                SetPersistenceStatus("Saved particle/VFX presets to disk.", false);
+            else
+                SetPersistenceStatus("Failed to save particle/VFX presets to disk.", true);
+        }
+        if (!gEditorState.persistenceStatus.empty())
+        {
+            const ImVec4 statusColor = gEditorState.persistenceStatusIsError
+                ? ImVec4(1.0f, 0.45f, 0.45f, 1.0f)
+                : ImVec4(0.45f, 0.9f, 0.55f, 1.0f);
+            ImGui::TextColored(statusColor, "%s", gEditorState.persistenceStatus.c_str());
+        }
         ImGui::Checkbox("Use Selected Object", &gEditorState.useSelectedObject);
         ImGui::DragFloat2("Manual Preview Pos", &gEditorState.manualPreviewPos.x, 0.01f, -100.0f, 100.0f, "%.2f");
         ImGui::Text("Preview Target: %s", usingSelectedObject ? "Selected Object" : "Manual Position");

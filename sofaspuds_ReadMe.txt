@@ -60,7 +60,7 @@ Editor Controls
 - `Ctrl+Z`: Undo
 - `Middle Mouse Drag`: Pan editor camera
 - `Mouse Wheel`: Zoom editor camera
-- Press p FPS counter
+- Press p for FPS counter
 
 Editor Panels
 -------------

@@ -34,6 +34,7 @@
 #include "Editor/ParticlePresetEditor.h"
 #include "Editor/SpawnExtensions.h"
 #include "Game.hpp"
+#include "ParticleVfxPresetPersistence.h"
 #include "Component/BehaviourComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/TransformComponent.h"
@@ -1140,6 +1141,7 @@ namespace mygame
         });
         logic.SetFindPlayerCallback(&FindAlivePlayer);
         logic.SetPostAudioRestoreCallback(&RestoreMissingLevelAudio);
+        LoadParticleVfxPresetsFromDisk();
         logic.SetStartupLevelPath(
             logic.ResolveDataPath(ChooseProjectLevelFile({ "level_RealTutorial.json", "level.json" })));
         logic.SetPostLevelLoadCallback([](Framework::LogicSystem& runtime)
