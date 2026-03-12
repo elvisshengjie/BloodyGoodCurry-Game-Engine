@@ -2,7 +2,7 @@
 /*********************************************************************************************
  \file      ParticleVfxPresetPersistence.h
  \par       SofaSpuds
- \author
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
  \brief     Declares persistence helpers for gameplay particle and VFX presets.
 
  \copyright
