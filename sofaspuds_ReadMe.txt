@@ -44,6 +44,7 @@ Runtime Controls
 - `W/A/S/D`: Move
 - `Left Mouse Button`: Physical attack
 - `Right Mouse Button`: Ranged attack
+-  F to slow enemy
 - `Enter`: Start / skip cutscene / pause-resume in some flows
 - `Esc`: Pause / back / skip cutscene
 - `P`: Toggle FPS
