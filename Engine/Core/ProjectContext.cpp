@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      ProjectContext.cpp
  \par       SofaSpuds
- \author
+ \author    elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Declares the active game project context and project-scoped path accessors.
  \details   Provides a small engine-level API for tracking the currently selected game
             project root and resolving its asset, data, and save directories.

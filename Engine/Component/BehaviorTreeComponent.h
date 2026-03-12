@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      BehaviorTreeComponent.h
  \par       SofaSpuds
- \author
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
  \brief     Declares the component that owns and drives a runtime AI decision tree.
  \details   Stores the selected tree type, runtime decision tree instance, per-object
             blackboard state, and gameplay callback hooks used by AI behaviors.

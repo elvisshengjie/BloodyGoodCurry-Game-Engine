@@ -261,3 +261,6 @@ http://localhost:8000/BloodyGoodCurry.html?v=1
 - Always host with a local server.
 - Web builds currently use audio stubs.
 - If the editor or build state gets messy, run `clean.bat` and rebuild.
+- To clean only one project's build outputs, run `clean.bat <ProjectName>`.
+  Example:
+  - `clean.bat NewGame2`
