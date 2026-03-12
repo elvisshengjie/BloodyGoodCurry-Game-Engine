@@ -1,12 +1,13 @@
 /*********************************************************************************************
  \file      PhysicSystem.cpp
  \par       SofaSpuds
- \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
- \brief     Lightweight 2D physics step: AABB moves/collisions plus zoom-trigger checks.
- \details   Updates Transform by RigidBody velocity (dt) with axis-separated AABB tests
-            against same-layer rigidbodies (excluding zoom triggers), then checks zoom
-            trigger overlap for eligible objects. Includes simple layer filtering and
-            knockback decay.
+ \author    Ho Jun (h.jun@digipen.edu) - Primary Author, 80%
+            yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
+ \brief     Lightweight 2D physics step: AABB movement, collision response, and trigger checks.
+ \details   Updates Transform by RigidBody velocity (dt) using a uniform-grid broadphase and
+            axis-separated AABB tests against same-layer rigidbodies, then checks zoom-trigger
+            overlap for eligible objects. Includes layer filtering, knockback decay, and
+            special-case collision suppression for scripted boss dash behaviour.
  \copyright
             All content ?025 DigiPen Institute of Technology Singapore.
             All rights reserved.
@@ -32,6 +33,12 @@ namespace Framework {
     {
         constexpr float kCollisionEpsilon = 0.0005f;
 
+        /*************************************************************************************
+          \brief  Compare two strings using ASCII case-insensitive matching.
+          \param  a Left-hand string.
+          \param  b Right-hand string.
+          \return True when both strings are equal ignoring case.
+        *************************************************************************************/
         bool EqualsIgnoreCase(std::string_view a, std::string_view b)
         {
             if (a.size() != b.size())
@@ -49,16 +56,34 @@ namespace Framework {
             return true;
         }
 
+        /*************************************************************************************
+          \brief  Test whether two 1D intervals overlap.
+          \param  minA Minimum extent of range A.
+          \param  maxA Maximum extent of range A.
+          \param  minB Minimum extent of range B.
+          \param  maxB Maximum extent of range B.
+          \return True when the ranges overlap by any positive amount.
+        *************************************************************************************/
         bool RangesOverlap(float minA, float maxA, float minB, float maxB)
         {
             return minA < maxB && maxA > minB;
         }
 
+        /*************************************************************************************
+          \brief  Check whether an object represents the player body.
+          \param  obj Game object composition to inspect.
+          \return True when the object has a PlayerComponent.
+        *************************************************************************************/
         bool IsPlayerBody(const GOC* obj)
         {
             return obj && obj->GetComponent(ComponentTypeId::CT_PlayerComponent) != nullptr;
         }
 
+        /*************************************************************************************
+          \brief  Check whether HeiBang is currently in its dash animation state.
+          \param  obj Game object composition to inspect.
+          \return True when the object is HeiBang and the active animation is "dash".
+        *************************************************************************************/
         bool IsHeiBangDashing(const GOC* obj)
         {
             if (!obj || !EqualsIgnoreCase(obj->GetObjectName(), "heibang"))
@@ -70,6 +95,12 @@ namespace Framework {
             return active && EqualsIgnoreCase(active->name, "dash");
         }
 
+        /*************************************************************************************
+          \brief  Decide whether solid-body collision resolution should be skipped.
+          \param  a First colliding body.
+          \param  b Second colliding body.
+          \return True when a scripted boss dash should pass through the player body.
+        *************************************************************************************/
         bool ShouldIgnoreBodyCollision(const GOC* a, const GOC* b)
         {
             return (IsHeiBangDashing(a) && IsPlayerBody(b)) ||
@@ -94,7 +125,8 @@ namespace Framework {
       \brief  Advance physics one step: move bodies and resolve simple AABB collisions.
       \param  dt  Delta time (seconds).
       \note   Movement is axis-separated: X and Y are tested independently for wall hits.
-               Solid collisions apply to any same-layer RigidBodyComponent.
+               Solid collisions apply to same-layer rigidbodies returned by the grid query.
+               HeiBang's scripted dash temporarily bypasses player body collision resolution.
     *************************************************************************************/
     void PhysicSystem::Update(float dt)
     {

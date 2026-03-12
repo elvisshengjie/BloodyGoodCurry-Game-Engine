@@ -1,8 +1,8 @@
 /*********************************************************************************************
  \file      EnemyAttackComponent.h
  \par       SofaSpuds
- \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 100%
-
+ \author    jianwei.c (jianwei.c@digipen.edu) - Primary Author, 80%
+            yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Declaration and implementation of the EnemyAttackComponent class. This component
             defines enemy attack logic, handling timing, hitbox activation, and damage output
             during combat interactions.
@@ -14,12 +14,13 @@
             - Supports serialization of attack and hitbox parameters for configurable tuning.
             - Utilizes TransformComponent data to align attack position with the enemy
               current world coordinates.
+            - Stores lightweight runtime state used by scripted multi-phase attacks.
 
             Designed for reuse across multiple enemy types, this component forms the core
             of basic melee-style attack functionality within the game framework.
 
- \note      HitBoxComponent is managed through a std::unique_ptr to ensure proper ownership
-            semantics and automatic cleanup when the component is destroyed.
+ \note      HitBoxComponent is managed through ComponentHandleT / ComponentPool ownership,
+            so prefab cloning can duplicate attack setup without manual lifetime handling.
 
  \copyright
             All content © 2025 DigiPen Institute of Technology Singapore.
@@ -51,8 +52,8 @@ namespace Framework
         int damage{ 1 };               ///< Damage dealt by this enemy attack.
         float attack_speed{ 3.0f };     ///< Cooldown time (seconds) between consecutive attacks.
         float attack_timer{ 0.0f };     ///< Tracks elapsed time since the last attack.
-        float hitboxElapsed{ 0.0f };
-        bool attack2BeamPhaseActive{ false };
+        float hitboxElapsed{ 0.0f };    ///< Time spent in the currently active hitbox phase.
+        bool attack2BeamPhaseActive{ false }; ///< Runtime flag for HeiBang's attack2 beam follow-up.
         ComponentHandleT<HitBoxComponent> hitbox; ///< Managed hitbox instance used for attacks.
 
         /*************************************************************************************
@@ -102,6 +103,7 @@ namespace Framework
             - "hitwidth"
             - "hitheight"
             - "hitduration"
+            Runtime timers and beam-phase state are intentionally not serialized.
         *************************************************************************************/
         void Serialize(ISerializer& s) override
         {
@@ -114,7 +116,8 @@ namespace Framework
 
         /*************************************************************************************
           \brief Creates a deep copy of this component for prefab instancing.
-          \return A unique_ptr holding the cloned EnemyAttackComponent.
+          \return A component handle holding the cloned EnemyAttackComponent.
+          \details Runtime-only state such as the attack2 beam phase is reset on clone.
         *************************************************************************************/
         ComponentHandle Clone() const override
         {
@@ -135,6 +138,8 @@ namespace Framework
             - When the timer exceeds attack_speed, resets it and activates the hitbox.
             - Sets the hitbox position based on the owner transform.
             - Automatically deactivates the hitbox after its duration expires.
+            - Intended for simple self-driven enemies; more advanced AI can still manage
+              hitbox state directly while reusing the same serialized fields.
         *************************************************************************************/
         void Update(float dt, TransformComponent* tr)
         {

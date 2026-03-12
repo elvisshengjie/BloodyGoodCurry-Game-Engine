@@ -13,6 +13,8 @@
               animation completion and a minimum timer before destruction.
             - Handles player death: plays death animation, enforces invulnerability timers,
               and destroys the player only after animation + timer finish.
+            - Applies and later restores invulnerability flash/blend state on the player.
+            - Supports enemies that do not ship with a dedicated death animation clip.
             - Uses stable IDs instead of raw pointers to avoid dangling references.
             - Fully integrates with SpriteAnimationComponent for frame-based animation logic.
  \copyright
@@ -41,12 +43,24 @@ namespace Framework
         static constexpr float kInvulnerabilityFlashFrequencyHz = 8.0f;
         static constexpr BlendMode kInvulnerabilityBlendMode = BlendMode::Add;
 
+        /*****************************************************************************************
+         \brief  Emit a combat audio event when a callback has been registered.
+         \param callback Audio dispatch callback owned by the gameplay layer.
+         \param source   Object responsible for the event.
+         \param event    Event type to send to the callback.
+        *****************************************************************************************/
         void EmitCombatAudio(const CombatAudioCallback& callback, GOC* source, CombatAudioEvent event)
         {
             if (callback && source)
                 callback(source, event);
         }
 
+        /*****************************************************************************************
+         \brief  Restore the player's original render state after invulnerability flashing.
+         \param goc    Player object whose render component should be restored.
+         \param id     Stable object ID used as the lookup key.
+         \param states Cached pre-flash render states.
+        *****************************************************************************************/
         void RestorePlayerRenderState(
             GOC* goc,
             GOCId id,
@@ -72,6 +86,13 @@ namespace Framework
             states.erase(it);
         }
 
+        /*****************************************************************************************
+         \brief  Apply the temporary flashing/blend effect used during player invulnerability.
+         \param goc          Player object whose render component is being modified.
+         \param id           Stable object ID used as the cache key.
+         \param playerHealth Health component providing remaining invulnerability time.
+         \param states       Cache of original render values for later restoration.
+        *****************************************************************************************/
         void ApplyPlayerInvulnerabilityRenderState(
             GOC* goc,
             GOCId id,
@@ -266,6 +287,11 @@ namespace Framework
     {
     }
 
+    /*************************************************************************************
+      \brief  Refresh the tracked object list with any newly spawned health-bearing objects.
+      \details Uses stable object IDs so later Update passes can safely handle destruction
+               without retaining invalid raw pointers.
+    *************************************************************************************/
     void HealthSystem::RefreshTrackedObjects()
     {
         for (auto& [id, goc] : FACTORY->Objects())
@@ -292,6 +318,9 @@ namespace Framework
         }
     }
 
+    /*************************************************************************************
+      \brief  Reset runtime caches and begin tracking all current health-bearing objects.
+    *************************************************************************************/
     void HealthSystem::Initialize()
     {
         // Track by ID instead of raw pointers to avoid dangling references.
@@ -304,6 +333,15 @@ namespace Framework
     
    
 
+    /*************************************************************************************
+      \brief  Advance player/enemy health state, death handling, and invulnerability visuals.
+      \param  dt Delta time in seconds.
+      \details
+               - Adds newly spawned health objects to the tracked set.
+               - Plays death flows for enemies and players using animation-aware timers.
+               - Falls back gracefully for enemies without a "death" animation clip.
+               - Manages player invulnerability flash/blend state until the timer expires.
+    *************************************************************************************/
     void HealthSystem::Update(float dt)
     {
         RefreshTrackedObjects();
@@ -430,11 +468,19 @@ namespace Framework
                 }),
             gameObjectIds.end());
     }
+
+    /*************************************************************************************
+      \brief  Draw hook retained for interface symmetry with other engine systems.
+      \details Game-specific health bar rendering lives in Sandbox/MyGame/HealthPresentation.
+    *************************************************************************************/
     void HealthSystem::draw()
     {
         // Health presentation (HUD / enemy bars) is game-specific and now lives in Sandbox/MyGame.
     }
 
+    /*************************************************************************************
+      \brief  Clear tracked IDs and cached render/death state.
+    *************************************************************************************/
     void HealthSystem::Shutdown()
     {
         gameObjectIds.clear();
