@@ -6,7 +6,7 @@
             elvisshengjie.lim (elvisshengjie.lim@digipen.edu) - Primary Author, 10%
             h.jun (h.jun@digipen.edu) - Author, 10%
 
- \brief     Viewport + camera orchestration and (optionally) editor UI for the 2D sandbox.
+ \brief     Viewport, camera, and draw orchestration for gameplay and editor-facing views.
  \details   Coordinates how the scene is viewed and interacted with:
             - Viewports: computes the active game viewport (split/full) and exposes its rect.
             - Cameras: gameplay follow camera and (when enabled) an editor camera for pan/zoom/frame.
@@ -14,6 +14,7 @@
             - Rendering: sets view/projection matrices, submits sprites/shapes/text, and overlays.
             - Editor UI (SOFASPUDS_ENABLE_EDITOR): dockspace host, viewport controls, panels/tools,
               asset import queue + live sprite refresh, and optional paint-style glow editing.
+            - Blend handling: downgrades unsupported blend operations to safe fallbacks at runtime.
             - Lifecycle: Initialize(), per-frame draw(), Shutdown(), and menu-frame helpers.
 
 
@@ -105,6 +106,14 @@ namespace Framework {
         return sInstance;
     }
 
+    /*************************************************************************************
+      \brief  Return the current gameplay viewport rectangle in window coordinates.
+      \param  x      Output left coordinate.
+      \param  y      Output top coordinate.
+      \param  width  Output viewport width.
+      \param  height Output viewport height.
+      \return True when the stored gameplay viewport is valid and non-empty.
+    *************************************************************************************/
     bool RenderSystem::GetGameViewportRect(int& x, int& y, int& width, int& height) const
     {
         x = gameViewport.x;
@@ -126,6 +135,12 @@ namespace Framework {
             return out;
         }
 
+        /*************************************************************************************
+          \brief  Check whether the current GL context supports min/max blend equations.
+          \return True when Lighten/Darken style blending can be used safely.
+          \details Emscripten builds are treated as supported. Native builds inspect the
+                   reported GL version and conservatively fall back only when detection fails.
+        *************************************************************************************/
         inline bool BlendMinMaxSupported()
         {
 #if defined(__EMSCRIPTEN__)
@@ -164,6 +179,13 @@ namespace Framework {
 #endif
         }
 
+        /*************************************************************************************
+          \brief  Normalize a requested blend mode to one supported by the active platform.
+          \param  mode Requested sprite/UI blend mode.
+          \return Either the original mode or a safe fallback, typically Alpha.
+          \details SolidColor maps to Alpha, and Lighten/Darken fall back once with a warning
+                   if GL_MAX / GL_MIN blend equations are unavailable.
+        *************************************************************************************/
         inline BlendMode ResolveBlendMode(BlendMode mode)
         {
             static bool warnedLighten = false;

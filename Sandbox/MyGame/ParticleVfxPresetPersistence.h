@@ -1,4 +1,3 @@
-#pragma once
 /*********************************************************************************************
  \file      ParticleVfxPresetPersistence.h
  \par       SofaSpuds
@@ -9,6 +8,9 @@
             All content (c) 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
+
+#pragma once
+
 
 #include <filesystem>
 

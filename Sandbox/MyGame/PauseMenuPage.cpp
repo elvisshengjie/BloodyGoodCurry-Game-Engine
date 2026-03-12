@@ -831,6 +831,18 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
         }
 
         gfx::Graphics::resetViewProjection();
+
+        if (render && render->IsTextReadyHint()) {
+            const float talismanTextX = howToPopup.x + baseLeftPad + (howToPopup.w * 0.04f);
+            const float talismanTextY = howToPopup.y + (howToPopup.h * 0.09f);
+            const float talismanTextScale = std::clamp(howToPopup.h / 900.0f, 0.45f, 0.70f);
+            render->GetTextHint().RenderText(
+                "Press F for tailsman",
+                talismanTextX,
+                talismanTextY,
+                talismanTextScale,
+                glm::vec3(0.32f, 0.18f, 0.08f));
+        }
     }
     else {
         if (noteTex) {
