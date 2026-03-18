@@ -2110,8 +2110,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 15,
-            "enemyMaxhealth": 15
+            "enemyHealth": 10,
+            "enemyMaxhealth": 10
           },
           "EnemyTypeComponent": {
             "type": "physical"

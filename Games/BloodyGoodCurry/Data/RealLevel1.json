@@ -4045,8 +4045,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "physical"
@@ -4734,8 +4734,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "physical"
@@ -4917,8 +4917,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "physical"
@@ -5100,8 +5100,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "physical"
@@ -5283,8 +5283,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "physical"
@@ -5466,8 +5466,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "physical"
@@ -5655,8 +5655,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "ranged"
@@ -5844,8 +5844,8 @@
           "EnemyComponent": {},
           "EnemyDecisionTreeComponent": {},
           "EnemyHealthComponent": {
-            "enemyHealth": 5,
-            "enemyMaxhealth": 5
+            "enemyHealth": 4,
+            "enemyMaxhealth": 4
           },
           "EnemyTypeComponent": {
             "type": "ranged"
