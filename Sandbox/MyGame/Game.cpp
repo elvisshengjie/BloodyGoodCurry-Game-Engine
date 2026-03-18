@@ -63,6 +63,7 @@ namespace mygame {
         const char* START_BUTTTON = "MenuGameStart";
         const char* EXIT_BUTTTON = "Quit";
         const char* CUTSCENE_AUDIO = "CutsceneAudio";
+        const char* WIN_VIDEO_AUDIO = "WinVideoAudio";
         // BGM Sounds
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
@@ -190,6 +191,7 @@ namespace mygame {
         LevelLoader levelLoader;
         bool cutsceneReady = false;
         bool cutsceneAudioPlaying = false;
+        bool winVideoAudioPlaying = false;
         bool transitionReady = false;
         bool winVideoReady = false;
         bool loadingTransitionVideoEnabled = true;
@@ -203,6 +205,8 @@ namespace mygame {
             "Textures/UI/Transition screen/Transition screen.mpg";
         const std::filesystem::path kWinVideoRelativePath =
             "Textures/UI/GameWinVideo/WinGame_plmpeg.mpg";
+        const std::filesystem::path kWinVideoAudioRelativePath =
+            "Textures/UI/GameWinVideo/Cutscene04.mp3";
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
@@ -398,6 +402,14 @@ namespace mygame {
         if (!winVideoReady) {
             std::cerr << "[WinVideo] Warning: Could not load "
                 << winVideoPath.string() << "\n";
+        }
+        if (!SoundManager::getInstance().isSoundLoaded(WIN_VIDEO_AUDIO)) {
+            const auto winVideoAudioPath = Framework::ResolveAssetPath(kWinVideoAudioRelativePath);
+            if (!std::filesystem::exists(winVideoAudioPath) ||
+                !SoundManager::getInstance().loadSound(WIN_VIDEO_AUDIO, winVideoAudioPath.string())) {
+                std::cerr << "[WinVideo] Warning: Could not load "
+                    << winVideoAudioPath.string() << "\n";
+            }
         }
         if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
             const std::string cutsceneAudioPath = ResolveFirstExistingAsset({
@@ -611,6 +623,11 @@ namespace mygame {
                     if (winVideoReady)
                     {
                         winVideoPlayer.Start();
+                        if (SoundManager::getInstance().isSoundLoaded(WIN_VIDEO_AUDIO)) {
+                            SoundManager::getInstance().stopSound(WIN_VIDEO_AUDIO);
+                            SoundManager::getInstance().playSound(WIN_VIDEO_AUDIO, 1.0f, 1.0f, false);
+                            winVideoAudioPlaying = true;
+                        }
                         currentState = GameState::WIN_VIDEO;
                         BlockStateAdvanceInput();
                         break;
@@ -764,6 +781,10 @@ namespace mygame {
 
                 if (winVideoPlayer.IsFinished())
                 {
+                    if (winVideoAudioPlaying && SoundManager::getInstance().isSoundLoaded(WIN_VIDEO_AUDIO)) {
+                        SoundManager::getInstance().stopSound(WIN_VIDEO_AUDIO);
+                    }
+                    winVideoAudioPlaying = false;
                     if (gLogicSystem &&
                         StartGameplayLoadTransition(gLogicSystem->Factory()->LastLevelPath().empty()
                             ? gLogicSystem->ResolveDataPath("level.json")
@@ -945,6 +966,9 @@ namespace mygame {
         transitionPlayer.Stop();
         cutscenePlayer.Stop();
         winVideoPlayer.Stop();
+        if (SoundManager::getInstance().isSoundLoaded(WIN_VIDEO_AUDIO)) {
+            SoundManager::getInstance().stopSound(WIN_VIDEO_AUDIO);
+        }
 
         if (gLogicSystem && gLogicSystem->hitBoxSystem)
         {
