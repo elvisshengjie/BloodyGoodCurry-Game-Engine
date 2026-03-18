@@ -14,9 +14,12 @@
             movement velocity sets in Patrol, MeleeAttack, RangedAttack.
             Added HeiBang boss attack-point routing, attack2 beam follow-up support,
             and Nancie horizontal facing correction.
+            Replaced ApplySlow (per-frame velocity multiply) with TickSlowTimer/GetSlowScale.
+            TickSlowTimer is called once per function entry to tick the timer exactly once
+            per frame. GetSlowScale is a pure read used at velocity assignment sites.
 
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            All content 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 #pragma once
@@ -38,7 +41,7 @@
 #include "Factory/Factory.h"
 #include "../VfxPresets.hpp"
 #include "../Audio/GameAudioSetup.h"
-#include "EnemyConditions.h" 
+#include "EnemyConditions.h"
 #include <cmath>
 #include <algorithm>
 #include <array>
@@ -53,13 +56,13 @@ namespace mygame
     static constexpr float kEnemyProjectileBaseSpeed = 0.6f;
     static constexpr float kRangedAttackFireDist = kDetectionRadius;  // 3.5f
     static constexpr float kMeleeAttackDist = 0.8f;
+
     /*****************************************************************************************
       \brief Performs a case-insensitive search for an animation by name.
       \param anim    SpriteAnimationComponent to search within.
       \param desired Target animation name to match.
       \return Index of the matching animation, or -1 if not found.
     *****************************************************************************************/
-
     inline int FindAnimationIndex(Framework::SpriteAnimationComponent* anim, std::string_view desired)
     {
         if (!anim) return -1;
@@ -82,6 +85,7 @@ namespace mygame
         }
         return -1;
     }
+
     /*****************************************************************************************
       \brief Sets the active animation on an object's SpriteAnimationComponent by name.
       \param goc  Game object composition that owns the animation component.
@@ -99,6 +103,7 @@ namespace mygame
         if (idx >= 0 && idx != anim->ActiveAnimationIndex())
             anim->SetActiveAnimation(idx);
     }
+
     /*****************************************************************************************
       \brief Returns the total playback duration in seconds for a named animation.
       \param goc  Game object composition that owns the animation component.
@@ -195,6 +200,7 @@ namespace mygame
 
         return {};
     }
+
     /*****************************************************************************************
       \brief Searches the factory object list for the first object with a PlayerComponent.
       \return Pointer to the player game object, or nullptr if none exists.
@@ -210,32 +216,36 @@ namespace mygame
         }
         return nullptr;
     }
+
     /*****************************************************************************************
-      \brief Applies a speed penalty to the enemy's rigidbody if a slow effect is active.
+      \brief Ticks the slow timer down by dt. Call exactly once per enemy per frame,
+             at the top of the AI function before any early returns.
       \param enemy Enemy game object that owns EnemyComponent.
-      \param rb    RigidBodyComponent to scale velocity on.
-      \param dt    Delta time in seconds, used to tick down slowTimer.
-      \details Scales velX and velY by slowMultiplier each frame the timer is active.
-               Resets slowMultiplier to 1.0f and clears slowTimer when it expires.
+      \param dt    Delta time in seconds.
     *****************************************************************************************/
-    inline void ApplySlow(Framework::GOC* enemy, Framework::RigidBodyComponent* rb, float dt)
+    inline void TickSlowTimer(Framework::GOC* enemy, float dt)
     {
         auto* enemyComp = enemy->GetComponentType<Framework::EnemyComponent>(CT_EnemyComponent());
         if (!enemyComp) return;
-
         if (enemyComp->slowTimer > 0.0f)
         {
-            enemyComp->slowTimer -= dt;
-
-            rb->velX *= enemyComp->slowMultiplier;
-            rb->velY *= enemyComp->slowMultiplier;
-
+            enemyComp->slowTimer = std::max(0.0f, enemyComp->slowTimer - dt);
             if (enemyComp->slowTimer <= 0.0f)
-            {
-                enemyComp->slowTimer = 0.0f;
                 enemyComp->slowMultiplier = 1.0f;
-            }
         }
+    }
+
+    /*****************************************************************************************
+      \brief Returns the current slow speed scale for this enemy.
+             Pure read — no side effects. Use at velocity assignment sites.
+      \param enemy Enemy game object that owns EnemyComponent.
+      \return slowMultiplier while slow is active, 1.0f otherwise.
+    *****************************************************************************************/
+    inline float GetSlowScale(Framework::GOC* enemy)
+    {
+        auto* enemyComp = enemy->GetComponentType<Framework::EnemyComponent>(CT_EnemyComponent());
+        if (!enemyComp || enemyComp->slowTimer <= 0.0f) return 1.0f;
+        return enemyComp->slowMultiplier;
     }
 
     /*****************************************************************************************
@@ -275,7 +285,7 @@ namespace mygame
       - Initialises patrolOriginX/Y on first call.
       - Reverses direction at patrol range edges or on wall collision.
       - Pauses briefly at each turn-around point.
-      - Respects knockback guard and applies slow effect each frame.
+      - Respects knockback guard. Slow applied via TickSlowTimer/GetSlowScale.
     *****************************************************************************************/
     inline void Patrol(Framework::BehaviorContext& ctx)
     {
@@ -287,6 +297,8 @@ namespace mygame
         auto* ai = enemy->GetComponentType<Framework::EnemyDecisionTreeComponent>(Framework::ComponentTypeId::CT_EnemyDecisionTreeComponent);
 
         if (!rb || !tr || !ai) return;
+        TickSlowTimer(enemy, ctx.dt);
+
         // KNOCKBACK GUARD
         if (ai->knockbackTimer > 0.0f)
         {
@@ -320,7 +332,7 @@ namespace mygame
             return;
         }
 
-        rb->velX = patrolSpeed * ai->dir;
+        rb->velX = patrolSpeed * ai->dir * GetSlowScale(enemy);
         rb->velY = 0.0f;
 
         float futureX = tr->x + rb->velX * ctx.dt;
@@ -361,7 +373,6 @@ namespace mygame
 
         ai->prevX = tr->x;
         PlayAnim(enemy, "idle");
-        ApplySlow(enemy, rb, ctx.dt);
     }
 
     /*****************************************************************************************
@@ -374,7 +385,7 @@ namespace mygame
       - Tracks chase retention; clears hasSeenPlayer if the player is out of range too long.
       - HeiBang overrides the generic chase with scripted dash points and an attack2 beam phase.
       - Nancie updates sprite facing to track the player before movement/attack decisions.
-      - Respects knockback guard and applies slow effect each frame.
+      - Respects knockback guard. Slow applied via TickSlowTimer/GetSlowScale.
     *****************************************************************************************/
     inline void MeleeAttack(Framework::BehaviorContext& ctx)
     {
@@ -388,6 +399,8 @@ namespace mygame
         auto* audio = enemy->GetComponentType<Framework::AudioComponent>(Framework::ComponentTypeId::CT_AudioComponent);
         auto* player = FindPlayer();
         if (!attack || !rb || !tr || !ai || !player) return;
+        TickSlowTimer(enemy, ctx.dt);
+
         // KNOCKBACK GUARD
         if (ai->knockbackTimer > 0.0f)
         {
@@ -398,6 +411,7 @@ namespace mygame
                 PlayAnim(enemy, "idle");
             return;
         }
+
         auto* trPlayer = player->GetComponentType<Framework::TransformComponent>(Framework::ComponentTypeId::CT_TransformComponent);
         if (!trPlayer) return;
 
@@ -410,10 +424,11 @@ namespace mygame
             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         const bool isHeiBang = (enemyName == "heibang");
         const bool isNancie = (enemyName == "nancie");
+
         static constexpr std::array<std::pair<float, float>, 3> kHeiBangAttackPoints{ {
             {0.704178f, -1.02655f},
-            {1.21166f, -2.18211f},
-            {1.61999f, -1.57658f}
+            {1.21166f,  -2.18211f},
+            {1.61999f,  -1.57658f}
         } };
 
         if (isNancie)
@@ -458,6 +473,7 @@ namespace mygame
             return;
         }
 
+        // --- HeiBang scripted dash-to-point behaviour ---
         if (isHeiBang)
         {
             if (ai->currentPathIndex >= kHeiBangAttackPoints.size())
@@ -473,10 +489,9 @@ namespace mygame
             if (pointDistance > pointArriveDist)
             {
                 float pointNorm = (pointDistance > 0.001f) ? pointDistance : 1.0f;
-                rb->velX = (pDx / pointNorm) * dashSpeed;
-                rb->velY = (pDy / pointNorm) * dashSpeed;
+                rb->velX = (pDx / pointNorm) * dashSpeed * GetSlowScale(enemy);
+                rb->velY = (pDy / pointNorm) * dashSpeed * GetSlowScale(enemy);
                 PlayAnim(enemy, "dash");
-                ApplySlow(enemy, rb, ctx.dt);
                 return;
             }
 
@@ -518,16 +533,16 @@ namespace mygame
             return;
         }
 
+        // --- Generic melee chase ---
         constexpr float speed = 1.0f;
         constexpr float accel = 2.0f;
         constexpr float stopDist = 0.1f;
 
-
         if (distance > stopDist)
         {
             float norm = (distance > 0.001f) ? distance : 1.0f;
-            float targetVX = (dx / norm) * speed;
-            float targetVY = (dy / norm) * speed;
+            float targetVX = (dx / norm) * speed * GetSlowScale(enemy);
+            float targetVY = (dy / norm) * speed * GetSlowScale(enemy);
             rb->velX += (targetVX - rb->velX) * std::min(accel * ctx.dt, 1.0f);
             rb->velY += (targetVY - rb->velY) * std::min(accel * ctx.dt, 1.0f);
             if (isNancie)
@@ -557,7 +572,7 @@ namespace mygame
                 float hbHeight = rb->height * 0.8f;
                 float spawnX = tr->x + (direction * hbWidth * 0.25f);
                 float spawnY = tr->y;
-               
+
                 std::string meleeAnim = "slashattack";
                 if (isNancie)
                 {
@@ -595,7 +610,6 @@ namespace mygame
             ai->chaseTimer = 0.0f;
             ai->hasSeenPlayer = true;
         }
-        ApplySlow(enemy, rb, ctx.dt);
     }
 
     /*****************************************************************************************
@@ -607,7 +621,7 @@ namespace mygame
       - Projectile spawn is deferred to the end of the rangeattack animation via pendingProjectile.
       - Enters a retreat phase after each shot using retreatTimer.
       - Tracks chase retention; clears hasSeenPlayer if the player is out of range too long.
-      - Respects knockback guard and applies slow effect each frame.
+      - Respects knockback guard. Slow applied via TickSlowTimer/GetSlowScale.
     *****************************************************************************************/
     inline void RangedAttack(Framework::BehaviorContext& ctx)
     {
@@ -622,6 +636,8 @@ namespace mygame
 
         auto* player = FindPlayer();
         if (!attack || !rb || !tr || !ai || !player) return;
+        TickSlowTimer(enemy, ctx.dt);
+
         // KNOCKBACK GUARD
         if (ai->knockbackTimer > 0.0f)
         {
@@ -632,6 +648,7 @@ namespace mygame
                 PlayAnim(enemy, "idle");
             return;
         }
+
         auto* trPlayer = player->GetComponentType<Framework::TransformComponent>
             (Framework::ComponentTypeId::CT_TransformComponent);
         if (!trPlayer) return;
@@ -676,20 +693,19 @@ namespace mygame
 
         float& retreatTimer = ai->retreatTimer;
 
-
         if (retreatTimer > 0.0f)
         {
             retreatTimer -= ctx.dt;
-            rb->velX = -dirX * retreatSpeed;
-            rb->velY = -dirY * retreatSpeed;
+            rb->velX = -dirX * retreatSpeed * GetSlowScale(enemy);
+            rb->velY = -dirY * retreatSpeed * GetSlowScale(enemy);
         }
         else if (distance < minDist)
         {
-            rb->velX = ((rand() % 100) < 20) ? -dirX * retreatSpeed: rb->velX * 0.5f;
+            rb->velX = ((rand() % 100) < 20) ? -dirX * retreatSpeed * GetSlowScale(enemy) : rb->velX * 0.5f;
         }
         else if (distance > maxDist)
         {
-            rb->velX = dirX * speed;
+            rb->velX = dirX * speed * GetSlowScale(enemy);
         }
         else
         {
@@ -718,7 +734,6 @@ namespace mygame
             ai->rangedAttackActive = true;
             ai->rangedAttackTimer = 0.0f;
             ai->rangedAttackDuration = GetAnimDuration(enemy, "rangeattack");
-            std::cout << "[RangedAttack] animDuration=" << ai->rangedAttackDuration << "\n";
             rb->velX = 0.0f;
             rb->velY = 0.0f;
             retreatTimer = retreatDuration;
@@ -742,6 +757,5 @@ namespace mygame
             ai->chaseTimer = 0.0f;
             ai->hasSeenPlayer = true;
         }
-        ApplySlow(enemy, rb, ctx.dt);
     }
 }
