@@ -484,8 +484,8 @@ namespace Framework
                                 ComponentTypeId::CT_EnemyComponent))
                             {
 
-                                enemyComp->slowTimer = 1.2f;       // slow lasts 5 seconds
-                                enemyComp->slowMultiplier = 0.4f;  // enemy moves at 20% speed
+                                enemyComp->slowTimer = 1.5f;       // slow lasts 1.5 seconds
+                                enemyComp->slowMultiplier = 0.6f;  // enemy moves at 30% speed
                                 std::cout << "Enemy slowed!\n";
                             }
                         }
