@@ -424,6 +424,9 @@ namespace mygame
             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         const bool isHeiBang = (enemyName == "heibang");
         const bool isNancie = (enemyName == "nancie");
+        const float chaseRetentionRadius = isHeiBang
+            ? kHeiBangChaseRetentionRadius
+            : kChaseRetentionRadius;
 
         static constexpr std::array<std::pair<float, float>, 3> kHeiBangAttackPoints{ {
             {0.704178f, -1.02655f},
@@ -595,7 +598,7 @@ namespace mygame
             }
         }
 
-        if (distance > kChaseRetentionRadius)
+        if (distance > chaseRetentionRadius)
         {
             ai->chaseTimer += ctx.dt;
             if (ai->chaseTimer >= ai->maxChaseDuration)

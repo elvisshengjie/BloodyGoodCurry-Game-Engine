@@ -36,6 +36,8 @@ namespace mygame
     static constexpr float kMeleeChaseRetentionRadius = 1.2f;   ///< Melee enemies disengage if the player exceeds this distance.
     static constexpr float kRangedDetectionRadius = 0.5f;       ///< Aggro radius for ranged enemies; slightly wider than melee.
     static constexpr float kRangedChaseRetentionRadius = 2.0f;  ///< Ranged enemies retain chase longer before disengaging.
+    static constexpr float kHeiBangDetectionRadius = 3.0f;      ///< Boss aggro radius so HeiBang engages from across the arena.
+    static constexpr float kHeiBangChaseRetentionRadius = 4.0f; ///< Boss retention radius so HeiBang stays active once engaged.
 
     // Aliases so EnemyActions.h references compile without changes.
     static constexpr float kDetectionRadius = kRangedDetectionRadius;
@@ -87,12 +89,18 @@ namespace mygame
 
         if (!ai || !enemyTr || !playerTr) return false;
 
-        // Pick radii based on enemy type.
+        const bool isHeiBang = ctx.owner->GetObjectName() == "heibang";
+
+        // Pick radii based on enemy type, with a wider arena-sized boss override.
         const bool isRanged = typeComp &&
             typeComp->Etype == Framework::EnemyTypeComponent::EnemyType::ranged;
 
-        const float detectR = isRanged ? kRangedDetectionRadius : kMeleeDetectionRadius;
-        const float retentionR = isRanged ? kRangedChaseRetentionRadius : kMeleeChaseRetentionRadius;
+        const float detectR = isHeiBang
+            ? kHeiBangDetectionRadius
+            : (isRanged ? kRangedDetectionRadius : kMeleeDetectionRadius);
+        const float retentionR = isHeiBang
+            ? kHeiBangChaseRetentionRadius
+            : (isRanged ? kRangedChaseRetentionRadius : kMeleeChaseRetentionRadius);
 
         float dx = enemyTr->x - playerTr->x;
         float dy = enemyTr->y - playerTr->y;
