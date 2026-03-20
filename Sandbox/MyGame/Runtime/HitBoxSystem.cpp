@@ -284,10 +284,35 @@ namespace Framework
                 continue;
             }
 
-            if (it->isProjectile || HB->team == HitBoxComponent::Team::Thrown)
+            // AFTER
+            if (it->isProjectile || HB->team == HitBoxComponent::Team::Thrown || HB->team == HitBoxComponent::Team::PlayerSlow)
             {
                 it->hitbox->spawnX += it->velX * dt;
                 it->hitbox->spawnY += it->velY * dt;
+
+                // Wall collision — destroy projectile on contact with any "rect" object
+                AABB movedAABB(HB->spawnX, HB->spawnY, HB->width, HB->height);
+                for (auto& pair : FACTORY->Objects())
+                {
+                    if (!pair.second) continue;
+                    GOC* goc = pair.second.get();
+
+                    std::string wallName = goc->GetObjectName();
+                    std::transform(wallName.begin(), wallName.end(), wallName.begin(),
+                        [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                    if (wallName != "rect") continue;
+
+                    auto* wallTr = goc->GetComponentType<TransformComponent>(ComponentTypeId::CT_TransformComponent);
+                    auto* wallRb = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent);
+                    if (!wallTr || !wallRb) continue;
+
+                    AABB wallAABB(wallTr->x, wallTr->y, wallRb->width, wallRb->height);
+                    if (Collision::CheckCollisionRectToRect(movedAABB, wallAABB))
+                    {
+                        HB->active = false;  // flags the projectile for removal at top of loop
+                        break;
+                    }
+                }
             }
 
             AABB hitboxAABB(HB->spawnX, HB->spawnY, HB->width, HB->height);
