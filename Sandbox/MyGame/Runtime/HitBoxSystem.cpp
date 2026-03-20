@@ -385,8 +385,8 @@ namespace Framework
                             if (auto* enemyComp = obj->GetComponentType<EnemyComponent>(
                                 ComponentTypeId::CT_EnemyComponent))
                             {
-                                enemyComp->slowTimer = 1.5f;  // slow lasts 1.5 seconds
-                                enemyComp->slowMultiplier = 0.6f;  // enemy moves at 60% speed
+                                enemyComp->slowTimer = 2.5f;  // slow lasts 1.5 seconds
+                                enemyComp->slowMultiplier = 0.3f;  // enemy moves at 60% speed
                             }
                         }
 
