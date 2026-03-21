@@ -231,6 +231,7 @@ namespace mygame {
         }
 
         // Secret instructor cheats: type these words on the keyboard during gameplay.
+        // `gort`, `gorl1`, `gorl2`, `gorl3`, and `gorll` jump to specific campaign levels.
         // `gonext` advances to the next campaign level, `goend` jumps to HeiBang's final level,
         // and `godcoming` toggles god mode on/off.
         bool godModeEnabled = false;
@@ -337,6 +338,12 @@ namespace mygame {
                     PushCheatCharacter(static_cast<char>('a' + (key - GLFW_KEY_A)));
             }
 
+            for (int key = GLFW_KEY_0; key <= GLFW_KEY_9; ++key)
+            {
+                if (gInputSystem->IsKeyPressed(key))
+                    PushCheatCharacter(static_cast<char>('0' + (key - GLFW_KEY_0)));
+            }
+
             if (gInputSystem->IsKeyPressed(GLFW_KEY_BACKSPACE) && !cheatInputBuffer.empty())
                 cheatInputBuffer.pop_back();
         }
@@ -370,6 +377,71 @@ namespace mygame {
                 std::cout << "[Cheat] godcoming -> god mode "
                     << (godModeEnabled ? "ENABLED" : "DISABLED") << "\n";
                 BlockStateAdvanceInput(0.1f);
+                return false;
+            }
+
+            if (BufferEndsWith("gort"))
+            {
+                if (StartCheatLevelLoad("gort",
+                    ResolveFirstExistingData({ "level_RealTutorial.json" })))
+                {
+                    return true;
+                }
+
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] gort -> tutorial level file not found\n";
+                return false;
+            }
+
+            if (BufferEndsWith("gorl1"))
+            {
+                if (StartCheatLevelLoad("gorl1",
+                    ResolveFirstExistingData({ "RealLevel1.json" })))
+                {
+                    return true;
+                }
+
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] gorl1 -> RealLevel1 file not found\n";
+                return false;
+            }
+
+            if (BufferEndsWith("gorl2"))
+            {
+                if (StartCheatLevelLoad("gorl2",
+                    ResolveFirstExistingData({ "RealLevel2.json" })))
+                {
+                    return true;
+                }
+
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] gorl2 -> RealLevel2 file not found\n";
+                return false;
+            }
+
+            if (BufferEndsWith("gorl3"))
+            {
+                if (StartCheatLevelLoad("gorl3",
+                    ResolveFirstExistingData({ "RealLevel3.json" })))
+                {
+                    return true;
+                }
+
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] gorl3 -> RealLevel3 file not found\n";
+                return false;
+            }
+
+            if (BufferEndsWith("gorll"))
+            {
+                if (StartCheatLevelLoad("gorll",
+                    ResolveFirstExistingData({ "RealLastLevl.json", "RealLastLevel.json" })))
+                {
+                    return true;
+                }
+
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] gorll -> final boss level file not found\n";
                 return false;
             }
 
