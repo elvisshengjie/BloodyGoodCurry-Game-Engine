@@ -31,11 +31,13 @@
 #include "Video/VideoPlayer.hpp"
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <GLFW/glfw3.h>
 #include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <MainMenuPage.hpp>
 #include <PauseMenuPage.hpp>
 #include <DefeatScreenPage.hpp>
@@ -226,6 +228,175 @@ namespace mygame {
             return stateAdvanceInputBlockTimer <= 0.0f &&
                 gInputSystem &&
                 (gInputSystem->IsKeyPressed(START_KEY) || gInputSystem->IsKeyPressed(PAUSE_KEY));
+        }
+
+        // Secret instructor cheats: type these words on the keyboard during gameplay.
+        // `gonext` advances to the next campaign level, `goend` jumps to HeiBang's final level,
+        // and `godcoming` toggles god mode on/off.
+        bool godModeEnabled = false;
+        std::string cheatInputBuffer;
+        constexpr float kGodModeDamageMultiplier = 2.0f;
+        constexpr std::size_t kMaxCheatBufferLength = 16;
+
+        std::string ToLowerAscii(std::string value)
+        {
+            std::transform(value.begin(), value.end(), value.begin(),
+                [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+            return value;
+        }
+
+        bool BufferEndsWith(std::string_view suffix)
+        {
+            return cheatInputBuffer.size() >= suffix.size() &&
+                std::equal(suffix.rbegin(), suffix.rend(), cheatInputBuffer.rbegin());
+        }
+
+        void PushCheatCharacter(char c)
+        {
+            cheatInputBuffer.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+            if (cheatInputBuffer.size() > kMaxCheatBufferLength)
+            {
+                cheatInputBuffer.erase(0, cheatInputBuffer.size() - kMaxCheatBufferLength);
+            }
+        }
+
+        std::filesystem::path ResolveFirstExistingData(std::initializer_list<const char*> candidates)
+        {
+            if (!gLogicSystem)
+                return {};
+
+            std::error_code ec;
+            for (const char* rel : candidates)
+            {
+                if (!rel || *rel == '\0')
+                    continue;
+
+                const auto resolved = gLogicSystem->ResolveDataPath(rel);
+                if (std::filesystem::exists(resolved, ec) && std::filesystem::is_regular_file(resolved, ec))
+                    return resolved;
+
+                ec.clear();
+            }
+
+            return {};
+        }
+
+        std::filesystem::path ResolveNextCheatLevelPath()
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+                return {};
+
+            const std::string currentLevelName = ToLowerAscii(
+                gLogicSystem->Factory()->LastLevelPath().filename().string());
+
+            if (currentLevelName == "level_realtutorial.json" ||
+                currentLevelName == "level_realtutorial2.json" ||
+                currentLevelName == "level_realtutorial4.json")
+            {
+                return ResolveFirstExistingData({ "RealLevel1.json" });
+            }
+            if (currentLevelName == "reallevel1.json" ||
+                currentLevelName == "reallevel1noenemy.json")
+            {
+                return ResolveFirstExistingData({ "RealLevel2.json" });
+            }
+            if (currentLevelName == "reallevel2.json")
+                return ResolveFirstExistingData({ "RealLevel3.json" });
+            if (currentLevelName == "reallevel3.json")
+                return ResolveFirstExistingData({ "RealLastLevel.json", "RealLastLevl.json" });
+
+            return {};
+        }
+
+        bool StartCheatLevelLoad(std::string_view cheatName, const std::filesystem::path& levelPath)
+        {
+            if (levelPath.empty())
+                return false;
+
+            if (!RequestLoadLevel(levelPath))
+                return false;
+
+            ResetPlayerDefeat();
+            ResetHeiBangDefeat();
+            ResetPlayerKeyCount();
+            cheatInputBuffer.clear();
+            std::cout << "[Cheat] " << cheatName << " -> loading "
+                << levelPath.filename().string() << "\n";
+            BlockStateAdvanceInput(0.1f);
+            return true;
+        }
+
+        void CollectCheatCharacters()
+        {
+            if (!gInputSystem)
+                return;
+
+            for (int key = GLFW_KEY_A; key <= GLFW_KEY_Z; ++key)
+            {
+                if (gInputSystem->IsKeyPressed(key))
+                    PushCheatCharacter(static_cast<char>('a' + (key - GLFW_KEY_A)));
+            }
+
+            if (gInputSystem->IsKeyPressed(GLFW_KEY_BACKSPACE) && !cheatInputBuffer.empty())
+                cheatInputBuffer.pop_back();
+        }
+
+        bool HandleCheatCodeInput()
+        {
+            if (!gInputSystem || Framework::RenderSystem::IsEditorVisible())
+            {
+                cheatInputBuffer.clear();
+                return false;
+            }
+
+            const bool allowCheats =
+                currentState == GameState::PLAYING ||
+                currentState == GameState::PAUSED ||
+                currentState == GameState::DEFEAT;
+            if (!allowCheats)
+            {
+                cheatInputBuffer.clear();
+                return false;
+            }
+
+            CollectCheatCharacters();
+            if (cheatInputBuffer.empty())
+                return false;
+
+            if (BufferEndsWith("godcoming"))
+            {
+                godModeEnabled = !godModeEnabled;
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] godcoming -> god mode "
+                    << (godModeEnabled ? "ENABLED" : "DISABLED") << "\n";
+                BlockStateAdvanceInput(0.1f);
+                return false;
+            }
+
+            if (BufferEndsWith("goend"))
+            {
+                if (StartCheatLevelLoad("goend",
+                    ResolveFirstExistingData({ "RealLastLevel.json", "RealLastLevl.json" })))
+                {
+                    return true;
+                }
+
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] goend -> final level file not found\n";
+                return false;
+            }
+
+            if (BufferEndsWith("gonext"))
+            {
+                const auto nextLevel = ResolveNextCheatLevelPath();
+                if (StartCheatLevelLoad("gonext", nextLevel))
+                    return true;
+
+                cheatInputBuffer.clear();
+                std::cout << "[Cheat] gonext -> no next campaign level mapped from this stage\n";
+            }
+
+            return false;
         }
 
         /*************************************************************************************
@@ -594,6 +765,8 @@ namespace mygame {
                 }
                 // When simulation is not running we already refreshed input above.
                 handlePerfToggle();
+                if (HandleCheatCodeInput())
+                    break;
 
                 if (!gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
@@ -669,6 +842,8 @@ namespace mygame {
                 }
                 pauseMenu.Update(gInputSystem);
                 handlePerfToggle();
+                if (HandleCheatCodeInput())
+                    break;
                 if (pauseMenu.ConsumeResume() ||
                     IsStateAdvanceInputPressed())
                 {
@@ -724,6 +899,8 @@ namespace mygame {
             case GameState::DEFEAT:
                 defeatScreen.Update(gInputSystem);
                 handlePerfToggle();
+                if (HandleCheatCodeInput())
+                    break;
 
                 if (!defeatSoundStarted && SoundManager::getInstance().isSoundLoaded(DEFEAT))
                 {
@@ -1058,6 +1235,24 @@ namespace mygame {
             return false;
 
         return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING, true);
+    }
+
+    /*************************************************************************************
+     \brief  Reports whether session-wide god mode is active.
+     \return True when incoming player damage should be ignored and outgoing damage boosted.
+    *************************************************************************************/
+    bool IsGodModeEnabled()
+    {
+        return godModeEnabled;
+    }
+
+    /*************************************************************************************
+     \brief  Returns the active outgoing player damage multiplier.
+     \return 2.0f while god mode is enabled, otherwise 1.0f.
+    *************************************************************************************/
+    float GetPlayerDamageMultiplier()
+    {
+        return godModeEnabled ? kGodModeDamageMultiplier : 1.0f;
     }
 
     /*************************************************************************************

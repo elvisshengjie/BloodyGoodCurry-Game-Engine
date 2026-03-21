@@ -20,6 +20,7 @@
 #include "Component/HitBoxComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/TransformComponent.h"
+#include "EngineCall.hpp"
 #include "Factory/Factory.h"
 #include "Physics/Collision/Collision.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
@@ -290,7 +291,7 @@ namespace Framework
                 it->hitbox->spawnX += it->velX * dt;
                 it->hitbox->spawnY += it->velY * dt;
 
-                // Wall collision — destroy projectile on contact with any "rect" object
+                // Wall collision ?destroy projectile on contact with any "rect" object
                 AABB movedAABB(HB->spawnX, HB->spawnY, HB->width, HB->height);
                 for (auto& pair : FACTORY->Objects())
                 {
@@ -369,7 +370,11 @@ namespace Framework
                 if (auto* playerHealth = obj->GetComponentType<PlayerHealthComponent>(
                     ComponentTypeId::CT_PlayerHealthComponent))
                 {
-                    if (!playerHealth->isInvulnerable)
+                    if (mygame::IsGodModeEnabled())
+                    {
+                        validTargetHit = true;
+                    }
+                    else if (!playerHealth->isInvulnerable)
                     {
                         playerHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
@@ -399,6 +404,14 @@ namespace Framework
                             ComponentTypeId::CT_EnemyTypeComponent))
                         {
                             finalDamage = ComputeEnemyDamage(HB->damage, HB->team, typeComp->Etype);
+                        }
+
+                        if ((HB->team == HitBoxComponent::Team::Player ||
+                            HB->team == HitBoxComponent::Team::Thrown ||
+                            HB->team == HitBoxComponent::Team::PlayerSlow) &&
+                            mygame::IsGodModeEnabled())
+                        {
+                            finalDamage *= mygame::GetPlayerDamageMultiplier();
                         }
 
                         enemyHealth->TakeDamage(static_cast<int>(finalDamage));

@@ -123,6 +123,16 @@ namespace mygame {
     bool RequestLoadLevel(const std::filesystem::path& levelPath);
 
     /*************************************************************************************
+      \brief Returns whether session-wide god mode is currently enabled.
+    **************************************************************************************/
+    bool IsGodModeEnabled();
+
+    /*************************************************************************************
+      \brief Returns the active outgoing player damage multiplier.
+    **************************************************************************************/
+    float GetPlayerDamageMultiplier();
+
+    /*************************************************************************************
       \brief Returns whether gameplay input should be ignored by game-side scripts this frame.
     **************************************************************************************/
     bool IsGameplayInputBlocked();
