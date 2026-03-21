@@ -249,6 +249,26 @@ namespace mygame
     }
 
     /*****************************************************************************************
+      \brief Returns the wind-up duration for the standard timed melee attack.
+      \param attackDuration Total attack animation duration in seconds.
+      \return Delay before the melee damage window becomes active.
+    *****************************************************************************************/
+    inline float TimedMeleeHitboxDelay(float attackDuration)
+    {
+        return std::clamp(attackDuration * 0.4f, 0.12f, 0.32f);
+    }
+
+    /*****************************************************************************************
+      \brief Returns the active damage window for the standard timed melee attack.
+      \param attackDuration Total attack animation duration in seconds.
+      \return Hitbox lifetime in seconds.
+    *****************************************************************************************/
+    inline float TimedMeleeHitboxDuration(float attackDuration)
+    {
+        return std::clamp(attackDuration * 0.25f, 0.08f, 0.18f);
+    }
+
+    /*****************************************************************************************
       \brief Rotates a sprite-flip style enemy to face its target on the X axis.
       \param enemy Enemy object whose render width should be mirrored.
       \param ai    Decision-tree state storing the resolved facing direction.
@@ -424,6 +444,7 @@ namespace mygame
             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
         const bool isHeiBang = (enemyName == "heibang");
         const bool isNancie = (enemyName == "nancie");
+        const bool useTimedMeleeAttack = !isHeiBang && !isNancie && HasAnim(enemy, "slashattack");
         const float chaseRetentionRadius = isHeiBang
             ? kHeiBangChaseRetentionRadius
             : kChaseRetentionRadius;
@@ -436,6 +457,53 @@ namespace mygame
 
         if (isNancie)
             FaceTargetHorizontally(enemy, ai, dx);
+
+        if (useTimedMeleeAttack && ai->meleeAttackActive)
+        {
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+
+            if (ai->pendingMeleeHitbox)
+                FaceTargetHorizontally(enemy, ai, dx);
+
+            ai->meleeAttackElapsed += ctx.dt;
+
+            if (ai->pendingMeleeHitbox && ai->meleeAttackElapsed >= ai->meleeHitboxDelay)
+            {
+                ai->pendingMeleeHitbox = false;
+
+                if (ctx.spawnHitBox)
+                {
+                    const float direction = (ai->facing == Framework::Facing::LEFT) ? -1.0f : 1.0f;
+                    const float hbWidth = rb->width * 1.2f;
+                    const float hbHeight = rb->height * 0.8f;
+                    const float spawnX = tr->x + (direction * hbWidth * 0.25f);
+                    const float spawnY = tr->y;
+
+                    ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
+                        static_cast<float>(attack->damage),
+                        ai->meleeHitboxDuration, 0.0f);
+
+                    if (audio)
+                    {
+                        GameAudio gameAudio(audio, GameAudio::Entity::Enemy);
+                        gameAudio.PlayAttack(tr->x, tr->y);
+                    }
+                }
+            }
+
+            if (ai->meleeAttackElapsed >= ai->meleeAttackDuration)
+            {
+                ai->meleeAttackActive = false;
+                ai->pendingMeleeHitbox = false;
+                ai->meleeAttackElapsed = 0.0f;
+                ai->meleeAttackDuration = 0.0f;
+                ai->meleeHitboxDelay = 0.0f;
+                ai->meleeHitboxDuration = 0.0f;
+                PlayAnim(enemy, "idle");
+            }
+            return;
+        }
 
         if (attack->hitbox->active)
         {
@@ -559,12 +627,33 @@ namespace mygame
             rb->velY *= 0.5f;
         }
 
-        ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
+        if (!useTimedMeleeAttack)
+            ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
+
         attack->attack_timer += ctx.dt;
-        if (attack->attack_timer >= attack->attack_speed && !attack->hitbox->active && distance < kMeleeAttackDist)
+        if (attack->attack_timer >= attack->attack_speed &&
+            !attack->hitbox->active &&
+            !ai->meleeAttackActive &&
+            distance < kMeleeAttackDist)
         {
             attack->attack_timer = 0.0f;
-            if (ctx.spawnHitBox)
+
+            if (useTimedMeleeAttack)
+            {
+                FaceTargetHorizontally(enemy, ai, dx);
+                rb->velX = 0.0f;
+                rb->velY = 0.0f;
+
+                ai->meleeAttackActive = true;
+                ai->pendingMeleeHitbox = true;
+                ai->meleeAttackElapsed = 0.0f;
+                ai->meleeAttackDuration = std::max(GetAnimDuration(enemy, "slashattack"), 0.2f);
+                ai->meleeHitboxDelay = TimedMeleeHitboxDelay(ai->meleeAttackDuration);
+                ai->meleeHitboxDuration = TimedMeleeHitboxDuration(ai->meleeAttackDuration);
+
+                PlayAnim(enemy, "slashattack");
+            }
+            else if (ctx.spawnHitBox)
             {
                 attack->hitbox->active = true;
                 attack->hitboxElapsed = 0.0f;
@@ -664,6 +753,7 @@ namespace mygame
         {
             rb->velX = 0.0f;
             rb->velY = 0.0f;
+            FaceTargetHorizontally(enemy, ai, ai->pendingProjectileDirX);
             ai->rangedAttackTimer += ctx.dt;
             if (ai->rangedAttackTimer >= ai->rangedAttackDuration)
             {
@@ -695,6 +785,7 @@ namespace mygame
         constexpr float retreatDuration = 3.0f;
 
         float& retreatTimer = ai->retreatTimer;
+        FaceTargetHorizontally(enemy, ai, dx);
 
         if (retreatTimer > 0.0f)
         {
@@ -715,7 +806,6 @@ namespace mygame
             rb->velX *= 0.85f;
         }
 
-        ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
         attack->attack_timer += ctx.dt;
 
         if (attack->attack_timer >= attack->attack_speed && retreatTimer <= 0.0f && distance < kRangedAttackFireDist)
@@ -727,6 +817,7 @@ namespace mygame
             ai->pendingProjectileSpawnX = tr->x + dirX * (std::max(rb->width, rb->height));
             ai->pendingProjectileSpawnY = tr->y + dirY * (std::max(rb->width, rb->height));
             ai->pendingProjectile = true;
+            FaceTargetHorizontally(enemy, ai, ai->pendingProjectileDirX);
 
             if (audio)
             {

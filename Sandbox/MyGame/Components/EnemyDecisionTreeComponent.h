@@ -82,6 +82,12 @@ namespace Framework {
         bool rangedProjectileFired = false;  ///< True once the ranged projectile has been spawned.
         float rangedAttackTimer = 0.0f;      ///< Timer tracking ranged attack animation elapsed time.
         float rangedAttackDuration = 0.0f;   ///< Cached duration for the ranged attack animation.
+        bool meleeAttackActive = false;      ///< True while a timed melee wind-up/attack animation is playing.
+        bool pendingMeleeHitbox = false;     ///< True until the timed melee hitbox is emitted.
+        float meleeAttackElapsed = 0.0f;     ///< Elapsed time within the current timed melee attack.
+        float meleeAttackDuration = 0.0f;    ///< Total timed melee animation duration.
+        float meleeHitboxDelay = 0.0f;       ///< Wind-up time before the timed melee hitbox spawns.
+        float meleeHitboxDuration = 0.0f;    ///< Active damage window for the timed melee hitbox.
         bool hasSeenPlayer = false;          ///< Tracks whether the enemy has detected the player.
         float prevX = 0.0f;
         float prevY = 0.0f;
@@ -114,6 +120,16 @@ namespace Framework {
             pendingProjectile = false;
             pendingProjectileDirX = pendingProjectileDirY = 0.0f;
             pendingProjectileSpawnX = pendingProjectileSpawnY = 0.0f;
+            rangedAttackActive = false;
+            rangedProjectileFired = false;
+            rangedAttackTimer = 0.0f;
+            rangedAttackDuration = 0.0f;
+            meleeAttackActive = false;
+            pendingMeleeHitbox = false;
+            meleeAttackElapsed = 0.0f;
+            meleeAttackDuration = 0.0f;
+            meleeHitboxDelay = 0.0f;
+            meleeHitboxDuration = 0.0f;
             chaseTimer = 0.0f;
             retreatTimer = 0.0f;
             pauseTimer = 0.0f;
@@ -161,6 +177,12 @@ namespace Framework {
             copy->pendingProjectileSpawnY = pendingProjectileSpawnY;
             copy->rangedAttackTimer = rangedAttackTimer;
             copy->rangedAttackDuration = rangedAttackDuration;
+            copy->meleeAttackActive = meleeAttackActive;
+            copy->pendingMeleeHitbox = pendingMeleeHitbox;
+            copy->meleeAttackElapsed = meleeAttackElapsed;
+            copy->meleeAttackDuration = meleeAttackDuration;
+            copy->meleeHitboxDelay = meleeHitboxDelay;
+            copy->meleeHitboxDuration = meleeHitboxDuration;
             copy->hasSeenPlayer = hasSeenPlayer;
             copy->currentPathNodeIDs = currentPathNodeIDs;
             copy->currentPathIndex = currentPathIndex;
