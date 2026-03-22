@@ -54,6 +54,8 @@ namespace Framework
         float attack_timer{ 0.0f };     ///< Tracks elapsed time since the last attack.
         float hitboxElapsed{ 0.0f };    ///< Time spent in the currently active hitbox phase.
         bool attack2BeamPhaseActive{ false }; ///< Runtime flag for HeiBang's attack2 beam follow-up.
+        bool attack2BeamDamageSpawned{ false }; ///< True once HeiBang's beam damage zone has been created.
+        bool attack3VolleySpawned{ false }; ///< True once HeiBang's attack3 projectile burst has been emitted.
         ComponentHandleT<HitBoxComponent> hitbox; ///< Managed hitbox instance used for attacks.
 
         /*************************************************************************************
@@ -125,6 +127,8 @@ namespace Framework
             copy->damage = damage;
             copy->attack_speed = attack_speed;
             copy->attack2BeamPhaseActive = false;
+            copy->attack2BeamDamageSpawned = false;
+            copy->attack3VolleySpawned = false;
             copy->hitbox = ComponentPool<HitBoxComponent>::CreateTyped(*hitbox);
             return copy;
         }

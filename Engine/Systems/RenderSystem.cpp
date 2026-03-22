@@ -19,7 +19,7 @@
 
 
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            Copyright (c) 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -530,7 +530,7 @@ namespace Framework {
         // Clamp to same range as editor slider
         cameraViewHeight = std::clamp(viewHeight, 0.4f, 2.5f);
 
-        // Only affect the gameplay camera – editor camera keeps its own view height.
+        // Only affect the gameplay camera; editor camera keeps its own view height.
         camera.SetViewHeight(cameraViewHeight);
     }
 
@@ -1468,7 +1468,7 @@ namespace Framework {
       \param  worldX,worldY    Output world coordinates.
       \param  insideViewport   True if the cursor is over the game viewport.
       \return True if conversion succeeded and point lies in the viewport.
-      \details Uses active camera’s inverse VP (Projection*View) to unproject.
+      \details Uses the active camera inverse VP (Projection*View) to unproject.
     *************************************************************************************/
     bool RenderSystem::ScreenToWorld(double cursorX, double cursorY,
         float& worldX, float& worldY,
@@ -1535,7 +1535,7 @@ namespace Framework {
     }
 
     /*************************************************************************************
-      \brief  Unproject an NDC point using the provided camera’s inverse VP.
+      \brief  Unproject an NDC point using the provided camera inverse VP.
       \return True if the resulting world coordinates are finite.
     *************************************************************************************/
     bool RenderSystem::UnprojectWithCamera(const gfx::Camera2D& cam,
@@ -2244,6 +2244,13 @@ namespace Framework {
             ImGui::SameLine();
             ImGui::Text("State: %s", isPlaying ? "Playing" : "Stopped");
 
+            bool blockPlayerInput = logic.Input().AreGameplayActionsBlocked();
+            if (ImGui::Checkbox("Disable Player WASD + Attacks", &blockPlayerInput))
+            {
+                logic.Input().SetGameplayActionsBlocked(blockPlayerInput);
+            }
+            ImGui::TextDisabled("Keeps simulation running while suppressing mapped player move/combat input.");
+
             // ---- Camera section (editor-only) ----
             ImGui::Separator();
             ImGui::TextUnformatted("Camera");
@@ -2448,7 +2455,7 @@ namespace Framework {
     }
 
     /*************************************************************************************
-      \brief  Symmetric end to BeginMenuFrame() — restores full viewport for later passes.
+      \brief  Symmetric end to BeginMenuFrame(); restores full viewport for later passes.
     *************************************************************************************/
     void Framework::RenderSystem::EndMenuFrame()
     {

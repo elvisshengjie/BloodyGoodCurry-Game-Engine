@@ -1,14 +1,14 @@
-﻿/*********************************************************************************************
+/*********************************************************************************************
  \file      InputSystem.h
  \par       SofaSpuds
  \author	Ho Jun (h.jun@digipen.edu) - Primary Author, 100%
  \brief     Handles controller, keyboard and mouse input mapping for gameplay actions.
  \details   Wraps the engine InputManager to poll key and mouse states each frame, and
 			exposes high-level movement/attack queries for gameplay logic. Operates as a
-			core engine subsystem driven by SystemManager (Initialize → Update(dt) → Shutdown).
+			core engine subsystem driven by SystemManager (Initialize -> Update(dt) -> Shutdown).
 			Designed to interface with a gfx::Window for platform-specific input events.
  \copyright
-			All content ©2025 DigiPen Institute of Technology Singapore.
+			Copyright (c) 2025 DigiPen Institute of Technology Singapore.
 			All rights reserved.
 *********************************************************************************************/
 #pragma once
@@ -66,9 +66,17 @@ namespace Framework
 		bool SlowAttack() const { return m_slowAttack; }
 		bool SlowHeld() const { return m_slowHeld; }
 		bool SlowReleased() const { return m_slowReleased; }
+		bool AreGameplayActionsBlocked() const { return m_blockGameplayActions; }
 
 		/*************************************************************************
-		  \brief  True during the frame the key transitioned from up → down.
+		  \brief  Temporarily disables mapped gameplay actions like movement/attacks.
+		  \details Raw keyboard/mouse queries still update; only high-level action flags
+		           exposed by this system are suppressed while blocked.
+		*************************************************************************/
+		void SetGameplayActionsBlocked(bool blocked);
+
+		/*************************************************************************
+		  \brief  True during the frame the key transitioned from up to down.
 		*************************************************************************/
 		bool IsKeyPressed(int key) const;
 
@@ -78,7 +86,7 @@ namespace Framework
 		bool IsKeyHeld(int key) const;
 
 		/*************************************************************************
-		  \brief  True during the frame the key transitioned from down → up.
+		  \brief  True during the frame the key transitioned from down to up.
 		*************************************************************************/
 		bool IsKeyReleased(int key) const;
 
@@ -113,5 +121,6 @@ namespace Framework
 		bool m_slowAttack = false;
 		bool m_slowHeld = false;
 		bool m_slowReleased = false;
+		bool m_blockGameplayActions = false;
 	};
 }

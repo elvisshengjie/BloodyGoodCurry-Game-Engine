@@ -23,7 +23,7 @@
             - gPlayerStates           : Per-player controller state keyed by object ID.
 
  \copyright
-            All content Â© 2025 DigiPen Institute of Technology Singapore.
+            Copyright (c) 2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -136,7 +136,7 @@ namespace {
     constexpr float kSlowAttackDamage = 0.0f;
     constexpr float kSlowSpeedMultiplier = 0.35f;
     constexpr float kSlowEffectDuration = 2.5f;
-    constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock â€” avoids bad sprite sheet fps giving huge values
+    constexpr float kSlowAttackAnimDuration = 0.4f;   ///< Fixed anim lock; avoids bad sprite sheet fps giving huge values
     constexpr float kSlowAttackCooldown = 1.9f;   ///< Total cooldown after slow attack fires
     /*****************************************************************************************
       \enum PlayerAnimState
@@ -258,7 +258,7 @@ namespace {
       \return Animation index if found, otherwise -1.
 
       \details
-      This maps PlayerAnimState â†’ animation name string:
+      This maps PlayerAnimState to an animation name string:
       idle/run/attack1/attack2/attack3/throw/knockback/death.
     *****************************************************************************************/
     int AnimationIndexForState(const Framework::SpriteAnimationComponent* comp, PlayerAnimState state)
@@ -571,7 +571,7 @@ namespace {
 
         // Loading transitions keep camera/animation updates alive, but gameplay control is
         // intentionally blocked so the player settles into idle while the new level streams in.
-        if (mygame::IsGameplayInputBlocked())
+        if (mygame::IsGameplayInputBlocked() || input.AreGameplayActionsBlocked())
         {
             rb->velX = 0.0f;
             rb->velY = 0.0f;
@@ -1089,7 +1089,9 @@ namespace {
         {
             (void)id;
             auto* obj = ptr.get();
-            if (!obj || (!mygame::IsImpactVfxObject(obj) && !mygame::IsHeiBangAttack2BeamVfxObject(obj)))
+            if (!obj || (!mygame::IsImpactVfxObject(obj) &&
+                !mygame::IsHeiBangAttack2BeamVfxObject(obj) &&
+                !mygame::IsFireImpactVfxObject(obj)))
                 continue;
 
             auto* anim = SafeGetComponent<Framework::SpriteAnimationComponent>(obj, Framework::ComponentTypeId::CT_SpriteAnimationComponent);
@@ -1201,7 +1203,7 @@ namespace {
       - No remaining enemies exist.
       - Player is alive.
       - Player AABB overlaps gate AABB.
-      Then it resolves GateTargetComponent.levelPath (relative â†’ data path) and calls
+      Then it resolves GateTargetComponent.levelPath as a relative data path and calls
       LogicSystem::LoadLevel(). A guard flag prevents repeated triggers.
     *****************************************************************************************/
     void GateLogic_Update(Framework::GameObjectComposition* gateObject, float)

@@ -9,7 +9,7 @@
 			Designed to run once per frame via SystemManager Update(dt).
 			Debug printing is available but commented out by default.
 			Also added inputs to the controllers.
- ©2025 DigiPen Institute of Technology Singapore. All rights reserved.
+ Copyright (c) 2025 DigiPen Institute of Technology Singapore. All rights reserved.
 *********************************************************************************************/
 
 #include "InputSystem.h"
@@ -94,6 +94,9 @@ namespace Framework
 		m_slowHeld = false;
 		m_slowReleased = false;
 
+		if (m_blockGameplayActions)
+			return;
+
 		// Keyboard Movement
 		if (input.IsKeyHeld(GLFW_KEY_W)) m_moveUp = true;
 		if (input.IsKeyHeld(GLFW_KEY_S)) m_moveDown = true;
@@ -138,6 +141,25 @@ namespace Framework
 		{
 			m_slowReleased = true;
 		}
+	}
+
+	void InputSystem::SetGameplayActionsBlocked(bool blocked)
+	{
+		m_blockGameplayActions = blocked;
+		if (!blocked)
+			return;
+
+		m_moveUp = false;
+		m_moveDown = false;
+		m_moveLeft = false;
+		m_moveRight = false;
+		m_meleeAttack = false;
+		m_rangedAttack = false;
+		m_rangedHeld = false;
+		m_rangedReleased = false;
+		m_slowAttack = false;
+		m_slowHeld = false;
+		m_slowReleased = false;
 	}
 
 	/*************************************************************************************

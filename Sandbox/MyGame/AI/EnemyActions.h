@@ -56,6 +56,19 @@ namespace mygame
     static constexpr float kEnemyProjectileBaseSpeed = 0.6f;
     static constexpr float kRangedAttackFireDist = kDetectionRadius;  // 3.5f
     static constexpr float kMeleeAttackDist = 0.8f;
+    static constexpr float kHeiBangBeamMaxRange = 1.35f;
+    static constexpr float kHeiBangBeamTelegraphDuration = 0.45f;
+    static constexpr float kHeiBangBeamPhaseDuration = 14.0f / 9.0f;
+    static constexpr float kHeiBangBeamDamageDuration =
+        kHeiBangBeamPhaseDuration - kHeiBangBeamTelegraphDuration;
+    static constexpr int kHeiBangAttack3BurstFrame = 11;
+    static constexpr int kHeiBangAttack3ProjectileCount = 12;
+    static constexpr float kHeiBangAttack3ProjectileSpeed = 0.52f;
+    static constexpr float kHeiBangAttack3ProjectileLifetime = 2.4f;
+    static constexpr float kHeiBangAttack3ProjectileWidth = 0.12f;
+    static constexpr float kHeiBangAttack3ProjectileHeight = 0.12f;
+    static constexpr float kHeiBangAttack3ProjectileSpawnRadius = 0.20f;
+    static constexpr float kHeiBangPostAttackPauseDuration = 4.0f;
 
     /*****************************************************************************************
       \brief Performs a case-insensitive search for an animation by name.
@@ -177,28 +190,6 @@ namespace mygame
             Framework::ComponentTypeId::CT_SpriteAnimationComponent);
         const auto* active = anim ? anim->ActiveAnimation() : nullptr;
         return active ? std::string_view(active->name) : std::string_view{};
-    }
-
-    /*****************************************************************************************
-      \brief Resolves HeiBang's follow-up animation name for attack2 beam variants.
-      \param goc Boss object whose animation set is being queried.
-      \return The first supported beam follow-up clip name, or an empty view if none exist.
-      \details This allows prefab animation naming to vary slightly without breaking the
-               attack2 beam phase logic.
-    *****************************************************************************************/
-    inline std::string_view ResolveHeiBangAttack2FollowupAnim(Framework::GOC* goc)
-    {
-        static constexpr std::array<std::string_view, 3> kCandidateNames{
-            "attack2_laser", "attack2_beam", "laserbeam2"
-        };
-
-        for (const auto name : kCandidateNames)
-        {
-            if (HasAnim(goc, name))
-                return name;
-        }
-
-        return {};
     }
 
     /*****************************************************************************************
@@ -510,6 +501,54 @@ namespace mygame
             rb->velX = 0.0f;
             rb->velY = 0.0f;
             attack->hitboxElapsed += ctx.dt;
+
+            if (isHeiBang && ai->currentPathIndex == 2 && !attack->attack3VolleySpawned &&
+                EqualsIgnoreCase(ActiveAnimName(enemy), "attack3"))
+            {
+                auto* anim = enemy->GetComponentType<Framework::SpriteAnimationComponent>(
+                    Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+                const auto* activeAnimData = anim ? anim->ActiveAnimation() : nullptr;
+                const int currentFrame = activeAnimData ? activeAnimData->currentFrame : -1;
+                if (currentFrame >= kHeiBangAttack3BurstFrame && ctx.spawnProjectile)
+                {
+                    constexpr float kStartAngle = 0.78539816339f; // 45 degrees
+                    constexpr float kAngleStep = 6.28318530718f /
+                        static_cast<float>(kHeiBangAttack3ProjectileCount);
+                    for (int i = 0; i < kHeiBangAttack3ProjectileCount; ++i)
+                    {
+                        const float angle = kStartAngle + static_cast<float>(i) * kAngleStep;
+                        const float dirX = std::cos(angle);
+                        const float dirY = std::sin(angle);
+                        const float spawnX = tr->x + dirX * kHeiBangAttack3ProjectileSpawnRadius;
+                        const float spawnY = tr->y + dirY * kHeiBangAttack3ProjectileSpawnRadius;
+                        ctx.spawnProjectile(enemy,
+                            spawnX, spawnY,
+                            dirX, dirY,
+                            kHeiBangAttack3ProjectileSpeed,
+                            kHeiBangAttack3ProjectileWidth, kHeiBangAttack3ProjectileHeight,
+                            static_cast<float>(attack->damage),
+                            kHeiBangAttack3ProjectileLifetime);
+                    }
+                    attack->attack3VolleySpawned = true;
+                }
+            }
+
+            if (isHeiBang && attack->attack2BeamPhaseActive &&
+                !attack->attack2BeamDamageSpawned &&
+                attack->hitboxElapsed >= kHeiBangBeamTelegraphDuration)
+            {
+                attack->attack2BeamDamageSpawned = true;
+                if (ctx.spawnHitBox)
+                {
+                    const float beamDamageWidth = std::max(attack->hitbox->width, 0.18f);
+                    const float beamDamageHeight = std::max(attack->hitbox->height, 0.22f);
+                    ctx.spawnHitBox(enemy, attack->hitbox->spawnX, attack->hitbox->spawnY,
+                        beamDamageWidth, beamDamageHeight,
+                        static_cast<float>(attack->damage),
+                        kHeiBangBeamDamageDuration, 0.0f);
+                }
+            }
+
             if (attack->hitboxElapsed >= attack->hitbox->duration)
             {
                 const std::string_view activeAnim = ActiveAnimName(enemy);
@@ -518,28 +557,63 @@ namespace mygame
                     EqualsIgnoreCase(activeAnim, "attack2"))
                 {
                     attack->attack2BeamPhaseActive = true;
+                    attack->attack2BeamDamageSpawned = false;
                     attack->hitboxElapsed = 0.0f;
-                    attack->hitbox->duration = 14.0f / 12.0f;
-                    const glm::vec2 beamTarget{ trPlayer->x, trPlayer->y };
-                    mygame::SpawnHeiBangAttack2BeamVfx(*enemy, beamTarget);
-                    if (ctx.spawnHitBox)
+                    attack->hitbox->duration = kHeiBangBeamPhaseDuration;
+
+                    auto* enemyRender = enemy->GetComponentType<Framework::RenderComponent>(
+                        Framework::ComponentTypeId::CT_RenderComponent);
+                    const float ownerWidth = enemyRender
+                        ? std::fabs(enemyRender->w * tr->scaleX)
+                        : 0.3f;
+                    const float ownerHeight = enemyRender
+                        ? std::fabs(enemyRender->h * tr->scaleY)
+                        : 0.3f;
+                    const float facingSign = (enemyRender && enemyRender->w < 0.0f) ? -1.0f : 1.0f;
+                    const glm::vec2 beamStart{
+                        tr->x + (facingSign * ownerWidth * 0.38f),
+                        tr->y + (ownerHeight * 0.14f)
+                    };
+
+                    glm::vec2 beamDelta{ trPlayer->x - beamStart.x, trPlayer->y - beamStart.y };
+                    float beamDistance = std::sqrt(beamDelta.x * beamDelta.x + beamDelta.y * beamDelta.y);
+                    if (beamDistance < 0.0001f)
                     {
-                        const float beamDamageWidth = std::max(0.18f, rb->width * 1.15f);
-                        const float beamDamageHeight = std::max(0.22f, rb->height * 1.15f);
-                        ctx.spawnHitBox(enemy, beamTarget.x, beamTarget.y,
-                            beamDamageWidth, beamDamageHeight,
-                            static_cast<float>(attack->damage),
-                            attack->hitbox->duration, 0.0f);
+                        beamDelta = { facingSign, 0.0f };
+                        beamDistance = 1.0f;
                     }
+
+                    if (beamDistance > kHeiBangBeamMaxRange)
+                        beamDelta *= (kHeiBangBeamMaxRange / beamDistance);
+
+                    const glm::vec2 beamTarget{ beamStart.x + beamDelta.x, beamStart.y + beamDelta.y };
+                    const glm::vec2 beamCenter{
+                        (beamStart.x + beamTarget.x) * 0.5f,
+                        (beamStart.y + beamTarget.y) * 0.5f
+                    };
+                    const float beamThickness = std::max(0.18f, ownerHeight * 0.95f);
+                    attack->hitbox->spawnX = beamCenter.x;
+                    attack->hitbox->spawnY = beamCenter.y;
+                    attack->hitbox->width = std::fabs(beamTarget.x - beamStart.x) + beamThickness;
+                    attack->hitbox->height = std::fabs(beamTarget.y - beamStart.y) + beamThickness;
+                    mygame::SpawnHeiBangAttack2BeamVfx(*enemy, beamTarget);
                     return;
                 }
 
                 attack->hitbox->active = false;
                 attack->hitboxElapsed = 0.0f;
                 attack->attack2BeamPhaseActive = false;
+                attack->attack2BeamDamageSpawned = false;
+                attack->attack3VolleySpawned = false;
                 PlayAnim(enemy, "idle");
                 if (isHeiBang)
-                    ai->currentPathIndex = (ai->currentPathIndex + 1) % kHeiBangAttackPoints.size();
+                {
+                    const std::size_t nextPathIndex =
+                        (ai->currentPathIndex + 1) % kHeiBangAttackPoints.size();
+                    ai->currentPathIndex = nextPathIndex;
+                    if (nextPathIndex == 0)
+                        ai->pauseTimer = kHeiBangPostAttackPauseDuration;
+                }
             }
             return;
         }
@@ -547,6 +621,15 @@ namespace mygame
         // --- HeiBang scripted dash-to-point behaviour ---
         if (isHeiBang)
         {
+            if (ai->pauseTimer > 0.0f)
+            {
+                ai->pauseTimer = std::max(0.0f, ai->pauseTimer - ctx.dt);
+                rb->velX = 0.0f;
+                rb->velY = 0.0f;
+                PlayAnim(enemy, "idle");
+                return;
+            }
+
             if (ai->currentPathIndex >= kHeiBangAttackPoints.size())
                 ai->currentPathIndex = 0;
 
@@ -578,6 +661,8 @@ namespace mygame
                     attack->hitbox->active = true;
                     attack->hitboxElapsed = 0.0f;
                     attack->attack2BeamPhaseActive = false;
+                    attack->attack2BeamDamageSpawned = false;
+                    attack->attack3VolleySpawned = false;
                     const float direction = (ai->facing == Framework::Facing::LEFT) ? -1.0f : 1.0f;
                     const float hbWidth = rb->width * 1.2f;
                     const float hbHeight = rb->height * 0.8f;

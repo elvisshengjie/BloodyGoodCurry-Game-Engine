@@ -32,6 +32,8 @@ namespace mygame {
     namespace {
         constexpr std::string_view kImpactVfxName = "HitImpactVFX";
         constexpr std::string_view kImpactVfxTextureKey = "impact_vfx_sheet";
+        constexpr std::string_view kFireImpactVfxName = "FireImpactVFX";
+        constexpr std::string_view kFireImpactVfxTextureKey = "fire_impact_vfx_sheet";
         constexpr std::string_view kHeiBangBeamVfxName = "HeiBangAttack2BeamVFX";
         constexpr std::string_view kHeiBangBeamTextureKey = "heibang_attack2_laser";
 
@@ -67,6 +69,20 @@ namespace mygame {
             const auto path = Framework::ResolveAssetPath(
                 "Textures/Character/Hei Bang_Sprite/2nd Laser Beam_Sprite .png");
             const std::string key{ kHeiBangBeamTextureKey };
+            if (!Resource_Manager::getTexture(key))
+            {
+                Resource_Manager::load(key, path.string());
+            }
+        }
+
+        /*************************************************************************************
+          \brief Ensures the fire-impact sprite sheet is loaded into the resource manager.
+        *************************************************************************************/
+        void EnsureFireImpactTextureLoaded()
+        {
+            const auto path = Framework::ResolveAssetPath(
+                "Textures/Character/Fire Enemy_Sprite/Fire Impact_Sprite.png");
+            const std::string key{ kFireImpactVfxTextureKey };
             if (!Resource_Manager::getTexture(key))
             {
                 Resource_Manager::load(key, path.string());
@@ -230,11 +246,69 @@ namespace mygame {
             beam.config.columns = 14;
             beam.config.startFrame = 0;
             beam.config.endFrame = 13;
-            beam.config.fps = 12.0f;
+            beam.config.fps = 9.0f;
             beam.config.loop = false;
             beam.textureId = Resource_Manager::getTexture(beam.textureKey);
 
             anim->animations.push_back(beam);
+            anim->activeAnimation = 0;
+            anim->SetActiveAnimation(0);
+
+            return vfx;
+        }
+
+        /*************************************************************************************
+          \brief Spawns the animated fire-impact sprite VFX at a world position.
+          \param worldPos World-space position where the impact should appear.
+          \return Newly created VFX object, or nullptr when creation fails.
+        *************************************************************************************/
+        Framework::GOC* SpawnFireImpactVfxInternal(const glm::vec2& worldPos)
+        {
+            if (!Framework::FACTORY)
+                return nullptr;
+
+            EnsureFireImpactTextureLoaded();
+
+            Framework::GOC* vfx = Framework::FACTORY->CreateEmptyComposition();
+            if (!vfx)
+                return nullptr;
+
+            vfx->SetObjectName(std::string(kFireImpactVfxName));
+
+            auto* tr = vfx->EmplaceComponent<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            tr->x = worldPos.x;
+            tr->y = worldPos.y;
+
+            auto* render = vfx->EmplaceComponent<Framework::RenderComponent>(
+                Framework::ComponentTypeId::CT_RenderComponent);
+            render->w = 0.28f;
+            render->h = 0.28f;
+            render->layer = 2;
+
+            auto* sprite = vfx->EmplaceComponent<Framework::SpriteComponent>(
+                Framework::ComponentTypeId::CT_SpriteComponent);
+            sprite->texture_key = std::string(kFireImpactVfxTextureKey);
+            sprite->texture_id = Resource_Manager::getTexture(sprite->texture_key);
+
+            auto* anim = vfx->EmplaceComponent<Framework::SpriteAnimationComponent>(
+                Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+
+            Framework::SpriteAnimationComponent::SpriteSheetAnimation impact{};
+            impact.name = "fire_impact";
+            impact.textureKey = std::string(kFireImpactVfxTextureKey);
+            impact.spriteSheetPath = Framework::ResolveAssetPath(
+                "Textures/Character/Fire Enemy_Sprite/Fire Impact_Sprite.png").string();
+            impact.config.totalFrames = 11;
+            impact.config.rows = 1;
+            impact.config.columns = 11;
+            impact.config.startFrame = 0;
+            impact.config.endFrame = 10;
+            impact.config.fps = 18.0f;
+            impact.config.loop = false;
+            impact.textureId = Resource_Manager::getTexture(impact.textureKey);
+
+            anim->animations.push_back(impact);
             anim->activeAnimation = 0;
             anim->SetActiveAnimation(0);
 
@@ -356,6 +430,16 @@ namespace mygame {
     }
 
     /*************************************************************************************
+      \brief Public wrapper that spawns a fire impact effect.
+      \param worldPos World-space position for the effect.
+      \return Newly created fire impact VFX object, or nullptr when creation fails.
+    *************************************************************************************/
+    Framework::GOC* SpawnFireImpactVfx(const glm::vec2& worldPos)
+    {
+        return SpawnFireImpactVfxInternal(worldPos);
+    }
+
+    /*************************************************************************************
       \brief Checks whether a game object is the spawned hit-impact sprite VFX.
       \param obj Object pointer to inspect.
       \return True when the object name matches the hit-impact VFX tag.
@@ -373,5 +457,15 @@ namespace mygame {
     bool IsHeiBangAttack2BeamVfxObject(const Framework::GOC* obj)
     {
         return obj && obj->GetObjectName() == kHeiBangBeamVfxName;
+    }
+
+    /*************************************************************************************
+      \brief Checks whether a game object is the spawned fire-impact VFX.
+      \param obj Object pointer to inspect.
+      \return True when the object name matches the fire-impact VFX tag.
+    *************************************************************************************/
+    bool IsFireImpactVfxObject(const Framework::GOC* obj)
+    {
+        return obj && obj->GetObjectName() == kFireImpactVfxName;
     }
 }

@@ -45,7 +45,9 @@ namespace mygame {
     void BindCombatVfx(Framework::LogicSystem& logic);
     void SpawnHitImpactPreview(const glm::vec2& worldPos);
     Framework::GOC* SpawnHeiBangAttack2BeamVfx(const Framework::GOC& owner, const glm::vec2& targetPos);
+    Framework::GOC* SpawnFireImpactVfx(const glm::vec2& worldPos);
 
     bool IsImpactVfxObject(const Framework::GOC* obj);
     bool IsHeiBangAttack2BeamVfxObject(const Framework::GOC* obj);
+    bool IsFireImpactVfxObject(const Framework::GOC* obj);
 }

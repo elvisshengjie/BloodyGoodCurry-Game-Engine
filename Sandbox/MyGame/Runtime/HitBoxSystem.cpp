@@ -21,6 +21,7 @@
 #include "Component/SpriteAnimationComponent.h"
 #include "Component/TransformComponent.h"
 #include "EngineCall.hpp"
+#include "VfxPresets.hpp"
 #include "Factory/Factory.h"
 #include "Physics/Collision/Collision.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
@@ -378,6 +379,9 @@ namespace Framework
                     {
                         playerHealth->TakeDamage(static_cast<int>(HB->damage));
                         validTargetHit = true;
+
+                        if (it->isProjectile && HB->team == HitBoxComponent::Team::Enemy)
+                            mygame::SpawnFireImpactVfx(glm::vec2(tr->x, tr->y));
 
                         if (!playerHealth->isDead)
                         {
