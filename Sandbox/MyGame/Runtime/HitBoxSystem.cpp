@@ -415,7 +415,7 @@ namespace Framework
                             HB->team == HitBoxComponent::Team::PlayerSlow) &&
                             mygame::IsGodModeEnabled())
                         {
-                            finalDamage *= mygame::GetPlayerDamageMultiplier();
+                            finalDamage = mygame::GetPlayerGodModeDamage();
                         }
 
                         enemyHealth->TakeDamage(static_cast<int>(finalDamage));

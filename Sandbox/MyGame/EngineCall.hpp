@@ -128,9 +128,9 @@ namespace mygame {
     bool IsGodModeEnabled();
 
     /*************************************************************************************
-      \brief Returns the active outgoing player damage multiplier.
+      \brief Returns the flat outgoing player damage applied while god mode is active.
     **************************************************************************************/
-    float GetPlayerDamageMultiplier();
+    float GetPlayerGodModeDamage();
 
     /*************************************************************************************
       \brief Returns whether gameplay input should be ignored by game-side scripts this frame.
