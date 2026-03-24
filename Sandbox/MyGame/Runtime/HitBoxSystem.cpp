@@ -450,6 +450,9 @@ namespace Framework
 
                     if (isPlayer || isEnemy)
                     {
+                        const bool suppressPlayerKnockbackAnimation =
+                            isPlayer && mygame::IsGodModeEnabled();
+
                         // Resolve boss name to skip knockback for HeiBang and Nancie
                         std::string objName = obj->GetObjectName();
                         std::transform(objName.begin(), objName.end(), objName.begin(),
@@ -477,12 +480,15 @@ namespace Framework
                                 rb->knockbackTime = 0.25f;
                             }
 
-                            if (auto* anim = obj->GetComponentType<SpriteAnimationComponent>(
-                                ComponentTypeId::CT_SpriteAnimationComponent))
+                            if (!suppressPlayerKnockbackAnimation)
                             {
-                                const int idx = FindAnimationIndex(anim, "knockback");
-                                if (idx >= 0)
-                                    anim->SetActiveAnimation(idx);
+                                if (auto* anim = obj->GetComponentType<SpriteAnimationComponent>(
+                                    ComponentTypeId::CT_SpriteAnimationComponent))
+                                {
+                                    const int idx = FindAnimationIndex(anim, "knockback");
+                                    if (idx >= 0)
+                                        anim->SetActiveAnimation(idx);
+                                }
                             }
                         }
 
