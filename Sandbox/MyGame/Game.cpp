@@ -236,7 +236,7 @@ namespace mygame {
         // and `godcoming` toggles god mode on/off.
         bool godModeEnabled = false;
         std::string cheatInputBuffer;
-        constexpr float kGodModeDamageMultiplier = 2.0f;
+        constexpr float kGodModePlayerDamage = 100.0f;
         constexpr std::size_t kMaxCheatBufferLength = 16;
 
         std::string ToLowerAscii(std::string value)
@@ -1319,12 +1319,12 @@ namespace mygame {
     }
 
     /*************************************************************************************
-     \brief  Returns the active outgoing player damage multiplier.
-     \return 2.0f while god mode is enabled, otherwise 1.0f.
+     \brief  Returns the flat outgoing player damage applied while god mode is enabled.
+     \return 100.0f while god mode is enabled, otherwise 1.0f.
     *************************************************************************************/
-    float GetPlayerDamageMultiplier()
+    float GetPlayerGodModeDamage()
     {
-        return godModeEnabled ? kGodModeDamageMultiplier : 1.0f;
+        return godModeEnabled ? kGodModePlayerDamage : 1.0f;
     }
 
     /*************************************************************************************

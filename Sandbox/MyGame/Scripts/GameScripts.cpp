@@ -681,12 +681,16 @@ namespace {
                 rc->w = -std::abs(rc->w);
         }
 
+        const bool suppressKnockbackAnimation = mygame::IsGodModeEnabled();
+
         /*************************************************************************************
           \brief Decrement knockback timers (physics + animation).
         **************************************************************************************/
         if (rb->knockbackTime > 0.0f)
             rb->knockbackTime = std::max(0.0f, rb->knockbackTime - dt);
-        if (state.knockbackAnimTimer > 0.0f)
+        if (suppressKnockbackAnimation)
+            state.knockbackAnimTimer = 0.0f;
+        else if (state.knockbackAnimTimer > 0.0f)
             state.knockbackAnimTimer = std::max(0.0f, state.knockbackAnimTimer - dt);
 
         const bool isKnockback = rb->knockbackTime > 0.0f || state.knockbackAnimTimer > 0.0f;
@@ -883,7 +887,7 @@ namespace {
             state.knockbackAnimTimer = 0.0f;
             SetAnimState(obj, state, PlayerAnimState::Death);
         }
-        else if (rb->knockbackTime > 0.0f)
+        else if (!suppressKnockbackAnimation && rb->knockbackTime > 0.0f)
         {
             if (state.animState != PlayerAnimState::Knockback)
             {
@@ -896,7 +900,7 @@ namespace {
                 state.knockbackAnimTimer = AttackDurationForState(obj, PlayerAnimState::Knockback);
             SetAnimState(obj, state, PlayerAnimState::Knockback);
         }
-        else if (state.knockbackAnimTimer > 0.0f)
+        else if (!suppressKnockbackAnimation && state.knockbackAnimTimer > 0.0f)
         {
             SetAnimState(obj, state, PlayerAnimState::Knockback);
         }
