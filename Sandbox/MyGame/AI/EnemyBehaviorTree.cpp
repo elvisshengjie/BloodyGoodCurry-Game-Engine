@@ -52,10 +52,21 @@ namespace mygame
                         Framework::ComponentTypeId::CT_EnemyHealthComponent);
 
                     if (!healthComp || healthComp->enemyHealth <= 0)
-                        return;
+                    {
+                        auto* rigidBody = ctx.owner->GetComponentType<Framework::RigidBodyComponent>(
+                            Framework::ComponentTypeId::CT_RigidBodyComponent);
 
+                        if (rigidBody)
+                        {
+                            rigidBody->velX = 0.0f;
+                            rigidBody->velY = 0.0f;
+                            rigidBody->knockVelX = 0.0f;
+                            rigidBody->knockVelY = 0.0f;
+                        }
+                        return;
+                    }           
                     action(ctx);
-                };
+            };
         }
         /*****************************************************************************************
           \brief Constructs the decision tree for a melee-type enemy.
