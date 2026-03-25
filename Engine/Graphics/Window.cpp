@@ -469,7 +469,7 @@ namespace gfx {
 
       Sets the GLFW "should close" flag, so subsequent shouldClose()/isOpen() calls will
       reflect the shutdown request and loops can exit cleanly.
-    *************************************************************************************/
+    *************************************************************************t************/
     void Window::close() {
         glfwSetWindowShouldClose(Window::s_window, 1);
     }

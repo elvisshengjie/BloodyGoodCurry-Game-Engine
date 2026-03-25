@@ -690,6 +690,14 @@ void MainMenuPage::Update(Framework::InputSystem* input)
 }
 
 /*************************************************************************************
+  \brief  Advance non-interactive main menu visuals while input is intentionally blocked.
+*************************************************************************************/
+void MainMenuPage::UpdatePassive()
+{
+    UpdateBackgroundVideo();
+}
+
+/*************************************************************************************
   \brief  Draw the main menu background, active popup (if any), and GUI widgets.
   \param  render  RenderSystem pointer used for screen size and projection setup.
   \details Renders:

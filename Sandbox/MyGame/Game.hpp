@@ -38,7 +38,7 @@ namespace mygame {
     void EditorPlaySimulation();
     void EditorStopSimulation();
     /// Queue an incremental reload of the current gameplay level with the transition video.
-    bool RequestReloadLevel();
+    bool RequestReloadLevel(bool hideGameplayUntilDelay = false);
     /// Queue an incremental load of a new gameplay level with the transition video.
     bool RequestLoadLevel(const std::filesystem::path& levelPath);
     /// Queue an incremental level load from editor UI without showing the transition video.

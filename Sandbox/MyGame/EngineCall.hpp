@@ -115,7 +115,7 @@ namespace mygame {
     /*************************************************************************************
       \brief Requests an incremental reload of the currently active level.
     **************************************************************************************/
-    bool RequestReloadLevel();
+    bool RequestReloadLevel(bool hideGameplayUntilDelay);
 
     /*************************************************************************************
       \brief Requests an incremental load of the specified level through the game state machine.

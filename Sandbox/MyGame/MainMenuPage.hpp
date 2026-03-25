@@ -55,6 +55,11 @@ namespace mygame {
         void Update(Framework::InputSystem* input);
 
         /*************************************************************************
+          \brief  Advance non-interactive menu visuals such as the background video.
+        *************************************************************************/
+        void UpdatePassive();
+
+        /*************************************************************************
           \brief  Draw background, GUI, and optional hint text.
           \param  render Pointer to RenderSystem for text rendering (optional).
         *************************************************************************/
