@@ -48,4 +48,6 @@ namespace mygame {
     /// Returns true when gameplay scripts should ignore player-driven input for the current frame.
     bool IsGameplayInputBlocked();
 
+    void OnLevelLoadedPlayMusic();
+
 }

@@ -65,6 +65,7 @@ namespace mygame {
         const char* EXIT_BUTTTON = "Quit";
         const char* CUTSCENE_AUDIO = "CutsceneAudio";
         const char* WIN_VIDEO_AUDIO = "WinVideoAudio";
+
         // BGM Sounds
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
@@ -75,6 +76,11 @@ namespace mygame {
         bool defeatBGMPlaying = false;
         bool defeatSoundStarted = false;
         bool boilingStarted = false;
+        //Boss music change
+        const char* LEVEL3_BOSS_BGM = "MiniBoss";
+        const char* LEVEL4_BOSS_BGM = "FinalBoss";
+        bool levelMusicInitialized = false;
+
         //Timer
         float bgmFadeTimer = 0.0f;
         constexpr float kBGMFadeDuration = 1.5f;
@@ -124,6 +130,9 @@ namespace mygame {
                 }
             }
         }
+
+       
+
 
         void PlayMainMenuMusic(float targetVolume = 0.3f)
         {
@@ -217,6 +226,7 @@ namespace mygame {
         float loadingTransitionElapsedTimer = 0.0f;
         constexpr float kStateAdvanceInputBlockDuration = 0.2f;
 
+       
         void BlockStateAdvanceInput(float duration = kStateAdvanceInputBlockDuration)
         {
             stateAdvanceInputBlockTimer = std::max(stateAdvanceInputBlockTimer, duration);
@@ -254,6 +264,59 @@ namespace mygame {
                 [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
             return value;
         }
+
+        void OnLevelLoadedPlayMusic()
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+                return;
+
+            SoundManager& sm = SoundManager::getInstance();
+
+            std::string levelName = ToLowerAscii(
+                gLogicSystem->Factory()->LastLevelPath().filename().string());
+
+            const bool isLevel3 = (levelName == "reallevel3.json");
+            const bool isLevel4 = (levelName == "reallastlevel.json");
+
+            // Fade out ALL current music
+            const std::array<const char*, 3> allTracks = {
+                GAMEPLAY_BGM,
+                LEVEL3_BOSS_BGM,
+                LEVEL4_BOSS_BGM
+            };
+
+            for (const char* track : allTracks)
+            {
+                if (sm.isSoundLoaded(track) && sm.isSoundPlaying(track))
+                {
+                    sm.fadeOutMusic(track, kBGMFadeDuration);
+                }
+            }
+
+            gameplayBGMPlaying = false;
+
+            // Decide next track
+            const char* nextTrack = GAMEPLAY_BGM;
+
+            if (isLevel3)
+                nextTrack = LEVEL3_BOSS_BGM;
+            else if (isLevel4)
+                nextTrack = LEVEL4_BOSS_BGM;
+
+            // Play it
+            if (sm.isSoundLoaded(nextTrack))
+            {
+                sm.playSound(nextTrack, 1.0f, 1.0f, true);
+                sm.setSoundVolume(nextTrack, 0.0f);
+                sm.fadeInMusic(nextTrack, kBGMFadeDuration, 0.5f);
+            }
+            else
+            {
+                std::cout << "[Music ERROR] Not loaded: " << nextTrack << "\n";
+            }
+            std::cout << "[Music] Now playing: " << nextTrack << "\n";
+        }
+
 
         bool BufferEndsWith(std::string_view suffix)
         {
@@ -544,6 +607,7 @@ namespace mygame {
             bool playVideo = true,
             bool hideGameplayUntilDelay = false)
         {
+            
             if (!gLogicSystem || levelLoader.IsActive())
                 return false;
 
@@ -574,6 +638,7 @@ namespace mygame {
             loadingTransitionElapsedTimer = 0.0f;
             ResetHeiBangDefeat();
             editorSimulationRunning = false;
+            levelMusicInitialized = false;
             currentState = GameState::LOADING_TRANSITION;
             BlockStateAdvanceInput();
             return true;
@@ -868,6 +933,11 @@ namespace mygame {
 
                 if (minimumVideoDelayElapsed && loadingFinished && transitionFinished)
                 {
+                    if (!levelMusicInitialized)
+                    {
+                        OnLevelLoadedPlayMusic();
+                        levelMusicInitialized = true;
+                    }
                     currentState = loadingTransitionNextState;
                     editorSimulationRunning = loadingTransitionResumeSimulation;
                     BlockStateAdvanceInput();
@@ -888,11 +958,12 @@ namespace mygame {
                 if (HandleCheatCodeInput())
                     break;
 
-                if (!gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                if (!gameplayBGMPlaying && !levelMusicInitialized &&
+                    SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
                     SoundManager::getInstance().playSound(GAMEPLAY_BGM, 1.0f, 1.0f, true);
-                    SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f); // start silent
-                    SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f); // fade to 0.4
+                    SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f);
+                    SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
                     gameplayBGMPlaying = true;
                 }
      
@@ -1445,5 +1516,7 @@ namespace mygame {
     {
         return currentState == GameState::LOADING_TRANSITION;
     }
+
+
 
 } // namespace mygame

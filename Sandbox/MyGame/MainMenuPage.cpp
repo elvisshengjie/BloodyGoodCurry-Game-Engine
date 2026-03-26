@@ -530,8 +530,8 @@ void MainMenuPage::Init(int screenW, int screenH)
     ApplyBgmVolume(optionsSliderValues[1]);
     ApplySfxVolume(optionsSliderValues[2]);
     auto& sm = SoundManager::getInstance();
-    sm.loadSound("UI_Hover", "UI_Hover_New_1.wav", false);
-    sm.loadSound("UI_Select", "UI_Select_Small_1.wav", false);
+    sm.loadSound("UIHoverNew1", "UIHoverNew1.wav", false);
+    sm.loadSound("UISelectSmall1", "UISelectSmall1.wav", false);
     // Force layout update
     layoutInitialized = false;
     SyncLayout(sw, sh);
@@ -999,15 +999,15 @@ void MainMenuPage::PlayExitSound()
 void MainMenuPage::PlayHoverSound()
 {
     auto& sm = SoundManager::getInstance();
-    if (sm.isSoundLoaded("UI_Hover"))
-        sm.playSound("UI_Hover", 1.0f, 1.0f, false);
+    if (sm.isSoundLoaded("UIHoverNew1"))
+        sm.playSound("UIHoverNew1", 1.0f, 1.0f, false);
 }
 
 void MainMenuPage::PlaySelectSound()
 {
     auto& sm = SoundManager::getInstance();
-    if (sm.isSoundLoaded("UI_Select"))
-        sm.playSound("UI_Select", 1.0f, 1.0f, false);
+    if (sm.isSoundLoaded("UISelectSmall1"))
+        sm.playSound("UISelectSmall1", 1.0f, 1.0f, false);
 }
 // Latch Consumers
 /*************************************************************************************
