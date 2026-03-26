@@ -174,7 +174,7 @@ namespace mygame {
             const float facingSign = (ownerRender && ownerRender->w < 0.0f) ? -1.0f : 1.0f;
             // Tune the start point to HeiBang's open mouth in the last attack2 frame.
             const glm::vec2 beamStart{
-                ownerTransform->x + (facingSign * ownerWidth * 0.38f),
+                ownerTransform->x + (facingSign * ownerWidth * 0.15f),
                 ownerTransform->y + (ownerHeight * 0.14f)
             };
             glm::vec2 beamDelta = targetPos - beamStart;
