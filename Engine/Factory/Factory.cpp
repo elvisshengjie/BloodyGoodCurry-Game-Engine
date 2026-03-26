@@ -358,7 +358,7 @@ namespace Framework {
         }
         case ComponentTypeId::CT_ShadowComponent: {
             auto const& shadow = static_cast<ShadowComponent const&>(component);
-            return json{
+            json out = json{
                 {"enabled", shadow.enabled},
                 {"offset_x", shadow.offsetX},
                 {"offset_y", shadow.offsetY},
@@ -371,6 +371,9 @@ namespace Framework {
                 {"a", shadow.a},
                 {"blend_mode", BlendModeToString(shadow.blendMode)}
             };
+            if (!shadow.layerName.empty())
+                out["layer_name"] = NormalizeLayerName(shadow.layerName);
+            return out;
         }
         case ComponentTypeId::CT_SpriteAnimationComponent: {
             auto const& anim = static_cast<const SpriteAnimationComponent&>(component);
@@ -900,6 +903,11 @@ namespace Framework {
                 if (TryParseBlendMode(modeValue, parsedMode))
                     shadow.blendMode = parsedMode;
             }
+            readString("layer_name", shadow.layerName);
+            if (shadow.layerName.empty())
+                readString("layer", shadow.layerName);
+            if (!shadow.layerName.empty())
+                shadow.layerName = NormalizeLayerName(shadow.layerName);
             break;
         }
         case ComponentTypeId::CT_SpriteAnimationComponent:

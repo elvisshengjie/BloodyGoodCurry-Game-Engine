@@ -16,6 +16,7 @@
 #include "Memory/ComponentPool.h"
 #include "Serialization/Serialization.h"
 #include "Component/RenderComponent.h"
+#include "Core/Layer.h"
 #include <iostream>
 
 namespace Framework {
@@ -43,6 +44,7 @@ namespace Framework {
         float a{ 0.7f };
 
         BlendMode blendMode{ BlendMode::Multiply };
+        std::string layerName{};
 
         void initialize() override {}
 
@@ -76,6 +78,17 @@ namespace Framework {
                 }
                 blendMode = parsedMode;
             }
+
+            if (s.HasKey("layer_name")) {
+                StreamRead(s, "layer_name", layerName);
+                if (!layerName.empty())
+                    layerName = NormalizeLayerName(layerName);
+            }
+            else if (s.HasKey("layer")) {
+                StreamRead(s, "layer", layerName);
+                if (!layerName.empty())
+                    layerName = NormalizeLayerName(layerName);
+            }
         }
 
         ComponentHandle Clone() const override {
@@ -91,6 +104,7 @@ namespace Framework {
             copy->b = b;
             copy->a = a;
             copy->blendMode = blendMode;
+            copy->layerName = layerName;
             return copy;
         }
 

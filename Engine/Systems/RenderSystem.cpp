@@ -2661,6 +2661,51 @@ namespace Framework {
                     return a < b;
                 });
 
+            struct DrawEntry
+            {
+                unsigned id = 0;
+                LayerKey layerKey{};
+                bool isShadow = false;
+            };
+
+            std::vector<DrawEntry> drawEntries;
+            drawEntries.reserve(sortedIds.size() * 2);
+
+            for (unsigned id : sortedIds)
+            {
+                auto objectIt = FACTORY->Objects().find(id);
+                if (objectIt == FACTORY->Objects().end() || !objectIt->second)
+                    continue;
+
+                GOC* obj = objectIt->second.get();
+                const LayerKey ownerLayerKey = layerManager.LayerKeyFor(id);
+
+                if (auto* shadow = obj->GetComponentType<Framework::ShadowComponent>(
+                    Framework::ComponentTypeId::CT_ShadowComponent))
+                {
+                    if (shadow->enabled && !shadow->layerName.empty())
+                    {
+                        const LayerKey shadowLayerKey = ParseLayerName(shadow->layerName);
+                        if (!(shadowLayerKey == ownerLayerKey))
+                            drawEntries.push_back(DrawEntry{ id, shadowLayerKey, true });
+                    }
+                }
+
+                drawEntries.push_back(DrawEntry{ id, ownerLayerKey, false });
+            }
+
+            std::sort(drawEntries.begin(), drawEntries.end(),
+                [](const DrawEntry& a, const DrawEntry& b)
+                {
+                    if (a.layerKey.group != b.layerKey.group)
+                        return static_cast<int>(a.layerKey.group) < static_cast<int>(b.layerKey.group);
+                    if (a.layerKey.sublayer != b.layerKey.sublayer)
+                        return a.layerKey.sublayer < b.layerKey.sublayer;
+                    if (a.id != b.id)
+                        return a.id < b.id;
+                    return a.isShadow && !b.isShadow;
+                });
+
 
             auto t0 = clock::now();
 
@@ -2876,16 +2921,17 @@ namespace Framework {
                 //const int animRows = std::max(1, CurrentRows());
                 bool projectilesRendered = false;
                 // Pass 1: Sprites (instanced)
-                for (unsigned id : sortedIds)
+                for (const DrawEntry& entry : drawEntries)
                 {
+                    const unsigned id = entry.id;
                     auto& objPtr = FACTORY->Objects().at(id);
                     GOC* obj = objPtr.get();
                     if (!obj) continue;
 
 
-                    if (!layerManager.IsLayerEnabled(obj->GetLayerName())) continue;
+                    if (!layerManager.IsLayerEnabled(entry.layerKey)) continue;
 
-                    const LayerKey layerKey = layerManager.LayerKeyFor(id);
+                    const LayerKey layerKey = entry.layerKey;
                     if (!projectilesRendered && layerKey.group > LayerGroup::Gameplay)
                     {
                         flushSpriteBatch();
@@ -2898,6 +2944,76 @@ namespace Framework {
 
                     auto* animComp = obj->GetComponentType<Framework::SpriteAnimationComponent>(
                         Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+
+                    if (entry.isShadow)
+                    {
+                        auto* sp = obj->GetComponentType<Framework::SpriteComponent>(
+                            Framework::ComponentTypeId::CT_SpriteComponent);
+                        auto* shadow = obj->GetComponentType<Framework::ShadowComponent>(
+                            Framework::ComponentTypeId::CT_ShadowComponent);
+                        if (!sp || !shadow || !shadow->enabled)
+                            continue;
+
+                        float sx = 1.f, sy = 1.f;
+                        if (auto* rc = obj->GetComponentType<Framework::RenderComponent>(
+                            Framework::ComponentTypeId::CT_RenderComponent))
+                        {
+                            if (!rc->visible || rc->a <= 0.0f)
+                                continue;
+
+                            sx = rc->w;
+                            sy = rc->h;
+                        }
+
+                        unsigned tex = sp->texture_id;
+                        glm::vec4 uvRect(0.0f, 0.0f, 1.0f, 1.0f);
+
+                        if (animComp && animComp->HasSpriteSheets())
+                        {
+                            auto sample = animComp->CurrentSheetSample();
+                            if (sample.texture)
+                                tex = sample.texture;
+                            uvRect = sample.uv;
+                        }
+                        else if (!tex && !sp->texture_key.empty())
+                        {
+                            tex = Resource_Manager::getTexture(sp->texture_key);
+                            sp->texture_id = tex;
+                        }
+
+                        if (!tex)
+                            continue;
+
+                        gfx::Graphics::SpriteInstance shadowInstance;
+                        glm::mat4 shadowModel(1.0f);
+                        shadowModel = glm::translate(shadowModel,
+                            glm::vec3(tr->x + shadow->offsetX, tr->y + shadow->offsetY, 0.0f));
+                        shadowModel = glm::rotate(shadowModel, tr->rot, glm::vec3(0, 0, 1));
+                        const float shadowScaleY = shadow->scaleY * (shadow->flipY ? -1.0f : 1.0f);
+                        shadowModel = glm::scale(shadowModel,
+                            glm::vec3(sx * tr->scaleX * shadow->scaleX,
+                                sy * tr->scaleY * shadowScaleY, 1.0f));
+                        shadowInstance.model = shadowModel;
+                        shadowInstance.tint = glm::vec4(shadow->r, shadow->g, shadow->b, shadow->a);
+                        shadowInstance.uv = uvRect;
+
+                        flushSpriteBatch();
+
+                        const bool shadowSolidColor = (shadow->blendMode == BlendMode::SolidColor);
+                        if (shadowSolidColor)
+                        {
+                            applyBlendMode(BlendMode::Alpha);
+                            gfx::Graphics::EnableSolidColor(true, shadow->r, shadow->g, shadow->b, shadow->a);
+                            gfx::Graphics::renderSpriteBatchInstanced(tex, &shadowInstance, 1);
+                            gfx::Graphics::EnableSolidColor(false, 1, 1, 1, 1);
+                        }
+                        else
+                        {
+                            applyBlendMode(shadow->blendMode);
+                            gfx::Graphics::renderSpriteBatchInstanced(tex, &shadowInstance, 1);
+                        }
+                        continue;
+                    }
 
                     if (auto* glow = obj->GetComponentType<Framework::GlowComponent>(
                         Framework::ComponentTypeId::CT_GlowComponent))
@@ -2985,7 +3101,12 @@ namespace Framework {
                         if (auto* shadow = obj->GetComponentType<Framework::ShadowComponent>(
                             Framework::ComponentTypeId::CT_ShadowComponent))
                         {
-                            if (shadow->enabled && tex)
+                            const bool shadowUsesSeparateLayer =
+                                shadow->enabled &&
+                                !shadow->layerName.empty() &&
+                                !(ParseLayerName(shadow->layerName) == layerKey);
+
+                            if (!shadowUsesSeparateLayer && shadow->enabled && tex)
                             {
                                 gfx::Graphics::SpriteInstance shadowInstance;
                                 glm::mat4 shadowModel(1.0f);

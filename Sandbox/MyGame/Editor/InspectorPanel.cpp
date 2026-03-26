@@ -19,6 +19,7 @@
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
 #include "Component/BehaviourComponent.h"
+#include "Component/ShadowComponent.h"
 #include "Components/GlowComponent.h"
 #include "Components/GateTargetComponent.h"
 #include "Component/SpriteComponent.h"
@@ -556,6 +557,59 @@ namespace
             sprite.path = pathBuffer.data();
     }
 
+    void DrawShadowSection(Framework::GOC& owner, ShadowComponent& shadow)
+    {
+        if (!ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
+            return;
+
+        ImGui::Checkbox("Enabled##Shadow", &shadow.enabled);
+
+        float offset[2] = { shadow.offsetX, shadow.offsetY };
+        if (ImGui::DragFloat2("Offset##Shadow", offset, 0.01f, -1000.0f, 1000.0f, "%.3f"))
+        {
+            shadow.offsetX = offset[0];
+            shadow.offsetY = offset[1];
+        }
+
+        float scale[2] = { shadow.scaleX, shadow.scaleY };
+        if (ImGui::DragFloat2("Scale##Shadow", scale, 0.01f, -1000.0f, 1000.0f, "%.3f"))
+        {
+            shadow.scaleX = scale[0];
+            shadow.scaleY = scale[1];
+        }
+
+        ImGui::Checkbox("Flip Y##Shadow", &shadow.flipY);
+
+        float color[4] = { shadow.r, shadow.g, shadow.b, shadow.a };
+        if (ImGui::ColorEdit4("Tint##Shadow", color))
+        {
+            shadow.r = color[0];
+            shadow.g = color[1];
+            shadow.b = color[2];
+            shadow.a = color[3];
+        }
+
+        int blendModeIndex = static_cast<int>(shadow.blendMode);
+        if (ImGui::Combo("Blend Mode##Shadow", &blendModeIndex, Framework::kBlendModeLabels.data(),
+            static_cast<int>(Framework::kBlendModeLabels.size())))
+        {
+            shadow.blendMode = static_cast<Framework::BlendMode>(blendModeIndex);
+        }
+
+        static Framework::GOCId lastShadowSelection = 0;
+        static std::array<char, 64> shadowLayerBuffer{};
+        if (lastShadowSelection != owner.GetId())
+        {
+            std::snprintf(shadowLayerBuffer.data(), shadowLayerBuffer.size(), "%s", shadow.layerName.c_str());
+            lastShadowSelection = owner.GetId();
+        }
+
+        if (ImGui::InputText("Shadow Layer", shadowLayerBuffer.data(), shadowLayerBuffer.size()))
+            shadow.layerName = shadowLayerBuffer.data();
+
+        ImGui::TextDisabled("Leave blank to use the object's layer.");
+    }
+
     /*************************************************************************************
       \brief Draws ImGui controls for EnemyTypeComponent (physical / ranged).
     *************************************************************************************/
@@ -728,6 +782,9 @@ namespace mygame
 
         if (auto* sprite = object->GetComponentAs<SpriteComponent>(ComponentTypeId::CT_SpriteComponent))
             DrawSpriteSection(*sprite);
+
+        if (auto* shadow = object->GetComponentAs<ShadowComponent>(ComponentTypeId::CT_ShadowComponent))
+            DrawShadowSection(*object, *shadow);
 
         if (auto* rb = object->GetComponentAs<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent))
             DrawRigidBodySection(*object, *rb);
