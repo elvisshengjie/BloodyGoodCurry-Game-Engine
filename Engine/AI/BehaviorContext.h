@@ -14,6 +14,7 @@
 #include <functional>
 #include "Blackboard.h"
 #include "Composition/Composition.h"
+#include "Component/HitBoxComponent.h"
 namespace Framework
 {
     /*****************************************************************************************
@@ -29,7 +30,7 @@ namespace Framework
         float dt = 0.0f;
         Framework::GOC* owner = nullptr;  // Use full type
         BlackBoard* blackboard = nullptr;
-        std::function<void(Framework::GOC*, float, float, float, float, float, float, float)> spawnHitBox;
+        std::function<Framework::HitBoxComponent*(Framework::GOC*, float, float, float, float, float, float, float, float, bool)> spawnHitBox;
         std::function<void(Framework::GOC*, float, float, float, float, float, float, float, float, float)> spawnProjectile;
     };
 }

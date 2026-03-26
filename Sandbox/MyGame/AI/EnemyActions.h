@@ -56,11 +56,13 @@ namespace mygame
     static constexpr float kEnemyProjectileBaseSpeed = 0.6f;
     static constexpr float kRangedAttackFireDist = kDetectionRadius;  // 3.5f
     static constexpr float kMeleeAttackDist = 0.8f;
-    static constexpr float kHeiBangBeamMaxRange = 1.35f;
-    static constexpr float kHeiBangBeamTelegraphDuration = 0.45f;
+    static constexpr float kHeiBangBeamMaxRange = 2.70f;
+    static constexpr float kHeiBangBeamHitboxLengthScale = 1.8f;
+    static constexpr float kHeiBangBeamTelegraphDuration = 0.08f;
     static constexpr float kHeiBangBeamPhaseDuration = 14.0f / 9.0f;
     static constexpr float kHeiBangBeamDamageDuration =
         kHeiBangBeamPhaseDuration - kHeiBangBeamTelegraphDuration;
+    static constexpr float kHeiBangBeamGrowthDuration = 0.16f;
     static constexpr int kHeiBangAttack3BurstFrame = 11;
     static constexpr int kHeiBangAttack3ProjectileCount = 12;
     static constexpr float kHeiBangAttack3ProjectileSpeed = 0.52f;
@@ -69,6 +71,72 @@ namespace mygame
     static constexpr float kHeiBangAttack3ProjectileHeight = 0.12f;
     static constexpr float kHeiBangAttack3ProjectileSpawnRadius = 0.20f;
     static constexpr float kHeiBangPostAttackPauseDuration = 4.0f;
+
+    /*****************************************************************************************
+      \brief Spawns or updates HeiBang's single beam hitbox so it only grows in length.
+      \details Keeps one rotated hitbox alive for the beam's active window and stretches it
+               outward from the mouth as the visible laser extends.
+    *****************************************************************************************/
+    inline void SpawnHeiBangBeamDamageHitBox(Framework::GOC* enemy,
+        Framework::EnemyAttackComponent* attack,
+        const Framework::BehaviorContext& ctx)
+    {
+        if (!(enemy && attack && attack->hitbox && ctx.spawnHitBox))
+            return;
+
+        const float damageElapsed = attack->hitboxElapsed - kHeiBangBeamTelegraphDuration;
+        if (damageElapsed <= 0.0f)
+            return;
+
+        const float growth =
+            std::clamp(damageElapsed / std::max(kHeiBangBeamGrowthDuration, 0.0001f), 0.0f, 1.0f);
+        if (growth <= 0.0f)
+            return;
+
+        const glm::vec2 beamStart{ attack->attack2BeamStartX, attack->attack2BeamStartY };
+        const glm::vec2 fullBeamDelta{
+            attack->attack2BeamTargetX - beamStart.x,
+            attack->attack2BeamTargetY - beamStart.y
+        };
+        const glm::vec2 currentBeamDelta = fullBeamDelta * growth;
+        const float beamThickness = std::max(attack->attack2BeamThickness, 0.08f);
+        const float currentBeamLength = std::sqrt(
+            currentBeamDelta.x * currentBeamDelta.x +
+            currentBeamDelta.y * currentBeamDelta.y);
+        if (currentBeamLength <= 0.0001f)
+            return;
+
+        const glm::vec2 beamDir = currentBeamDelta / currentBeamLength;
+        const glm::vec2 beamCenter = beamStart + (beamDir * (currentBeamLength * 0.5f));
+        const float beamRotation = std::atan2(beamDir.y, beamDir.x);
+        const float remainingDuration =
+            std::max(kHeiBangBeamPhaseDuration - attack->hitboxElapsed, std::max(ctx.dt, 0.016f));
+
+        if (!attack->attack2BeamDamageSpawned || !attack->attack2BeamRuntimeHitbox)
+        {
+            attack->attack2BeamRuntimeHitbox = ctx.spawnHitBox(
+                enemy,
+                beamCenter.x,
+                beamCenter.y,
+                currentBeamLength,
+                beamThickness,
+                static_cast<float>(attack->damage),
+                remainingDuration,
+                0.0f,
+                beamRotation,
+                false);
+            attack->attack2BeamDamageSpawned = (attack->attack2BeamRuntimeHitbox != nullptr);
+            return;
+        }
+
+        attack->attack2BeamRuntimeHitbox->spawnX = beamCenter.x;
+        attack->attack2BeamRuntimeHitbox->spawnY = beamCenter.y;
+        attack->attack2BeamRuntimeHitbox->width = currentBeamLength;
+        attack->attack2BeamRuntimeHitbox->height = beamThickness;
+        attack->attack2BeamRuntimeHitbox->rotation = beamRotation;
+        attack->attack2BeamRuntimeHitbox->duration = remainingDuration;
+        attack->attack2BeamRuntimeHitbox->active = true;
+    }
 
     /*****************************************************************************************
       \brief Performs a case-insensitive search for an animation by name.
@@ -473,7 +541,7 @@ namespace mygame
 
                     ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
                         static_cast<float>(attack->damage),
-                        ai->meleeHitboxDuration, 0.0f);
+                        ai->meleeHitboxDuration, 0.0f, 0.0f, true);
 
                     if (audio)
                     {
@@ -534,19 +602,9 @@ namespace mygame
             }
 
             if (isHeiBang && attack->attack2BeamPhaseActive &&
-                !attack->attack2BeamDamageSpawned &&
                 attack->hitboxElapsed >= kHeiBangBeamTelegraphDuration)
             {
-                attack->attack2BeamDamageSpawned = true;
-                if (ctx.spawnHitBox)
-                {
-                    const float beamDamageWidth = std::max(attack->hitbox->width, 0.18f);
-                    const float beamDamageHeight = std::max(attack->hitbox->height, 0.22f);
-                    ctx.spawnHitBox(enemy, attack->hitbox->spawnX, attack->hitbox->spawnY,
-                        beamDamageWidth, beamDamageHeight,
-                        static_cast<float>(attack->damage),
-                        kHeiBangBeamDamageDuration, 0.0f);
-                }
+                SpawnHeiBangBeamDamageHitBox(enemy, attack, ctx);
             }
 
             if (attack->hitboxElapsed >= attack->hitbox->duration)
@@ -571,7 +629,7 @@ namespace mygame
                         : 0.3f;
                     const float facingSign = (enemyRender && enemyRender->w < 0.0f) ? -1.0f : 1.0f;
                     const glm::vec2 beamStart{
-                        tr->x + (facingSign * ownerWidth * 0.38f),
+                        tr->x + (facingSign * ownerWidth * 0.15f),
                         tr->y + (ownerHeight * 0.14f)
                     };
 
@@ -587,11 +645,22 @@ namespace mygame
                         beamDelta *= (kHeiBangBeamMaxRange / beamDistance);
 
                     const glm::vec2 beamTarget{ beamStart.x + beamDelta.x, beamStart.y + beamDelta.y };
+                    const glm::vec2 beamHitTarget{
+                        beamStart.x + (beamDelta.x * kHeiBangBeamHitboxLengthScale),
+                        beamStart.y + (beamDelta.y * kHeiBangBeamHitboxLengthScale)
+                    };
                     const glm::vec2 beamCenter{
                         (beamStart.x + beamTarget.x) * 0.5f,
                         (beamStart.y + beamTarget.y) * 0.5f
                     };
-                    const float beamThickness = std::max(0.18f, ownerHeight * 0.95f);
+                    // The beam sprite sheet has large transparent padding, so keep the gameplay
+                    // thickness tied to the visible orange core instead of the full square frame.
+                    const float beamThickness = std::max(0.08f, ownerHeight * 0.28f);
+                    attack->attack2BeamStartX = beamStart.x;
+                    attack->attack2BeamStartY = beamStart.y;
+                    attack->attack2BeamTargetX = beamHitTarget.x;
+                    attack->attack2BeamTargetY = beamHitTarget.y;
+                    attack->attack2BeamThickness = beamThickness;
                     attack->hitbox->spawnX = beamCenter.x;
                     attack->hitbox->spawnY = beamCenter.y;
                     attack->hitbox->width = std::fabs(beamTarget.x - beamStart.x) + beamThickness;
@@ -604,6 +673,12 @@ namespace mygame
                 attack->hitboxElapsed = 0.0f;
                 attack->attack2BeamPhaseActive = false;
                 attack->attack2BeamDamageSpawned = false;
+                attack->attack2BeamStartX = 0.0f;
+                attack->attack2BeamStartY = 0.0f;
+                attack->attack2BeamTargetX = 0.0f;
+                attack->attack2BeamTargetY = 0.0f;
+                attack->attack2BeamThickness = 0.0f;
+                attack->attack2BeamRuntimeHitbox = nullptr;
                 attack->attack3VolleySpawned = false;
                 PlayAnim(enemy, "idle");
                 if (isHeiBang)
@@ -652,6 +727,7 @@ namespace mygame
             rb->velX = 0.0f;
             rb->velY = 0.0f;
             ai->facing = (dx < 0.0f) ? Framework::Facing::LEFT : Framework::Facing::RIGHT;
+            PlayAnim(enemy, "idle");
             attack->attack_timer += ctx.dt;
             if (attack->attack_timer >= attack->attack_speed)
             {
@@ -662,6 +738,7 @@ namespace mygame
                     attack->hitboxElapsed = 0.0f;
                     attack->attack2BeamPhaseActive = false;
                     attack->attack2BeamDamageSpawned = false;
+                    attack->attack2BeamRuntimeHitbox = nullptr;
                     attack->attack3VolleySpawned = false;
                     const float direction = (ai->facing == Framework::Facing::LEFT) ? -1.0f : 1.0f;
                     const float hbWidth = rb->width * 1.2f;
@@ -674,9 +751,12 @@ namespace mygame
                     };
                     const std::string attackAnim = std::string(kHeiBangAttackAnims[ai->currentPathIndex]);
                     attack->hitbox->duration = GetAnimDuration(enemy, attackAnim);
-                    ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
-                        static_cast<float>(attack->damage),
-                        attack->hitbox->duration, 0.0f);
+                    if (!(isHeiBang && ai->currentPathIndex == 1))
+                    {
+                        ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
+                            static_cast<float>(attack->damage),
+                            attack->hitbox->duration, 0.0f, 0.0f, true);
+                    }
 
                     if (audio)
                     {
@@ -768,7 +848,7 @@ namespace mygame
                 attack->hitbox->duration = GetAnimDuration(enemy, meleeAnim);
                 ctx.spawnHitBox(enemy, spawnX, spawnY, hbWidth, hbHeight,
                     static_cast<float>(attack->damage),
-                    attack->hitbox->duration, 0.0f);
+                    attack->hitbox->duration, 0.0f, 0.0f, true);
 
                 if (audio)
                 {

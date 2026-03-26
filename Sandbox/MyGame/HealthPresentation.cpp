@@ -124,11 +124,15 @@ namespace mygame {
         *************************************************************************************/
         void DrawKeyInventoryUi(Framework::RenderSystem& render, int viewportW, int viewportH)
         {
+            const int keyCount = std::max(0, GetPlayerKeyCount());
+            if (keyCount <= 0)
+                return;
+
             const float refHeight = 720.0f;
             const float scale = std::max(0.6f, static_cast<float>(viewportH) / refHeight);
 
-            const float iconW = 56.0f * scale;
             const float iconH = 56.0f * scale;
+            const float iconW = iconH * (2.0f / 3.0f);
             const float iconX = 18.0f * scale;
             const float iconY = (viewportH * 0.5f) - (iconH * 0.5f);
 
@@ -140,7 +144,7 @@ namespace mygame {
 
             if (render.IsTextReadyHint())
             {
-                const std::string label = "x" + std::to_string(std::max(0, GetPlayerKeyCount()));
+                const std::string label = "x" + std::to_string(keyCount);
                 const float textX = iconX + iconW + (8.0f * scale);
                 const float textY = iconY + (iconH * 0.28f);
                 render.GetTextHint().RenderText(label.c_str(), textX, textY,

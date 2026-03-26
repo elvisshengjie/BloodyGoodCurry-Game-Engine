@@ -13,6 +13,7 @@
 #pragma once
 #include "../AI/DecisionTree.h"
 #include "../AI/Blackboard.h"
+#include "Component/HitBoxComponent.h"
 #include "Composition/Component.h"
 #include <memory>
 #include <string>
@@ -38,7 +39,7 @@ namespace Framework
             std::string treeType;
             std::unique_ptr<DecisionTree> tree;
             std::unique_ptr<BlackBoard> blackboard;
-            std::function<void(GOC*, float, float, float, float, float, float, float)> spawnHitBoxFn;
+            std::function<HitBoxComponent*(GOC*, float, float, float, float, float, float, float, float, bool)> spawnHitBoxFn;
             std::function<void(GOC*, float, float, float, float, float, float, float, float, float)> spawnProjectileFn;
 
             /*************************************************************************************

@@ -99,12 +99,15 @@ namespace Framework
 		  \param  damage    Damage this hitbox applies on collision (default 1.0f).
 		  \param  duration  Lifetime of hitbox before auto-removal (default 0.1f).
 		*************************************************************************/
-		void SpawnHitBox(GameObjectComposition* attacker,
+		HitBoxComponent* SpawnHitBox(GameObjectComposition* attacker,
 			float targetX, float targetY,
 			float width = 0.2f, float height = 0.2f,
 			float damage = 1.0f,
 			float duration = 0.1f,
-			HitBoxComponent::Team team = HitBoxComponent::Team::Player, float soundDelay = 0.015f);
+			HitBoxComponent::Team team = HitBoxComponent::Team::Player,
+            float rotation = 0.0f,
+            bool consumeOnHit = true,
+            float soundDelay = 0.015f);
 
 		void SpawnProjectile(GameObjectComposition* attacker,
 			float targetX, float targetY,

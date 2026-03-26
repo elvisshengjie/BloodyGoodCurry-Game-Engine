@@ -283,7 +283,8 @@ namespace mygame {
             const char* nextTrack = GAMEPLAY_BGM;
             if (levelName == "reallevel3.json")
                 nextTrack = LEVEL3_BOSS_BGM;
-            else if (levelName == "reallastlevl.json")
+            else if (levelName == "reallastlevel.json" ||
+                levelName == "reallastlevl.json")
                 nextTrack = LEVEL4_BOSS_BGM;
 
             // Skip restarting if already playing the correct track

@@ -3242,7 +3242,7 @@ namespace Framework {
                                     gfx::Graphics::renderRectangleOutline(
                                         activeHit.hitbox->spawnX,
                                         activeHit.hitbox->spawnY,
-                                        0.0f,
+                                        activeHit.hitbox->rotation,
                                         activeHit.hitbox->width,
                                         activeHit.hitbox->height,
                                         0.0f, 1.0f, 0.0f, 1.0f, // green outline for enemy attacks
