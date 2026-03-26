@@ -26,1247 +26,22 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 0,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.25,
-            "velocity_x": 0.6000000238418579,
-            "velocity_y": 0.6000000238418579,
-            "width": 0.25
-          },
-          "SpriteComponent": {
-            "texture_key": "boss"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 194.47239685058594,
-            "y": 194.21253967285156
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Boss"
-      },
-      {
-        "Components": {
-          "AudioComponent": {
-            "sounds": {
-              "GhostHurt1": {
-                "id": "GhostHurt1",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "GhostHurt2": {
-                "id": "GhostHurt2",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "GhostHurt3": {
-                "id": "GhostHurt3",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "GhostHurt4": {
-                "id": "GhostHurt4",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "GhostHurt5": {
-                "id": "GhostHurt5",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "GhostHurt6": {
-                "id": "GhostHurt6",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "GhostHurt7": {
-                "id": "GhostHurt7",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "GhostHurt8": {
-                "id": "GhostHurt8",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "WaterGhostAttack": {
-                "id": "WaterGhostAttack",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              },
-              "WaterGhostExplosion": {
-                "id": "WaterGhostExplosion",
-                "loop": false,
-                "spatial": true,
-                "volume": 1.0
-              }
-            },
-            "volume": 0.4000000059604645
-          },
-          "BehaviorTreeComponent": {
-            "treeType": "enemy_melee"
-          },
-          "EnemyAttackComponent": {
-            "attack_speed": 0.800000011920929,
-            "damage": 1
-          },
-          "EnemyComponent": {},
-          "EnemyDecisionTreeComponent": {},
-          "EnemyHealthComponent": {
-            "enemyHealth": 20,
-            "enemyMaxhealth": 20
-          },
-          "EnemyTypeComponent": {
-            "type": "physical"
-          },
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": 1,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "RigidBodyComponent": {
-            "height": 0.30000001192092896,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 0.30000001192092896
-          },
-          "SpriteAnimationComponent": {
-            "activeAnimation": 0,
-            "animations": [
-              {
-                "config": {
-                  "columns": 5,
-                  "endFrame": 4,
-                  "fps": 8.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 5
-                },
-                "currentFrame": 3,
-                "name": "idle",
-                "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/Idle_Sprite .png",
-                "textureKey": "heibang_idle"
-              },
-              {
-                "config": {
-                  "columns": 10,
-                  "endFrame": 9,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 10
-                },
-                "currentFrame": 9,
-                "name": "attack1",
-                "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/1st Attack_Sprite .png",
-                "textureKey": "heibang_attack1"
-              },
-              {
-                "config": {
-                  "columns": 11,
-                  "endFrame": 10,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 11
-                },
-                "currentFrame": 4,
-                "name": "attack2",
-                "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/2nd Attack_Sprite .png",
-                "textureKey": "heibang_attack2"
-              },
-              {
-                "config": {
-                  "columns": 14,
-                  "endFrame": 13,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 14
-                },
-                "currentFrame": 0,
-                "name": "attack2_laser",
-                "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/2nd Laser Beam_Sprite .png",
-                "textureKey": "heibang_attack2_laser"
-              },
-              {
-                "config": {
-                  "columns": 12,
-                  "endFrame": 11,
-                  "fps": 12.0,
-                  "loop": false,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 12
-                },
-                "currentFrame": 11,
-                "name": "attack3",
-                "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/3rd Attack_Sprite .png",
-                "textureKey": "heibang_attack3"
-              },
-              {
-                "config": {
-                  "columns": 3,
-                  "endFrame": 2,
-                  "fps": 14.0,
-                  "loop": true,
-                  "rows": 1,
-                  "startFrame": 0,
-                  "totalFrames": 3
-                },
-                "currentFrame": 2,
-                "name": "dash",
-                "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/Dash_Sprite .png",
-                "textureKey": "heibang_dash"
-              }
-            ],
-            "fps": 8.0,
-            "frames": [],
-            "loop": true,
-            "play": true
-          },
-          "SpriteComponent": {
-            "texture_key": "heibang_idle"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.4636982679367065,
-            "scale_y": 1.4636982679367065,
-            "x": 0.02260180562734604,
-            "y": -1.0955103635787964
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "heibang"
-      },
-      {
-        "Components": {
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.80417799949646,
-            "y": -1.2265499830245972
-          },
-          "WayPointComponent": {
-            "NeighborIDs": []
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "heibang_dash_point_1"
-      },
-      {
-        "Components": {
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.2116600275039673,
-            "y": -2.232110023498535
-          },
-          "WayPointComponent": {
-            "NeighborIDs": []
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "heibang_dash_point_2"
-      },
-      {
-        "Components": {
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.6199899911880493,
-            "y": -1.7765799760818481
-          },
-          "WayPointComponent": {
-            "NeighborIDs": []
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "heibang_dash_point_3"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 10.0,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/Border/Red/Red_BG.png",
-            "visible": true,
-            "w": 10.0
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Red_BG.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.2539081573486328,
-            "y": 0.31759774684906006
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
             "h": 0.5,
             "layer": -5,
             "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png",
             "visible": true,
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.0,
-            "y": 0.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5,
-            "y": 0.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0,
-            "y": 0.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5,
-            "y": 0.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.0,
-            "y": 0.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.0,
-            "y": -0.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5,
-            "y": -0.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0,
-            "y": -0.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5,
-            "y": -0.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.0,
-            "y": -0.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.0,
-            "y": -1.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.0,
-            "y": -1.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5,
-            "y": -1.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0,
-            "y": -1.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5,
-            "y": -1.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.0,
-            "y": -1.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.0,
-            "y": -1.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5,
-            "y": -1.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0,
-            "y": -1.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5,
-            "y": -1.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.0,
-            "y": -2.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.9985144138336182,
-            "y": -2.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5,
-            "y": -2.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0,
-            "y": -2.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5,
-            "y": -2.0
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0,
-            "y": -2.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.0,
-            "y": -2.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.0,
-            "y": -2.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5,
-            "y": -2.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Floor/Marble.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5,
-            "y": -2.5
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/Border/Red/Bottom Left.png",
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Bottom Left.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.16200000047683716,
-            "y": -2.6577327251434326
-          }
-        },
-        "layer": "Gameplay:2",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Bottom Right.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.1619999408721924,
-            "y": -2.6579999923706055
-          }
-        },
-        "layer": "Gameplay:2",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Top Left.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.16181586682796478,
-            "y": 0.19088450074195862
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Top Right.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.161769151687622,
-            "y": 0.19099999964237213
+            "x": -0.7799999713897705,
+            "y": 0.23999999463558197
           }
         },
         "layer": "Background:1",
@@ -1279,21 +54,271 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 2.4000000953674316,
+            "h": 0.5,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.1599999964237213
+            "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Left.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_01.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.3303143382072449,
-            "y": -1.2280476093292236
+            "x": -0.2800000011920929,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.2799999713897705,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.2795456647872925,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7799999713897705,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2800000011920929,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7799999713897705,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2199999988079071,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.2799999713897705,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2800000011920929,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Left.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4385497570037842,
+            "y": -0.9180307984352112
           }
         },
         "layer": "Gameplay:2",
@@ -1306,24 +331,188 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 2.4000000953674316,
+            "h": 0.5,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.1599999964237213
+            "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Right.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Left.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.330874443054199,
-            "y": -1.2280000448226929
+            "x": 0.5580000281333923,
+            "y": -0.9179999828338623
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Right.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.11900001764297485,
+            "y": -0.9179999828338623
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.8660000562667847,
+            "y": -0.9179999828338623
           }
         },
         "layer": "Gameplay:2",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4420000314712524,
+            "y": 0.4307132959365845
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Left.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Left.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.558068037033081,
+            "y": 0.4309999942779541
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.8816561698913574,
+            "y": 0.4309999942779541
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.11878900229930878,
+            "y": 0.4309999942779541
+          }
+        },
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1337,20 +526,103 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 1.899999976158142
+            "w": 0.41999998688697815
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Bottom Mid.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.9933542013168335,
-            "y": -2.828727960586548
+            "x": -0.9869999885559082,
+            "y": -1.0880000591278076
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.5759999752044678,
+            "y": -1.0880000591278076
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png",
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.437999963760376,
+            "y": -1.0880000591278076
+          }
+        },
+        "layer": "Gameplay:4",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png",
+            "visible": true,
+            "w": 0.41999998688697815
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0180000066757202,
+            "y": -1.0880000591278076
+          }
+        },
+        "layer": "Gameplay:1",
         "name": "artassets"
       },
       {
@@ -1364,20 +636,20 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 1.899999976158142
+            "w": 0.41999998688697815
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Top Mid.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.9929999709129333,
-            "y": 0.3446274995803833
+            "x": -0.9869999885559082,
+            "y": 0.5849999785423279
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1387,24 +659,24 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.30000001192092896,
+            "h": 0.1899999976158142,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.30000001192092896
+            "w": 0.41999998688697815
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Left.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.12700000405311584,
-            "y": -2.4560000896453857
+            "x": -0.5759999752044678,
+            "y": 0.5849999785423279
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1414,80 +686,24 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.4000000059604645,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_01.png",
-            "visible": true,
-            "w": 0.3499999940395355
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_01.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.2750000059604645,
-            "y": 0.04999999701976776
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.4000000059604645,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_02.png",
-            "visible": true,
-            "w": 0.3499999940395355
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.9750000238418579,
-            "y": 0.04999999701976776
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.4000000059604645,
+            "h": 0.1899999976158142,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.3499999940395355
+            "w": 0.41999998688697815
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_03.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.625,
-            "y": 0.04999999701976776
+            "x": 1.437999963760376,
+            "y": 0.5849999785423279
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1497,52 +713,24 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.4000000059604645,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_01.png",
-            "visible": true,
-            "w": 0.3499999940395355
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_01.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.3250000476837158,
-            "y": 0.04999999701976776
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.4000000059604645,
+            "h": 0.1899999976158142,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.3499999940395355
+            "w": 0.41999998688697815
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_02.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.375,
-            "y": 0.05000000074505806
+            "x": 1.0180000066757202,
+            "y": 0.5849999785423279
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1552,52 +740,24 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.4000000059604645,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_01.png",
-            "visible": true,
-            "w": 0.3499999940395355
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_01.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.0250000953674316,
-            "y": 0.05000000074505806
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.4000000059604645,
+            "h": 0.4300000071525574,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.3499999940395355
+            "w": 0.1599999964237213
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_02.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Left.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.6749999523162842,
-            "y": 0.05000000074505806
+            "x": -1.6109999418258667,
+            "y": -0.4545915424823761
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1607,24 +767,24 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.4000000059604645,
+            "h": 0.4300000071525574,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.3499999940395355
+            "w": 0.1599999964237213
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Wallpaper/BrickWall_03.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Left.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.07500000298023224,
-            "y": 0.04999999701976776
+            "x": -1.6109999418258667,
+            "y": -0.028999999165534973
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1634,24 +794,78 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.5,
+            "h": 0.4300000071525574,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.049999952316284,
+            "y": -0.028999999165534973
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4300000071525574,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.1599999964237213
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.049999952316284,
+            "y": -0.45500001311302185
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.1599999964237213,
             "layer": -5,
             "r": 1.0,
             "visible": true,
             "w": 0.5
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/Border/Red/Red_BG.png"
+            "texture_key": "Assets/Textures/Environment/Border/Blue Bottom Mid.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.6600000858306885,
-            "y": 0.026023074984550476
+            "x": 0.2199999988079071,
+            "y": -0.5882536768913269
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1661,265 +875,50 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.20000000298023224,
+            "h": 0.1899999976158142,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue Top Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2199999988079071,
+            "y": 0.08500000089406967
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_03.png",
             "visible": true,
             "w": 0.25
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Left.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_03.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.12600000202655792,
-            "y": -0.21699999272823334
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Right.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Right.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.1510000228881836,
-            "y": -0.21699999272823334
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Right.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.149738073348999,
-            "y": -2.4560000896453857
-          }
-        },
-        "layer": "Gameplay:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.12999999523162842
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Left.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.1932501196861267,
-            "y": -0.5572111010551453
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.12999999523162842
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Left.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.19300000369548798,
-            "y": -1.0570000410079956
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.12999999523162842
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Left.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.19300000369548798,
-            "y": -1.5570000410079956
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.12999999523162842
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Left.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.19300000369548798,
-            "y": -2.056999921798706
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.12999999523162842
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.2160000801086426,
-            "y": -0.5569999814033508
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.12999999523162842
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.2160000801086426,
-            "y": -1.0570000410079956
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.12999999523162842
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.2160000801086426,
-            "y": -1.5570000410079956
+            "x": 0.3449999988079071,
+            "y": -0.13500000536441803
           }
         },
         "layer": "Background:1",
@@ -1932,408 +931,25 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.5,
+            "h": 0.25,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_05.png",
             "visible": true,
-            "w": 0.12999999523162842
+            "w": 0.25
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_05.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.2160000801086426,
-            "y": -2.056999921798706
+            "x": 0.0949999988079071,
+            "y": -0.13500000536441803
           }
         },
         "layer": "Background:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.4970000088214874,
-            "y": -0.21699999272823334
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.2980000078678131,
-            "y": -0.21699999272823334
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.0989999994635582,
-            "y": -0.21699999272823334
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.9508886337280273,
-            "y": -0.2167074829339981
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.7519999742507935,
-            "y": -0.21699999272823334
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5529999732971191,
-            "y": -0.21699999272823334
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.1220829039812088,
-            "y": -2.5060884952545166
-          }
-        },
-        "layer": "Gameplay:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.32199999690055847,
-            "y": -2.50600004196167
-          }
-        },
-        "layer": "Gameplay:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5220000147819519,
-            "y": -2.50600004196167
-          }
-        },
-        "layer": "Gameplay:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.899999976158142,
-            "y": -2.50600004196167
-          }
-        },
-        "layer": "Gameplay:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.8009999990463257,
-            "y": -2.50600004196167
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.7020000219345093,
-            "y": -2.50600004196167
-          }
-        },
-        "layer": "Gameplay:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Side bin.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.6828331351280212,
-            "y": -0.16201940178871155
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Side bin.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.8493801951408386,
-            "y": -0.16200000047683716
-          }
-        },
-        "layer": "Background:0",
         "name": "artassets"
       },
       {
@@ -2347,21 +963,522 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.10000000149011612
+            "w": 0.25
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_03.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.1615957021713257,
-            "y": -0.199113130569458
+            "x": -0.1550000011920929,
+            "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.4050000011920929,
+            "y": 0.36500000953674316
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_04.png",
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_04.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.6549999713897705,
+            "y": 0.36500000953674316
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_05.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.9049999713897705,
+            "y": 0.36500000953674316
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4049999713897705,
+            "y": 0.36500000953674316
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Stairs.png",
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4320000410079956,
+            "y": 0.24000000953674316
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Stairs.png",
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4320000410079956,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2199999988079071,
+            "y": 0.11953017115592957
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2199999988079071,
+            "y": 0.6200000047683716
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.6169999837875366,
+            "y": 0.6200000047683716
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.1169999837875366,
+            "y": 0.6200000047683716
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2199999988079071,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.7799999713897705,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.2800000011920929,
+            "y": -1.2599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7799999713897705,
+            "y": -1.2599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.2799999713897705,
+            "y": -1.2599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.7819980382919312,
+            "y": -1.2580018043518066
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2199999988079071,
+            "y": -1.2599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
       },
       {
         "Components": {
@@ -2373,21 +1490,50 @@
             "h": 0.20000000298023224,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Back Sofa.png",
+            "visible": true,
+            "w": 0.4000000059604645
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Back Sofa.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 0.9530361890792847,
+            "scale_y": 0.9530361890792847,
+            "x": -0.3238142728805542,
+            "y": -0.14402233064174652
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Side Sofa.png",
             "visible": true,
             "w": 0.20000000298023224
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 01.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Side Sofa.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.1381850242614746,
-            "y": -2.6342222690582275
+            "x": -0.6120663285255432,
+            "y": 0.1529664695262909
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2400,102 +1546,22 @@
             "h": 0.20000000298023224,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Coffee Table.png",
             "visible": true,
             "w": 0.20000000298023224
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 01.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Coffee Table.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.358351707458496,
-            "y": -0.198111891746521
+            "x": -0.33339646458625793,
+            "y": 0.07305476069450378
           }
         },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.10000000149011612
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 03.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.5534906387329102,
-            "y": -2.636232614517212
-          }
-        },
-        "layer": "Gameplay:1",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.11999999731779099,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.11999999731779099
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bucket 02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.22828194499015808,
-            "y": -2.6685686111450195
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.11999999731779099,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.11999999731779099
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bucket 02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.6509511470794678,
-            "y": -2.6634066104888916
-          }
-        },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2512,17 +1578,156 @@
             "w": 0.15000000596046448
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Front bin.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Couch.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.0163267850875854,
-            "y": -0.21128612756729126
+            "x": -0.10702122747898102,
+            "y": 0.04174555838108063
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Chinese Painting.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.21866798400878906,
+            "y": -0.124119833111763
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.2150000035762787,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
+            "visible": true,
+            "w": 0.13600000739097595
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Door.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.1760060787200928,
+            "y": 0.3475675880908966
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Plant.png",
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Plant.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.6901854872703552,
+            "y": -0.8558962941169739
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Altar Table.png",
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Altar Table.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0003199577331543,
+            "scale_y": 0.9290980100631714,
+            "x": -1.446143627166748,
+            "y": -0.8802735805511475
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/stool.png",
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/stool.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.0256518125534058,
+            "y": -0.9554847478866577
+          }
+        },
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2539,17 +1744,17 @@
             "w": 0.20000000298023224
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Cutting board.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Welcome Rag.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.4655039608478546,
-            "y": -0.1922888606786728
+            "x": -1.2517048120498657,
+            "y": -0.9553049206733704
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2559,24 +1764,1349 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.4000000059604645,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.6117733716964722,
+            "y": 0.15751390159130096
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.38999998569488525
+          },
+          "RigidBodyComponent": {
+            "height": 0.20000000298023224,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.38999998569488525
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.32237300276756287,
+            "y": -0.13457362353801727
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.20000000298023224,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.14003026485443115,
+            "y": 0.07025732100009918
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.30000001192092896,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4696311950683594,
+            "y": -0.891377866268158
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": 15,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Cat Tower.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.37391525506973267,
+            "y": -0.8837069869041443
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassetsFrontOfPlayer"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 15,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Mona Lisa Painting.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.12369978427886963,
+            "y": 0.36566078662872314
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassetsFrontOfPlayer"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 15,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Back Cabinet.png",
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Back Cabinet.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.8671605587005615,
+            "y": -0.9100812077522278
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassetsFrontOfPlayer"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
             "h": 0.15000000596046448,
+            "layer": 15,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Vase.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2214394509792328,
+            "y": -0.24966397881507874
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassetsFrontOfPlayer"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.30000001192092896
+          },
+          "RigidBodyComponent": {
+            "height": 0.30000001192092896,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.30000001192092896
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.9248823523521423,
+            "y": -1.0598573684692383
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.20000000298023224,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.15690891444683075,
+            "y": -1.0078394412994385
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.10999999940395355
+          },
+          "RigidBodyComponent": {
+            "height": 0.20000000298023224,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10999999940395355
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.3642289340496063,
+            "y": -1.008286714553833
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 15,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Flower Vase.png",
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Flower Vase.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.8817827701568604,
+            "y": -0.7913839221000671
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassetsFrontOfPlayer"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": 15,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Flower Painting.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.541367769241333,
+            "y": 0.39147093892097473
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassetsFrontOfPlayer"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "tv_sheet",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 6,
+                  "endFrame": 5,
+                  "fps": 6.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 6
+                },
+                "currentFrame": 4,
+                "name": "idle",
+                "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
+                "textureKey": "tv_sheet"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "tv_sheet"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.33933573961257935,
+            "y": 0.3646370768547058
+          }
+        },
+        "layer": "Background:1",
+        "name": "Tv_Animated"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "pendulum_sheet",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 10,
+                  "endFrame": 9,
+                  "fps": 6.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 10
+                },
+                "currentFrame": 2,
+                "name": "idle",
+                "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
+                "textureKey": "pendulum_sheet"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "pendulum_sheet"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.7694514393806458,
+            "y": 0.38267090916633606
+          }
+        },
+        "layer": "Background:1",
+        "name": "Pendulum_Animated"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wood Table.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.15676958858966827,
+            "y": -0.9245679974555969
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "sleep_cat_sheet",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Sleeping_Cat_Sprite.png",
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 3,
+                  "endFrame": 2,
+                  "fps": 6.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 3
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Sleeping_Cat_Sprite.png",
+                "textureKey": "sleep_cat_sheet"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "sleep_cat_sheet"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.15491008758544922,
+            "y": -0.8652777671813965
+          }
+        },
+        "layer": "Background:1",
+        "name": "Cat_Sleep_Animated"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7201353311538696,
+            "y": -0.2598646879196167
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7200000286102295,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7200000286102295,
+            "y": 0.24000000953674316
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": 0.23999997973442078
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png",
+            "visible": true,
+            "w": 0.5
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Marble.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/BrickWall_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.8460000157356262,
+            "y": 0.36399999260902405
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/BrickWall_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.5959999561309814,
+            "y": 0.36399999260902405
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/BrickWall_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.5958227515220642,
+            "y": 0.3643720746040344
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/BrickWall_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0959999561309814,
+            "y": 0.36399999260902405
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/BrickWall_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.8459999561309814,
+            "y": 0.36399999260902405
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/BrickWall_03.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.3459999561309814,
+            "y": 0.36399999260902405
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": -1.2000000476837158
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.109999895095825,
+            "y": -0.25999999046325684
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": -1.2000000476837158
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.109999895095825,
+            "y": 0.23999999463558197
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7200000286102295,
+            "y": -1.2000000476837158
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2200000286102295,
+            "y": -1.2599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7200000286102295,
+            "y": 0.6200000047683716
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.2200000286102295,
+            "y": 0.7400000095367432
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.109999895095825,
+            "y": -0.7599999904632568
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2200000286102295,
+            "y": 0.6200000047683716
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7200000286102295,
+            "y": 0.47999998927116394
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.4000000059604645,
             "layer": -5,
             "r": 1.0,
             "visible": true,
             "w": 0.30000001192092896
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Knife.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Fridge.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.4473037123680115,
-            "y": -0.014784462749958038
+            "x": 1.215000033378601,
+            "y": 0.27799999713897705
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Oven.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.466745376586914,
+            "y": 0.2277146726846695
+          }
+        },
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2590,20 +3120,647 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.1599999964237213
+            "w": 0.20000000298023224
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Safe.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Right.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.6395654678344727,
-            "y": -0.17187435925006866
+            "x": 1.8662981986999512,
+            "y": 0.17832833528518677
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Top Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.6670000553131104,
+            "y": 0.17800000309944153
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png",
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9170000553131104,
+            "y": -0.013999998569488525
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.8678168058395386,
+            "y": -0.9109660387039185
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9170000553131104,
+            "y": -0.414000004529953
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png",
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9170000553131104,
+            "y": -0.21400000154972076
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9170000553131104,
+            "y": -0.7151777148246765
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Right.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9170000553131104,
+            "y": -0.6140000224113464
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.699999988079071,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Table sink.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.2330000400543213,
+            "y": -0.6610000133514404
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.14000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png",
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.61899995803833,
+            "y": -0.9440000057220459
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.14000000059604645,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Counter/Bottom Mid.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.36899995803833,
+            "y": -0.9440000057220459
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Shelf.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.9854373335838318,
+            "y": -0.8595665693283081
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Shelf.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.6392736434936523,
+            "y": -0.8600631952285767
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.5,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.315000057220459,
+            "y": 0.47999998927116394
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Ricecooker.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9249411821365356,
+            "y": 0.1259317696094513
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.15000000596046448,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Side sink.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9204397201538086,
+            "y": -0.4311075806617737
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.15000000596046448,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.09000000357627869
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Stove.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9191744327545166,
+            "y": -0.16615405678749084
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.05000000074505806,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.05000000074505806
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Tea Cup.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9029713869094849,
+            "y": -0.6275748014450073
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Chair.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0869289636611938,
+            "y": -0.6563618183135986
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Chair.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0927194356918335,
+            "y": -0.4333106279373169
+          }
+        },
+        "layer": "Gameplay:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.05000000074505806,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.05000000074505806
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Coffee Glass.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.9076570272445679,
+            "y": -0.756178081035614
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.07000000029802322,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.05000000074505806
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Coffee Maker.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.904249906539917,
+            "y": -0.6939730644226074
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.07000000029802322,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Cut board.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7290126085281372,
+            "y": 0.23111869394779205
+          }
+        },
+        "layer": "Background:1",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10999999940395355,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/knife.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.7404605150222778,
+            "y": 0.3390570282936096
+          }
+        },
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2617,20 +3774,20 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.11999999731779099
+            "w": 0.07999999821186066
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Stove.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/toast.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.16676802933216095,
-            "y": -0.16117095947265625
+            "x": 1.9121625423431396,
+            "y": -0.9086372256278992
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:2",
         "name": "artassets"
       },
       {
@@ -2661,7 +3818,7 @@
                   "startFrame": 0,
                   "totalFrames": 11
                 },
-                "currentFrame": 3,
+                "currentFrame": 9,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Pot_Sprite.png",
                 "textureKey": "cooking_pot_sheet"
@@ -2679,11 +3836,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.1333388388156891,
-            "y": -0.12367123365402222
+            "x": 1.8953684568405151,
+            "y": -0.11725549399852753
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "Pot_Animated"
       },
       {
@@ -2693,21 +3850,51 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
+            "h": 0.6499999761581421,
+            "layer": 0,
             "r": 1.0,
-            "visible": true,
-            "w": 0.5
+            "visible": false,
+            "w": 0.25
           },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Corner counter bush_01.png"
+          "RigidBodyComponent": {
+            "height": 0.6499999761581421,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.25
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.010476738214492798,
-            "y": 0.010194825939834118
+            "x": 1.1888936758041382,
+            "y": -0.6428274512290955
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Rect"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 5.0,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 5.0
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/Border/Blue/Blue_BG.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.2999999523162842,
+            "y": 0.0
           }
         },
         "layer": "Background:0",
@@ -2720,133 +3907,108 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
+            "h": 0.25,
+            "layer": 0,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_02.png",
             "visible": true,
-            "w": 0.5
+            "w": 0.25
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Corner counter bush_02.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_02.png"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.105382204055786,
-            "y": -0.9140636920928955
+            "x": -1.1549999713897705,
+            "y": 0.36500000953674316
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
         "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.5
+          "BehaviourComponent": {
+            "behaviourKey": "GateLogic"
           },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Left corner bush.png"
+          "GateTargetComponent": {
+            "level_path": "RealLevel2.json"
           },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.11323163658380508,
-            "y": -0.5527718663215637
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Right corner bush.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.102642297744751,
-            "y": -0.24077379703521729
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
             "h": 0.20000000298023224,
-            "layer": -5,
+            "layer": 0,
             "r": 1.0,
+            "texture_key": "key_locked_door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
             "visible": true,
-            "w": 0.20000000298023224
+            "w": 0.12999999523162842
+          },
+          "RigidBodyComponent": {
+            "height": 0.20000000298023224,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.10000000149011612
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Side bush_01.png"
+            "texture_key": "key_locked_door"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.1515519618988037,
-            "y": -2.4434709548950195
+            "x": -1.0672410726547241,
+            "y": 0.34675705432891846
           }
         },
-        "layer": "Gameplay:1",
-        "name": "artassets"
+        "layer": "Background:1",
+        "name": "Key_Locked_Door"
       },
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "KeyDoorLogic"
+          },
+          "GateTargetComponent": {
+            "level_path": "RealLastLevel.json"
+          },
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
+            "h": 0.4000000059604645,
+            "layer": 0,
             "r": 1.0,
+            "texture_key": "fenced_key_locked_door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Fenced Door.png",
             "visible": true,
-            "w": 0.10000000149011612
+            "w": 0.20000000298023224
+          },
+          "RigidBodyComponent": {
+            "height": 0.3499999940395355,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Side bush_02.png"
+            "texture_key": "fenced_key_locked_door"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 2.2007930278778076,
-            "y": -1.8308708667755127
+            "x": 0.75,
+            "y": 0.2720000147819519
           }
         },
         "layer": "Background:2",
-        "name": "artassets"
+        "name": "Fenced_Key_Locked_Door"
       },
       {
         "Components": {
@@ -2858,391 +4020,64 @@
             "h": 0.20000000298023224,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/locked room light.png",
             "visible": true,
             "w": 0.20000000298023224
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Side bush_03.png"
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/locked room light.png"
           },
           "TransformComponent": {
-            "rot": 0.0,
+            "rot": 1.5742933750152588,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.037249017506837845,
-            "y": -1.9883641004562378
+            "x": -1.430996298789978,
+            "y": -0.5948939323425293
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:0",
         "name": "artassets"
       },
       {
         "Components": {
+          "BehaviourComponent": {
+            "behaviourKey": "GateLogic"
+          },
+          "GateTargetComponent": {
+            "level_path": "RealLevel3.json"
+          },
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.05000000074505806,
-            "layer": -5,
+            "h": 0.4000000059604645,
+            "layer": 0,
             "r": 1.0,
-            "visible": true,
-            "w": 0.05000000074505806
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Small corner bush.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.11168807744979858,
-            "y": -2.39056396484375
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Blood_01.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.7549165487289429,
-            "y": -1.1056978702545166
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Blood_02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.1703605651855469,
-            "y": -2.1660947799682617
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": -0.30000001192092896
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Corner table blood.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.10474774241447449,
-            "y": -2.5354270935058594
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
+            "texture_key": "door",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Door.png",
+            "visible": false,
             "w": 0.30000001192092896
           },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Puddle_01.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.4780336618423462,
-            "y": -0.4207642078399658
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
+          "RigidBodyComponent": {
+            "height": 0.30000001192092896,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.20000000298023224
           },
           "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Puddle_02.png"
+            "texture_key": "door"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.5583035945892334,
-            "y": -1.687893271446228
+            "x": -1.4894822835922241,
+            "y": -0.5847691297531128
           }
         },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": -0.10000000149011612
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Side table blood.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.20014744997024536,
-            "y": -1.5941863059997559
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": 0,
-            "r": 1.0,
-            "visible": false,
-            "w": 4.0
-          },
-          "RigidBodyComponent": {
-            "height": 0.5,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 4.0
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.2996820211410522,
-            "y": 0.11819316446781158
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Rect"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": 0,
-            "r": 1.0,
-            "visible": false,
-            "w": 4.0
-          },
-          "RigidBodyComponent": {
-            "height": 0.5,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 4.0
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0812277793884277,
-            "y": -3.005826234817505
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Rect"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 4.0,
-            "layer": 0,
-            "r": 1.0,
-            "visible": false,
-            "w": 0.5
-          },
-          "RigidBodyComponent": {
-            "height": 4.0,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 0.5
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.3810611069202423,
-            "y": -1.7682554721832275
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Rect"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 4.0,
-            "layer": 0,
-            "r": 1.0,
-            "visible": false,
-            "w": 0.5
-          },
-          "RigidBodyComponent": {
-            "height": 4.0,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 0.5
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.4040000438690186,
-            "y": -1.3402912616729736
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Rect"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": 0,
-            "r": 1.0,
-            "visible": false,
-            "w": 0.699999988079071
-          },
-          "RigidBodyComponent": {
-            "height": 0.5,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 0.699999988079071
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.26619455218315125,
-            "y": -2.749608278274536
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Rect"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.5,
-            "layer": 0,
-            "r": 1.0,
-            "visible": false,
-            "w": 0.699999988079071
-          },
-          "RigidBodyComponent": {
-            "height": 0.5,
-            "velocity_x": 0.0,
-            "velocity_y": 0.0,
-            "width": 0.699999988079071
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.9499280452728271,
-            "y": -2.7540366649627686
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "Rect"
+        "layer": "Background:2",
+        "name": "Enemy_Clear_Door"
       },
       {
         "Components": {
@@ -3480,7 +4315,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 3,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -3495,7 +4330,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "run",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Running_Sprite.png",
                 "textureKey": "run_sheet"
@@ -3525,7 +4360,7 @@
                   "startFrame": 0,
                   "totalFrames": 13
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "attack1",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/1st_Attack Sprite.png",
                 "textureKey": "attack1_sheet"
@@ -3555,7 +4390,7 @@
                   "startFrame": 0,
                   "totalFrames": 9
                 },
-                "currentFrame": 0,
+                "currentFrame": 8,
                 "name": "attack3",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/3rd_Attack Sprite.png",
                 "textureKey": "attack3_sheet"
@@ -3633,203 +4468,14 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.1099388599395752,
-            "y": -2.513258695602417
+            "x": -1.2231944799423218,
+            "y": -0.5916262269020081
           }
         },
         "layer": "Gameplay:0",
         "name": "player"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.30000001192092896,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Side table blood.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.0110244750976563,
-            "y": -2.1621742248535156
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.25,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.25
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Puddle_02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 0.24504698812961578,
-            "y": -1.7424153089523315
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.25,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.25
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Blood_02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.6867101192474365,
-            "y": -0.69570392370224
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.25,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.25
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Puddle_01.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.0442029237747192,
-            "y": -1.5960713624954224
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.10000000149011612
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.19205275177955627,
-            "y": -1.7888966798782349
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.10000000149011612
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 2.206793785095215,
-            "y": -1.5019712448120117
-          }
-        },
-        "layer": "Gameplay:3",
-        "name": "artassets"
-      },
-      {
-        "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "visible": true,
-            "w": 0.10000000149011612
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 02.png"
-          },
-          "TransformComponent": {
-            "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -0.1929280161857605,
-            "y": -0.30163097381591797
-          }
-        },
-        "layer": "Background:0",
-        "name": "artassets"
       }
     ],
-    "name": "RealLastLevel"
+    "name": "RealLevel1NoEnemyBedroom"
   }
 }

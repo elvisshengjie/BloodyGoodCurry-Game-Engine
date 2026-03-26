@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 153.91468811035156,
-            "y": 153.6548309326172
+            "x": 153.99464416503906,
+            "y": 153.7347869873047
           }
         },
         "layer": "Gameplay:0",
@@ -484,7 +484,7 @@
             "y": -1.1579999923706055
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Gameplay:3",
         "name": "artassets"
       },
       {
@@ -618,7 +618,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 0.7601687908172607,
-            "y": -1.8672912120819092
+            "y": -1.3279999494552612
           }
         },
         "layer": "Gameplay:4",
@@ -933,7 +933,7 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.5
+            "w": 0.6000000238418579
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bed.png"
@@ -1065,7 +1065,7 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.30000001192092896,
+            "h": 0.20000000298023224,
             "layer": -5,
             "r": 1.0,
             "visible": true,
@@ -1488,7 +1488,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.505176305770874,
+            "x": 1.4750341176986694,
             "y": -0.6537831425666809
           }
         },
@@ -1594,7 +1594,7 @@
             "behaviourKey": "GateLogic"
           },
           "GateTargetComponent": {
-            "level_path": "RealLevel1NoEnemy.json"
+            "level_path": "RealLevel1NoEnemyBedroom.json"
           },
           "RenderComponent": {
             "a": 1.0,
@@ -1645,7 +1645,7 @@
             "texture_key": "door_key_pickup",
             "texture_path": "Textures/UI/Key.png",
             "visible": true,
-            "w": 0.11999999731779099
+            "w": 0.07999999821186066
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
@@ -2056,8 +2056,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.1511375606060028,
-            "y": -1.0393751859664917
+            "x": 0.31035614013671875,
+            "y": -0.8819851279258728
           }
         },
         "layer": "Gameplay:2",
