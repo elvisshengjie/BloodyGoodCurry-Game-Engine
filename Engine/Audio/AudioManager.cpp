@@ -83,7 +83,7 @@ bool AudioManager::initialize()
         }
         return false;
     }
-    FMOD_System_Set3DSettings(pImpl->system, 1.0f, 1.0f, 1.0f);
+   FMOD_System_Set3DSettings(pImpl->system, 1.0f, 1.0f, 0.5f);
     std::cout << "AudioManager initialized successfully" << std::endl;
     return true;
 }
@@ -153,7 +153,7 @@ bool AudioManager::loadSound(const std::string& name, const std::string& filePat
     {
         mode |= FMOD_LOOP_NORMAL;
     }
-    if (is3D) mode |= FMOD_3D;
+    if (is3D) mode |= FMOD_3D | FMOD_3D_LINEARROLLOFF;
     FMOD_RESULT result = FMOD_System_CreateSound(pImpl->system, fullPath.c_str(), mode, nullptr,&sound);
     if (result != FMOD_OK) 
     {
@@ -287,7 +287,7 @@ bool AudioManager::playSound(const std::string& name, float volume, float pitch,
     FMOD_MODE soundMode;
     FMOD_Sound_GetMode(it->second, &soundMode);
     if (soundMode & FMOD_3D)
-        FMOD_Channel_Set3DMinMaxDistance(channel, 1.0f, 12.0f);
+       FMOD_Channel_Set3DMinMaxDistance(channel, 2.0f, 30.0f);
     std::cout << "Playing sound: " << name << (loop ? " [looping]" : "") << std::endl;
     return true;
 }
@@ -680,8 +680,20 @@ AudioManager::ChannelID AudioManager::playSoundChannel(
     FMOD_MODE mode;
     FMOD_Sound_GetMode(sound, &mode);
     if (mode & FMOD_3D)
-        FMOD_Channel_Set3DMinMaxDistance(channel, 1.0f, 50.0f);
-
+    {
+        FMOD_Channel_Set3DMinMaxDistance(channel, 2.0f, 30.0f);
+        FMOD_DSP* panDSP = nullptr;
+        FMOD_System_CreateDSPByType(pImpl->system, FMOD_DSP_TYPE_PAN, &panDSP);
+        if (panDSP)
+        {
+            FMOD_DSP_SetParameterInt(panDSP, FMOD_DSP_PAN_MODE,
+            FMOD_DSP_PAN_MODE_SURROUND);
+            FMOD_DSP_SetParameterInt(panDSP, FMOD_DSP_PAN_3D_EXTENT_MODE,
+            FMOD_DSP_PAN_3D_EXTENT_MODE_AUTO);
+            FMOD_Channel_AddDSP(channel, 0, panDSP);
+        }
+    }
+       
     ChannelID id = m_nextChannelId++;
     m_channelLookup[id] = channel;
     m_channels[name].push_back(channel);
