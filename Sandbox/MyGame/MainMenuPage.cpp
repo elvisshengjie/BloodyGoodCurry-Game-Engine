@@ -164,7 +164,8 @@ namespace {
         SoundManager& sm = SoundManager::getInstance();
         const auto sounds = sm.getLoadedSounds();
         for (const auto& name : sounds) {
-            if (!IsBgmSoundId(name)) {
+            // Exclude BGM and UI sounds from SFX volume scaling
+            if (!IsBgmSoundId(name) && name != "UI_Hover" && name != "UI_Select") {
                 sm.setSoundVolume(name, volume);
             }
         }
@@ -999,7 +1000,7 @@ void MainMenuPage::PlayHoverSound()
 {
     auto& sm = SoundManager::getInstance();
     if (sm.isSoundLoaded("UI_Hover"))
-        sm.playSound("UI_Hover", 0.8f, 1.0f, false);
+        sm.playSound("UI_Hover", 1.0f, 1.0f, false);
 }
 
 void MainMenuPage::PlaySelectSound()
