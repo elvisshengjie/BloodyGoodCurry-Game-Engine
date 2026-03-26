@@ -690,9 +690,16 @@ namespace mygame
         }
 
         // --- Generic melee chase ---
-        constexpr float speed = 1.0f;
-        constexpr float accel = 2.0f;
-        constexpr float stopDist = 0.1f;
+        float speed = 1.0f;
+        float accel = 2.0f;
+        float stopDist = 0.1f;
+
+        // Make Nancie a bit faster
+        if (isNancie)
+        {
+            speed *= 1.5f; // 50% faster
+            accel *= 1.2f; // slightly snappier acceleration
+        }
 
         if (distance > stopDist)
         {
