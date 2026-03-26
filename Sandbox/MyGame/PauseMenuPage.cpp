@@ -874,14 +874,24 @@ void PauseMenuPage::SetOptionsValues(const std::array<float, 4>& values)
     audioMuted = (optionsSliderValues[0] <= 0.001f);
     layoutDirty = true;
 }
-
+/*************************************************************************************
+ \brief  Plays the hover sound effect when the user moves the cursor over a pause menu item.
+ \details
+    Checks if the hover sound effect "UIHoverNew1" is loaded in the SoundManager,
+    and if so, plays it once (non-looping) at 80% volume and default pitch.
+*************************************************************************************/
 void PauseMenuPage::PlayHoverSound()
 {
     auto& sm = SoundManager::getInstance();
     if (sm.isSoundLoaded("UIHoverNew1"))
         sm.playSound("UIHoverNew1", 0.8f, 1.0f, false);
 }
-
+/*************************************************************************************
+ \brief  Plays the select/confirm sound effect when the user activates a pause menu item.
+ \details
+    Checks if the select sound effect "UISelectSmall1" is loaded in the SoundManager,
+    and if so, plays it once (non-looping) at full volume and default pitch.
+*************************************************************************************/
 void PauseMenuPage::PlaySelectSound()
 {
     auto& sm = SoundManager::getInstance();
