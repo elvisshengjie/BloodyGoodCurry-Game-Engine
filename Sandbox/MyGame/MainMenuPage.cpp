@@ -1324,7 +1324,6 @@ void MainMenuPage::BuildGui()
 void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spacing)
 {
     gui.Clear();
-    gui.SetSelectSoundCallback([this]() { PlaySelectSound(); });
 
     if (showExitPopup)
     {
@@ -1332,6 +1331,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             exitPopupYesTex, exitPopupYesTex,
             [this]()
             {
+                PlaySelectSound();
                 exitLatched = true;
                 showExitPopup = false;
                 BuildGui();
@@ -1341,6 +1341,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             exitPopupNoTex, exitPopupNoTex,
             [this]()
             {
+                PlaySelectSound();
                 showExitPopup = false;
                 BuildGui();
             });
@@ -1349,6 +1350,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             exitPopupCloseTex, exitPopupCloseTex,
             [this]()
             {
+                PlaySelectSound();
                 showExitPopup = false;
                 BuildGui();
             });
@@ -1393,6 +1395,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
         std::function<void()> callback = []() {};
         if (btnDef.action == "start")        callback = [this]() { startLatched = true; };
         else if (btnDef.action == "options") callback = [this]() {
+            PlaySelectSound();
             optionsLatched = true;
             showOptionsPopup = true;
             showHowToPopup = false;
@@ -1409,6 +1412,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             BuildGui();
             };
         else if (btnDef.action == "howto")   callback = [this]() {
+            PlaySelectSound();
             howToLatched = true;
             showHowToPopup = true;
             showOptionsPopup = false;
