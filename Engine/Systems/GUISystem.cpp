@@ -60,6 +60,7 @@ void GUISystem::Clear()
     activeButtonIndex_ = -1;
     callbackDispatchTime_ = 0.0;
     callbackPending_ = false;
+    pendingCallback_ = nullptr;  // FIX: clear stored callback too
 }
 
 void GUISystem::AddButton(float x, float y, float w, float h,
@@ -136,7 +137,13 @@ void GUISystem::Update(Framework::InputSystem* /*input*/)
     const double now = glfwGetTime();
 
     for (auto& b : buttons_) {
-        b.hovered = Contains(b, mx, my);
+        const bool nowHovered = Contains(b, mx, my);
+        // FIX: only fire onHover on the rising edge (first frame entering the button)
+        if (nowHovered && !b.wasHovered && b.onHover)
+            b.onHover();
+        // FIX: update wasHovered every frame so the rising edge is tracked correctly
+        b.wasHovered = nowHovered;
+        b.hovered = nowHovered;
         b.pressed = false;
     }
 
@@ -146,6 +153,15 @@ void GUISystem::Update(Framework::InputSystem* /*input*/)
                 activeButtonIndex_ = static_cast<int>(i);
                 callbackDispatchTime_ = now + kPressFeedbackDuration;
                 callbackPending_ = true;
+
+                // FIX: capture the callback immediately at click time, before BuildGui()
+                // can clear and rebuild the button list and invalidate the index
+                pendingCallback_ = buttons_[i].onClick;
+
+                // FIX: fire the select sound immediately on click, not after the delay
+                if (onSelectSound_)
+                    onSelectSound_();
+
                 break;
             }
         }
@@ -156,10 +172,10 @@ void GUISystem::Update(Framework::InputSystem* /*input*/)
     }
 
     if (callbackPending_ && now >= callbackDispatchTime_) {
-        std::function<void()> onClick;
-        if (activeButtonIndex_ >= 0 && activeButtonIndex_ < static_cast<int>(buttons_.size())) {
-            onClick = buttons_[activeButtonIndex_].onClick;
-        }
+        // FIX: use the captured callback, not buttons_[activeButtonIndex_].onClick
+        // The button list may have been rebuilt by BuildGui() during the delay window
+        std::function<void()> onClick = std::move(pendingCallback_);
+        pendingCallback_ = nullptr;
 
         activeButtonIndex_ = -1;
         callbackDispatchTime_ = 0.0;
@@ -217,4 +233,16 @@ void GUISystem::Draw(Framework::RenderSystem* render)
             render->GetTextHint().RenderText(b.label.c_str(), labelX, labelY, 0.9f, { textTint, textTint, textTint });
         }
     }
+}
+
+void GUISystem::SetLastHoverCallback(std::function<void()> onHover)
+{
+    if (!buttons_.empty())
+        buttons_.back().onHover = std::move(onHover);
+}
+
+// FIX: new method — set once, fires for every button click anywhere in the GUI
+void GUISystem::SetSelectSoundCallback(std::function<void()> onSelect)
+{
+    onSelectSound_ = std::move(onSelect);
 }

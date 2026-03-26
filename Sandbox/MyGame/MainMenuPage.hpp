@@ -94,6 +94,9 @@ namespace mygame {
 
         void PlayExitSound();
 
+        void PlayHoverSound(); 
+        void PlaySelectSound();
+
         // Adjust cached layout if the screen size changes (keeps buttons under the cursor).
         void SyncLayout(int screenW, int screenH);
 

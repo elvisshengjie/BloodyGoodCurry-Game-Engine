@@ -164,7 +164,8 @@ namespace {
         SoundManager& sm = SoundManager::getInstance();
         const auto sounds = sm.getLoadedSounds();
         for (const auto& name : sounds) {
-            if (!IsBgmSoundId(name)) {
+            // Exclude BGM and UI sounds from SFX volume scaling
+            if (!IsBgmSoundId(name) && name != "UI_Hover" && name != "UI_Select") {
                 sm.setSoundVolume(name, volume);
             }
         }
@@ -528,6 +529,9 @@ void MainMenuPage::Init(int screenW, int screenH)
     Framework::RenderSystem::SetGlobalBrightness(BrightnessFromSlider(optionsSliderValues[3]));
     ApplyBgmVolume(optionsSliderValues[1]);
     ApplySfxVolume(optionsSliderValues[2]);
+    auto& sm = SoundManager::getInstance();
+    sm.loadSound("UI_Hover", "UI_Hover_New_1.wav", false);
+    sm.loadSound("UI_Select", "UI_Select_Small_1.wav", false);
     // Force layout update
     layoutInitialized = false;
     SyncLayout(sw, sh);
@@ -991,6 +995,20 @@ void MainMenuPage::PlayExitSound()
     if (sm.isSoundLoaded(EXIT_BUTTON) && !sm.playSound(EXIT_BUTTON))
         std::cerr << "[MainMenu] Failed to play exit sound: " << EXIT_BUTTON << "\n";
 }
+
+void MainMenuPage::PlayHoverSound()
+{
+    auto& sm = SoundManager::getInstance();
+    if (sm.isSoundLoaded("UI_Hover"))
+        sm.playSound("UI_Hover", 1.0f, 1.0f, false);
+}
+
+void MainMenuPage::PlaySelectSound()
+{
+    auto& sm = SoundManager::getInstance();
+    if (sm.isSoundLoaded("UI_Select"))
+        sm.playSound("UI_Select", 1.0f, 1.0f, false);
+}
 // Latch Consumers
 /*************************************************************************************
   \brief  Consume the Start latch, if set.
@@ -1306,6 +1324,7 @@ void MainMenuPage::BuildGui()
 void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spacing)
 {
     gui.Clear();
+    gui.SetSelectSoundCallback([this]() { PlaySelectSound(); });
 
     if (showExitPopup)
     {
@@ -1326,7 +1345,6 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
                 BuildGui();
             });
 
-
         gui.AddButton(exitCloseBtn.x, exitCloseBtn.y, exitCloseBtn.w, exitCloseBtn.h, "",
             exitPopupCloseTex, exitPopupCloseTex,
             [this]()
@@ -1337,23 +1355,24 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
 
         return;
     }
+
     if (showExitTransition)
     {
         return;
     }
 
-    if (showOptionsPopup) {
+    if (showOptionsPopup)
+    {
         if (optionsCloseTex) {
             gui.AddButton(optionsCloseBtn.x, optionsCloseBtn.y, optionsCloseBtn.w, optionsCloseBtn.h, "",
                 optionsCloseTex, optionsCloseTex,
                 [this]() { showOptionsPopup = false; BuildGui(); });
         }
-
-     
         return;
     }
 
-    if (showHowToPopup) {
+    if (showHowToPopup)
+    {
         if (closePopupTex) {
             gui.AddButton(closeBtn.x, closeBtn.y, closeBtn.w, closeBtn.h, "",
                 closePopupTex, closePopupTex,
@@ -1363,16 +1382,14 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
     }
 
     size_t total = g_MenuConfig.buttons.size();
-    for (size_t i = 0; i < total; ++i) {
+    for (size_t i = 0; i < total; ++i)
+    {
         const auto& btnDef = g_MenuConfig.buttons[i];
-
         float yPos = bottomY + (total - 1 - i) * (h + spacing);
 
-        // Find texture
         unsigned tex = 0;
         for (auto& p : g_ButtonTextures) if (p.first == btnDef.action) tex = p.second;
 
-        // Map Action String to Lambda
         std::function<void()> callback = []() {};
         if (btnDef.action == "start")        callback = [this]() { startLatched = true; };
         else if (btnDef.action == "options") callback = [this]() {
@@ -1401,5 +1418,6 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             };
 
         gui.AddButton(x, yPos, w, h, btnDef.label, tex, tex, callback);
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
     }
 }
