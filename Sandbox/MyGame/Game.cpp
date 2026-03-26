@@ -17,7 +17,6 @@
 #include "Systems/AiSystem.h"
 #include "Systems/ParticleSystem.h"
 #include "Runtime/EnemySystem.h"
-#include "Runtime/NavigationSystem.h"
 #include "Runtime/HealthSystem.h"
 #include "Runtime/ZoomTriggerSystem.h"
 #include "Audio/SoundManager.h"
@@ -173,7 +172,6 @@ namespace mygame {
         Framework::AudioSystem* gAudioSystem = nullptr;
         Framework::RenderSystem* gRenderSystem = nullptr;
         Framework::EnemySystem* gEnemySystem = nullptr;
-        Framework::NavSystem* gNavSystem = nullptr;
         Framework::AiSystem* gAiSystem = nullptr;
         Framework::HealthSystem* gHealthSystem = nullptr;
         Framework::ParticleSystem* gParticleSystem = nullptr;
@@ -603,7 +601,6 @@ namespace mygame {
         ConfigureGameBootstrap(*gLogicSystem);
         gPhysicsSystem = gSystems.RegisterSystem<Framework::PhysicSystem>();
         gAiSystem = gSystems.RegisterSystem<Framework::AiSystem>(win);
-        gNavSystem = gSystems.RegisterSystem<Framework::NavSystem>(win);
         gAudioSystem = gSystems.RegisterSystem<Framework::AudioSystem>(win);
         gRenderSystem = gSystems.RegisterSystem<Framework::RenderSystem>(win, *gLogicSystem);
         ConfigureRenderBootstrap(*gRenderSystem);
@@ -1317,7 +1314,6 @@ namespace mygame {
         gInputSystem = nullptr;
         gHealthSystem = nullptr;
         gParticleSystem = nullptr;
-        gNavSystem = nullptr;
         gZoomTriggerSystem = nullptr;
 
         std::cout << "[Game] Shutdown complete.\n";
