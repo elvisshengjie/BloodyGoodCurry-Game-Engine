@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 194.32247924804688,
-            "y": 194.0626220703125
+            "x": 194.47239685058594,
+            "y": 194.21253967285156
           }
         },
         "layer": "Gameplay:0",
@@ -165,7 +165,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 1,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Hei Bang_Sprite/Idle_Sprite .png",
                 "textureKey": "heibang_idle"
@@ -1188,7 +1188,7 @@
             "y": -2.6577327251434326
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:2",
         "name": "artassets"
       },
       {
@@ -1296,7 +1296,7 @@
             "y": -1.2280476093292236
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:2",
         "name": "artassets"
       },
       {
@@ -1404,7 +1404,7 @@
             "y": -2.4560000896453857
           }
         },
-        "layer": "Background:0",
+        "layer": "Gameplay:1",
         "name": "artassets"
       },
       {
@@ -1429,7 +1429,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 0.2750000059604645,
-            "y": 0.05000000447034836
+            "y": 0.04999999701976776
           }
         },
         "layer": "Background:0",
@@ -1457,7 +1457,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 0.9750000238418579,
-            "y": 0.05000000074505806
+            "y": 0.04999999701976776
           }
         },
         "layer": "Background:0",
@@ -1484,7 +1484,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 0.625,
-            "y": 0.05000000074505806
+            "y": 0.04999999701976776
           }
         },
         "layer": "Background:0",
@@ -1922,7 +1922,7 @@
             "y": -1.5570000410079956
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -1949,7 +1949,7 @@
             "y": -2.056999921798706
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:1",
         "name": "artassets"
       },
       {
@@ -2590,7 +2590,7 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.20000000298023224
+            "w": 0.1599999964237213
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Safe.png"
@@ -2617,7 +2617,7 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.07999999821186066
+            "w": 0.11999999731779099
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Stove.png"
@@ -2679,8 +2679,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.14551331102848053,
-            "y": -0.12549743056297302
+            "x": 0.1333388388156891,
+            "y": -0.12367123365402222
           }
         },
         "layer": "Background:0",
@@ -2845,7 +2845,7 @@
             "y": -1.8308708667755127
           }
         },
-        "layer": "Background:0",
+        "layer": "Background:2",
         "name": "artassets"
       },
       {
@@ -2976,7 +2976,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.1047477275133133,
+            "x": -0.10474774241447449,
             "y": -2.5354270935058594
           }
         },
@@ -3633,12 +3633,201 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.1383851766586304,
-            "y": -2.536339282989502
+            "x": 1.1099388599395752,
+            "y": -2.513258695602417
           }
         },
         "layer": "Gameplay:0",
         "name": "player"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.30000001192092896,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Side table blood.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.0110244750976563,
+            "y": -2.1621742248535156
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Puddle_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.24504698812961578,
+            "y": -1.7424153089523315
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Blood_02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.6867101192474365,
+            "y": -0.69570392370224
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.25,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.25
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Blood/Puddle_01.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.0442029237747192,
+            "y": -1.5960713624954224
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.19205275177955627,
+            "y": -1.7888966798782349
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 2.206793785095215,
+            "y": -1.5019712448120117
+          }
+        },
+        "layer": "Gameplay:3",
+        "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 5_Locked room/Bodybag 02.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -0.1929280161857605,
+            "y": -0.30163097381591797
+          }
+        },
+        "layer": "Background:0",
+        "name": "artassets"
       }
     ],
     "name": "RealLastLevel"
