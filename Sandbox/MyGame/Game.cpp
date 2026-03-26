@@ -933,7 +933,7 @@ namespace mygame {
 
                 if (minimumVideoDelayElapsed && loadingFinished && transitionFinished)
                 {
-                    if (!levelMusicInitialized)
+                    if (!levelMusicInitialized && loadingTransitionNextState != GameState::MAIN_MENU)
                     {
                         OnLevelLoadedPlayMusic();
                         levelMusicInitialized = true;
@@ -1049,11 +1049,21 @@ namespace mygame {
 
                 if (pauseMenu.ConsumeMainMenu())
                 {
-                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    const std::array<const char*, 3> allTracks = {
+                        GAMEPLAY_BGM,
+                        LEVEL3_BOSS_BGM,
+                        LEVEL4_BOSS_BGM
+                    };
+                    for (const char* track : allTracks)
                     {
-                        SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
-                        gameplayBGMPlaying = false;
+                        if (SoundManager::getInstance().isSoundLoaded(track) &&
+                            SoundManager::getInstance().isSoundPlaying(track))
+                        {
+                            SoundManager::getInstance().fadeOutMusic(track, kBGMFadeDuration);
+                        }
                     }
+                    gameplayBGMPlaying = false;
+                    levelMusicInitialized = false;
                     PlayMainMenuMusic(0.4f);
                     if (gLogicSystem &&
                         StartGameplayLoadTransition(gLogicSystem->Factory()->LastLevelPath().empty()
