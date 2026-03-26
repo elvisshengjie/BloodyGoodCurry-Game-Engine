@@ -78,8 +78,11 @@ namespace mygame {
         bool boilingStarted = false;
         //Boss music change
         const char* LEVEL3_BOSS_BGM = "MiniBoss";
+        bool miniBossMusicFading = false;
         const char* LEVEL4_BOSS_BGM = "FinalBoss";
         bool levelMusicInitialized = false;
+
+        std::string currentLevelMusic = "";
 
         //Timer
         float bgmFadeTimer = 0.0f;
@@ -271,50 +274,36 @@ namespace mygame {
                 return;
 
             SoundManager& sm = SoundManager::getInstance();
-
             std::string levelName = ToLowerAscii(
                 gLogicSystem->Factory()->LastLevelPath().filename().string());
 
-            const bool isLevel3 = (levelName == "reallevel3.json");
-            const bool isLevel4 = (levelName == "reallastlevel.json");
+            const char* nextTrack = GAMEPLAY_BGM;
 
-            // Fade out ALL current music
-            const std::array<const char*, 3> allTracks = {
-                GAMEPLAY_BGM,
-                LEVEL3_BOSS_BGM,
-                LEVEL4_BOSS_BGM
-            };
+            if (levelName == "reallevel3.json")
+                nextTrack = LEVEL3_BOSS_BGM;
+            else if (levelName == "reallastlevel.json")
+                nextTrack = LEVEL4_BOSS_BGM;
 
-            for (const char* track : allTracks)
+            // If already playing the right track, do nothing
+            if (currentLevelMusic == nextTrack && sm.isSoundPlaying(nextTrack))
+                return;
+
+            // Fade out any old track if different
+            if (!currentLevelMusic.empty() && sm.isSoundPlaying(currentLevelMusic.c_str()))
+                sm.fadeOutMusic(currentLevelMusic.c_str(), kBGMFadeDuration);
+
+            // Play new track if loaded
+            if (sm.isSoundLoaded(nextTrack))
             {
-                if (sm.isSoundLoaded(track) && sm.isSoundPlaying(track))
+                if (!sm.isSoundPlaying(nextTrack))
                 {
-                    sm.fadeOutMusic(track, kBGMFadeDuration);
+                    sm.playSound(nextTrack, 1.0f, 1.0f, true);
+                    sm.setSoundVolume(nextTrack, 0.0f);
+                    sm.fadeInMusic(nextTrack, kBGMFadeDuration, 0.5f);
                 }
             }
 
-            gameplayBGMPlaying = false;
-
-            // Decide next track
-            const char* nextTrack = GAMEPLAY_BGM;
-
-            if (isLevel3)
-                nextTrack = LEVEL3_BOSS_BGM;
-            else if (isLevel4)
-                nextTrack = LEVEL4_BOSS_BGM;
-
-            // Play it
-            if (sm.isSoundLoaded(nextTrack))
-            {
-                sm.playSound(nextTrack, 1.0f, 1.0f, true);
-                sm.setSoundVolume(nextTrack, 0.0f);
-                sm.fadeInMusic(nextTrack, kBGMFadeDuration, 0.5f);
-            }
-            else
-            {
-                std::cout << "[Music ERROR] Not loaded: " << nextTrack << "\n";
-            }
-            std::cout << "[Music] Now playing: " << nextTrack << "\n";
+            currentLevelMusic = nextTrack;
         }
 
 
@@ -958,7 +947,8 @@ namespace mygame {
                 if (HandleCheatCodeInput())
                     break;
 
-                if (!gameplayBGMPlaying && !levelMusicInitialized &&
+                if (!SoundManager::getInstance().isSoundPlaying(GAMEPLAY_BGM) &&
+                    !levelMusicInitialized &&
                     SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
                     SoundManager::getInstance().playSound(GAMEPLAY_BGM, 1.0f, 1.0f, true);
@@ -975,6 +965,27 @@ namespace mygame {
                     editorSimulationRunning = false;
                     currentState = GameState::DEFEAT;
                     break;
+                }
+                if (!editorMode && IsNancieDefeated())
+                {
+                    if (!miniBossMusicFading &&
+                        SoundManager::getInstance().isSoundLoaded(LEVEL3_BOSS_BGM) &&
+                        SoundManager::getInstance().isSoundPlaying(LEVEL3_BOSS_BGM))
+                    {
+                        SoundManager::getInstance().fadeOutMusic(LEVEL3_BOSS_BGM, kBGMFadeDuration);
+
+                        // Fade in regular gameplay BGM only if not already playing
+                        if (!SoundManager::getInstance().isSoundPlaying(GAMEPLAY_BGM) &&
+                            SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                        {
+                            SoundManager::getInstance().playSound(GAMEPLAY_BGM, 1.0f, 1.0f, true);
+                            SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f);
+                            SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
+                        }
+
+                        currentLevelMusic = GAMEPLAY_BGM;
+                        miniBossMusicFading = true;
+                    }
                 }
                 if (!editorMode && IsHeiBangDefeated())
                 {
@@ -1074,11 +1085,15 @@ namespace mygame {
                     {
                         ResetPlayerDefeat();
                         ResetHeiBangDefeat();
+                        miniBossMusicFading = false;
+                        ResetNancieDefeat();
                         ResetPlayerKeyCount();
                         break;
                     }
                     ResetPlayerDefeat();
                     ResetHeiBangDefeat();
+                    miniBossMusicFading = false;
+                    ResetNancieDefeat();
                     ResetPlayerKeyCount();
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;

@@ -22,6 +22,8 @@ namespace mygame {
     void UpdateHealthPresentationDelta(float dt);
     bool IsPlayerDefeated();
     void ResetPlayerDefeat();
+    bool IsNancieDefeated();
+    void ResetNancieDefeat();
     bool IsHeiBangDefeated();
     void ResetHeiBangDefeat();
     void DrawHealthPresentation(Framework::RenderSystem& render);

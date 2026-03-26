@@ -36,6 +36,7 @@ namespace mygame {
     namespace {
         bool gPlayerDefeated = false;
         bool gHeiBangDefeated = false;
+        bool gNancieDefeated = false;
         float gLastHealthUiDt = 0.0f;
         unsigned gKeyUiTexture = 0u;
         bool gTriedLoadKeyUiTexture = false;
@@ -231,6 +232,8 @@ namespace mygame {
         {
             if (enemy && EqualsIgnoreCase(enemy->GetObjectName(), "heibang"))
                 gHeiBangDefeated = true;
+            if (enemy && EqualsIgnoreCase(enemy->GetObjectName(), "nancie"))  // ADD THIS
+                gNancieDefeated = true;
         });
     }
 
@@ -259,7 +262,22 @@ namespace mygame {
     {
         gPlayerDefeated = false;
     }
-
+    /*************************************************************************************
+      \brief  Reports whether Nancie's death sequence has completed.
+      \return True once Nancie has finished the death flow and 
+      is ready to trigger Boss music fade out.
+     *************************************************************************************/
+    bool IsNancieDefeated()
+    {
+        return gNancieDefeated;
+    }
+    /*************************************************************************************
+      \brief  Clears the game-side Nancy victory latch.
+    *************************************************************************************/
+    void ResetNancieDefeat()
+    {
+        gNancieDefeated = false;
+    }
     /*************************************************************************************
      \brief  Reports whether HeiBang's death sequence has completed.
      \return True once HeiBang has finished the death flow and is ready to trigger victory.
