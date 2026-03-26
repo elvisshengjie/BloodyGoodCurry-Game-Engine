@@ -34,6 +34,8 @@ public:
         unsigned hoverTexture{ 0 };
         bool useTextures{ false };
         bool drawLabelOnTexture{ false };
+        std::function<void()> onHover;
+        bool wasHovered = false;
     };
 
     void Clear();
@@ -51,6 +53,8 @@ public:
 
     void Update(Framework::InputSystem* input);
     void Draw(Framework::RenderSystem* render);
+    void SetLastHoverCallback(std::function<void()> onHover);
+    void SetSelectSoundCallback(std::function<void()> onSelect);
 
 private:
     std::vector<Button> buttons_;
@@ -58,6 +62,8 @@ private:
     int activeButtonIndex_{ -1 };
     double callbackDispatchTime_{ 0.0 };
     bool callbackPending_{ false };
+    std::function<void()> pendingCallback_;
+    std::function<void()> onSelectSound_;
 
     static bool Contains(const Button& b, double mx, double my);
     static bool RisingEdgeLeftClick(bool now, bool& prev);
