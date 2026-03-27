@@ -36,15 +36,32 @@ file(GLOB_RECURSE ENGINE_HEADER_FILES
 # Exclude vendored code handled separately (glad, etc.)
 list(FILTER ENGINE_SRC_FILES     EXCLUDE REGEX ".*/ThirdParty/.*")
 list(FILTER ENGINE_HEADER_FILES  EXCLUDE REGEX ".*/ThirdParty/.*")
-# Audio stub should only be compiled in no-audio builds.
+# Audio fallback/web backends should only be compiled when selected explicitly.
 list(FILTER ENGINE_SRC_FILES EXCLUDE REGEX ".*/Audio/AudioManagerStub\\.cpp$")
+list(FILTER ENGINE_SRC_FILES EXCLUDE REGEX ".*/Audio/AudioManagerWeb\\.cpp$")
 
-set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES})
+set(ENGINE_IDE_ONLY_FILES)
+if(NOT SOFASPUDS_DISABLE_AUDIO)
+    list(APPEND ENGINE_IDE_ONLY_FILES ${CMAKE_CURRENT_LIST_DIR}/Audio/AudioManagerStub.cpp)
+endif()
+if(NOT EMSCRIPTEN)
+    list(APPEND ENGINE_IDE_ONLY_FILES ${CMAKE_CURRENT_LIST_DIR}/Audio/AudioManagerWeb.cpp)
+endif()
+
+if(ENGINE_IDE_ONLY_FILES)
+    set_source_files_properties(${ENGINE_IDE_ONLY_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
+endif()
+
+set(ALL_ENGINE_FILES ${ENGINE_SRC_FILES} ${ENGINE_HEADER_FILES} ${ENGINE_IDE_ONLY_FILES})
 source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES ${ALL_ENGINE_FILES})
 
 if(SOFASPUDS_DISABLE_AUDIO)
     list(FILTER ENGINE_SRC_FILES EXCLUDE REGEX ".*/Audio/AudioManager\\.cpp$")
-    list(APPEND ENGINE_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/Audio/AudioManagerStub.cpp)
+    if(EMSCRIPTEN)
+        list(APPEND ENGINE_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/Audio/AudioManagerWeb.cpp)
+    else()
+        list(APPEND ENGINE_SRC_FILES ${CMAKE_CURRENT_LIST_DIR}/Audio/AudioManagerStub.cpp)
+    endif()
 endif()
 
 # ---------------------------------------------------------------------------
@@ -64,6 +81,10 @@ add_library(${ENGINE_NAME}
     ${ENGINE_SRC_FILES}
     ${ENGINE_HEADER_FILES}
 )
+
+if(ENGINE_IDE_ONLY_FILES)
+    target_sources(${ENGINE_NAME} PRIVATE ${ENGINE_IDE_ONLY_FILES})
+endif()
 
 # Libraries that are always linked (non-editor specific)
 set(ALL_LIBS
@@ -131,11 +152,21 @@ else()
 endif()
 
 if(SOFASPUDS_DISABLE_AUDIO)
-    message(STATUS "[SofaSpuds] Audio: DISABLED (FMOD stubs)")
+    if(EMSCRIPTEN)
+        message(STATUS "[SofaSpuds] Audio: ENABLED (browser backend, no FMOD)")
+    else()
+        message(STATUS "[SofaSpuds] Audio: DISABLED (FMOD stubs)")
+    endif()
     target_compile_definitions(${ENGINE_NAME} PUBLIC SOFASPUDS_DISABLE_AUDIO=1)
 else()
     message(STATUS "[SofaSpuds] Audio: ENABLED (FMOD)")
     target_compile_definitions(${ENGINE_NAME} PUBLIC SOFASPUDS_DISABLE_AUDIO=0)
+endif()
+
+if(EMSCRIPTEN)
+    target_compile_definitions(${ENGINE_NAME} PUBLIC SOFASPUDS_WEB_AUDIO_BACKEND=1)
+else()
+    target_compile_definitions(${ENGINE_NAME} PUBLIC SOFASPUDS_WEB_AUDIO_BACKEND=0)
 endif()
 
 target_compile_definitions(${ENGINE_NAME} PUBLIC GLFW_INCLUDE_NONE)

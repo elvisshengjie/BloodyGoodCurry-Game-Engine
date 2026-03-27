@@ -61,7 +61,7 @@ namespace Framework
             return;
         }
 
-#if !SOFASPUDS_DISABLE_AUDIO
+#if !SOFASPUDS_DISABLE_AUDIO || SOFASPUDS_WEB_AUDIO_BACKEND
         namespace fs = std::filesystem;
         fs::path audioPath = Framework::ResolveAssetPath("Audio");
         if (!fs::exists(audioPath))
