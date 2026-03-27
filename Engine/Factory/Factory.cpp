@@ -47,6 +47,7 @@
 #include "Component/ShadowComponent.h"
 
 #include "Component/BehaviourComponent.h"
+#include "Component/FlashComponent.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/BehaviorTreeComponent.h"
 
@@ -426,6 +427,16 @@ namespace Framework {
         {
             auto const& behaviour = static_cast<BehaviourComponent const&>(component);
             return json{ {"behaviourKey", behaviour.behaviourKey} };
+        }
+        case ComponentTypeId::CT_FlashComponent:
+        {
+            auto const& flash = static_cast<FlashComponent const&>(component);
+            return json{
+                {"frequency", flash.frequency},
+                {"duration", flash.duration},
+                {"start_visible", flash.start_visible},
+                {"activate_on_enemy_clear", flash.activate_on_enemy_clear}
+            };
         }
         case ComponentTypeId::CT_BehaviorTreeComponent: {
             auto const& bt = static_cast<BehaviorTreeComponent const&>(component);
@@ -1002,6 +1013,21 @@ namespace Framework {
             auto& behaviour = static_cast<BehaviourComponent&>(component);
             behaviour.started = false;
             readString("behaviourKey", behaviour.behaviourKey);
+            break;
+        }
+        case ComponentTypeId::CT_FlashComponent:
+        {
+            auto& flash = static_cast<FlashComponent&>(component);
+            readFloat("frequency", flash.frequency);
+            readFloat("duration", flash.duration);
+            readBool("start_visible", flash.start_visible);
+            readBool("activate_on_enemy_clear", flash.activate_on_enemy_clear);
+            flash.timer = 0.0f;
+            flash.visible = flash.start_visible;
+            flash.flashing = false;
+            flash.completed = false;
+            flash.hasCachedRenderState = false;
+            flash.cachedVisible = true;
             break;
         }
         case ComponentTypeId::CT_InputComponents:

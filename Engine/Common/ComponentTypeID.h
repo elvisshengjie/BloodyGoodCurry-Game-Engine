@@ -61,6 +61,7 @@ namespace Framework
         static constexpr Storage CT_BehaviorTreeComponent = 10;
         static constexpr Storage CT_AudioComponent = 11;
         static constexpr Storage CT_BehaviourComponent = 12;
+        static constexpr Storage CT_FlashComponent = 13;
 
         // Legacy fixed values retained so existing BloodyGoodCurry data can reserve the
         // same slots from the game side while the engine/game split is being migrated.
@@ -219,6 +220,7 @@ namespace Framework
             registerFixed(ComponentTypeId::CT_BehaviorTreeComponent, "BehaviorTreeComponent");
             registerFixed(ComponentTypeId::CT_AudioComponent, "AudioComponent");
             registerFixed(ComponentTypeId::CT_BehaviourComponent, "BehaviourComponent");
+            registerFixed(ComponentTypeId::CT_FlashComponent, "FlashComponent");
 
         }
 

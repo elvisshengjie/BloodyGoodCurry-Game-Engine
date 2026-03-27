@@ -16,7 +16,8 @@
       },
       "FlashComponent": {
         "frequency": 8.0,
-        "duration": 1.0,
+        "duration": 0.0,
+        "activate_on_enemy_clear": true,
         "start_visible": true
       }
     }

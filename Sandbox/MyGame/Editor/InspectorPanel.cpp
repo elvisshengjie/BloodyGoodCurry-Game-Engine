@@ -18,6 +18,7 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/FlashComponent.h"
 #include "Component/BehaviourComponent.h"
 #include "Component/ShadowComponent.h"
 #include "Components/GlowComponent.h"
@@ -533,6 +534,27 @@ namespace
     }
 
     /*************************************************************************************
+      \brief Draws ImGui controls for FlashComponent.
+
+      Exposes:
+      - Flicker frequency.
+      - Total flash duration (0 = indefinite).
+      - Whether the flash starts on the visible half-cycle.
+      - Whether flashing begins when enemies are cleared.
+    *************************************************************************************/
+    void DrawFlashSection(FlashComponent& flash)
+    {
+        if (!ImGui::CollapsingHeader("Flash", ImGuiTreeNodeFlags_DefaultOpen))
+            return;
+
+        ImGui::DragFloat("Frequency", &flash.frequency, 0.1f, 0.0f, 60.0f, "%.2f");
+        ImGui::DragFloat("Duration", &flash.duration, 0.1f, 0.0f, 120.0f, "%.2f");
+        ImGui::Checkbox("Start Visible", &flash.start_visible);
+        ImGui::Checkbox("Activate On Enemy Clear", &flash.activate_on_enemy_clear);
+        ImGui::TextDisabled("Duration 0 means flash forever.");
+    }
+
+    /*************************************************************************************
       \brief Draws ImGui controls for SpriteComponent.
 
       Exposes:
@@ -779,6 +801,9 @@ namespace mygame
 
         if (auto* glow = object->GetComponentAs<GlowComponent>(ComponentTypeId::CT_GlowComponent))
             DrawGlowSection(*object, *glow);
+
+        if (auto* flash = object->GetComponentAs<FlashComponent>(ComponentTypeId::CT_FlashComponent))
+            DrawFlashSection(*flash);
 
         if (auto* sprite = object->GetComponentAs<SpriteComponent>(ComponentTypeId::CT_SpriteComponent))
             DrawSpriteSection(*sprite);

@@ -26,11 +26,14 @@
 #include "Debug/Perf.h"
 #include "Memory/GameObjectPool.h"
 #include "Memory/ObjectAllocator.h"
+#include "Component/FlashComponent.h"
+#include "Component/RenderComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Video/VideoPlayer.hpp"
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cmath>
 #include <GLFW/glfw3.h>
 #include <chrono>
 #include <filesystem>
@@ -310,6 +313,138 @@ namespace mygame {
         {
             return cheatInputBuffer.size() >= suffix.size() &&
                 std::equal(suffix.rbegin(), suffix.rend(), cheatInputBuffer.rbegin());
+        }
+
+        bool HasRemainingEnemiesForFlash()
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+                return false;
+
+            for (auto const& [id, ptr] : gLogicSystem->Factory()->Objects())
+            {
+                (void)id;
+                auto* obj = ptr.get();
+                if (!obj)
+                    continue;
+
+                auto* enemy = obj->GetComponentType<Framework::EnemyComponent>(
+                    Framework::ComponentTypeId::CT_EnemyComponent);
+                if (!enemy)
+                    continue;
+
+                auto* health = obj->GetComponentType<Framework::EnemyHealthComponent>(
+                    Framework::ComponentTypeId::CT_EnemyHealthComponent);
+                if (!health || health->enemyHealth > 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        void RestoreFlashRenderState(Framework::RenderComponent& render, const Framework::FlashComponent& flash)
+        {
+            if (!flash.hasCachedRenderState)
+                return;
+
+            render.r = flash.cachedR;
+            render.g = flash.cachedG;
+            render.b = flash.cachedB;
+            render.a = flash.cachedA;
+            render.visible = flash.cachedVisible;
+            render.blendMode = flash.cachedBlendMode;
+        }
+
+        void CacheFlashRenderState(Framework::FlashComponent& flash, const Framework::RenderComponent& render)
+        {
+            flash.cachedR = render.r;
+            flash.cachedG = render.g;
+            flash.cachedB = render.b;
+            flash.cachedA = render.a;
+            flash.cachedVisible = render.visible;
+            flash.cachedBlendMode = render.blendMode;
+            flash.hasCachedRenderState = true;
+        }
+
+        void UpdateEnemyClearFlashComponents(float dt)
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+                return;
+
+            const bool enemyCleared = !HasRemainingEnemiesForFlash();
+
+            for (auto const& [id, ptr] : gLogicSystem->Factory()->Objects())
+            {
+                (void)id;
+                auto* obj = ptr.get();
+                if (!obj)
+                    continue;
+
+                auto* flash = obj->GetComponentType<Framework::FlashComponent>(
+                    Framework::ComponentTypeId::CT_FlashComponent);
+                auto* render = obj->GetComponentType<Framework::RenderComponent>(
+                    Framework::ComponentTypeId::CT_RenderComponent);
+                if (!flash || !render)
+                    continue;
+
+                const bool shouldFlash = flash->activate_on_enemy_clear && enemyCleared;
+                if (!shouldFlash)
+                {
+                    RestoreFlashRenderState(*render, *flash);
+                    flash->timer = 0.0f;
+                    flash->visible = flash->cachedVisible;
+                    flash->flashing = false;
+                    flash->completed = false;
+                    if (!flash->hasCachedRenderState)
+                        CacheFlashRenderState(*flash, *render);
+                    continue;
+                }
+
+                if (flash->completed)
+                {
+                    RestoreFlashRenderState(*render, *flash);
+                    flash->visible = flash->start_visible;
+                    continue;
+                }
+
+                if (!flash->flashing)
+                {
+                    flash->timer = 0.0f;
+                    flash->flashing = true;
+                    flash->completed = false;
+                    if (!flash->hasCachedRenderState)
+                        CacheFlashRenderState(*flash, *render);
+                }
+
+                flash->timer += std::max(0.0f, dt);
+                if (flash->duration > 0.0f && flash->timer >= flash->duration)
+                {
+                    flash->completed = true;
+                    flash->flashing = false;
+                    flash->visible = flash->start_visible;
+                    RestoreFlashRenderState(*render, *flash);
+                    continue;
+                }
+
+                bool flashWhite =
+                    std::fmod(flash->timer * std::max(0.0f, flash->frequency), 1.0f) < 0.5f;
+                if (!flash->start_visible)
+                    flashWhite = !flashWhite;
+
+                flash->visible = flashWhite;
+                if (flashWhite)
+                {
+                    render->visible = flash->cachedVisible;
+                    render->r = 1.0f;
+                    render->g = 1.0f;
+                    render->b = 1.0f;
+                    render->a = flash->cachedA;
+                    render->blendMode = Framework::BlendMode::Add;
+                }
+                else
+                {
+                    render->visible = false;
+                }
+            }
         }
 
         void PushCheatCharacter(char c)
@@ -678,12 +813,15 @@ namespace mygame {
             // HitBoxSystem remains a shared runtime service, but this game now owns its lifetime.
             gLogicSystem->hitBoxSystem = new Framework::HitBoxSystem(*gLogicSystem);
             gLogicSystem->hitBoxSystem->Initialize();
-            // Keep hitbox timing aligned with the old engine behavior, but route the update
-            // through a generic game callback instead of a hardcoded LogicSystem dependency.
+        }
+        if (gLogicSystem)
+        {
+            // Keep gameplay-owned runtime updates synchronized with the end of LogicSystem::Update().
             gLogicSystem->SetPostUpdateCallback([](float dt)
             {
                 if (gLogicSystem && gLogicSystem->hitBoxSystem)
                     gLogicSystem->hitBoxSystem->Update(dt);
+                UpdateEnemyClearFlashComponents(dt);
             });
         }
         RegisterMyGameScripts(*gLogicSystem);
