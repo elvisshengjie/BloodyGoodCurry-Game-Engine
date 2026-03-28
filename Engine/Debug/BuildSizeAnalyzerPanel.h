@@ -44,6 +44,8 @@ namespace mygame {
         void SaveSelectionState() const;
         void DrawStatusLine() const;
         void DrawExportPopup();
+        void DrawFolderBrowserPopup();
+        void OpenFolderBrowser(const std::filesystem::path& initialPath);
         void SetStatus(const std::string& message, bool isError);
         void SetExportPathBuffer(const std::filesystem::path& path);
         std::filesystem::path ResolveSelectionStatePath() const;
@@ -66,6 +68,9 @@ namespace mygame {
 
         std::array<char, 512> m_exportBuffer{};
         bool m_openExportPopup = false;
+        bool m_openFolderBrowserPopup = false;
+        std::filesystem::path m_folderBrowserPath;
+        std::filesystem::path m_folderBrowserSelection;
         std::string m_exportError;
         std::string m_statusMessage;
         bool m_statusIsError = false;

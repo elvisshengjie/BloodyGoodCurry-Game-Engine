@@ -40,6 +40,7 @@ namespace mygame {
 
         constexpr const char* kWindowTitle = "Build Size Analyzer";
         constexpr const char* kExportPopupTitle = "Export Selected Assets";
+        constexpr const char* kFolderBrowserPopupTitle = "Select Export Folder";
 
     }
 
@@ -59,6 +60,9 @@ namespace mygame {
             m_statusMessage.clear();
             m_statusIsError = false;
             m_openExportPopup = false;
+            m_openFolderBrowserPopup = false;
+            m_folderBrowserPath.clear();
+            m_folderBrowserSelection.clear();
             return;
         }
 
@@ -74,9 +78,12 @@ namespace mygame {
         m_statusMessage.clear();
         m_statusIsError = false;
         m_openExportPopup = false;
+        m_openFolderBrowserPopup = false;
 
         const auto defaultExportPath = m_assetsRoot.parent_path() / "BuildExports";
         SetExportPathBuffer(defaultExportPath);
+        m_folderBrowserPath = m_assetsRoot.parent_path();
+        m_folderBrowserSelection = m_folderBrowserPath;
         LoadSelectionState();
         RefreshEntries();
     }
@@ -382,6 +389,16 @@ namespace mygame {
         ImGui::Text("Assets to Export: %zu", m_selectedCount);
         ImGui::Text("Combined Size: %s", PrettySize(m_totalSelectedBytes).c_str());
         ImGui::InputText("Destination Folder", m_exportBuffer.data(), m_exportBuffer.size());
+        ImGui::SameLine();
+        if (ImGui::Button("Browse In Editor"))
+        {
+            const std::string destinationText = TrimCopy(m_exportBuffer.data());
+            OpenFolderBrowser(destinationText.empty()
+                ? m_assetsRoot.parent_path()
+                : std::filesystem::path(destinationText));
+        }
+
+        DrawFolderBrowserPopup();
 
         if (!m_exportError.empty())
         {
@@ -439,6 +456,152 @@ namespace mygame {
         }
 
         ImGui::EndPopup();
+    }
+
+    void BuildSizeAnalyzerPanel::DrawFolderBrowserPopup()
+    {
+        if (m_openFolderBrowserPopup)
+        {
+            ImGui::OpenPopup(kFolderBrowserPopupTitle);
+            m_openFolderBrowserPopup = false;
+        }
+
+        if (!ImGui::BeginPopupModal(kFolderBrowserPopupTitle, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+            return;
+
+        bool closePopup = false;
+
+        ImGui::TextWrapped("Choose a destination folder without leaving the editor.");
+        ImGui::TextDisabled("Current Folder: %s", m_folderBrowserPath.string().c_str());
+
+        const bool canGoUp = !m_folderBrowserPath.empty() &&
+            m_folderBrowserPath.has_parent_path() &&
+            m_folderBrowserPath.parent_path() != m_folderBrowserPath;
+        ImGui::BeginDisabled(!canGoUp);
+        if (ImGui::Button("Up"))
+        {
+            m_folderBrowserPath = m_folderBrowserPath.parent_path();
+            m_folderBrowserSelection.clear();
+        }
+        ImGui::EndDisabled();
+
+        ImGui::SameLine();
+        if (ImGui::Button("Use Current Folder"))
+        {
+            SetExportPathBuffer(m_folderBrowserPath);
+            SaveSelectionState();
+            closePopup = true;
+        }
+
+        std::vector<std::filesystem::path> directories;
+        std::error_code ec;
+        if (!m_folderBrowserPath.empty() &&
+            std::filesystem::exists(m_folderBrowserPath, ec) &&
+            std::filesystem::is_directory(m_folderBrowserPath, ec))
+        {
+            std::filesystem::directory_iterator end;
+            std::filesystem::directory_iterator it(
+                m_folderBrowserPath,
+                std::filesystem::directory_options::skip_permission_denied,
+                ec);
+
+            while (!ec && it != end)
+            {
+                std::error_code typeEc;
+                if (it->is_directory(typeEc) && !typeEc)
+                    directories.push_back(it->path());
+                it.increment(ec);
+            }
+        }
+
+        std::sort(directories.begin(), directories.end(),
+            [](const std::filesystem::path& lhs, const std::filesystem::path& rhs) {
+                return ToLower(lhs.filename().string()) < ToLower(rhs.filename().string());
+            });
+
+        ImGui::Separator();
+        if (ImGui::BeginChild("ExportFolderBrowserList", ImVec2(520.0f, 260.0f), true))
+        {
+            if (directories.empty())
+            {
+                ImGui::TextDisabled("No subfolders available here.");
+            }
+            else
+            {
+                for (const auto& directory : directories)
+                {
+                    const bool isSelected = directory == m_folderBrowserSelection;
+                    const std::string label = directory.filename().string().empty()
+                        ? directory.string()
+                        : directory.filename().string();
+                    if (ImGui::Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick))
+                    {
+                        m_folderBrowserSelection = directory;
+                        if (ImGui::IsMouseDoubleClicked(0))
+                        {
+                            m_folderBrowserPath = directory;
+                            m_folderBrowserSelection.clear();
+                        }
+                    }
+                }
+            }
+        }
+        ImGui::EndChild();
+
+        const bool hasFolderSelection = !m_folderBrowserSelection.empty();
+        bool chooseSelected = false;
+        ImGui::BeginDisabled(!hasFolderSelection);
+        if (ImGui::Button("Open Selected"))
+        {
+            m_folderBrowserPath = m_folderBrowserSelection;
+            m_folderBrowserSelection.clear();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Choose Selected"))
+        {
+            chooseSelected = true;
+        }
+        ImGui::EndDisabled();
+
+        if (chooseSelected)
+        {
+            SetExportPathBuffer(m_folderBrowserSelection);
+            SaveSelectionState();
+            closePopup = true;
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel Folder Picker"))
+        {
+            closePopup = true;
+        }
+
+        if (closePopup)
+            ImGui::CloseCurrentPopup();
+
+        ImGui::EndPopup();
+    }
+
+    void BuildSizeAnalyzerPanel::OpenFolderBrowser(const std::filesystem::path& initialPath)
+    {
+        std::error_code ec;
+        std::filesystem::path resolved = initialPath;
+        if (resolved.empty())
+            resolved = m_assetsRoot.parent_path();
+
+        if (!resolved.empty() && !std::filesystem::exists(resolved, ec))
+            resolved = resolved.parent_path();
+
+        if (!resolved.empty() && !std::filesystem::is_directory(resolved, ec))
+            resolved = resolved.parent_path();
+
+        if (resolved.empty())
+            resolved = m_assetsRoot.parent_path();
+
+        auto canonical = std::filesystem::weakly_canonical(resolved, ec);
+        m_folderBrowserPath = ec ? resolved : canonical;
+        m_folderBrowserSelection.clear();
+        m_openFolderBrowserPopup = true;
     }
 
     void BuildSizeAnalyzerPanel::SetStatus(const std::string& message, bool isError)
