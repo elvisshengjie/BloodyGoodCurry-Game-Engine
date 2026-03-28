@@ -791,6 +791,7 @@ namespace Framework {
             assetsRoot = FindAssetsRoot();
 
         SetSpawnPanelAssetsRoot(assetsRoot);
+        buildSizeAnalyzer.Initialize(assetsRoot);
 
         if (!assetsRoot.empty())
         {
@@ -1027,6 +1028,8 @@ namespace Framework {
         auto pending = assetBrowser.ConsumePendingImports();
         if (pending.empty())
             return;
+
+        buildSizeAnalyzer.ForceRefresh();
 
         std::unordered_set<std::string> processed;
         for (const auto& relative : pending)
@@ -3349,6 +3352,7 @@ namespace Framework {
                     if (ImGui::BeginMenu("View"))
                     {
                         ImGui::MenuItem("Animation Editor", nullptr, &showAnimationEditor);
+                        ImGui::MenuItem("Build Size Analyzer", nullptr, &showBuildSizeAnalyzer);
                         ImGui::EndMenu();
                     }
                     if (Framework::HasCurrentProject())
@@ -3376,6 +3380,7 @@ namespace Framework {
             if (showEditor)
             {
                 assetBrowser.Draw();
+                buildSizeAnalyzer.Draw(&showBuildSizeAnalyzer);
                 jsonEditor.Draw();
                 mygame::DrawHierarchyPanel();
                 mygame::DrawLayerPanel();

@@ -39,6 +39,7 @@
 #include "Debug/Selection.h"
 #include "Debug/HierarchyPanel.h"
 #include "Debug/AssetBrowserPanel.h"
+#include "Debug/BuildSizeAnalyzerPanel.h"
 #include "Debug/AnimationEditorPanel.h"
 #include "Debug/JsonEditorPanel.h"
 #include "Debug/UndoStack.h"
@@ -247,6 +248,7 @@ namespace Framework {
         // These members rely on types that are only included when editor is enabled.
 #if SOFASPUDS_ENABLE_EDITOR
         mygame::AssetBrowserPanel assetBrowser;
+        mygame::BuildSizeAnalyzerPanel buildSizeAnalyzer;
         mygame::JsonEditorPanel   jsonEditor;
         std::string              projectMenuStatusMessage;
         bool                     projectMenuStatusIsError = false;
@@ -298,6 +300,7 @@ namespace Framework {
         // --- Editor layout flags ---------------------------------------------------------
         bool  showEditor = false;              //!< Toggle editor UI visibility.
         bool  showAnimationEditor = false;     //!< Toggle Animation Editor visibility.
+        bool  showBuildSizeAnalyzer = false;   //!< Toggle Build Size Analyzer visibility.
         bool  gameViewportFullWidth = false;   //!< Maximize viewport width.
         bool  gameViewportFullHeight = false;  //!< Maximize viewport height.
         float heightRatio = 0.8f;              //!< Viewport height vs window height.
