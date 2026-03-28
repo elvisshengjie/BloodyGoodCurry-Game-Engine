@@ -26,11 +26,14 @@
 #include "Debug/Perf.h"
 #include "Memory/GameObjectPool.h"
 #include "Memory/ObjectAllocator.h"
+#include "Component/FlashComponent.h"
+#include "Component/RenderComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Video/VideoPlayer.hpp"
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cmath>
 #include <GLFW/glfw3.h>
 #include <chrono>
 #include <filesystem>
@@ -65,6 +68,7 @@ namespace mygame {
         const char* EXIT_BUTTTON = "Quit";
         const char* CUTSCENE_AUDIO = "CutsceneAudio";
         const char* WIN_VIDEO_AUDIO = "WinVideoAudio";
+
         // BGM Sounds
         bool gameplayBGMPlaying = false;
         const char* GAMEPLAY_BGM = "BGM";
@@ -75,6 +79,14 @@ namespace mygame {
         bool defeatBGMPlaying = false;
         bool defeatSoundStarted = false;
         bool boilingStarted = false;
+        //Boss music change
+        const char* LEVEL3_BOSS_BGM = "MiniBoss";
+        bool miniBossMusicFading = false;
+        const char* LEVEL4_BOSS_BGM = "FinalBoss";
+        bool levelMusicInitialized = false;
+
+        std::string currentLevelMusic = "";
+
         //Timer
         float bgmFadeTimer = 0.0f;
         constexpr float kBGMFadeDuration = 1.5f;
@@ -124,6 +136,9 @@ namespace mygame {
                 }
             }
         }
+
+       
+
 
         void PlayMainMenuMusic(float targetVolume = 0.3f)
         {
@@ -217,6 +232,7 @@ namespace mygame {
         float loadingTransitionElapsedTimer = 0.0f;
         constexpr float kStateAdvanceInputBlockDuration = 0.2f;
 
+       
         void BlockStateAdvanceInput(float duration = kStateAdvanceInputBlockDuration)
         {
             stateAdvanceInputBlockTimer = std::max(stateAdvanceInputBlockTimer, duration);
@@ -254,11 +270,181 @@ namespace mygame {
                 [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
             return value;
         }
+        /*********************************************************************************************
+       \brief Plays the appropriate level BGM when a level is loaded.
+       \details Only starts the music if it's not already playing. Fades out the previous track if needed.
+      *********************************************************************************************/
+        void OnLevelLoadedPlayMusic(bool forcePlay = false)
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+                return;
+
+            SoundManager& sm = SoundManager::getInstance();
+            std::string levelName = ToLowerAscii(
+                gLogicSystem->Factory()->LastLevelPath().filename().string());
+
+            const char* nextTrack = GAMEPLAY_BGM;
+            if (levelName == "reallevel3.json")
+                nextTrack = LEVEL3_BOSS_BGM;
+            else if (levelName == "reallastlevel.json" ||
+                levelName == "reallastlevl.json")
+                nextTrack = LEVEL4_BOSS_BGM;
+
+            // Skip restarting if already playing the correct track
+            if (!forcePlay && gameplayBGMPlaying && sm.isSoundPlaying(nextTrack))
+                return;
+
+            // Fade out old track if different
+            if (!currentLevelMusic.empty() && sm.isSoundPlaying(currentLevelMusic.c_str()) && currentLevelMusic != nextTrack)
+                sm.fadeOutMusic(currentLevelMusic.c_str(), kBGMFadeDuration);
+
+            if (sm.isSoundLoaded(nextTrack) && !sm.isSoundPlaying(nextTrack))
+            {
+                sm.playSound(nextTrack, 1.0f, 1.0f, true);
+                sm.setSoundVolume(nextTrack, 0.0f);
+                sm.fadeInMusic(nextTrack, kBGMFadeDuration, 0.5f);
+            }
+
+            currentLevelMusic = nextTrack;
+            gameplayBGMPlaying = true;
+        }
 
         bool BufferEndsWith(std::string_view suffix)
         {
             return cheatInputBuffer.size() >= suffix.size() &&
                 std::equal(suffix.rbegin(), suffix.rend(), cheatInputBuffer.rbegin());
+        }
+
+        bool HasRemainingEnemiesForFlash()
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+                return false;
+
+            for (auto const& [id, ptr] : gLogicSystem->Factory()->Objects())
+            {
+                (void)id;
+                auto* obj = ptr.get();
+                if (!obj)
+                    continue;
+
+                auto* enemy = obj->GetComponentType<Framework::EnemyComponent>(
+                    Framework::ComponentTypeId::CT_EnemyComponent);
+                if (!enemy)
+                    continue;
+
+                auto* health = obj->GetComponentType<Framework::EnemyHealthComponent>(
+                    Framework::ComponentTypeId::CT_EnemyHealthComponent);
+                if (!health || health->enemyHealth > 0)
+                    return true;
+            }
+
+            return false;
+        }
+
+        void RestoreFlashRenderState(Framework::RenderComponent& render, const Framework::FlashComponent& flash)
+        {
+            if (!flash.hasCachedRenderState)
+                return;
+
+            render.r = flash.cachedR;
+            render.g = flash.cachedG;
+            render.b = flash.cachedB;
+            render.a = flash.cachedA;
+            render.visible = flash.cachedVisible;
+            render.blendMode = flash.cachedBlendMode;
+        }
+
+        void CacheFlashRenderState(Framework::FlashComponent& flash, const Framework::RenderComponent& render)
+        {
+            flash.cachedR = render.r;
+            flash.cachedG = render.g;
+            flash.cachedB = render.b;
+            flash.cachedA = render.a;
+            flash.cachedVisible = render.visible;
+            flash.cachedBlendMode = render.blendMode;
+            flash.hasCachedRenderState = true;
+        }
+
+        void UpdateEnemyClearFlashComponents(float dt)
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+                return;
+
+            const bool enemyCleared = !HasRemainingEnemiesForFlash();
+
+            for (auto const& [id, ptr] : gLogicSystem->Factory()->Objects())
+            {
+                (void)id;
+                auto* obj = ptr.get();
+                if (!obj)
+                    continue;
+
+                auto* flash = obj->GetComponentType<Framework::FlashComponent>(
+                    Framework::ComponentTypeId::CT_FlashComponent);
+                auto* render = obj->GetComponentType<Framework::RenderComponent>(
+                    Framework::ComponentTypeId::CT_RenderComponent);
+                if (!flash || !render)
+                    continue;
+
+                const bool shouldFlash = flash->activate_on_enemy_clear && enemyCleared;
+                if (!shouldFlash)
+                {
+                    RestoreFlashRenderState(*render, *flash);
+                    flash->timer = 0.0f;
+                    flash->visible = flash->cachedVisible;
+                    flash->flashing = false;
+                    flash->completed = false;
+                    if (!flash->hasCachedRenderState)
+                        CacheFlashRenderState(*flash, *render);
+                    continue;
+                }
+
+                if (flash->completed)
+                {
+                    RestoreFlashRenderState(*render, *flash);
+                    flash->visible = flash->start_visible;
+                    continue;
+                }
+
+                if (!flash->flashing)
+                {
+                    flash->timer = 0.0f;
+                    flash->flashing = true;
+                    flash->completed = false;
+                    if (!flash->hasCachedRenderState)
+                        CacheFlashRenderState(*flash, *render);
+                }
+
+                flash->timer += std::max(0.0f, dt);
+                if (flash->duration > 0.0f && flash->timer >= flash->duration)
+                {
+                    flash->completed = true;
+                    flash->flashing = false;
+                    flash->visible = flash->start_visible;
+                    RestoreFlashRenderState(*render, *flash);
+                    continue;
+                }
+
+                bool flashWhite =
+                    std::fmod(flash->timer * std::max(0.0f, flash->frequency), 1.0f) < 0.5f;
+                if (!flash->start_visible)
+                    flashWhite = !flashWhite;
+
+                flash->visible = flashWhite;
+                if (flashWhite)
+                {
+                    render->visible = flash->cachedVisible;
+                    render->r = 1.0f;
+                    render->g = 1.0f;
+                    render->b = 1.0f;
+                    render->a = flash->cachedA;
+                    render->blendMode = Framework::BlendMode::Add;
+                }
+                else
+                {
+                    render->visible = false;
+                }
+            }
         }
 
         void PushCheatCharacter(char c)
@@ -544,6 +730,7 @@ namespace mygame {
             bool playVideo = true,
             bool hideGameplayUntilDelay = false)
         {
+            
             if (!gLogicSystem || levelLoader.IsActive())
                 return false;
 
@@ -574,6 +761,7 @@ namespace mygame {
             loadingTransitionElapsedTimer = 0.0f;
             ResetHeiBangDefeat();
             editorSimulationRunning = false;
+            levelMusicInitialized = false;
             currentState = GameState::LOADING_TRANSITION;
             BlockStateAdvanceInput();
             return true;
@@ -625,12 +813,15 @@ namespace mygame {
             // HitBoxSystem remains a shared runtime service, but this game now owns its lifetime.
             gLogicSystem->hitBoxSystem = new Framework::HitBoxSystem(*gLogicSystem);
             gLogicSystem->hitBoxSystem->Initialize();
-            // Keep hitbox timing aligned with the old engine behavior, but route the update
-            // through a generic game callback instead of a hardcoded LogicSystem dependency.
+        }
+        if (gLogicSystem)
+        {
+            // Keep gameplay-owned runtime updates synchronized with the end of LogicSystem::Update().
             gLogicSystem->SetPostUpdateCallback([](float dt)
             {
                 if (gLogicSystem && gLogicSystem->hitBoxSystem)
                     gLogicSystem->hitBoxSystem->Update(dt);
+                UpdateEnemyClearFlashComponents(dt);
             });
         }
         RegisterMyGameScripts(*gLogicSystem);
@@ -868,6 +1059,11 @@ namespace mygame {
 
                 if (minimumVideoDelayElapsed && loadingFinished && transitionFinished)
                 {
+                    if (!levelMusicInitialized && loadingTransitionNextState != GameState::MAIN_MENU)
+                    {
+                        OnLevelLoadedPlayMusic();
+                        levelMusicInitialized = true;
+                    }
                     currentState = loadingTransitionNextState;
                     editorSimulationRunning = loadingTransitionResumeSimulation;
                     BlockStateAdvanceInput();
@@ -888,11 +1084,13 @@ namespace mygame {
                 if (HandleCheatCodeInput())
                     break;
 
-                if (!gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                if (!SoundManager::getInstance().isSoundPlaying(GAMEPLAY_BGM) &&
+                    !levelMusicInitialized &&
+                    SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
                     SoundManager::getInstance().playSound(GAMEPLAY_BGM, 1.0f, 1.0f, true);
-                    SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f); // start silent
-                    SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f); // fade to 0.4
+                    SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f);
+                    SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
                     gameplayBGMPlaying = true;
                 }
      
@@ -905,8 +1103,35 @@ namespace mygame {
                     currentState = GameState::DEFEAT;
                     break;
                 }
+                if (!editorMode && IsNancieDefeated())
+                {
+                    if (!miniBossMusicFading &&
+                        SoundManager::getInstance().isSoundLoaded(LEVEL3_BOSS_BGM) &&
+                        SoundManager::getInstance().isSoundPlaying(LEVEL3_BOSS_BGM))
+                    {
+                        SoundManager::getInstance().fadeOutMusic(LEVEL3_BOSS_BGM, kBGMFadeDuration);
+
+                        // Fade in regular gameplay BGM only if not already playing
+                        if (!SoundManager::getInstance().isSoundPlaying(GAMEPLAY_BGM) &&
+                            SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                        {
+                            SoundManager::getInstance().playSound(GAMEPLAY_BGM, 1.0f, 1.0f, true);
+                            SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f);
+                            SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
+                        }
+
+                        currentLevelMusic = GAMEPLAY_BGM;
+                        miniBossMusicFading = true;
+                    }
+                }
                 if (!editorMode && IsHeiBangDefeated())
                 {
+                    // Fade out final boss music
+                    if (SoundManager::getInstance().isSoundLoaded(LEVEL4_BOSS_BGM) &&
+                        SoundManager::getInstance().isSoundPlaying(LEVEL4_BOSS_BGM))
+                    {
+                        SoundManager::getInstance().fadeOutMusic(LEVEL4_BOSS_BGM, kBGMFadeDuration);
+                    }
                     if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                     {
                         SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
@@ -978,11 +1203,21 @@ namespace mygame {
 
                 if (pauseMenu.ConsumeMainMenu())
                 {
-                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+                    const std::array<const char*, 3> allTracks = {
+                        GAMEPLAY_BGM,
+                        LEVEL3_BOSS_BGM,
+                        LEVEL4_BOSS_BGM
+                    };
+                    for (const char* track : allTracks)
                     {
-                        SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
-                        gameplayBGMPlaying = false;
+                        if (SoundManager::getInstance().isSoundLoaded(track) &&
+                            SoundManager::getInstance().isSoundPlaying(track))
+                        {
+                            SoundManager::getInstance().fadeOutMusic(track, kBGMFadeDuration);
+                        }
                     }
+                    gameplayBGMPlaying = false;
+                    levelMusicInitialized = false;
                     PlayMainMenuMusic(0.4f);
                     if (gLogicSystem &&
                         StartGameplayLoadTransition(gLogicSystem->Factory()->LastLevelPath().empty()
@@ -993,11 +1228,15 @@ namespace mygame {
                     {
                         ResetPlayerDefeat();
                         ResetHeiBangDefeat();
+                        miniBossMusicFading = false;
+                        ResetNancieDefeat();
                         ResetPlayerKeyCount();
                         break;
                     }
                     ResetPlayerDefeat();
                     ResetHeiBangDefeat();
+                    miniBossMusicFading = false;
+                    ResetNancieDefeat();
                     ResetPlayerKeyCount();
                     editorSimulationRunning = false;
                     currentState = GameState::MAIN_MENU;
@@ -1051,20 +1290,26 @@ namespace mygame {
 
                 if (defeatScreen.ConsumeTryAgain())
                 {
-                    if (SoundManager::getInstance().isSoundLoaded(DEFEAT)&& SoundManager::getInstance().isSoundLoaded(BOILING))
-                    {
+                    
+                    if (SoundManager::getInstance().isSoundLoaded(DEFEAT))
                         SoundManager::getInstance().stopSound(DEFEAT);
+                    if (SoundManager::getInstance().isSoundLoaded(BOILING))
                         SoundManager::getInstance().stopSound(BOILING);
-                    }
-                    if (SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
+
+                    
+                    if (!currentLevelMusic.empty() &&
+                        SoundManager::getInstance().isSoundLoaded(currentLevelMusic) &&
+                        !SoundManager::getInstance().isSoundPlaying(currentLevelMusic))
                     {
-                        SoundManager::getInstance().playSound(GAMEPLAY_BGM, true);
-                        SoundManager::getInstance().setSoundVolume(GAMEPLAY_BGM, 0.0f);
-                        SoundManager::getInstance().fadeInMusic(GAMEPLAY_BGM, kBGMFadeDuration, 0.4f);
+                        SoundManager::getInstance().playSound(currentLevelMusic, 1.0f, 1.0f, true);
+                        SoundManager::getInstance().setSoundVolume(currentLevelMusic, 0.0f);
+                        SoundManager::getInstance().fadeInMusic(currentLevelMusic, kBGMFadeDuration, 0.4f);
                         gameplayBGMPlaying = true;
                     }
 
                     defeatSoundStarted = false;
+
+                    
                     if (RequestReloadLevel(false))
                     {
                         ResetPlayerDefeat();
@@ -1445,5 +1690,7 @@ namespace mygame {
     {
         return currentState == GameState::LOADING_TRANSITION;
     }
+
+
 
 } // namespace mygame

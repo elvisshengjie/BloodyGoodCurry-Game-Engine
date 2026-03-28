@@ -321,7 +321,7 @@
             "y": -0.9180307984352112
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Gameplay:2",
         "name": "artassets"
       },
       {
@@ -566,7 +566,7 @@
             "y": -1.0880000591278076
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:1",
         "name": "artassets"
       },
       {
@@ -594,7 +594,7 @@
             "y": -1.0880000591278076
           }
         },
-        "layer": "Gameplay:2",
+        "layer": "Gameplay:4",
         "name": "artassets"
       },
       {
@@ -1016,6 +1016,7 @@
             "h": 0.25,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Wallpaper/GreenWall_04.png",
             "visible": true,
             "w": 0.25
           },
@@ -1486,12 +1487,12 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.1379999965429306,
+            "h": 0.20000000298023224,
             "layer": -5,
             "r": 1.0,
             "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Back Sofa.png",
             "visible": true,
-            "w": 0.30300000309944153
+            "w": 0.4000000059604645
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Back Sofa.png"
@@ -1514,12 +1515,12 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.31200000643730164,
+            "h": 0.4000000059604645,
             "layer": -5,
             "r": 1.0,
             "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Side Sofa.png",
             "visible": true,
-            "w": 0.1289999932050705
+            "w": 0.20000000298023224
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Side Sofa.png"
@@ -1528,8 +1529,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.5833593010902405,
-            "y": 0.08334511518478394
+            "x": -0.6120663285255432,
+            "y": 0.1529664695262909
           }
         },
         "layer": "Background:1",
@@ -1666,11 +1667,11 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.881230354309082,
-            "y": -0.8432652354240417
+            "x": -0.6901854872703552,
+            "y": -0.8558962941169739
           }
         },
-        "layer": "Background:5",
+        "layer": "Gameplay:1",
         "name": "artassets"
       },
       {
@@ -1680,7 +1681,7 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.30000001192092896,
+            "h": 0.4000000059604645,
             "layer": -5,
             "r": 1.0,
             "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Altar Table.png",
@@ -1698,7 +1699,7 @@
             "y": -0.8802735805511475
           }
         },
-        "layer": "Background:1",
+        "layer": "Gameplay:1",
         "name": "artassets"
       },
       {
@@ -1779,8 +1780,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.5491400361061096,
-            "y": 0.1283971220254898
+            "x": -0.6117733716964722,
+            "y": 0.15751390159130096
           }
         },
         "layer": "Gameplay:0",
@@ -1797,20 +1798,20 @@
             "layer": 0,
             "r": 1.0,
             "visible": false,
-            "w": 0.30000001192092896
+            "w": 0.38999998569488525
           },
           "RigidBodyComponent": {
             "height": 0.20000000298023224,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
-            "width": 0.30000001192092896
+            "width": 0.38999998569488525
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -0.32237300276756287,
-            "y": -0.10491766035556793
+            "y": -0.13457362353801727
           }
         },
         "layer": "Gameplay:0",
@@ -2158,7 +2159,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2211,7 +2212,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -2229,8 +2230,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.6477028131484985,
-            "y": 0.3839757740497589
+            "x": -0.7694514393806458,
+            "y": 0.38267090916633606
           }
         },
         "layer": "Background:1",
@@ -3405,7 +3406,7 @@
             "y": -0.9440000057220459
           }
         },
-        "layer": "Gameplay:1",
+        "layer": "Gameplay:3",
         "name": "artassets"
       },
       {
@@ -3526,7 +3527,7 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.20000000298023224,
+            "h": 0.15000000596046448,
             "layer": -5,
             "r": 1.0,
             "visible": true,
@@ -3553,7 +3554,7 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.20000000298023224,
+            "h": 0.15000000596046448,
             "layer": -5,
             "r": 1.0,
             "visible": true,
@@ -3769,11 +3770,11 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.05000000074505806,
+            "h": 0.07999999821186066,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.05000000074505806
+            "w": 0.07999999821186066
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/toast.png"
@@ -3782,8 +3783,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.9040603637695313,
-            "y": -0.8786593079566956
+            "x": 1.9121625423431396,
+            "y": -0.9086372256278992
           }
         },
         "layer": "Gameplay:2",
@@ -3835,8 +3836,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.8967076539993286,
-            "y": -0.10520270466804504
+            "x": 1.8953684568405151,
+            "y": -0.11725549399852753
           }
         },
         "layer": "Background:1",
@@ -4064,7 +4065,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -4485,7 +4486,7 @@
             "scale_y": 0.44999998807907104
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 3,
+            "activeAnimation": 0,
             "animations": [
               {
                 "config": {
@@ -4497,7 +4498,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 2,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -4644,14 +4645,14 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "attack1_sheet"
+            "texture_key": "idle_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.2787338495254517,
-            "y": -0.8764931559562683
+            "x": -1.2315857410430908,
+            "y": -0.8461605310440063
           }
         },
         "layer": "Gameplay:0",
@@ -4753,7 +4754,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -4936,7 +4937,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5119,7 +5120,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5199,8 +5200,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -0.7691391706466675,
-            "y": 0.06552338600158691
+            "x": -0.8422113656997681,
+            "y": 0.07596225291490555
           }
         },
         "layer": "Gameplay:0",
@@ -5302,7 +5303,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5485,7 +5486,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5674,7 +5675,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5863,7 +5864,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },

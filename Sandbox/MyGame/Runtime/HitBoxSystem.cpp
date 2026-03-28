@@ -27,6 +27,7 @@
 #include "Physics/Dynamics/RigidBodyComponent.h"
 
 #include <iostream>
+#include <array>
 #include <cctype>
 #include <string_view>
 #include <cmath>
@@ -126,6 +127,91 @@ namespace Framework
 
             return baseDamage;
         }
+
+        std::array<glm::vec2, 4> BuildRotatedRectCorners(
+            float centerX, float centerY, float width, float height, float rotation)
+        {
+            const float halfW = width * 0.5f;
+            const float halfH = height * 0.5f;
+            const float cosR = std::cos(rotation);
+            const float sinR = std::sin(rotation);
+            const glm::vec2 axisX{ cosR, sinR };
+            const glm::vec2 axisY{ -sinR, cosR };
+            const glm::vec2 center{ centerX, centerY };
+
+            return { {
+                center + (axisX * halfW) + (axisY * halfH),
+                center - (axisX * halfW) + (axisY * halfH),
+                center - (axisX * halfW) - (axisY * halfH),
+                center + (axisX * halfW) - (axisY * halfH)
+            } };
+        }
+
+        std::array<glm::vec2, 4> BuildAabbCorners(const AABB& rect)
+        {
+            return { {
+                { rect.min.getX(), rect.min.getY() },
+                { rect.max.getX(), rect.min.getY() },
+                { rect.max.getX(), rect.max.getY() },
+                { rect.min.getX(), rect.max.getY() }
+            } };
+        }
+
+        bool OverlapsOnAxis(const std::array<glm::vec2, 4>& a,
+            const std::array<glm::vec2, 4>& b,
+            const glm::vec2& axis)
+        {
+            const float axisLengthSq = (axis.x * axis.x) + (axis.y * axis.y);
+            if (axisLengthSq <= 0.000001f)
+                return true;
+
+            const auto project = [&](const std::array<glm::vec2, 4>& corners)
+            {
+                float minProjection = (corners[0].x * axis.x) + (corners[0].y * axis.y);
+                float maxProjection = minProjection;
+                for (std::size_t i = 1; i < corners.size(); ++i)
+                {
+                    const float projection = (corners[i].x * axis.x) + (corners[i].y * axis.y);
+                    minProjection = std::min(minProjection, projection);
+                    maxProjection = std::max(maxProjection, projection);
+                }
+                return std::pair<float, float>{ minProjection, maxProjection };
+            };
+
+            const auto [aMin, aMax] = project(a);
+            const auto [bMin, bMax] = project(b);
+            return !(aMax < bMin || bMax < aMin);
+        }
+
+        bool CheckRotatedHitBoxAgainstAabb(const HitBoxComponent& hitbox, const AABB& target)
+        {
+            if (std::fabs(hitbox.rotation) <= 0.0001f)
+            {
+                return Collision::CheckCollisionRectToRect(
+                    AABB(hitbox.spawnX, hitbox.spawnY, hitbox.width, hitbox.height),
+                    target);
+            }
+
+            const auto hitboxCorners = BuildRotatedRectCorners(
+                hitbox.spawnX, hitbox.spawnY, hitbox.width, hitbox.height, hitbox.rotation);
+            const auto targetCorners = BuildAabbCorners(target);
+            const float cosR = std::cos(hitbox.rotation);
+            const float sinR = std::sin(hitbox.rotation);
+            const std::array<glm::vec2, 4> testAxes{ {
+                { cosR, sinR },
+                { -sinR, cosR },
+                { 1.0f, 0.0f },
+                { 0.0f, 1.0f }
+            } };
+
+            for (const glm::vec2& axis : testAxes)
+            {
+                if (!OverlapsOnAxis(hitboxCorners, targetCorners, axis))
+                    return false;
+            }
+
+            return true;
+        }
     }
 
     HitBoxSystem::HitBoxSystem(LogicSystem& logicRef)
@@ -148,15 +234,18 @@ namespace Framework
         activeHitBoxes.clear();
     }
 
-    void HitBoxSystem::SpawnHitBox(GameObjectComposition* attacker,
+    HitBoxComponent* HitBoxSystem::SpawnHitBox(GameObjectComposition* attacker,
         float targetX, float targetY,
         float width, float height,
         float damage,
         float duration,
-        HitBoxComponent::Team team, float soundDelay)
+        HitBoxComponent::Team team,
+        float rotation,
+        bool consumeOnHit,
+        float soundDelay)
     {
         if (!attacker)
-            return;
+            return nullptr;
 
         auto newhitbox = std::make_unique<HitBoxComponent>();
         newhitbox->spawnX = targetX;
@@ -167,6 +256,8 @@ namespace Framework
         newhitbox->duration = duration;
         newhitbox->owner = attacker;
         newhitbox->team = team;
+        newhitbox->rotation = rotation;
+        newhitbox->consumeOnHit = consumeOnHit;
         newhitbox->soundDelay = soundDelay;
 
         if (attacker->GetComponentType<PlayerComponent>(ComponentTypeId::CT_PlayerComponent))
@@ -197,6 +288,7 @@ namespace Framework
         active.timer = duration;
 
         activeHitBoxes.push_back(std::move(active));
+        return activeHitBoxes.back().hitbox.get();
     }
 
     void HitBoxSystem::SpawnProjectile(GameObjectComposition* attacker,
@@ -286,7 +378,7 @@ namespace Framework
                 continue;
             }
 
-            // AFTER
+            
             if (it->isProjectile || HB->team == HitBoxComponent::Team::Thrown || HB->team == HitBoxComponent::Team::PlayerSlow)
             {
                 it->hitbox->spawnX += it->velX * dt;
@@ -355,7 +447,7 @@ namespace Framework
                     ? AABB(tr->x, tr->y, rb->width * kEnemyAggroScale, rb->height * kEnemyAggroScale)
                     : AABB(tr->x, tr->y, rb->width, rb->height);
 
-                if (!Collision::CheckCollisionRectToRect(hitboxAABB, targetAABB))
+                if (!CheckRotatedHitBoxAgainstAabb(*HB, targetAABB))
                     continue;
 
                 bool targetIsPlayer = obj->GetComponentType<PlayerComponent>(
@@ -524,7 +616,7 @@ namespace Framework
                 HB->soundTriggered = true;
             }
 
-            if (hitAnything || it->timer <= 0.0f)
+            if ((hitAnything && HB->consumeOnHit) || it->timer <= 0.0f)
                 it = activeHitBoxes.erase(it);
             else
                 ++it;

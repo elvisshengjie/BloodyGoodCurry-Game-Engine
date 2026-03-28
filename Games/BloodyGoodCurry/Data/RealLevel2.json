@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 179.10084533691406,
-            "y": 178.8409881591797
+            "x": 179.21078491210938,
+            "y": 178.950927734375
           }
         },
         "layer": "Gameplay:0",
@@ -984,7 +984,7 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.6000000238418579,
+            "h": 0.5,
             "layer": -5,
             "r": 1.0,
             "visible": true,
@@ -998,7 +998,7 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": -0.13607579469680786,
-            "y": -0.07205627113580704
+            "y": -0.07205626368522644
           }
         },
         "layer": "Gameplay:1",
@@ -1043,7 +1043,7 @@
             "r": 1.0,
             "texture_key": "Assets/Textures/Environment/lvl 3_Bathroom/Bathrobe.png",
             "visible": true,
-            "w": 0.10000000149011612
+            "w": 0.15000000596046448
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 3_Bathroom/Bathrobe.png"
@@ -1340,7 +1340,7 @@
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.05000000074505806
+            "w": 0.10000000149011612
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 3_Bathroom/Bottle.png"
@@ -1417,11 +1417,11 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.10000000149011612,
+            "h": 0.05000000074505806,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.10000000149011612
+            "w": 0.05000000074505806
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 3_Bathroom/Red shoee.png"
@@ -1498,11 +1498,11 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.10000000149011612,
+            "h": 0.05000000074505806,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.10000000149011612
+            "w": 0.05000000074505806
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 3_Bathroom/Sneakers.png"
@@ -1525,11 +1525,11 @@
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
-            "h": 0.10000000149011612,
+            "h": 0.05000000074505806,
             "layer": -5,
             "r": 1.0,
             "visible": true,
-            "w": 0.10000000149011612
+            "w": 0.05000000074505806
           },
           "SpriteComponent": {
             "texture_key": "Assets/Textures/Environment/lvl 3_Bathroom/Squeeze bottles.png"
@@ -2100,7 +2100,7 @@
             "behaviourKey": "GateLogic"
           },
           "GateTargetComponent": {
-            "level_path": "RealLevel1NoEnemy.json"
+            "level_path": "RealLevel1NoEnemyBathroom.json"
           },
           "RenderComponent": {
             "a": 1.0,
@@ -2237,7 +2237,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -2798,7 +2798,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -2981,7 +2981,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": -0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3164,7 +3164,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
-            "velocity_x": 0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -3267,7 +3267,7 @@
             "texture_key": "door_key_pickup",
             "texture_path": "Textures/UI/Key.png",
             "visible": true,
-            "w": 0.11999999731779099
+            "w": 0.07999999821186066
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
@@ -3513,7 +3513,7 @@
             "scale_y": 0.44999998807907104
           },
           "SpriteAnimationComponent": {
-            "activeAnimation": 3,
+            "activeAnimation": 0,
             "animations": [
               {
                 "config": {
@@ -3525,7 +3525,7 @@
                   "startFrame": 0,
                   "totalFrames": 5
                 },
-                "currentFrame": 3,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "../../Assets/Textures/Character/Ming_Sprite/Idle_Sprite.png",
                 "textureKey": "idle_sheet"
@@ -3672,7 +3672,7 @@
             "play": true
           },
           "SpriteComponent": {
-            "texture_key": "attack1_sheet"
+            "texture_key": "idle_sheet"
           },
           "TransformComponent": {
             "rot": 0.0,

@@ -17,6 +17,8 @@
 #include "Systems/HitBoxSystem.h"
 #include "Systems/LogicSystem.h"
 
+#include <cmath>
+
 static constexpr float kEnemyProjectileSpeedScale = 1.0f;
 static constexpr float kEnemyProjectileHitboxScale = 1.4f;
 static constexpr float kEnemyMeleeHitboxScale = 1.4f;
@@ -45,14 +47,16 @@ namespace mygame {
             {
                 behavior.spawnHitBoxFn =
                     [logicPtr](Framework::GOC* owner, float x, float y, float w, float h,
-                        float dmg, float dur, float /*knockback*/)
+                        float dmg, float dur, float /*knockback*/, float rotation, bool consumeOnHit)
                 {
                     if (logicPtr && logicPtr->hitBoxSystem)
                     {
-                        logicPtr->hitBoxSystem->SpawnHitBox(
-                            owner, x, y, w* kEnemyMeleeHitboxScale, h*kEnemyMeleeHitboxScale, dmg, dur,
-                            Framework::HitBoxComponent::Team::Enemy, 0.0f);
+                        const float hitboxScale = (std::fabs(rotation) > 0.0001f) ? 1.0f : kEnemyMeleeHitboxScale;
+                        return logicPtr->hitBoxSystem->SpawnHitBox(
+                            owner, x, y, w * hitboxScale, h * hitboxScale, dmg, dur,
+                            Framework::HitBoxComponent::Team::Enemy, rotation, consumeOnHit, 0.0f);
                     }
+                    return static_cast<Framework::HitBoxComponent*>(nullptr);
                 };
 
                 behavior.spawnProjectileFn =

@@ -31,6 +31,7 @@
 #include "Component/BehaviourComponent.h"
 #include "Component/BehaviorTreeComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/FlashComponent.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/ShadowComponent.h"
@@ -253,6 +254,7 @@ namespace Framework {
         RegisterComponent(BehaviorTreeComponent);
         RegisterComponent(AudioComponent);
         RegisterComponent(BehaviourComponent);
+        RegisterComponent(FlashComponent);
         if (factorySetupCallback)
             factorySetupCallback(*factory);
         LoadPrefabs();

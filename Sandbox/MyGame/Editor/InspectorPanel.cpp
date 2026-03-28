@@ -18,7 +18,9 @@
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/CircleRenderComponent.h"
+#include "Component/FlashComponent.h"
 #include "Component/BehaviourComponent.h"
+#include "Component/ShadowComponent.h"
 #include "Components/GlowComponent.h"
 #include "Components/GateTargetComponent.h"
 #include "Component/SpriteComponent.h"
@@ -532,6 +534,27 @@ namespace
     }
 
     /*************************************************************************************
+      \brief Draws ImGui controls for FlashComponent.
+
+      Exposes:
+      - Flicker frequency.
+      - Total flash duration (0 = indefinite).
+      - Whether the flash starts on the visible half-cycle.
+      - Whether flashing begins when enemies are cleared.
+    *************************************************************************************/
+    void DrawFlashSection(FlashComponent& flash)
+    {
+        if (!ImGui::CollapsingHeader("Flash", ImGuiTreeNodeFlags_DefaultOpen))
+            return;
+
+        ImGui::DragFloat("Frequency", &flash.frequency, 0.1f, 0.0f, 60.0f, "%.2f");
+        ImGui::DragFloat("Duration", &flash.duration, 0.1f, 0.0f, 120.0f, "%.2f");
+        ImGui::Checkbox("Start Visible", &flash.start_visible);
+        ImGui::Checkbox("Activate On Enemy Clear", &flash.activate_on_enemy_clear);
+        ImGui::TextDisabled("Duration 0 means flash forever.");
+    }
+
+    /*************************************************************************************
       \brief Draws ImGui controls for SpriteComponent.
 
       Exposes:
@@ -554,6 +577,59 @@ namespace
             sprite.texture_key = keyBuffer.data();
         if (ImGui::InputText("Texture Path", pathBuffer.data(), pathBuffer.size()))
             sprite.path = pathBuffer.data();
+    }
+
+    void DrawShadowSection(Framework::GOC& owner, ShadowComponent& shadow)
+    {
+        if (!ImGui::CollapsingHeader("Shadow", ImGuiTreeNodeFlags_DefaultOpen))
+            return;
+
+        ImGui::Checkbox("Enabled##Shadow", &shadow.enabled);
+
+        float offset[2] = { shadow.offsetX, shadow.offsetY };
+        if (ImGui::DragFloat2("Offset##Shadow", offset, 0.01f, -1000.0f, 1000.0f, "%.3f"))
+        {
+            shadow.offsetX = offset[0];
+            shadow.offsetY = offset[1];
+        }
+
+        float scale[2] = { shadow.scaleX, shadow.scaleY };
+        if (ImGui::DragFloat2("Scale##Shadow", scale, 0.01f, -1000.0f, 1000.0f, "%.3f"))
+        {
+            shadow.scaleX = scale[0];
+            shadow.scaleY = scale[1];
+        }
+
+        ImGui::Checkbox("Flip Y##Shadow", &shadow.flipY);
+
+        float color[4] = { shadow.r, shadow.g, shadow.b, shadow.a };
+        if (ImGui::ColorEdit4("Tint##Shadow", color))
+        {
+            shadow.r = color[0];
+            shadow.g = color[1];
+            shadow.b = color[2];
+            shadow.a = color[3];
+        }
+
+        int blendModeIndex = static_cast<int>(shadow.blendMode);
+        if (ImGui::Combo("Blend Mode##Shadow", &blendModeIndex, Framework::kBlendModeLabels.data(),
+            static_cast<int>(Framework::kBlendModeLabels.size())))
+        {
+            shadow.blendMode = static_cast<Framework::BlendMode>(blendModeIndex);
+        }
+
+        static Framework::GOCId lastShadowSelection = 0;
+        static std::array<char, 64> shadowLayerBuffer{};
+        if (lastShadowSelection != owner.GetId())
+        {
+            std::snprintf(shadowLayerBuffer.data(), shadowLayerBuffer.size(), "%s", shadow.layerName.c_str());
+            lastShadowSelection = owner.GetId();
+        }
+
+        if (ImGui::InputText("Shadow Layer", shadowLayerBuffer.data(), shadowLayerBuffer.size()))
+            shadow.layerName = shadowLayerBuffer.data();
+
+        ImGui::TextDisabled("Leave blank to use the object's layer.");
     }
 
     /*************************************************************************************
@@ -726,8 +802,14 @@ namespace mygame
         if (auto* glow = object->GetComponentAs<GlowComponent>(ComponentTypeId::CT_GlowComponent))
             DrawGlowSection(*object, *glow);
 
+        if (auto* flash = object->GetComponentAs<FlashComponent>(ComponentTypeId::CT_FlashComponent))
+            DrawFlashSection(*flash);
+
         if (auto* sprite = object->GetComponentAs<SpriteComponent>(ComponentTypeId::CT_SpriteComponent))
             DrawSpriteSection(*sprite);
+
+        if (auto* shadow = object->GetComponentAs<ShadowComponent>(ComponentTypeId::CT_ShadowComponent))
+            DrawShadowSection(*object, *shadow);
 
         if (auto* rb = object->GetComponentAs<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent))
             DrawRigidBodySection(*object, *rb);

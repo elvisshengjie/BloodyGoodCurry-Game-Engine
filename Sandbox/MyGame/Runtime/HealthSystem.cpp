@@ -24,6 +24,7 @@
 
 #include "HealthSystem.h"
 #include "Factory/Factory.h"
+#include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Component/RenderComponent.h"
 #include "Component/SpriteAnimationComponent.h"
 #include <algorithm>
@@ -435,6 +436,16 @@ namespace Framework
                             playerHealth->isDead = true;
                             RestorePlayerRenderState(goc, id, playerInvulnerabilityRenderStates);
                             PlayAnimationIfAvailable(goc, "death");
+                            // Stop player physics
+                            if (auto* rb = goc->GetComponentType<RigidBodyComponent>(ComponentTypeId::CT_RigidBodyComponent))
+                            {
+                                rb->velX = 0.0f;
+                                rb->velY = 0.0f;
+                                rb->knockVelX = 0.0f;
+                                rb->knockVelY = 0.0f;
+                                rb->lungeTime = 0.0f;
+                                rb->knockbackTime = 0.0f;
+                            }
                             if (!playerHealth->deathSoundPlayed)
                             {
                                 EmitCombatAudio(combatAudioCallback, goc, CombatAudioEvent::PlayerDeath);

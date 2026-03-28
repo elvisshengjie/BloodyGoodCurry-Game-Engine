@@ -38,7 +38,7 @@ Important web toggles:
 
 Rationale:
 - Editor tooling is disabled for browser shipping path.
-- FMOD native backend is not linked in web build; stub audio path is used.
+- FMOD native backend is not linked in web build; a browser audio backend is used instead.
 
 2.2 Root-level safeguards
 Root CMakeLists also forces web-safe defaults under EMSCRIPTEN:
@@ -159,20 +159,19 @@ Project data root resolution supports modern and legacy layouts:
 7) Audio behavior in web
 ------------------------
 Web build compiles with SOFASPUDS_DISABLE_AUDIO=ON.
-Engine/CMakeLists swaps to AudioManagerStub.cpp path for this configuration.
+Engine/CMakeLists swaps to AudioManagerWeb.cpp for Emscripten builds under this configuration.
 
 Practical result:
-- no FMOD runtime audio output in browser currently
-- gameplay remains functional
-
-This is intentional for current web compatibility scope.
+- browser audio playback works through the web runtime
+- the existing SoundManager / AudioManager game API remains unchanged
+- 3D positioning calls are currently treated as non-spatial playback in browser
 
 
 8) Known differences from desktop
 ---------------------------------
 1. Audio:
    - Desktop: FMOD backend
-   - Web: stub audio
+   - Web: browser audio backend without FMOD spatialisation parity
 
 2. Editor:
    - Desktop can enable editor
@@ -232,7 +231,7 @@ D) Web collisions differ from desktop
 - Force clean rebuild to ensure latest wasm is running.
 
 E) No sound in web
-- Expected in current configuration (audio stubs).
+- Check for a browser autoplay block and click the page once to unlock audio playback.
 
 
 11) Why release-split is the chosen web mode

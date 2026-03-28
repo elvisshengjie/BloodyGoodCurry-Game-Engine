@@ -60,8 +60,10 @@ namespace Framework
         bool active = false;         ///< Whether the hitbox is currently active.
         float spawnX = 0.0f;         ///< X-position offset relative to the attacker.
         float spawnY = 0.0f;         ///< Y-position offset relative to the attacker.
+        float rotation = 0.0f;       ///< World rotation in radians for rotated hitboxes.
         GOC* owner = nullptr;        ///< Optional reference to the entity that owns this hitbox.
         float damage = 1.0f;         ///< Amount of damage this hitbox inflicts.
+        bool consumeOnHit = true;    ///< Whether the hitbox is removed after the first valid hit.
         bool soundTriggered = false; //< To be used with HitBox Sounds so it can play mutiple SlashSounds
         float soundDelay{ 0.0f }; //< To be used for delaying a sound
 
@@ -88,6 +90,7 @@ namespace Framework
             if (s.HasKey("width")) StreamRead(s, "width", width);
             if (s.HasKey("height")) StreamRead(s, "height", height);
             if (s.HasKey("duration")) StreamRead(s, "duration", duration);
+            if (s.HasKey("rotation")) StreamRead(s, "rotation", rotation);
         }
 
         /*************************************************************************************
@@ -102,6 +105,9 @@ namespace Framework
             copy->height = height;
             copy->duration = duration;
             copy->active = active;
+            copy->rotation = rotation;
+            copy->damage = damage;
+            copy->consumeOnHit = consumeOnHit;
             return copy;
         }
 

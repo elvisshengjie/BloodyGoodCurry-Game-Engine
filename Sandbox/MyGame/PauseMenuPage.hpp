@@ -25,6 +25,8 @@ namespace mygame {
         float GetSfxVolume() const { return optionsSliderValues[2]; }
         const std::array<float, 4>& GetOptionsValues() const { return optionsSliderValues; }
         void SetOptionsValues(const std::array<float, 4>& values);
+        void PlayHoverSound();
+        void PlaySelectSound();
         bool ConsumeResume();
         bool ConsumeMainMenu();
         bool ConsumeOptions();
@@ -37,6 +39,7 @@ namespace mygame {
         void ResetLatches();
         void SyncLayout(int screenW, int screenH);
         void BuildGui();
+
 
     private:
         int sw = 1280;

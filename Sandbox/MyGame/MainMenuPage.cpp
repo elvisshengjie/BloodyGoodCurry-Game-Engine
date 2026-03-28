@@ -164,7 +164,8 @@ namespace {
         SoundManager& sm = SoundManager::getInstance();
         const auto sounds = sm.getLoadedSounds();
         for (const auto& name : sounds) {
-            if (!IsBgmSoundId(name)) {
+            // Exclude BGM and UI sounds from SFX volume scaling
+            if (!IsBgmSoundId(name) && name != "UI_Hover" && name != "UI_Select") {
                 sm.setSoundVolume(name, volume);
             }
         }
@@ -529,8 +530,8 @@ void MainMenuPage::Init(int screenW, int screenH)
     ApplyBgmVolume(optionsSliderValues[1]);
     ApplySfxVolume(optionsSliderValues[2]);
     auto& sm = SoundManager::getInstance();
-    sm.loadSound("UI_Hover", "UI_Hover_New_1.wav", false);
-    sm.loadSound("UI_Select", "UI_Select_Small_1.wav", false);
+    sm.loadSound("UIHoverNew1", "UIHoverNew1.wav", false);
+    sm.loadSound("UISelectSmall1", "UISelectSmall1.wav", false);
     // Force layout update
     layoutInitialized = false;
     SyncLayout(sw, sh);
@@ -994,19 +995,29 @@ void MainMenuPage::PlayExitSound()
     if (sm.isSoundLoaded(EXIT_BUTTON) && !sm.playSound(EXIT_BUTTON))
         std::cerr << "[MainMenu] Failed to play exit sound: " << EXIT_BUTTON << "\n";
 }
-
+/*************************************************************************************
+ \brief  Plays the hover sound effect when the user moves the cursor over a menu item.
+ \details
+    Checks if the hover sound effect "UIHoverNew1" is loaded in the SoundManager,
+    and if so, plays it once (non-looping) at full volume and default pitch.
+*************************************************************************************/
 void MainMenuPage::PlayHoverSound()
 {
     auto& sm = SoundManager::getInstance();
-    if (sm.isSoundLoaded("UI_Hover"))
-        sm.playSound("UI_Hover", 0.8f, 1.0f, false);
+    if (sm.isSoundLoaded("UIHoverNew1"))
+        sm.playSound("UIHoverNew1", 1.0f, 1.0f, false);
 }
-
+/*************************************************************************************
+ \brief  Plays the select/confirm sound effect when the user activates a menu item.
+ \details
+    Checks if the select sound effect "UISelectSmall1" is loaded in the SoundManager,
+    and if so, plays it once (non-looping) at full volume and default pitch.
+*************************************************************************************/
 void MainMenuPage::PlaySelectSound()
 {
     auto& sm = SoundManager::getInstance();
-    if (sm.isSoundLoaded("UI_Select"))
-        sm.playSound("UI_Select", 1.0f, 1.0f, false);
+    if (sm.isSoundLoaded("UISelectSmall1"))
+        sm.playSound("UISelectSmall1", 1.0f, 1.0f, false);
 }
 // Latch Consumers
 /*************************************************************************************
@@ -1323,7 +1334,6 @@ void MainMenuPage::BuildGui()
 void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spacing)
 {
     gui.Clear();
-    gui.SetSelectSoundCallback([this]() { PlaySelectSound(); });
 
     if (showExitPopup)
     {
@@ -1331,6 +1341,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             exitPopupYesTex, exitPopupYesTex,
             [this]()
             {
+                PlaySelectSound();
                 exitLatched = true;
                 showExitPopup = false;
                 BuildGui();
@@ -1340,6 +1351,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             exitPopupNoTex, exitPopupNoTex,
             [this]()
             {
+                PlaySelectSound();
                 showExitPopup = false;
                 BuildGui();
             });
@@ -1348,6 +1360,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             exitPopupCloseTex, exitPopupCloseTex,
             [this]()
             {
+                PlaySelectSound();
                 showExitPopup = false;
                 BuildGui();
             });
@@ -1392,6 +1405,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
         std::function<void()> callback = []() {};
         if (btnDef.action == "start")        callback = [this]() { startLatched = true; };
         else if (btnDef.action == "options") callback = [this]() {
+            PlaySelectSound();
             optionsLatched = true;
             showOptionsPopup = true;
             showHowToPopup = false;
@@ -1408,6 +1422,7 @@ void MainMenuPage::BuildGui(float x, float bottomY, float w, float h, float spac
             BuildGui();
             };
         else if (btnDef.action == "howto")   callback = [this]() {
+            PlaySelectSound();
             howToLatched = true;
             showHowToPopup = true;
             showOptionsPopup = false;

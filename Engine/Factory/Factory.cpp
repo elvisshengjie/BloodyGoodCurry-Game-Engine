@@ -47,6 +47,7 @@
 #include "Component/ShadowComponent.h"
 
 #include "Component/BehaviourComponent.h"
+#include "Component/FlashComponent.h"
 #include "Component/HitBoxComponent.h"
 #include "Component/BehaviorTreeComponent.h"
 
@@ -358,7 +359,7 @@ namespace Framework {
         }
         case ComponentTypeId::CT_ShadowComponent: {
             auto const& shadow = static_cast<ShadowComponent const&>(component);
-            return json{
+            json out = json{
                 {"enabled", shadow.enabled},
                 {"offset_x", shadow.offsetX},
                 {"offset_y", shadow.offsetY},
@@ -371,6 +372,9 @@ namespace Framework {
                 {"a", shadow.a},
                 {"blend_mode", BlendModeToString(shadow.blendMode)}
             };
+            if (!shadow.layerName.empty())
+                out["layer_name"] = NormalizeLayerName(shadow.layerName);
+            return out;
         }
         case ComponentTypeId::CT_SpriteAnimationComponent: {
             auto const& anim = static_cast<const SpriteAnimationComponent&>(component);
@@ -423,6 +427,16 @@ namespace Framework {
         {
             auto const& behaviour = static_cast<BehaviourComponent const&>(component);
             return json{ {"behaviourKey", behaviour.behaviourKey} };
+        }
+        case ComponentTypeId::CT_FlashComponent:
+        {
+            auto const& flash = static_cast<FlashComponent const&>(component);
+            return json{
+                {"frequency", flash.frequency},
+                {"duration", flash.duration},
+                {"start_visible", flash.start_visible},
+                {"activate_on_enemy_clear", flash.activate_on_enemy_clear}
+            };
         }
         case ComponentTypeId::CT_BehaviorTreeComponent: {
             auto const& bt = static_cast<BehaviorTreeComponent const&>(component);
@@ -900,6 +914,11 @@ namespace Framework {
                 if (TryParseBlendMode(modeValue, parsedMode))
                     shadow.blendMode = parsedMode;
             }
+            readString("layer_name", shadow.layerName);
+            if (shadow.layerName.empty())
+                readString("layer", shadow.layerName);
+            if (!shadow.layerName.empty())
+                shadow.layerName = NormalizeLayerName(shadow.layerName);
             break;
         }
         case ComponentTypeId::CT_SpriteAnimationComponent:
@@ -994,6 +1013,21 @@ namespace Framework {
             auto& behaviour = static_cast<BehaviourComponent&>(component);
             behaviour.started = false;
             readString("behaviourKey", behaviour.behaviourKey);
+            break;
+        }
+        case ComponentTypeId::CT_FlashComponent:
+        {
+            auto& flash = static_cast<FlashComponent&>(component);
+            readFloat("frequency", flash.frequency);
+            readFloat("duration", flash.duration);
+            readBool("start_visible", flash.start_visible);
+            readBool("activate_on_enemy_clear", flash.activate_on_enemy_clear);
+            flash.timer = 0.0f;
+            flash.visible = flash.start_visible;
+            flash.flashing = false;
+            flash.completed = false;
+            flash.hasCachedRenderState = false;
+            flash.cachedVisible = true;
             break;
         }
         case ComponentTypeId::CT_InputComponents:

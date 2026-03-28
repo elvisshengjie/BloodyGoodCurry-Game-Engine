@@ -5,7 +5,7 @@
 
 #include "AudioManager.h"
 
-#if !SOFASPUDS_DISABLE_AUDIO
+#if !SOFASPUDS_DISABLE_AUDIO && !defined(__INTELLISENSE__)
 #error "AudioManagerStub.cpp should only be compiled when SOFASPUDS_DISABLE_AUDIO=1"
 #endif
 

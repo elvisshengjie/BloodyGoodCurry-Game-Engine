@@ -510,6 +510,7 @@ void PauseMenuPage::Update(Framework::InputSystem* input)
                     const bool insideReset = (mx >= optionsResetBtn.x && mx <= optionsResetBtn.x + optionsResetBtn.w
                         && my >= optionsResetBtn.y && my <= optionsResetBtn.y + optionsResetBtn.h);
                     if (insideReset) {
+                        PlaySelectSound();
                         optionsSliderValues = { {0.8f, 0.65f, 0.7f, 0.5f} };
                         audioMuted = false;
                         SoundManager::getInstance().setMasterVolume(optionsSliderValues[0]);
@@ -528,6 +529,7 @@ void PauseMenuPage::Update(Framework::InputSystem* input)
                         && my >= optionsResetBtn.y && my <= optionsResetBtn.y + optionsResetBtn.h);
                     if (insideReset) {
                         optionsResetPressed = true;
+                        PlayHoverSound();
                     }
                 }
                 if (!optionsSliderDragging) {
@@ -871,6 +873,30 @@ void PauseMenuPage::SetOptionsValues(const std::array<float, 4>& values)
     optionsSliderValues = values;
     audioMuted = (optionsSliderValues[0] <= 0.001f);
     layoutDirty = true;
+}
+/*************************************************************************************
+ \brief  Plays the hover sound effect when the user moves the cursor over a pause menu item.
+ \details
+    Checks if the hover sound effect "UIHoverNew1" is loaded in the SoundManager,
+    and if so, plays it once (non-looping) at 80% volume and default pitch.
+*************************************************************************************/
+void PauseMenuPage::PlayHoverSound()
+{
+    auto& sm = SoundManager::getInstance();
+    if (sm.isSoundLoaded("UIHoverNew1"))
+        sm.playSound("UIHoverNew1", 0.8f, 1.0f, false);
+}
+/*************************************************************************************
+ \brief  Plays the select/confirm sound effect when the user activates a pause menu item.
+ \details
+    Checks if the select sound effect "UISelectSmall1" is loaded in the SoundManager,
+    and if so, plays it once (non-looping) at full volume and default pitch.
+*************************************************************************************/
+void PauseMenuPage::PlaySelectSound()
+{
+    auto& sm = SoundManager::getInstance();
+    if (sm.isSoundLoaded("UISelectSmall1"))
+        sm.playSound("UISelectSmall1", 1.0f, 1.0f, false);
 }
 
 /*************************************************************************************
@@ -1271,22 +1297,28 @@ void PauseMenuPage::BuildGui()
         gui.AddButton(exitYesBtn.x, exitYesBtn.y, exitYesBtn.w, exitYesBtn.h, "YES",
             exitPopupYesTex, exitPopupYesTex,
             [this]() {
+                PlaySelectSound();
                 exitConfirmedLatched = true;
             });
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
 
         gui.AddButton(exitNoBtn.x, exitNoBtn.y, exitNoBtn.w, exitNoBtn.h, "NO",
             exitPopupNoTex, exitPopupNoTex,
             [this]() {
+                PlaySelectSound();
                 showExitPopup = false;
                 BuildGui();
             });
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
 
         gui.AddButton(exitCloseBtn.x, exitCloseBtn.y, exitCloseBtn.w, exitCloseBtn.h, "",
             exitPopupCloseTex, exitPopupCloseTex,
             [this]() {
+                PlaySelectSound();
                 showExitPopup = false;
                 BuildGui();
             }, true);
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
     }
     else if (showOptionsPopup)
     {
@@ -1295,10 +1327,12 @@ void PauseMenuPage::BuildGui()
             gui.AddButton(optionsCloseBtn.x, optionsCloseBtn.y, optionsCloseBtn.w, optionsCloseBtn.h, "",
                 optionsCloseTex, optionsCloseTex,
                 [this]() {
+                    PlaySelectSound();
                     showOptionsPopup = false;
                     layoutDirty = true;
                     BuildGui();
                 }, true);
+            gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
         }
 
        
@@ -1308,19 +1342,25 @@ void PauseMenuPage::BuildGui()
             gui.AddButton(howToCloseBtn.x, howToCloseBtn.y, howToCloseBtn.w, howToCloseBtn.h, "",
                 howToCloseTex, howToCloseTex,
                 [this]() {
+                    PlaySelectSound();
                     showHowToPopup = false;
                     layoutDirty = true;
                     BuildGui();
                 }, true);
+            gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
         }
     }
     else {
+        
         gui.AddButton(resumeBtn.x, resumeBtn.y, resumeBtn.w, resumeBtn.h, "Resume",
             resumeTex, resumeTex,
-            [this]() { resumeLatched = true; });
+            [this]() { PlaySelectSound(); resumeLatched = true; });
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
+        
         gui.AddButton(optionsBtn.x, optionsBtn.y, optionsBtn.w, optionsBtn.h, "Options",
             optionsTex, optionsTex,
             [this]() {
+                PlaySelectSound();
                 optionsLatched = true;
                 showOptionsPopup = true;
                 showHowToPopup = false;
@@ -1328,9 +1368,12 @@ void PauseMenuPage::BuildGui()
                 layoutDirty = true;
                 BuildGui();
             });
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
+        
         gui.AddButton(howToBtn.x, howToBtn.y, howToBtn.w, howToBtn.h, "How To Play",
             howToTex, howToTex,
             [this]() {
+                PlaySelectSound();
                 howToLatched = true;
                 showHowToPopup = true;
                 iconAnimTime = 0.0f;
@@ -1338,15 +1381,18 @@ void PauseMenuPage::BuildGui()
                 layoutDirty = true;
                 BuildGui();
             });
-
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
+        
         gui.AddButton(quitBtn.x, quitBtn.y, quitBtn.w, quitBtn.h, "Main Menu",
             mainMenuTex, mainMenuTex,
             [this]() {
+                PlaySelectSound();
                 mainMenuLatched = true;
             });
+        gui.SetLastHoverCallback([this]() { PlayHoverSound(); });
 
         gui.AddButton(closeBtn.x, closeBtn.y, closeBtn.w, closeBtn.h, "",
             closeTex, closeTex,
-            [this]() { resumeLatched = true; });
+            [this]() { PlaySelectSound(); resumeLatched = true; });
     }
 }

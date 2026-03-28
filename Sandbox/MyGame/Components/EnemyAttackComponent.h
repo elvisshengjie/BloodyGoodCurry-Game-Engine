@@ -55,6 +55,12 @@ namespace Framework
         float hitboxElapsed{ 0.0f };    ///< Time spent in the currently active hitbox phase.
         bool attack2BeamPhaseActive{ false }; ///< Runtime flag for HeiBang's attack2 beam follow-up.
         bool attack2BeamDamageSpawned{ false }; ///< True once HeiBang's beam damage zone has been created.
+        float attack2BeamStartX{ 0.0f }; ///< Cached world-space X origin for HeiBang's beam.
+        float attack2BeamStartY{ 0.0f }; ///< Cached world-space Y origin for HeiBang's beam.
+        float attack2BeamTargetX{ 0.0f }; ///< Cached world-space X target for HeiBang's beam.
+        float attack2BeamTargetY{ 0.0f }; ///< Cached world-space Y target for HeiBang's beam.
+        float attack2BeamThickness{ 0.0f }; ///< Cached thickness for HeiBang's beam damage box.
+        HitBoxComponent* attack2BeamRuntimeHitbox{ nullptr }; ///< Runtime pointer to HeiBang's active beam hitbox.
         bool attack3VolleySpawned{ false }; ///< True once HeiBang's attack3 projectile burst has been emitted.
         ComponentHandleT<HitBoxComponent> hitbox; ///< Managed hitbox instance used for attacks.
 
@@ -128,6 +134,12 @@ namespace Framework
             copy->attack_speed = attack_speed;
             copy->attack2BeamPhaseActive = false;
             copy->attack2BeamDamageSpawned = false;
+            copy->attack2BeamStartX = 0.0f;
+            copy->attack2BeamStartY = 0.0f;
+            copy->attack2BeamTargetX = 0.0f;
+            copy->attack2BeamTargetY = 0.0f;
+            copy->attack2BeamThickness = 0.0f;
+            copy->attack2BeamRuntimeHitbox = nullptr;
             copy->attack3VolleySpawned = false;
             copy->hitbox = ComponentPool<HitBoxComponent>::CreateTyped(*hitbox);
             return copy;
