@@ -300,7 +300,7 @@ namespace Framework {
         // --- Editor layout flags ---------------------------------------------------------
         bool  showEditor = false;              //!< Toggle editor UI visibility.
         bool  showAnimationEditor = false;     //!< Toggle Animation Editor visibility.
-        bool  showBuildSizeAnalyzer = false;   //!< Toggle Build Size Analyzer visibility.
+        bool  showBuildSizeAnalyzer = true;    //!< Toggle Build Size Analyzer visibility.
         bool  gameViewportFullWidth = false;   //!< Maximize viewport width.
         bool  gameViewportFullHeight = false;  //!< Maximize viewport height.
         float heightRatio = 0.8f;              //!< Viewport height vs window height.
