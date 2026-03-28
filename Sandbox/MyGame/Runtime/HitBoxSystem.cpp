@@ -378,7 +378,7 @@ namespace Framework
                 continue;
             }
 
-            // AFTER
+            
             if (it->isProjectile || HB->team == HitBoxComponent::Team::Thrown || HB->team == HitBoxComponent::Team::PlayerSlow)
             {
                 it->hitbox->spawnX += it->velX * dt;
