@@ -944,9 +944,10 @@ namespace
             const float tabH = texH * 0.72f * uiScale;
             const float tabY = viewportY + viewportH - tabH - (168.0f * uiScale);
             const float handleWidth = std::min(tabW * 0.2f, 92.0f * uiScale);
-            const float rightInset = 28.0f * uiScale;
-            const float expandedTabX = viewportX + viewportW - tabW - rightInset;
-            const float collapsedTabX = viewportX + viewportW - handleWidth - rightInset;
+            const float objectiveRightInset = 0.0f;
+            const float pauseRightInset = 28.0f * uiScale;
+            const float expandedTabX = viewportX + viewportW - tabW - objectiveRightInset;
+            const float collapsedTabX = viewportX + viewportW - handleWidth - objectiveRightInset;
 
             double mouseX = -1000.0;
             double mouseY = -1000.0;
@@ -990,7 +991,7 @@ namespace
                 const float pauseScale = 0.72f * uiScale;
                 const float pauseW = pauseTexW * pauseScale;
                 const float pauseH = pauseTexH * pauseScale;
-                const float pauseX = viewportX + viewportW - pauseW - rightInset;
+                const float pauseX = viewportX + viewportW - pauseW - pauseRightInset;
                 const float pauseY = viewportY + viewportH - pauseH - (22.0f * uiScale);
                 const bool pauseHovered =
                     mouseX >= pauseX && mouseX <= (pauseX + pauseW) &&
