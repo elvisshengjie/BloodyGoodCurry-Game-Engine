@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 179.21078491210938,
-            "y": 178.950927734375
+            "x": 179.3207244873047,
+            "y": 179.0608673095703
           }
         },
         "layer": "Gameplay:0",
@@ -616,8 +616,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.6720690727233887,
-            "y": -0.29629772901535034
+            "x": 0.6720691919326782,
+            "y": -0.2962977886199951
           }
         },
         "layer": "Background:0",
@@ -3684,6 +3684,37 @@
         },
         "layer": "Gameplay:2",
         "name": "player"
+      },
+      {
+        "Components": {
+          "FlashComponent": {
+            "activate_on_enemy_clear": true,
+            "duration": 0.0,
+            "frequency": 8.0,
+            "hide_until_activated": true,
+            "start_visible": true
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.12767581641674042,
+            "y": -1.195002794265747
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Flashing_Rect"
       }
     ],
     "name": "RealLevel2"

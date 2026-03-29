@@ -45,8 +45,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 153.99464416503906,
-            "y": 153.7347869873047
+            "x": 154.07460021972656,
+            "y": 153.8147430419922
           }
         },
         "layer": "Gameplay:0",
@@ -2245,6 +2245,37 @@
         },
         "layer": "Gameplay:2",
         "name": "nancie"
+      },
+      {
+        "Components": {
+          "FlashComponent": {
+            "activate_on_enemy_clear": true,
+            "duration": 0.0,
+            "frequency": 8.0,
+            "hide_until_activated": true,
+            "start_visible": true
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.20000000298023224
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.12634646892547607,
+            "y": -1.195082426071167
+          }
+        },
+        "layer": "Gameplay:0",
+        "name": "Flashing_Rect"
       }
     ],
     "name": "RealLevel3"

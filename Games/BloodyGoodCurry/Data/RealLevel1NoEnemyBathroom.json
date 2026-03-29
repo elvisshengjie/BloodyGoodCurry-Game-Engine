@@ -4012,34 +4012,6 @@
       },
       {
         "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "alpha",
-            "g": 1.0,
-            "h": 0.20000000298023224,
-            "layer": -5,
-            "r": 1.0,
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/locked room light.png",
-            "visible": true,
-            "w": 0.20000000298023224
-          },
-          "SpriteComponent": {
-            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/locked room light.png"
-          },
-          "TransformComponent": {
-            "rot": 1.5742933750152588,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": -1.430996298789978,
-            "y": -0.5948939323425293
-          }
-        },
-        "layer": "Gameplay:0",
-        "name": "artassets"
-      },
-      {
-        "Components": {
           "BehaviourComponent": {
             "behaviourKey": "GateLogic"
           },
@@ -4474,6 +4446,99 @@
         },
         "layer": "Gameplay:0",
         "name": "player"
+      },
+      {
+        "Components": {
+          "FlashComponent": {
+            "activate_on_enemy_clear": true,
+            "duration": 0.0,
+            "frequency": 8.0,
+            "hide_until_activated": true,
+            "start_visible": true
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.0556840896606445,
+            "y": 0.19191086292266846
+          }
+        },
+        "layer": "Background:1",
+        "name": "Flashing_Rect"
+      },
+      {
+        "Components": {
+          "FlashComponent": {
+            "activate_on_enemy_clear": true,
+            "duration": 0.0,
+            "frequency": 8.0,
+            "hide_until_activated": true,
+            "start_visible": true
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.20000000298023224,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.15000000596046448
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": -1.4520565271377563,
+            "y": -0.6138697266578674
+          }
+        },
+        "layer": "Background:1",
+        "name": "Flashing_Rect"
+      },
+      {
+        "Components": {
+          "FlashComponent": {
+            "activate_on_enemy_clear": true,
+            "duration": 0.0,
+            "frequency": 8.0,
+            "hide_until_activated": true,
+            "start_visible": true
+          },
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "g": 1.0,
+            "h": 0.10000000149011612,
+            "layer": 0,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.10000000149011612
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.7512454390525818,
+            "y": 0.18416345119476318
+          }
+        },
+        "layer": "Background:1",
+        "name": "Flashing_Rect"
       }
     ],
     "name": "RealLevel1NoEnemyBathroom"
