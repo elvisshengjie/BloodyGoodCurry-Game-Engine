@@ -125,9 +125,11 @@ namespace {
         const float clamped = std::clamp(value, 0.0f, 1.0f);
         return 0.6f + (clamped * 0.8f);
     }
-    const std::array<const char*, 2> kBgmSoundIds = {
+    const std::array<const char*, 4> kBgmSoundIds = {
         "MenuMusic",
-        "BGM"
+        "BGM",
+        "MiniBoss",
+        "FinalBoss"
     };
 
     /*************************************************************************************

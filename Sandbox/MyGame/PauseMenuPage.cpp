@@ -80,9 +80,11 @@ namespace {
         return 0.6f + (clamped * 0.8f);
     }
 
-    const std::array<const char*, 2> kBgmSoundIds = {
+    const std::array<const char*, 4> kBgmSoundIds = {
         "MenuMusic",
-        "BGM"
+        "BGM",
+        "MiniBoss",
+        "FinalBoss"
     };
 
     bool IsBgmSoundId(const std::string& name)

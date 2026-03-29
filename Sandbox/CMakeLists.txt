@@ -171,13 +171,15 @@ if(NOT SOFASPUDS_DISABLE_AUDIO)
     )
 endif()
 
-add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${GAME_PROJECT_METADATA_FILE}"
-    "$<TARGET_FILE_DIR:${GAME_TARGET}>/sofaspuds_project_root.txt"
-    COMMENT "Copying project root metadata"
-    VERBATIM
-)
+if(SOFASPUDS_ENABLE_EDITOR)
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${GAME_PROJECT_METADATA_FILE}"
+        "$<TARGET_FILE_DIR:${GAME_TARGET}>/sofaspuds_project_root.txt"
+        COMMENT "Copying project root metadata"
+        VERBATIM
+    )
+endif()
 
 if(NOT EMSCRIPTEN)
     # Copy runtime folders next to exe
@@ -186,11 +188,9 @@ if(NOT EMSCRIPTEN)
         COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Assets"
         COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data_Files"
         COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
 
         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Assets"
         COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
-        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
 
         COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${GAME_ASSETS_SOURCE}"
@@ -200,13 +200,29 @@ if(NOT EMSCRIPTEN)
                 "${GAME_DATA_SOURCE}"
                 "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
 
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${CMAKE_SOURCE_DIR}/logs"
-                "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
-
-        COMMENT "Reset & Copy Assets, Data, logs"
+        COMMENT "Reset & Copy Assets, Data"
         VERBATIM
     )
+
+    if(SOFASPUDS_ENABLE_EDITOR)
+        add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                    "${CMAKE_SOURCE_DIR}/logs"
+                    "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
+            COMMENT "Copying editor logs"
+            VERBATIM
+        )
+    else()
+        add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E rm -f "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data/imgui_layout.ini"
+            COMMAND ${CMAKE_COMMAND} -E rm -f "$<TARGET_FILE_DIR:${GAME_TARGET}>/sofaspuds_project_root.txt"
+            COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_FILE_DIR:${GAME_TARGET}>/logs"
+            COMMENT "Removing shipping-forbidden runtime artifacts"
+            VERBATIM
+        )
+    endif()
 endif()
 
 # Nice grouping in IDEs
