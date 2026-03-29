@@ -435,7 +435,8 @@ namespace Framework {
                 {"frequency", flash.frequency},
                 {"duration", flash.duration},
                 {"start_visible", flash.start_visible},
-                {"activate_on_enemy_clear", flash.activate_on_enemy_clear}
+                {"activate_on_enemy_clear", flash.activate_on_enemy_clear},
+                {"hide_until_activated", flash.hide_until_activated}
             };
         }
         case ComponentTypeId::CT_BehaviorTreeComponent: {
@@ -865,15 +866,39 @@ namespace Framework {
         case ComponentTypeId::CT_RenderComponent:
         {
             auto& rc = static_cast<RenderComponent&>(component);
+            const RenderComponent defaults{};
+            rc.w = defaults.w;
+            rc.h = defaults.h;
+            rc.r = defaults.r;
+            rc.g = defaults.g;
+            rc.b = defaults.b;
+            rc.a = defaults.a;
+            rc.layer = defaults.layer;
+            rc.texture_id = defaults.texture_id;
+            rc.texture_key = defaults.texture_key;
+            rc.texture_path = defaults.texture_path;
+            rc.visible = defaults.visible;
+            rc.blendMode = defaults.blendMode;
+
             readFloat("w", rc.w);
             readFloat("h", rc.h);
             readFloat("r", rc.r);
             readFloat("g", rc.g);
             readFloat("b", rc.b);
             readFloat("a", rc.a);
+            readInt("layer", rc.layer);
             readBool("visible", rc.visible);
             readString("texture_key", rc.texture_key);
             readString("texture_path", rc.texture_path);
+
+            std::string modeValue;
+            readString("blend_mode", modeValue);
+            if (!modeValue.empty())
+            {
+                BlendMode parsedMode = rc.blendMode;
+                if (TryParseBlendMode(modeValue, parsedMode))
+                    rc.blendMode = parsedMode;
+            }
             break;
         }
         case ComponentTypeId::CT_CircleRenderComponent:
@@ -1022,6 +1047,7 @@ namespace Framework {
             readFloat("duration", flash.duration);
             readBool("start_visible", flash.start_visible);
             readBool("activate_on_enemy_clear", flash.activate_on_enemy_clear);
+            readBool("hide_until_activated", flash.hide_until_activated);
             flash.timer = 0.0f;
             flash.visible = flash.start_visible;
             flash.flashing = false;

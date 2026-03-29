@@ -389,13 +389,19 @@ namespace mygame {
                 const bool shouldFlash = flash->activate_on_enemy_clear && enemyCleared;
                 if (!shouldFlash)
                 {
+                    if (!flash->hasCachedRenderState)
+                        CacheFlashRenderState(*flash, *render);
+
                     RestoreFlashRenderState(*render, *flash);
                     flash->timer = 0.0f;
                     flash->visible = flash->cachedVisible;
                     flash->flashing = false;
                     flash->completed = false;
-                    if (!flash->hasCachedRenderState)
-                        CacheFlashRenderState(*flash, *render);
+                    if (flash->hide_until_activated && flash->activate_on_enemy_clear)
+                    {
+                        flash->visible = false;
+                        render->visible = false;
+                    }
                     continue;
                 }
 
@@ -433,7 +439,9 @@ namespace mygame {
                 flash->visible = flashWhite;
                 if (flashWhite)
                 {
-                    render->visible = flash->cachedVisible;
+                    render->visible = flash->hide_until_activated
+                        ? true
+                        : flash->cachedVisible;
                     render->r = 1.0f;
                     render->g = 1.0f;
                     render->b = 1.0f;

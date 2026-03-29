@@ -18,6 +18,7 @@
         "frequency": 8.0,
         "duration": 0.0,
         "activate_on_enemy_clear": true,
+        "hide_until_activated": true,
         "start_visible": true
       }
     }

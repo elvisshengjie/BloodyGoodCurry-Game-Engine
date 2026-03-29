@@ -14,6 +14,7 @@ namespace Framework
         float duration{ 0.0f };
         bool start_visible{ true };
         bool activate_on_enemy_clear{ true };
+        bool hide_until_activated{ false };
 
         // Runtime state.
         float timer{ 0.0f };
@@ -49,6 +50,8 @@ namespace Framework
                 StreamRead(s, "start_visible", start_visible);
             if (s.HasKey("activate_on_enemy_clear"))
                 StreamRead(s, "activate_on_enemy_clear", activate_on_enemy_clear);
+            if (s.HasKey("hide_until_activated"))
+                StreamRead(s, "hide_until_activated", hide_until_activated);
         }
 
         ComponentHandle Clone() const override
@@ -58,6 +61,7 @@ namespace Framework
             copy->duration = duration;
             copy->start_visible = start_visible;
             copy->activate_on_enemy_clear = activate_on_enemy_clear;
+            copy->hide_until_activated = hide_until_activated;
             copy->timer = 0.0f;
             copy->visible = start_visible;
             copy->flashing = false;

@@ -541,6 +541,7 @@ namespace
       - Total flash duration (0 = indefinite).
       - Whether the flash starts on the visible half-cycle.
       - Whether flashing begins when enemies are cleared.
+      - Whether the object stays hidden until flashing is activated.
     *************************************************************************************/
     void DrawFlashSection(FlashComponent& flash)
     {
@@ -551,6 +552,7 @@ namespace
         ImGui::DragFloat("Duration", &flash.duration, 0.1f, 0.0f, 120.0f, "%.2f");
         ImGui::Checkbox("Start Visible", &flash.start_visible);
         ImGui::Checkbox("Activate On Enemy Clear", &flash.activate_on_enemy_clear);
+        ImGui::Checkbox("Hide Until Activated", &flash.hide_until_activated);
         ImGui::TextDisabled("Duration 0 means flash forever.");
     }
 
