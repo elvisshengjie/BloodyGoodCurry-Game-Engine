@@ -112,10 +112,9 @@ namespace gfx {
     /*****************************************************************************************
      \brief  Fill fully transparent RGBA texels with nearby visible colors.
      \details
-        PNGs often keep arbitrary RGB values in pixels whose alpha is 0. With linear filtering,
-        those hidden colors can bleed into the visible edge and appear as white halos. This
-        pass floods fully transparent texels from their nearest non-transparent neighbors while
-        preserving the original alpha channel, so sampling near the edge stays visually stable.
+        Some PNGs carry white RGB values in pixels whose alpha is 0. Linear filtering can still
+        sample those hidden colors at the edge, which shows up as a white fringe in-game.
+        This pass copies nearby visible RGB into fully transparent texels while preserving alpha.
     ******************************************************************************************/
     static void BleedTransparentPixels(std::vector<unsigned char>& rgba, int width, int height)
     {

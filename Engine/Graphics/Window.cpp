@@ -54,27 +54,6 @@ namespace {
     constexpr int kGlMinor = 3; ///< Requested OpenGL minor version.
     constexpr float kCursorScale = 0.85f;
 
-    void ApplyBorderlessFullscreenWindow(GLFWwindow* window,
-        GLFWmonitor* monitor,
-        const GLFWvidmode* mode,
-        int& width,
-        int& height)
-    {
-        if (!window || !monitor || !mode)
-            return;
-
-        int monitorX = 0;
-        int monitorY = 0;
-        glfwGetMonitorPos(monitor, &monitorX, &monitorY);
-
-        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
-        glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
-        glfwSetWindowMonitor(window, nullptr, monitorX, monitorY, mode->width, mode->height, 0);
-
-        width = mode->width;
-        height = mode->height;
-    }
-
     GLFWcursor* CreateProjectCursor()
     {
         const auto cursorPath = Framework::ResolveProjectAssetPath("Textures/UI/Cursor.png");
@@ -178,10 +157,10 @@ namespace gfx {
 
         if (m_fullscreen && monitor && mode)
         {
-            // Start in borderless-fullscreen mode on the primary monitor.
+            // Start in fullscreen mode on primary monitor.
             m_width = mode->width;
             m_height = mode->height;
-            s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
+            s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), monitor, nullptr);
 
             // Center the future windowed position if we later toggle back.
             m_windowedX = (mode->width - m_windowedWidth) / 2;
@@ -199,11 +178,6 @@ namespace gfx {
             std::cerr << "Failed to create GLFW window.\n";
             glfwTerminate();
             throw std::runtime_error("GLFW window creation failed");
-        }
-
-        if (m_fullscreen && monitor && mode)
-        {
-            ApplyBorderlessFullscreenWindow(s_window, monitor, mode, m_width, m_height);
         }
 
         // Store this in the GLFW user pointer so static callbacks can retrieve the Window instance.
@@ -494,7 +468,7 @@ namespace gfx {
         * Restore decorations and disable resizing.
       - If currently windowed:
         * Save current position/size as "windowed" values.
-        * Switch to borderless fullscreen on the primary monitor using its current resolution.
+        * Switch to fullscreen on the primary monitor using its current resolution.
 
       After changing size, glViewport() is updated to match the new dimensions.
     *************************************************************************************/
@@ -529,16 +503,33 @@ namespace gfx {
         }
         else if (monitor && mode)
         {
-            // Going to BORDERLESS FULLSCREEN
+            // Going to FULLSCREEN
             glfwGetWindowPos(s_window, &m_windowedX, &m_windowedY);
             glfwGetWindowSize(s_window, &m_windowedWidth, &m_windowedHeight);
 
-            ApplyBorderlessFullscreenWindow(s_window, monitor, mode, m_width, m_height);
+            glfwSetWindowAttrib(s_window, GLFW_DECORATED, GLFW_FALSE);
+
+            glfwSetWindowMonitor(
+                s_window,
+                monitor,
+                0,
+                0,
+                mode->width,
+                mode->height,
+                mode->refreshRate
+            );
+
+            m_width = mode->width;
+            m_height = mode->height;
             m_fullscreen = true;
         }
 
-        // Keep GL viewport in sync with logical width/height.
-        glViewport(0, 0, m_width, m_height);
+        int fbWidth = m_width;
+        int fbHeight = m_height;
+        glfwGetFramebufferSize(s_window, &fbWidth, &fbHeight);
+        if (fbWidth <= 0) fbWidth = m_width;
+        if (fbHeight <= 0) fbHeight = m_height;
+        glViewport(0, 0, fbWidth, fbHeight);
     }
 
     /*************************************************************************************
