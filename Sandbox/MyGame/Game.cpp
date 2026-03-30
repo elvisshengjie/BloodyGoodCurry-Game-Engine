@@ -68,6 +68,7 @@ namespace mygame {
         const char* EXIT_BUTTTON = "Quit";
         const char* CUTSCENE_AUDIO = "CutsceneAudio";
         const char* WIN_VIDEO_AUDIO = "WinVideoAudio";
+        const char* FINAL_LEVEL_CUTSCENE_AUDIO = "FinalLevelCutsceneAudio";
 
         // BGM Sounds
         bool gameplayBGMPlaying = false;
@@ -224,7 +225,7 @@ namespace mygame {
         Framework::ParticleSystem* gParticleSystem = nullptr;
         Framework::ZoomTriggerSystem* gZoomTriggerSystem = nullptr;
 
-        enum class GameState { MAIN_MENU, CUTSCENE, TRANSITIONING, LOADING_TRANSITION, PLAYING, PAUSED, DEFEAT, WIN_VIDEO, EXIT };
+        enum class GameState { MAIN_MENU, CUTSCENE, FINAL_LEVEL_CUTSCENE, TRANSITIONING, LOADING_TRANSITION, PLAYING, PAUSED, DEFEAT, WIN_VIDEO, EXIT };
         GameState currentState = GameState::MAIN_MENU;
         bool editorSimulationRunning = false;
        
@@ -233,11 +234,14 @@ namespace mygame {
         PauseMenuPage pauseMenu;
         DefeatScreenPage defeatScreen;
         Framework::VideoPlayer cutscenePlayer;
+        Framework::VideoPlayer finalLevelCutscenePlayer;
         Framework::VideoPlayer transitionPlayer;
         Framework::VideoPlayer winVideoPlayer;
         LevelLoader levelLoader;
         bool cutsceneReady = false;
         bool cutsceneAudioPlaying = false;
+        bool finalLevelCutsceneReady = false;
+        bool finalLevelCutsceneAudioPlaying = false;
         bool winVideoAudioPlaying = false;
         bool transitionReady = false;
         bool winVideoReady = false;
@@ -253,13 +257,23 @@ namespace mygame {
         constexpr float kTransitionColorKeyHigh = 0.18f;
         const std::filesystem::path kTransitionVideoRelativePath =
             "Textures/UI/Transition screen/Transition screen.mpg";
-        const std::filesystem::path kWinVideoRelativePath =
-            "Textures/UI/GameWinVideo/WinGame_plmpeg.mpg";
-        const std::filesystem::path kWinVideoAudioRelativePath =
-            "Textures/UI/GameWinVideo/Cutscene04.mp3";
         std::filesystem::path gCutsceneVideoPath;
+        std::filesystem::path gFinalLevelCutsceneVideoPath;
         std::filesystem::path gTransitionVideoPath;
         std::filesystem::path gWinVideoPath;
+        std::filesystem::path gPendingFinalLevelLoadPath;
+
+        void StopAllGameplayAudioForFinalLevelCutscene()
+        {
+            SoundManager::getInstance().stopAllSounds();
+            mainMenuBGMPlaying = false;
+            gameplayBGMPlaying = false;
+            cutsceneAudioPlaying = false;
+            winVideoAudioPlaying = false;
+            finalLevelCutsceneAudioPlaying = false;
+            defeatSoundStarted = false;
+            boilingStarted = false;
+        }
 
         constexpr int START_KEY = GLFW_KEY_ENTER; // Keyboard stand-in for a controller Start button.
         constexpr int PAUSE_KEY = GLFW_KEY_ESCAPE;
@@ -304,6 +318,12 @@ namespace mygame {
             std::transform(value.begin(), value.end(), value.begin(),
                 [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
             return value;
+        }
+
+        bool IsFinalLevelPath(const std::filesystem::path& levelPath)
+        {
+            const std::string levelName = ToLowerAscii(levelPath.filename().string());
+            return levelName == "reallastlevel.json" || levelName == "reallastlevl.json";
         }
 
         void LogBossMusicDebug(const char* event,
@@ -356,6 +376,7 @@ namespace mygame {
             {
             case GameState::MAIN_MENU: return "MAIN_MENU";
             case GameState::CUTSCENE: return "CUTSCENE";
+            case GameState::FINAL_LEVEL_CUTSCENE: return "FINAL_LEVEL_CUTSCENE";
             case GameState::TRANSITIONING: return "TRANSITIONING";
             case GameState::LOADING_TRANSITION: return "LOADING_TRANSITION";
             case GameState::PLAYING: return "PLAYING";
@@ -864,6 +885,38 @@ namespace mygame {
             }
         }
 
+        bool StartFinalLevelCutscene(const std::filesystem::path& levelPath)
+        {
+            if (levelPath.empty() || !finalLevelCutsceneReady)
+                return false;
+
+            gPendingFinalLevelLoadPath = levelPath;
+            StopAllGameplayAudioForFinalLevelCutscene();
+            if (gLogicSystem) {
+                gLogicSystem->PrepareForIncrementalLevelLoad();
+            }
+            finalLevelCutscenePlayer.Start();
+            LogVideoDebug("final_level_cutscene_start",
+                gFinalLevelCutsceneVideoPath,
+                !gFinalLevelCutsceneVideoPath.empty() && std::filesystem::exists(gFinalLevelCutsceneVideoPath),
+                finalLevelCutsceneReady,
+                "final_level_cutscene",
+                levelPath.filename().string().c_str());
+            if (SoundManager::getInstance().isSoundLoaded(FINAL_LEVEL_CUTSCENE_AUDIO)) {
+                SoundManager::getInstance().stopSound(FINAL_LEVEL_CUTSCENE_AUDIO);
+                SoundManager::getInstance().playSound(FINAL_LEVEL_CUTSCENE_AUDIO, 1.0f, 1.0f, false);
+                finalLevelCutsceneAudioPlaying = true;
+            }
+            else {
+                finalLevelCutsceneAudioPlaying = false;
+            }
+
+            editorSimulationRunning = false;
+            currentState = GameState::FINAL_LEVEL_CUTSCENE;
+            BlockStateAdvanceInput();
+            return true;
+        }
+
         /*************************************************************************************
          \brief  Enters the staged level-loading state machine and optionally starts the transition video.
          \param  levelPath                 Level file to load.
@@ -998,8 +1051,8 @@ namespace mygame {
         pauseMenu.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         defeatScreen.Init(gRenderSystem->ScreenWidth(), gRenderSystem->ScreenHeight());
         const std::string cutscenePath = ResolveFirstExistingAsset({
-            "Video__OFF_WEB/output.mpg",
-            "Video/output.mpg"
+            "Video__OFF_WEB/Cutscene 01.mpg",
+            "Video/Cutscene 01.mpg"
             });
         gCutsceneVideoPath = cutscenePath;
         cutsceneReady = !cutscenePath.empty() && cutscenePlayer.Load(cutscenePath);
@@ -1009,7 +1062,22 @@ namespace mygame {
             cutsceneReady,
             "cutscene");
         if (!cutsceneReady) {
-            std::cerr << "[Cutscene] Warning: Could not load output.mpg from Video/ or Video__OFF_WEB/.\n";
+            std::cerr << "[Cutscene] Warning: Could not load Cutscene 01.mpg from Video/ or Video__OFF_WEB/.\n";
+        }
+        const std::string finalLevelCutscenePath = ResolveFirstExistingAsset({
+            "Video__OFF_WEB/Cutscene 03.mpg",
+            "Video/Cutscene 03.mpg"
+            });
+        gFinalLevelCutsceneVideoPath = finalLevelCutscenePath;
+        finalLevelCutsceneReady = !finalLevelCutscenePath.empty() &&
+            finalLevelCutscenePlayer.Load(finalLevelCutscenePath);
+        LogVideoDebug("final_level_cutscene_resolve",
+            gFinalLevelCutsceneVideoPath,
+            !gFinalLevelCutsceneVideoPath.empty() && std::filesystem::exists(gFinalLevelCutsceneVideoPath),
+            finalLevelCutsceneReady,
+            "final_level_cutscene");
+        if (!finalLevelCutsceneReady) {
+            std::cerr << "[Cutscene] Warning: Could not load Cutscene 03.mpg from Video/ or Video__OFF_WEB/.\n";
         }
         gTransitionVideoPath = Framework::ResolveAssetPath(kTransitionVideoRelativePath);
         transitionReady = std::filesystem::exists(gTransitionVideoPath) &&
@@ -1026,9 +1094,13 @@ namespace mygame {
             std::cerr << "[LoadingTransition] Warning: Could not load "
                 << gTransitionVideoPath.string() << "\n";
         }
-        gWinVideoPath = Framework::ResolveAssetPath(kWinVideoRelativePath);
-        winVideoReady = std::filesystem::exists(gWinVideoPath) &&
-            winVideoPlayer.Load(gWinVideoPath.string());
+        const std::string winVideoPath = ResolveFirstExistingAsset({
+            "Video__OFF_WEB/Cutscene 04.mpg",
+            "Textures/UI/GameWinVideo/WinGame_plmpeg.mpg"
+            });
+        gWinVideoPath = winVideoPath;
+        winVideoReady = !winVideoPath.empty() &&
+            winVideoPlayer.Load(winVideoPath);
         LogVideoDebug("win_video_resolve",
             gWinVideoPath,
             std::filesystem::exists(gWinVideoPath),
@@ -1039,21 +1111,35 @@ namespace mygame {
                 << gWinVideoPath.string() << "\n";
         }
         if (!SoundManager::getInstance().isSoundLoaded(WIN_VIDEO_AUDIO)) {
-            const auto winVideoAudioPath = Framework::ResolveAssetPath(kWinVideoAudioRelativePath);
-            if (!std::filesystem::exists(winVideoAudioPath) ||
-                !SoundManager::getInstance().loadSound(WIN_VIDEO_AUDIO, winVideoAudioPath.string())) {
+            const std::string winVideoAudioPath = ResolveFirstExistingAsset({
+                "Video__OFF_WEB/Cutscene04.mp3",
+                "Textures/UI/GameWinVideo/Cutscene04.mp3"
+                });
+            if (winVideoAudioPath.empty() ||
+                !SoundManager::getInstance().loadSound(WIN_VIDEO_AUDIO, winVideoAudioPath)) {
                 std::cerr << "[WinVideo] Warning: Could not load "
-                    << winVideoAudioPath.string() << "\n";
+                    << (winVideoAudioPath.empty() ? "Cutscene04.mp3 from Video__OFF_WEB/ or Textures/UI/GameWinVideo/" : winVideoAudioPath)
+                    << "\n";
             }
         }
         if (!SoundManager::getInstance().isSoundLoaded(CUTSCENE_AUDIO)) {
             const std::string cutsceneAudioPath = ResolveFirstExistingAsset({
-                "Video__OFF_WEB/audio.mp3",
-                "Video/audio.mp3"
+                "Video__OFF_WEB/Cutscene 01.mp3",
+                "Video/Cutscene 01.mp3"
                 });
             if (cutsceneAudioPath.empty() ||
                 !SoundManager::getInstance().loadSound(CUTSCENE_AUDIO, cutsceneAudioPath)) {
-                std::cerr << "[Cutscene] Warning: Could not load audio.mp3 from Video/ or Video__OFF_WEB/.\n";
+                std::cerr << "[Cutscene] Warning: Could not load Cutscene 01.mp3 from Video/ or Video__OFF_WEB/.\n";
+            }
+        }
+        if (!SoundManager::getInstance().isSoundLoaded(FINAL_LEVEL_CUTSCENE_AUDIO)) {
+            const std::string finalLevelCutsceneAudioPath = ResolveFirstExistingAsset({
+                "Video__OFF_WEB/Cutscene 03.mp3",
+                "Video/Cutscene 03.mp3"
+                });
+            if (finalLevelCutsceneAudioPath.empty() ||
+                !SoundManager::getInstance().loadSound(FINAL_LEVEL_CUTSCENE_AUDIO, finalLevelCutsceneAudioPath)) {
+                std::cerr << "[Cutscene] Warning: Could not load Cutscene 03.mp3 from Video/ or Video__OFF_WEB/.\n";
             }
         }
         currentState = GameState::MAIN_MENU;
@@ -1184,6 +1270,41 @@ namespace mygame {
                     }
                     cutsceneAudioPlaying = false;
                     if (!RequestReloadLevel(true))
+                    {
+                        currentState = GameState::PLAYING;
+                        editorSimulationRunning = true;
+                        BlockStateAdvanceInput();
+                    }
+                }
+                break;
+            }
+
+            case GameState::FINAL_LEVEL_CUTSCENE:
+            {
+                finalLevelCutscenePlayer.Update(dt);
+                handlePerfToggle();
+                const bool skipCutscene = IsStateAdvanceInputPressed();
+                if (skipCutscene || finalLevelCutscenePlayer.IsFinished())
+                {
+                    LogVideoDebug(skipCutscene ? "final_level_cutscene_skip" : "final_level_cutscene_finish",
+                        gFinalLevelCutsceneVideoPath,
+                        !gFinalLevelCutsceneVideoPath.empty() && std::filesystem::exists(gFinalLevelCutsceneVideoPath),
+                        finalLevelCutsceneReady,
+                        "final_level_cutscene",
+                        gPendingFinalLevelLoadPath.filename().string().c_str());
+                    if (finalLevelCutsceneAudioPlaying &&
+                        SoundManager::getInstance().isSoundLoaded(FINAL_LEVEL_CUTSCENE_AUDIO)) {
+                        SoundManager::getInstance().stopSound(FINAL_LEVEL_CUTSCENE_AUDIO);
+                    }
+                    finalLevelCutsceneAudioPlaying = false;
+                    const std::filesystem::path pendingLevelPath = gPendingFinalLevelLoadPath;
+                    gPendingFinalLevelLoadPath.clear();
+                    if (!pendingLevelPath.empty() &&
+                        StartGameplayLoadTransition(pendingLevelPath, true, GameState::PLAYING, true, false))
+                    {
+                        BlockStateAdvanceInput();
+                    }
+                    else
                     {
                         currentState = GameState::PLAYING;
                         editorSimulationRunning = true;
@@ -1668,6 +1789,16 @@ namespace mygame {
                 }
                 break;
 
+            case GameState::FINAL_LEVEL_CUTSCENE:
+                if (gRenderSystem)
+                {
+                    gRenderSystem->BeginMenuFrame();
+                    finalLevelCutscenePlayer.Draw();
+                    gRenderSystem->EndMenuFrame();
+                    gRenderSystem->RenderBrightnessOverlay();
+                }
+                break;
+
             case GameState::PAUSED:
                 gSystems.DrawAll();
                 if (gRenderSystem) {
@@ -1736,7 +1867,11 @@ namespace mygame {
         levelLoader.Reset();
         transitionPlayer.Stop();
         cutscenePlayer.Stop();
+        finalLevelCutscenePlayer.Stop();
         winVideoPlayer.Stop();
+        if (SoundManager::getInstance().isSoundLoaded(FINAL_LEVEL_CUTSCENE_AUDIO)) {
+            SoundManager::getInstance().stopSound(FINAL_LEVEL_CUTSCENE_AUDIO);
+        }
         if (SoundManager::getInstance().isSoundLoaded(WIN_VIDEO_AUDIO)) {
             SoundManager::getInstance().stopSound(WIN_VIDEO_AUDIO);
         }
@@ -1826,6 +1961,13 @@ namespace mygame {
     {
         if (!gLogicSystem || levelPath.empty())
             return false;
+
+        if (IsFinalLevelPath(levelPath) &&
+            currentState != GameState::FINAL_LEVEL_CUTSCENE &&
+            StartFinalLevelCutscene(levelPath))
+        {
+            return true;
+        }
 
         return StartGameplayLoadTransition(levelPath, true, GameState::PLAYING, true, false);
     }
