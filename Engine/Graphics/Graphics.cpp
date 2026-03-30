@@ -27,6 +27,7 @@
 #include <cmath>
 #include <iostream>
 #include <cstddef>
+#include <queue>
 #include <unordered_map>
 
 #include <glm/glm.hpp>
@@ -106,6 +107,80 @@ namespace gfx {
         GLenum e = glGetError();
         if (e != GL_NO_ERROR)
             throw std::runtime_error(std::string(where) + "|gl_error=" + std::to_string((int)e));
+    }
+
+    /*****************************************************************************************
+     \brief  Fill fully transparent RGBA texels with nearby visible colors.
+     \details
+        PNGs often keep arbitrary RGB values in pixels whose alpha is 0. With linear filtering,
+        those hidden colors can bleed into the visible edge and appear as white halos. This
+        pass floods fully transparent texels from their nearest non-transparent neighbors while
+        preserving the original alpha channel, so sampling near the edge stays visually stable.
+    ******************************************************************************************/
+    static void BleedTransparentPixels(std::vector<unsigned char>& rgba, int width, int height)
+    {
+        if (width <= 0 || height <= 0)
+            return;
+
+        constexpr int kChannels = 4;
+        const int pixelCount = width * height;
+        if (static_cast<int>(rgba.size()) < pixelCount * kChannels)
+            return;
+
+        std::vector<unsigned char> originalAlpha(static_cast<size_t>(pixelCount));
+        std::vector<unsigned char> visited(static_cast<size_t>(pixelCount), 0);
+        std::queue<int> frontier;
+
+        for (int pixel = 0; pixel < pixelCount; ++pixel)
+        {
+            const unsigned char alpha = rgba[static_cast<size_t>(pixel) * kChannels + 3];
+            originalAlpha[static_cast<size_t>(pixel)] = alpha;
+            if (alpha != 0)
+            {
+                visited[static_cast<size_t>(pixel)] = 1;
+                frontier.push(pixel);
+            }
+        }
+
+        if (frontier.empty())
+            return;
+
+        constexpr int kOffsets[4][2] = {
+            { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 }
+        };
+
+        while (!frontier.empty())
+        {
+            const int pixel = frontier.front();
+            frontier.pop();
+
+            const int x = pixel % width;
+            const int y = pixel / width;
+            const size_t srcOffset = static_cast<size_t>(pixel) * kChannels;
+
+            for (const auto& offset : kOffsets)
+            {
+                const int nx = x + offset[0];
+                const int ny = y + offset[1];
+                if (nx < 0 || nx >= width || ny < 0 || ny >= height)
+                    continue;
+
+                const int neighbor = ny * width + nx;
+                if (visited[static_cast<size_t>(neighbor)] != 0)
+                    continue;
+
+                visited[static_cast<size_t>(neighbor)] = 1;
+                if (originalAlpha[static_cast<size_t>(neighbor)] == 0)
+                {
+                    const size_t dstOffset = static_cast<size_t>(neighbor) * kChannels;
+                    rgba[dstOffset + 0] = rgba[srcOffset + 0];
+                    rgba[dstOffset + 1] = rgba[srcOffset + 1];
+                    rgba[dstOffset + 2] = rgba[srcOffset + 2];
+                }
+
+                frontier.push(neighbor);
+            }
+        }
     }
 
     /*****************************************************************************************
@@ -195,8 +270,18 @@ namespace gfx {
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+        std::vector<unsigned char> processedPixels;
+        const unsigned char* uploadData = data;
 
         if (data) {
+            if (nrChannels == 4)
+            {
+                const size_t pixelBytes = static_cast<size_t>(width) * static_cast<size_t>(height) * 4u;
+                processedPixels.assign(data, data + pixelBytes);
+                BleedTransparentPixels(processedPixels, width, height);
+                uploadData = processedPixels.data();
+            }
+
             // WebGL2 is strict about texture formats; use explicit sized internal formats there.
             GLenum format = GL_RGBA;
             GLenum internalFormat = GL_RGBA;
@@ -237,7 +322,7 @@ namespace gfx {
             }
 
             glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, uploadData);
             glGenerateMipmap(GL_TEXTURE_2D);
             sTextureDimensions[textureID] = { width, height };
 

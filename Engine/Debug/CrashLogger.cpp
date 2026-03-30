@@ -1,4 +1,4 @@
-/*********************************************************************************************
+ï»¿/*********************************************************************************************
  \file      CrashLogger.cpp
  \par       SofaSpuds
  \author    Erika Ishii (erika.ishii@digipen.edu) - Main Author, 100%
@@ -10,12 +10,13 @@
             3) Use CrashLogger::Write/WriteWithStack(reason, extra) for manual error records or drills.
             On Android, call InitAndroid(env, context) to set an app-writable directory.
  \copyright
-            All content ©2025 DigiPen Institute of Technology Singapore.
+            All content Â©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
 #include "CrashLogger.hpp"
 #include <fstream>
+#include <atomic>
 #include <chrono>
 #include <ctime>
 #include <sstream>
@@ -26,6 +27,9 @@
 #include <thread>
 #include <utility>
 #include <cstdlib>
+#if defined(_WIN32)
+#include <Windows.h>
+#endif
 #if (defined(__unix__) || defined(__APPLE__)) && !defined(__EMSCRIPTEN__)
 #include <execinfo.h>
 #endif
@@ -43,7 +47,7 @@ CrashLogger* g_crashLogger;
 /*************************************************************************************
   \brief  Append a single text line to a file (creates file if missing).
   \param  path  Full path to the log file.
-  \param  line  Line to append (no newline needed—function adds '\n').
+  \param  line  Line to append (no newline neededâ€”function adds '\n').
 *************************************************************************************/
 static void WriteLine(const std::string& path, const std::string& line) {
     std::ofstream ofs(path, std::ios::out | std::ios::app);
@@ -56,6 +60,8 @@ static void WriteLine(const std::string& path, const std::string& line) {
 }
 
 namespace {
+    std::atomic<CrashWindowMinimizeFn> g_crashWindowMinimize{ nullptr };
+
     std::string Sanitize(std::string text) {
         for (char& c : text) {
             if (c == '\r' || c == '\n') {
@@ -100,6 +106,14 @@ namespace {
 #else
         return "stacktrace_unavailable";
 #endif
+    }
+
+    void InvokeCrashWindowMinimize() noexcept
+    {
+        if (const CrashWindowMinimizeFn fn = g_crashWindowMinimize.load(std::memory_order_relaxed))
+        {
+            fn();
+        }
     }
 }
 
@@ -233,6 +247,7 @@ void CrashLogger::InitAndroid(void* env, void* context) {
   \brief  std::terminate handler: logs "std_terminate" and exits(1).
 *************************************************************************************/
 static void OnTerminate() {
+    InvokeCrashWindowMinimize();
     if (g_crashLogger) {
         auto line = g_crashLogger->WriteWithStack("std_terminate", "");
         g_crashLogger->Mirror(line);
@@ -245,6 +260,7 @@ static void OnTerminate() {
   \param  sig  Signal number (e.g., SIGSEGV, SIGABRT).
 *************************************************************************************/
 static void OnSignal(int sig) {
+    InvokeCrashWindowMinimize();
     if (g_crashLogger) {
         std::string s = "signal_" + std::to_string(sig);
         auto line = g_crashLogger->WriteWithStack(s, "");
@@ -252,6 +268,33 @@ static void OnSignal(int sig) {
     }
     std::_Exit(1);
 }
+
+#if defined(_WIN32)
+static LONG WINAPI OnUnhandledException(EXCEPTION_POINTERS* info)
+{
+    InvokeCrashWindowMinimize();
+
+    if (g_crashLogger)
+    {
+        std::ostringstream extra;
+        if (info && info->ExceptionRecord)
+        {
+            extra << "code=0x" << std::uppercase << std::hex
+                << info->ExceptionRecord->ExceptionCode;
+            extra << std::dec;
+            if (info->ExceptionRecord->ExceptionAddress)
+            {
+                extra << "|address=" << info->ExceptionRecord->ExceptionAddress;
+            }
+        }
+
+        auto line = g_crashLogger->WriteWithStack("unhandled_exception", extra.str());
+        g_crashLogger->Mirror(line);
+    }
+
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
 
 /*************************************************************************************
   \brief  Install std::terminate handler (OnTerminate).
@@ -267,4 +310,16 @@ void InstallSignalHandlers() {
     std::signal(SIGFPE, OnSignal);
     std::signal(SIGILL, OnSignal);
     std::signal(SIGTERM, OnSignal);
+#if defined(_WIN32)
+    SetUnhandledExceptionFilter(OnUnhandledException);
+#endif
 }
+
+/*************************************************************************************
+  \brief  Register a callback used to minimize the game window during fatal failure paths.
+*************************************************************************************/
+void SetCrashWindowMinimizeCallback(CrashWindowMinimizeFn fn)
+{
+    g_crashWindowMinimize.store(fn, std::memory_order_relaxed);
+}
+

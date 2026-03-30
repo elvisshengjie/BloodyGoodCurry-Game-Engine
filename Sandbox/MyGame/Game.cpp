@@ -1881,6 +1881,17 @@ namespace mygame {
     *************************************************************************************/
     void onAppFocusChanged(bool suspended)
     {
+        if (suspended)
+        {
+            if (currentState == GameState::PLAYING &&
+                !Framework::RenderSystem::IsEditorVisible())
+            {
+                pauseMenu.ResetLatches();
+                currentState = GameState::PAUSED;
+                BlockStateAdvanceInput();
+            }
+        }
+
         // Halt/resume audio cleanly and flush transient input so keys do not stick.
         SoundManager::getInstance().pauseAllSounds(suspended);
         if (gInputSystem)

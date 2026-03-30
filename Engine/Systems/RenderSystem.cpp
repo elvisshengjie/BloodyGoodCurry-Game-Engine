@@ -1089,9 +1089,13 @@ namespace Framework {
                 return triggered;
             };
 
-        // Toggle editor panels
+        // Editor toggle hotkey only exists when the editor feature is compiled in.
+#if SOFASPUDS_ENABLE_EDITOR
         if (handleToggle(GLFW_KEY_F10, editorToggleHeld))
             showEditor = !showEditor;
+#else
+        editorToggleHeld = glfwGetKey(native, GLFW_KEY_F10) == GLFW_PRESS;
+#endif
 
         // Toggle OS fullscreen always (editor or not)
         if (handleToggle(GLFW_KEY_F11, fullscreenToggleHeld))

@@ -21,8 +21,22 @@
 
 // Keep GL/GLFW only in the .cpp to avoid polluting headers.
 #include "Core/PathUtils.h"
-#include "Graphics/GLHeaders.h"
 #include <GLFW/glfw3.h>
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+#if !defined(NOMINMAX)
+#define NOMINMAX
+#endif
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <GLFW/glfw3native.h>
+#include <Windows.h>
+#if defined(min)
+#undef min
+#endif
+#if defined(max)
+#undef max
+#endif
+#endif
+#include "Graphics/GLHeaders.h"
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -39,6 +53,27 @@ namespace {
     constexpr int kGlMajor = 3; ///< Requested OpenGL major version.
     constexpr int kGlMinor = 3; ///< Requested OpenGL minor version.
     constexpr float kCursorScale = 0.85f;
+
+    void ApplyBorderlessFullscreenWindow(GLFWwindow* window,
+        GLFWmonitor* monitor,
+        const GLFWvidmode* mode,
+        int& width,
+        int& height)
+    {
+        if (!window || !monitor || !mode)
+            return;
+
+        int monitorX = 0;
+        int monitorY = 0;
+        glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+
+        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+        glfwSetWindowAttrib(window, GLFW_RESIZABLE, GLFW_FALSE);
+        glfwSetWindowMonitor(window, nullptr, monitorX, monitorY, mode->width, mode->height, 0);
+
+        width = mode->width;
+        height = mode->height;
+    }
 
     GLFWcursor* CreateProjectCursor()
     {
@@ -86,6 +121,7 @@ namespace {
 
 // Define the static window pointer
 GLFWwindow* gfx::Window::s_window = nullptr;
+void* gfx::Window::s_nativeWindowHandle = nullptr;
 
 namespace gfx {
 
@@ -132,6 +168,7 @@ namespace gfx {
 
         // Double buffered (default)
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_TRUE);
 
         // Allow resizing (editor/game may rely on this)
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -141,10 +178,10 @@ namespace gfx {
 
         if (m_fullscreen && monitor && mode)
         {
-            // Start in fullscreen mode on primary monitor
+            // Start in borderless-fullscreen mode on the primary monitor.
             m_width = mode->width;
             m_height = mode->height;
-            s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), monitor, nullptr);
+            s_window = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
 
             // Center the future windowed position if we later toggle back.
             m_windowedX = (mode->width - m_windowedWidth) / 2;
@@ -164,6 +201,11 @@ namespace gfx {
             throw std::runtime_error("GLFW window creation failed");
         }
 
+        if (m_fullscreen && monitor && mode)
+        {
+            ApplyBorderlessFullscreenWindow(s_window, monitor, mode, m_width, m_height);
+        }
+
         // Store this in the GLFW user pointer so static callbacks can retrieve the Window instance.
         // Register:
         // OnIconify(GLFWwindow* win, int iconified)
@@ -173,6 +215,9 @@ namespace gfx {
         glfwSetWindowIconifyCallback(s_window, &Window::OnIconify);
         glfwSetWindowFocusCallback(s_window, &Window::OnFocus);
         SyncFocusFromAttribs(this, s_window);
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+        s_nativeWindowHandle = glfwGetWin32Window(s_window);
+#endif
 
         // Make the context current
         glfwMakeContextCurrent(s_window);
@@ -226,6 +271,9 @@ namespace gfx {
             glfwDestroyWindow(s_window);
             s_window = nullptr;
         }
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+        s_nativeWindowHandle = nullptr;
+#endif
         glfwTerminate();
     }
 
@@ -246,6 +294,30 @@ namespace gfx {
     *************************************************************************************/
     void Window::pollEvents() {
         glfwPollEvents();
+    }
+
+    /*************************************************************************************
+      \brief Block briefly for OS events while the app is suspended in the background.
+
+      \param timeoutSeconds Maximum time to wait before returning to the caller.
+
+      Using a wait-based pump here prevents the suspended desktop build from busy-spinning
+      at full CPU while ALT-TABed or sitting behind the secure attention screen.
+    *************************************************************************************/
+    void Window::WaitForEventsTimeout(double timeoutSeconds)
+    {
+#if defined(__EMSCRIPTEN__)
+        (void)timeoutSeconds;
+        glfwPollEvents();
+#else
+        if (timeoutSeconds <= 0.0)
+        {
+            glfwPollEvents();
+            return;
+        }
+
+        glfwWaitEventsTimeout(timeoutSeconds);
+#endif
     }
 
     /*************************************************************************************
@@ -336,6 +408,84 @@ namespace gfx {
     }
 
     /*************************************************************************************
+      \brief Report whether this window currently owns the OS foreground on desktop.
+
+      \return True when this GLFW window is the active foreground window.
+    *************************************************************************************/
+    bool Window::IsForegroundWindow() const
+    {
+        if (!s_window)
+            return false;
+
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+        const HWND hwnd = static_cast<HWND>(s_nativeWindowHandle);
+        return hwnd != nullptr && ::GetForegroundWindow() == hwnd;
+#else
+        return m_focused && !m_iconified;
+#endif
+    }
+
+    /*************************************************************************************
+      \brief Minimize the game window in response to an OS interruption.
+
+      Ensures ALT-TAB, CTRL-ALT-DEL, Task Manager, and similar flows immediately yield the
+      desktop regardless of whether the game started windowed or fullscreen.
+    *************************************************************************************/
+    void Window::MinimizeForInterruption()
+    {
+#if defined(__EMSCRIPTEN__)
+        return;
+#else
+        if (!s_window || m_iconified)
+            return;
+
+#if defined(_WIN32)
+        if (const HWND hwnd = static_cast<HWND>(s_nativeWindowHandle))
+        {
+            ::ShowWindowAsync(hwnd, SW_MINIMIZE);
+            ::PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+        }
+        else
+#endif
+        {
+            glfwIconifyWindow(s_window);
+        }
+
+        m_iconified = true;
+        m_focused = false;
+#endif
+    }
+
+    /*************************************************************************************
+      \brief Emergency minimize used by crash handlers and the unresponsive-window watchdog.
+
+      This Win32 path uses SW_FORCEMINIMIZE specifically so the OS can get the game out of
+      the way even when the main thread has stopped pumping messages.
+    *************************************************************************************/
+    void Window::EmergencyMinimizeProcessWindow() noexcept
+    {
+#if defined(__EMSCRIPTEN__)
+        return;
+#else
+        if (!s_window)
+            return;
+
+#if defined(_WIN32)
+        if (const HWND hwnd = static_cast<HWND>(s_nativeWindowHandle))
+        {
+            ::SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_ASYNCWINDOWPOS);
+            ::ShowWindowAsync(hwnd, SW_FORCEMINIMIZE);
+            ::PostMessageW(hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+            return;
+        }
+#endif
+
+        glfwIconifyWindow(s_window);
+#endif
+    }
+
+    /*************************************************************************************
       \brief Toggle between fullscreen and windowed modes.
 
       Behavior:
@@ -344,8 +494,7 @@ namespace gfx {
         * Restore decorations and disable resizing.
       - If currently windowed:
         * Save current position/size as "windowed" values.
-        * Switch to fullscreen on primary monitor using its current resolution.
-        * Optionally hide decorations.
+        * Switch to borderless fullscreen on the primary monitor using its current resolution.
 
       After changing size, glViewport() is updated to match the new dimensions.
     *************************************************************************************/
@@ -380,25 +529,11 @@ namespace gfx {
         }
         else if (monitor && mode)
         {
-            // Going to FULLSCREEN
+            // Going to BORDERLESS FULLSCREEN
             glfwGetWindowPos(s_window, &m_windowedX, &m_windowedY);
             glfwGetWindowSize(s_window, &m_windowedWidth, &m_windowedHeight);
 
-            // Optional, but nice: hide decorations in fullscreen
-            glfwSetWindowAttrib(s_window, GLFW_DECORATED, GLFW_FALSE);
-
-            glfwSetWindowMonitor(
-                s_window,
-                monitor,
-                0,
-                0,
-                mode->width,
-                mode->height,
-                mode->refreshRate
-            );
-
-            m_width = mode->width;
-            m_height = mode->height;
+            ApplyBorderlessFullscreenWindow(s_window, monitor, mode, m_width, m_height);
             m_fullscreen = true;
         }
 

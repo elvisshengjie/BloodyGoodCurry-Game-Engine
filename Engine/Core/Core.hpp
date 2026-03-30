@@ -16,7 +16,10 @@
 *********************************************************************************************/
 #pragma once
 #include <memory>
+#include <atomic>
 #include <chrono>
+#include <cstdint>
+#include <thread>
 #include "Graphics/Window.hpp"
 #include "Debug/ImGuiLayer.h"
 
@@ -53,6 +56,11 @@ private:
 
     void TickOneFrame();
     void FinalizeRun();
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    void StartResponsivenessWatchdog();
+    void StopResponsivenessWatchdog();
+    void ResponsivenessWatchdogLoop();
+#endif
 #if defined(__EMSCRIPTEN__)
     static void WebMainLoop(void* userData);
 #endif
@@ -65,6 +73,12 @@ private:
     SecondsF  m_Accumulator{ SecondsF::zero() };
     Clock::time_point m_PreviousTick{};
     bool m_WasSuspended{ false };
+    bool m_HasActivatedOnce{ false };
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    std::atomic<bool> m_StopWatchdog{ false };
+    std::atomic<std::uint64_t> m_LastResponsiveTickMs{ 0 };
+    std::thread m_WatchdogThread;
+#endif
     // Callback storage (may be null)
     InitFn     init{ nullptr };
     UpdateFn   update{ nullptr };

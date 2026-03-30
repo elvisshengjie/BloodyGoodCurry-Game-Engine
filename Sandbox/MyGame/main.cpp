@@ -15,8 +15,10 @@
 #include "../Engine/Core/Core.hpp"
 #include "../Engine/Core/ProjectContext.h"
 #include "../Engine/Core/PathUtils.h"
+#include "../Engine/Debug/CrashLogger.hpp"
 #include "Game.hpp"
 #include "Config/WindowConfig.h"
+#include <exception>
 #include <filesystem>
 
 #ifdef _MSC_VER
@@ -54,6 +56,29 @@ int main()
     core.SetCallbacks(mygame::init, mygame::update, mygame::draw, mygame::shutdown);
     core.SetSuspendCallback(mygame::onAppFocusChanged);
     // Run main loop.
-    core.Run();
-    return 0;
+    try
+    {
+        core.Run();
+        return 0;
+    }
+    catch (const std::exception& e)
+    {
+        gfx::Window::EmergencyMinimizeProcessWindow();
+        if (g_crashLogger)
+        {
+            auto line = g_crashLogger->WriteWithStack("fatal_main_exception", e.what());
+            g_crashLogger->Mirror(line);
+        }
+        return 1;
+    }
+    catch (...)
+    {
+        gfx::Window::EmergencyMinimizeProcessWindow();
+        if (g_crashLogger)
+        {
+            auto line = g_crashLogger->WriteWithStack("fatal_main_exception", "unknown");
+            g_crashLogger->Mirror(line);
+        }
+        return 1;
+    }
 }

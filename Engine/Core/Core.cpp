@@ -21,18 +21,41 @@
 
 #include "Core.hpp"
 #include "Debug/Perf.h" 
+#include "Debug/CrashLogger.hpp"
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
 #if defined(__EMSCRIPTEN__)
 #include <emscripten.h>
+#endif
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+#include <thread>
 #endif
 
 #ifdef _DEBUG
 #define new DBG_NEW       // <- redefine new AFTER all includes
 #endif
+
+namespace {
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    constexpr auto kSuspendedEventWait = std::chrono::milliseconds(100);
+    constexpr auto kResponsivenessWatchdogSleep = std::chrono::milliseconds(250);
+    constexpr auto kResponsivenessWatchdogThreshold = std::chrono::milliseconds(2500);
+
+    std::uint64_t SteadyClockMillis() noexcept
+    {
+        return static_cast<std::uint64_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+    }
+#else
+    constexpr auto kSuspendedEventWait = std::chrono::milliseconds(100);
+#endif
+}
+
 Core::Core(int width, int height, const char* title, bool fullscreen)
     : m_Running(false),
     // create window immediately (unique_ptr ensures RAII cleanup)
     m_Window(std::make_unique<gfx::Window>(width, height, title, fullscreen)) {
+    SetCrashWindowMinimizeCallback(&gfx::Window::EmergencyMinimizeProcessWindow);
 }
 
 void Core::FinalizeRun()
@@ -41,6 +64,9 @@ void Core::FinalizeRun()
         return;
 
     m_Finalized = true;
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    StopResponsivenessWatchdog();
+#endif
     if (shutdown)
         shutdown();
 }
@@ -68,6 +94,10 @@ void Core::TickOneFrame()
         return;
     }
 
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    m_LastResponsiveTickMs.store(SteadyClockMillis(), std::memory_order_relaxed);
+#endif
+
     // safety cap to avoid a spiral of death
     constexpr int kMaxSubSteps = 5;
 
@@ -84,6 +114,10 @@ void Core::TickOneFrame()
     const bool suspended = false;
 #else
     const bool suspended = m_Window->IsIconified() || !m_Window->HasFocus();
+    if (!m_Window->IsIconified() && (m_Window->HasFocus() || m_Window->IsForegroundWindow()))
+    {
+        m_HasActivatedOnce = true;
+    }
 #endif
 
     // -----------------------------------------------------------------------------
@@ -95,8 +129,13 @@ void Core::TickOneFrame()
             onSuspend(true);
 
         m_WasSuspended = true;
+        if (m_Window->IsIconified() || m_HasActivatedOnce)
+        {
+            m_Window->MinimizeForInterruption();
+        }
         m_Accumulator = SecondsF::zero();
         m_PreviousTick = Clock::now();
+        m_Window->WaitForEventsTimeout(std::chrono::duration<double>(kSuspendedEventWait).count());
         return;
     }
 
@@ -162,6 +201,11 @@ void Core::Run() {
     m_Accumulator = SecondsF::zero();
     m_PreviousTick = Clock::now();
     m_WasSuspended = false;
+    m_HasActivatedOnce = false;
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+    m_LastResponsiveTickMs.store(SteadyClockMillis(), std::memory_order_relaxed);
+    StartResponsivenessWatchdog();
+#endif
 
     // Call user-defined init if provided (setup resources, GL state, etc.)
     if (init) init(*m_Window);
@@ -184,3 +228,43 @@ void Core::Quit() {
     // Allows external code to exit gracefully on next loop iteration
     m_Running = false;
 }
+
+#if defined(_WIN32) && !defined(__EMSCRIPTEN__)
+void Core::StartResponsivenessWatchdog()
+{
+    StopResponsivenessWatchdog();
+    m_StopWatchdog.store(false, std::memory_order_release);
+    m_WatchdogThread = std::thread(&Core::ResponsivenessWatchdogLoop, this);
+}
+
+void Core::StopResponsivenessWatchdog()
+{
+    m_StopWatchdog.store(true, std::memory_order_release);
+    if (m_WatchdogThread.joinable())
+        m_WatchdogThread.join();
+}
+
+void Core::ResponsivenessWatchdogLoop()
+{
+    while (!m_StopWatchdog.load(std::memory_order_acquire))
+    {
+        std::this_thread::sleep_for(kResponsivenessWatchdogSleep);
+        if (m_StopWatchdog.load(std::memory_order_acquire))
+            break;
+
+        if (!m_Window || m_Window->IsIconified() || !m_HasActivatedOnce)
+            continue;
+
+        const std::uint64_t nowMs = SteadyClockMillis();
+        const std::uint64_t lastTickMs = m_LastResponsiveTickMs.load(std::memory_order_relaxed);
+        if (nowMs <= lastTickMs)
+            continue;
+
+        if ((nowMs - lastTickMs) < static_cast<std::uint64_t>(kResponsivenessWatchdogThreshold.count()))
+            continue;
+
+        gfx::Window::EmergencyMinimizeProcessWindow();
+        m_LastResponsiveTickMs.store(nowMs, std::memory_order_relaxed);
+    }
+}
+#endif

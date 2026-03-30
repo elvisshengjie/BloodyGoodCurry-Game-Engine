@@ -43,6 +43,7 @@ namespace gfx {
 
         // Poll OS / input events (keyboard, mouse, etc.).
         void pollEvents();
+        void WaitForEventsTimeout(double timeoutSeconds);
 
         // Start a new frame (clear color/depth, begin ImGui frame if you use it).
         void beginFrame();
@@ -59,6 +60,9 @@ namespace gfx {
         // Window state queries useful for pause/resume handling.
         bool IsIconified() const { return m_iconified; }
         bool HasFocus() const { return m_focused; }
+        bool IsForegroundWindow() const;
+        void MinimizeForInterruption();
+        static void EmergencyMinimizeProcessWindow() noexcept;
 
         // Toggle fullscreen/windowed at runtime (non-resizable windowed mode).
         void ToggleFullscreen();
@@ -74,6 +78,7 @@ namespace gfx {
     private:
         // Global raw pointer to the GLFW window. (kept static to match your original design)
         static GLFWwindow* s_window;
+        static void* s_nativeWindowHandle;
         static void OnIconify(GLFWwindow* win, int iconified);
         static void OnFocus(GLFWwindow* win, int focused);
         static void SyncFocusFromAttribs(Window* self, GLFWwindow* win);

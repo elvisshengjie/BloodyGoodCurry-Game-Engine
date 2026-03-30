@@ -1,4 +1,4 @@
-/*********************************************************************************************
+﻿/*********************************************************************************************
  \file      CrashLogger.hpp
  \par       SofaSpuds
  \author    Erika Ishii (erika.ishii@digipen.edu) - Main Author, 100%
@@ -8,7 +8,7 @@
             and InstallSignalHandlers() during startup. Use Write(reason, extra) for manual logs
             and WriteWithStack(reason, extra) when you want an automatic stack trace appended.
  \copyright
-            All content �2025 DigiPen Institute of Technology Singapore.
+            All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
 *********************************************************************************************/
 
@@ -40,9 +40,11 @@ private:
 };
 
 extern CrashLogger* g_crashLogger;
+using CrashWindowMinimizeFn = void(*)() noexcept;
 
 void InstallTerminateHandler();
 void InstallSignalHandlers();
+void SetCrashWindowMinimizeCallback(CrashWindowMinimizeFn fn);
 
 struct TryGuard {
     template <typename F>
@@ -83,3 +85,4 @@ private:
     T* p_;
     D d_;
 };
+

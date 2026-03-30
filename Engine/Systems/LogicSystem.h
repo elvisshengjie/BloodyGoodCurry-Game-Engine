@@ -204,6 +204,7 @@ namespace Framework {
         int                                  screenH{ 600 };
 
         bool                                 crashTestLatched{ false };
+        bool                                 hangTestLatched{ false };
         std::unique_ptr<CrashLogger>         crashLogger;
         std::filesystem::path                startupLevelPath;
         std::function<void(LogicSystem&)>    postLevelLoadCallback;

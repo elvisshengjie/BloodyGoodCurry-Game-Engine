@@ -47,6 +47,8 @@
 #include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include <Debug/UndoStack.h>
 
 #include "Common/CRTDebug.h"   // <- bring in DBG_NEW
@@ -233,8 +235,9 @@ namespace Framework {
             std::string("ENGINE/CRASH"));
         g_crashLogger = crashLogger.get();
         std::cout << "[CrashLog] " << g_crashLogger->LogPath() << "\n";
-#ifndef NDEBUG
+#if SOFASPUDS_ENABLE_EDITOR
         std::cout << "[CrashLog] Press F9 to force a crash-test (logs to file + logcat).\n";
+        std::cout << "[CrashLog] Press F12 to force a hang-test (watchdog should minimize after stall).\n";
 #endif
         std::cout << "[CrashLog] Android builds mirror to ENGINE/CRASH in logcat.\n";
 
@@ -274,8 +277,9 @@ namespace Framework {
         std::cout << "\n=== Controls ===\n"
             << "WASD: Move | Q/E: Rotate | Z/X: Scale | R: Reset\n"
             << "F1: Toggle Performance Overlay (FPS & timings)\n"
-#ifndef NDEBUG
+#if SOFASPUDS_ENABLE_EDITOR
             << "F9: Trigger crash logging test (SIGABRT)\n"
+            << "F12: Trigger hang test (freeze and let watchdog minimize)\n"
 #endif
             << "=======================================\n";
     }
@@ -288,7 +292,7 @@ namespace Framework {
     void LogicSystem::Update(float dt)
     {
         TryGuard::Run([&] {
-#ifndef NDEBUG
+#if SOFASPUDS_ENABLE_EDITOR
             bool triggerCrash = input.IsKeyPressed(GLFW_KEY_F9);
             if (triggerCrash && !crashTestLatched) {
                 crashTestLatched = true;
@@ -297,10 +301,33 @@ namespace Framework {
                     g_crashLogger->Mirror(line);
                 }
                 std::cout << "[CrashLog] Deliberate crash requested via F9.\n";
+                if (window)
+                {
+                    window->MinimizeForInterruption();
+                    gfx::Window::EmergencyMinimizeProcessWindow();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+                }
                 std::raise(SIGABRT);
             }
             else if (!triggerCrash) {
                 crashTestLatched = false;
+            }
+
+            const bool triggerHang = input.IsKeyPressed(GLFW_KEY_F12);
+            if (triggerHang && !hangTestLatched) {
+                hangTestLatched = true;
+                if (g_crashLogger) {
+                    auto line = g_crashLogger->WriteWithStack("manual_hang_trigger", "key=F12|stage=pre_hang");
+                    g_crashLogger->Mirror(line);
+                }
+                std::cout << "[CrashLog] Deliberate hang requested via F12.\n";
+                for (;;)
+                {
+                    std::this_thread::sleep_for(std::chrono::seconds(1));
+                }
+            }
+            else if (!triggerHang) {
+                hangTestLatched = false;
             }
 #endif
             if (factory)
