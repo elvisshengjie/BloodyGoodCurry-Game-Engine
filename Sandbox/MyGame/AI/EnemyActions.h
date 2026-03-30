@@ -358,6 +358,164 @@ namespace mygame
     }
 
     /*****************************************************************************************
+      \brief Checks whether a proposed enemy position would overlap a wall object.
+      \param enemy Enemy being moved.
+      \param rb    Enemy rigid body used for AABB dimensions.
+      \param nextX Proposed world X center.
+      \param nextY Proposed world Y center.
+      \return True if the future AABB would overlap any solid "rect" object.
+    *****************************************************************************************/
+    inline bool WouldCollideWithSolid(
+        Framework::GOC* enemy,
+        Framework::RigidBodyComponent* rb,
+        float nextX,
+        float nextY)
+    {
+        if (!(enemy && rb && Framework::FACTORY))
+            return true;
+
+        const auto& layers = Framework::FACTORY->Layers();
+        const Framework::LayerKey enemyLayer = layers.LayerKeyFor(enemy->GetId());
+        if (!layers.IsLayerEnabled(enemyLayer))
+            return true;
+
+        const Framework::AABB futureBox(nextX, nextY, rb->width, rb->height);
+        for (auto& pair : Framework::FACTORY->Objects())
+        {
+            if (!pair.second)
+                continue;
+
+            GOC* goc = pair.second.get();
+            if (!goc || goc == enemy)
+                continue;
+
+            const Framework::LayerKey otherLayer = layers.LayerKeyFor(goc->GetId());
+            if (!layers.IsLayerEnabled(otherLayer) || !(otherLayer == enemyLayer))
+                continue;
+
+            auto* rbO = goc->GetComponentType<Framework::RigidBodyComponent>(
+                Framework::ComponentTypeId::CT_RigidBodyComponent);
+            auto* trO = goc->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            if (!rbO || !trO)
+                continue;
+            if (rbO->width <= 0.0f || rbO->height <= 0.0f)
+                continue;
+
+            const Framework::AABB solidBox(trO->x, trO->y, rbO->width, rbO->height);
+            if (Framework::Collision::CheckCollisionRectToRect(futureBox, solidBox))
+                return true;
+        }
+
+        return false;
+    }
+
+    /*****************************************************************************************
+      \brief Checks whether a projectile-sized box would hit a world blocker at a position.
+      \param enemy     Enemy requesting the query.
+      \param target    Intended player target to ignore for blocker checks.
+      \param nextX     Proposed projectile center X.
+      \param nextY     Proposed projectile center Y.
+      \param width     Projectile width.
+      \param height    Projectile height.
+      \return True if an environment collider would consume the projectile before it reaches target.
+    *****************************************************************************************/
+    inline bool WouldProjectileHitBlocker(
+        Framework::GOC* enemy,
+        Framework::GOC* target,
+        float nextX,
+        float nextY,
+        float width,
+        float height)
+    {
+        if (!(enemy && Framework::FACTORY))
+            return true;
+
+        const auto& layers = Framework::FACTORY->Layers();
+        const Framework::LayerKey enemyLayer = layers.LayerKeyFor(enemy->GetId());
+        if (!layers.IsLayerEnabled(enemyLayer))
+            return true;
+
+        const Framework::AABB futureBox(nextX, nextY, width, height);
+        for (auto& pair : Framework::FACTORY->Objects())
+        {
+            if (!pair.second)
+                continue;
+
+            GOC* goc = pair.second.get();
+            if (!goc || goc == enemy || goc == target)
+                continue;
+
+            const Framework::LayerKey otherLayer = layers.LayerKeyFor(goc->GetId());
+            if (!layers.IsLayerEnabled(otherLayer) || !(otherLayer == enemyLayer))
+                continue;
+
+            auto* rbO = goc->GetComponentType<Framework::RigidBodyComponent>(
+                Framework::ComponentTypeId::CT_RigidBodyComponent);
+            auto* trO = goc->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent);
+            if (!rbO || !trO)
+                continue;
+            if (rbO->width <= 0.0f || rbO->height <= 0.0f)
+                continue;
+
+            const bool isPlayer = goc->GetComponentType<Framework::PlayerComponent>(
+                Framework::ComponentTypeId::CT_PlayerComponent) != nullptr;
+            const bool isEnemy = goc->GetComponentType<Framework::EnemyComponent>(
+                Framework::ComponentTypeId::CT_EnemyComponent) != nullptr;
+            if (isPlayer || isEnemy)
+                continue;
+
+            const Framework::AABB solidBox(trO->x, trO->y, rbO->width, rbO->height);
+            if (Framework::Collision::CheckCollisionRectToRect(futureBox, solidBox))
+                return true;
+        }
+
+        return false;
+    }
+
+    /*****************************************************************************************
+      \brief Samples along the enemy's firing lane to see if a projectile would be blocked.
+      \param enemy   Enemy attempting the shot.
+      \param player  Intended player target.
+      \param spawnX  Projectile start center X.
+      \param spawnY  Projectile start center Y.
+      \param dirX    Normalized fire direction X.
+      \param dirY    Normalized fire direction Y.
+      \param distanceToTarget Distance from enemy to player.
+      \param width   Projectile width.
+      \param height  Projectile height.
+      \return True when the lane is clear enough for the projectile to reach the player.
+    *****************************************************************************************/
+    inline bool HasClearProjectileLane(
+        Framework::GOC* enemy,
+        Framework::GOC* player,
+        float spawnX,
+        float spawnY,
+        float dirX,
+        float dirY,
+        float distanceToTarget,
+        float width,
+        float height)
+    {
+        const float laneDistance = std::max(0.0f, distanceToTarget);
+        const float sampleSpacing = std::max(width, height) * 0.75f;
+        const int sampleCount = std::max(1, static_cast<int>(std::ceil(
+            laneDistance / std::max(sampleSpacing, 0.02f))));
+
+        for (int i = 0; i <= sampleCount; ++i)
+        {
+            const float t = static_cast<float>(i) / static_cast<float>(sampleCount);
+            const float sampleX = spawnX + (dirX * laneDistance * t);
+            const float sampleY = spawnY + (dirY * laneDistance * t);
+            if (WouldProjectileHitBlocker(enemy, player, sampleX, sampleY, width, height))
+                return false;
+        }
+
+        return true;
+    }
+
+    /*****************************************************************************************
       \brief AI action: moves the enemy back and forth along a fixed horizontal patrol range.
       \param ctx BehaviorContext containing owner, dt, and blackboard.
       \details
@@ -902,6 +1060,17 @@ namespace mygame
         if (!attack || !rb || !tr || !ai || !player) return;
         TickSlowTimer(enemy, ctx.dt);
 
+        if (!ai->patrolOriginSet)
+        {
+            ai->patrolOriginX = tr->x;
+            ai->patrolOriginY = tr->y;
+            ai->patrolOriginSet = true;
+            ai->prevX = tr->x;
+            ai->prevY = tr->y;
+            if (ai->dir == 0.0f)
+                ai->dir = 1.0f;
+        }
+
         // KNOCKBACK GUARD
         if (ai->knockbackTimer > 0.0f)
         {
@@ -920,6 +1089,10 @@ namespace mygame
         float dx = trPlayer->x - tr->x;
         float dy = trPlayer->y - tr->y;
         float distance = std::sqrt(dx * dx + dy * dy);
+
+        ai->rangedMovePauseTimer = std::max(0.0f, ai->rangedMovePauseTimer - ctx.dt);
+        ai->rangedDirectionLockTimer = std::max(0.0f, ai->rangedDirectionLockTimer - ctx.dt);
+        ai->rangedRepositionTimer = std::max(0.0f, ai->rangedRepositionTimer - ctx.dt);
 
         if (ai->rangedAttackActive)
         {
@@ -941,6 +1114,7 @@ namespace mygame
                 ai->rangedAttackActive = false;
                 ai->rangedAttackTimer = 0.0f;
                 ai->rangedAttackDuration = 0.0f;
+                ai->rangedMovePauseTimer = 0.18f;
                 PlayAnim(enemy, "idle");
             }
             return;
@@ -950,44 +1124,160 @@ namespace mygame
         float dirX = dx / norm;
         float dirY = dy / norm;
 
-        constexpr float speed = 1.0f;
-        constexpr float retreatSpeed = 0.45f;
+        constexpr float speed = 0.65f;
+        constexpr float retreatSpeed = 0.22f;
+        constexpr float strafeSpeed = 0.30f;
         constexpr float minDist = 0.5f;
         constexpr float maxDist = 1.2f;
-        constexpr float retreatDuration = 3.0f;
+        constexpr float retreatDuration = 0.65f;
+        constexpr float diagonalMix = 0.55f;
+        constexpr float stuckMoveThreshold = 0.0025f;
+        constexpr float directionLockDuration = 0.35f;
+        constexpr float projectileWidth = 0.15f;
+        constexpr float projectileHeight = 0.08f;
+        constexpr float boxedInPauseDuration = 0.12f;
+        constexpr float boxedInRepositionDuration = 0.55f;
 
         float& retreatTimer = ai->retreatTimer;
+        const float slowScale = GetSlowScale(enemy);
         FaceTargetHorizontally(enemy, ai, dx);
 
-        if (retreatTimer > 0.0f)
+        const float projectileSpawnOffset = std::max(rb->width, rb->height);
+        const float projectileSpawnX = tr->x + dirX * projectileSpawnOffset;
+        const float projectileSpawnY = tr->y + dirY * projectileSpawnOffset;
+        const bool projectileLaneBlocked =
+            distance < kRangedAttackFireDist &&
+            !HasClearProjectileLane(enemy, player,
+                projectileSpawnX, projectileSpawnY,
+                dirX, dirY, distance,
+                projectileWidth, projectileHeight);
+
+        const bool wantsRetreat = retreatTimer > 0.0f || distance < minDist;
+        const bool wantsApproach = !wantsRetreat &&
+            (distance > maxDist ||
+                projectileLaneBlocked ||
+                ai->rangedRepositionTimer > 0.0f);
+        const bool wantsStrafe = !wantsRetreat && !wantsApproach;
+
+        const float movedX = tr->x - ai->prevX;
+        const float movedY = tr->y - ai->prevY;
+        const float movedDistance = std::sqrt(movedX * movedX + movedY * movedY);
+        if (movedDistance < stuckMoveThreshold)
         {
-            retreatTimer -= ctx.dt;
-            rb->velX = -dirX * retreatSpeed * GetSlowScale(enemy);
-            rb->velY = -dirY * retreatSpeed * GetSlowScale(enemy);
-        }
-        else if (distance < minDist)
-        {
-            rb->velX = ((rand() % 100) < 20) ? -dirX * retreatSpeed * GetSlowScale(enemy) : rb->velX * 0.5f;
-        }
-        else if (distance > maxDist)
-        {
-            rb->velX = dirX * speed * GetSlowScale(enemy);
+            ai->stuckXTimer += ctx.dt;
+            ai->stuckYTimer += ctx.dt;
         }
         else
         {
-            rb->velX *= 0.85f;
+            ai->stuckXTimer = 0.0f;
+            ai->stuckYTimer = 0.0f;
+        }
+
+        if (wantsStrafe &&
+            ai->rangedDirectionLockTimer <= 0.0f &&
+            std::max(ai->stuckXTimer, ai->stuckYTimer) >= ai->stuckThreshold)
+        {
+            ai->dir *= -1.0f;
+            ai->rangedDirectionLockTimer = directionLockDuration;
+            ai->stuckXTimer = 0.0f;
+            ai->stuckYTimer = 0.0f;
+        }
+
+        auto tryDirectionalMove = [&](float rawDirX, float rawDirY, float moveSpeed)
+            {
+                const float rawLen = std::sqrt(rawDirX * rawDirX + rawDirY * rawDirY);
+                if (rawLen <= 0.0001f)
+                    return false;
+
+                const float velX = (rawDirX / rawLen) * moveSpeed * slowScale;
+                const float velY = (rawDirY / rawLen) * moveSpeed * slowScale;
+                const float nextX = tr->x + velX * ctx.dt;
+                const float nextY = tr->y + velY * ctx.dt;
+                if (WouldCollideWithSolid(enemy, rb, nextX, nextY))
+                    return false;
+
+                rb->velX = velX;
+                rb->velY = velY;
+                return true;
+            };
+
+        if (retreatTimer > 0.0f)
+            retreatTimer = std::max(0.0f, retreatTimer - ctx.dt);
+
+        if (ai->rangedMovePauseTimer > 0.0f)
+        {
+            rb->velX = 0.0f;
+            rb->velY = 0.0f;
+        }
+        else
+        {
+            const float strafeDirX = -dirY * ai->dir;
+            const float strafeDirY = dirX * ai->dir;
+
+            auto tryMovementPlan = [&](float activeStrafeDirX, float activeStrafeDirY)
+                {
+                    if (wantsRetreat)
+                    {
+                        return
+                            tryDirectionalMove(-dirX + activeStrafeDirX * diagonalMix,
+                                -dirY + activeStrafeDirY * diagonalMix, retreatSpeed) ||
+                            tryDirectionalMove(-dirX, -dirY, retreatSpeed) ||
+                            tryDirectionalMove(activeStrafeDirX, activeStrafeDirY, strafeSpeed);
+                    }
+
+                    if (wantsApproach)
+                    {
+                        return
+                            tryDirectionalMove(dirX + activeStrafeDirX * diagonalMix,
+                                dirY + activeStrafeDirY * diagonalMix, speed) ||
+                            tryDirectionalMove(dirX, dirY, speed) ||
+                            tryDirectionalMove(activeStrafeDirX, activeStrafeDirY, strafeSpeed);
+                    }
+
+                    return tryDirectionalMove(activeStrafeDirX, activeStrafeDirY, strafeSpeed);
+                };
+
+            bool moved = tryMovementPlan(strafeDirX, strafeDirY);
+            if (!moved && ai->rangedDirectionLockTimer <= 0.0f)
+            {
+                const float originalDir = ai->dir;
+                ai->dir = -originalDir;
+                ai->rangedDirectionLockTimer = directionLockDuration;
+                ai->stuckXTimer = 0.0f;
+                ai->stuckYTimer = 0.0f;
+                moved = tryMovementPlan(-strafeDirX, -strafeDirY);
+                if (!moved)
+                    ai->dir = originalDir;
+            }
+
+            if (!moved)
+            {
+                rb->velX = 0.0f;
+                rb->velY = 0.0f;
+                if (wantsStrafe)
+                {
+                    ai->rangedMovePauseTimer = std::max(ai->rangedMovePauseTimer, boxedInPauseDuration);
+                    ai->rangedRepositionTimer = std::max(ai->rangedRepositionTimer, boxedInRepositionDuration);
+                    ai->rangedDirectionLockTimer = std::max(ai->rangedDirectionLockTimer, directionLockDuration);
+                    ai->stuckXTimer = 0.0f;
+                    ai->stuckYTimer = 0.0f;
+                }
+            }
         }
 
         attack->attack_timer += ctx.dt;
 
-        if (attack->attack_timer >= attack->attack_speed && retreatTimer <= 0.0f && distance < kRangedAttackFireDist)
+        if (attack->attack_timer >= attack->attack_speed &&
+            retreatTimer <= 0.0f &&
+            distance < kRangedAttackFireDist &&
+            !projectileLaneBlocked)
         {
             attack->attack_timer = 0.0f;
 
             ai->pendingProjectileDirX = dirX;
             ai->pendingProjectileDirY = dirY;
-            ai->pendingProjectileSpawnX = tr->x + dirX * (std::max(rb->width, rb->height));
-            ai->pendingProjectileSpawnY = tr->y + dirY * (std::max(rb->width, rb->height));
+            ai->pendingProjectileSpawnX = projectileSpawnX;
+            ai->pendingProjectileSpawnY = projectileSpawnY;
             ai->pendingProjectile = true;
             FaceTargetHorizontally(enemy, ai, ai->pendingProjectileDirX);
 
@@ -1002,6 +1292,7 @@ namespace mygame
             ai->rangedAttackDuration = GetAnimDuration(enemy, "rangeattack");
             rb->velX = 0.0f;
             rb->velY = 0.0f;
+            ai->rangedMovePauseTimer = 0.0f;
             retreatTimer = retreatDuration;
         }
 
@@ -1023,5 +1314,8 @@ namespace mygame
             ai->chaseTimer = 0.0f;
             ai->hasSeenPlayer = true;
         }
+
+        ai->prevX = tr->x;
+        ai->prevY = tr->y;
     }
 }

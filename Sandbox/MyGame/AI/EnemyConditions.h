@@ -35,7 +35,7 @@ namespace mygame
     static constexpr float kMeleeDetectionRadius = 0.3f;        //< Aggro radius for melee enemies; triggers chase when player is within this distance.
     static constexpr float kMeleeChaseRetentionRadius = 1.2f;   ///< Melee enemies disengage if the player exceeds this distance.
     static constexpr float kRangedDetectionRadius = 0.5f;       ///< Aggro radius for ranged enemies; slightly wider than melee.
-    static constexpr float kRangedChaseRetentionRadius = 2.0f;  ///< Ranged enemies retain chase longer before disengaging.
+    static constexpr float kRangedChaseRetentionRadius = 2.0f;  ///< Ranged enemies disengage if the player leaves their retained combat space.
     static constexpr float kHeiBangDetectionRadius = 3.0f;      ///< Boss aggro radius so HeiBang engages from across the arena.
     static constexpr float kHeiBangChaseRetentionRadius = 4.0f; ///< Boss retention radius so HeiBang stays active once engaged.
 

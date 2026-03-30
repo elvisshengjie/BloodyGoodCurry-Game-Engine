@@ -82,6 +82,9 @@ namespace Framework {
         bool rangedProjectileFired = false;  ///< True once the ranged projectile has been spawned.
         float rangedAttackTimer = 0.0f;      ///< Timer tracking ranged attack animation elapsed time.
         float rangedAttackDuration = 0.0f;   ///< Cached duration for the ranged attack animation.
+        float rangedMovePauseTimer = 0.0f;   ///< Brief settle time after a ranged shot finishes.
+        float rangedDirectionLockTimer = 0.0f; ///< Prevents rapid left/right strafe flipping.
+        float rangedRepositionTimer = 0.0f;  ///< Short forced reposition window when boxed in by walls.
         bool meleeAttackActive = false;      ///< True while a timed melee wind-up/attack animation is playing.
         bool pendingMeleeHitbox = false;     ///< True until the timed melee hitbox is emitted.
         float meleeAttackElapsed = 0.0f;     ///< Elapsed time within the current timed melee attack.
@@ -124,6 +127,9 @@ namespace Framework {
             rangedProjectileFired = false;
             rangedAttackTimer = 0.0f;
             rangedAttackDuration = 0.0f;
+            rangedMovePauseTimer = 0.0f;
+            rangedDirectionLockTimer = 0.0f;
+            rangedRepositionTimer = 0.0f;
             meleeAttackActive = false;
             pendingMeleeHitbox = false;
             meleeAttackElapsed = 0.0f;
@@ -177,6 +183,9 @@ namespace Framework {
             copy->pendingProjectileSpawnY = pendingProjectileSpawnY;
             copy->rangedAttackTimer = rangedAttackTimer;
             copy->rangedAttackDuration = rangedAttackDuration;
+            copy->rangedMovePauseTimer = rangedMovePauseTimer;
+            copy->rangedDirectionLockTimer = rangedDirectionLockTimer;
+            copy->rangedRepositionTimer = rangedRepositionTimer;
             copy->meleeAttackActive = meleeAttackActive;
             copy->pendingMeleeHitbox = pendingMeleeHitbox;
             copy->meleeAttackElapsed = meleeAttackElapsed;

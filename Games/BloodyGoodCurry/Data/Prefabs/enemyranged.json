@@ -73,7 +73,7 @@
         "loop": true,
         "play": true
       },
-      "RigidBodyComponent": { "velocity_x": 10, "velocity_y": 0, "width": 0.1, "height": 0.1 },
+      "RigidBodyComponent": { "velocity_x": 10, "velocity_y": 0, "width": 0.1, "height": 0.14 },
 
       "EnemyComponent": {},
 
@@ -116,3 +116,4 @@
     }
   }
 }
+

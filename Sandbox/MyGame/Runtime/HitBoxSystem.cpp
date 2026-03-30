@@ -528,10 +528,15 @@ namespace Framework
                         EmitCombatAudio(combatAudioCallback, obj, CombatAudioEvent::EnemyHurt);
                     }
                 }
-                else
+                else if (it->isProjectile ||
+                    HB->team == HitBoxComponent::Team::Thrown ||
+                    HB->team == HitBoxComponent::Team::PlayerSlow)
                 {
                     validTargetHit = true;
                 }
+
+                if (!validTargetHit)
+                    continue;
 
                 if (validTargetHit)
                 {

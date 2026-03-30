@@ -128,6 +128,7 @@ namespace {
     constexpr float kProjectileLifetime = 0.80f;
     constexpr float kMeleeCooldown = 0.4f;
     constexpr float kThrowCooldown = 2.2f;
+    constexpr float kMeleeHitboxSize = 0.2f;
     /*****************************************************************************************
       \brief Slow down attack constants
     *****************************************************************************************/
@@ -820,7 +821,7 @@ namespace {
             {
                 gLogicSystem->hitBoxSystem->SpawnHitBox(obj,
                     hitX, hitY,
-                    0.1f, 0.1f,
+                    kMeleeHitboxSize, kMeleeHitboxSize,
                     1.0f, 0.2f,
                     Framework::HitBoxComponent::Team::Player);
             }

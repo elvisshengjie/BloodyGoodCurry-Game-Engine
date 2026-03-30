@@ -4064,7 +4064,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -4725,7 +4725,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -4908,7 +4908,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5091,7 +5091,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5274,7 +5274,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5457,7 +5457,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5646,7 +5646,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5835,7 +5835,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.10000000149011612,
+            "height": 0.14,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5989,3 +5989,4 @@
     "name": "RealLevel1"
   }
 }
+
