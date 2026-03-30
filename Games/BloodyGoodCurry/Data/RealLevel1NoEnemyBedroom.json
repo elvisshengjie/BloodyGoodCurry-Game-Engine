@@ -2159,7 +2159,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 4,
+                "currentFrame": 5,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2212,7 +2212,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -4440,8 +4440,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": -1.0592784881591797,
-            "y": 0.10396581888198853
+            "x": -1.254590392112732,
+            "y": -0.5947554707527161
           }
         },
         "layer": "Gameplay:0",
@@ -4459,7 +4459,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
-            "blend_mode": "alpha",
+            "blend_mode": "add",
             "g": 1.0,
             "h": 0.10000000149011612,
             "layer": 0,
@@ -4490,7 +4490,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
-            "blend_mode": "alpha",
+            "blend_mode": "add",
             "g": 1.0,
             "h": 0.20000000298023224,
             "layer": 0,
@@ -4521,7 +4521,7 @@
           "RenderComponent": {
             "a": 1.0,
             "b": 1.0,
-            "blend_mode": "alpha",
+            "blend_mode": "add",
             "g": 1.0,
             "h": 0.10000000149011612,
             "layer": 0,
