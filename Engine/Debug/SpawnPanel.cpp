@@ -608,6 +608,7 @@ namespace Framework
 
             obj->SetLayerName(mygame::ActiveLayerName());
             mygame::editor::RecordObjectCreated(*obj);
+            mygame::SetSelectedObjectId(obj->GetId());
         }
 
         /*************************************************************************************

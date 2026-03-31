@@ -4444,6 +4444,66 @@
         },
         "layer": "Gameplay:1",
         "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "add",
+            "brightness": 0.8002147078514099,
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "window_light",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Window Light.png",
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "window_light"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.4512202739715576,
+            "scale_y": 1.4512202739715576,
+            "x": -0.8764968514442444,
+            "y": -0.8038740754127502
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "Window_Light"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "add",
+            "brightness": 0.8002147078514099,
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "window_light",
+            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Window Light.png",
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteComponent": {
+            "texture_key": "window_light"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 1.524095058441162,
+            "y": -0.8690000176429749
+          }
+        },
+        "layer": "Gameplay:5",
+        "name": "Window_Light"
       }
     ],
     "name": "RealLevel1NoEnemy"

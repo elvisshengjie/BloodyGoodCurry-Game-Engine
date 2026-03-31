@@ -101,6 +101,7 @@ namespace mygame {
         std::unordered_map<Framework::GOCId, BushPulseState> gBushPulseStates;
         std::filesystem::path gBushPulseLevelPath;
         float gBushPulseElapsed = 0.0f;
+        float gLightPulseElapsed = 0.0f;
 
         //Timer
         float bgmFadeTimer = 0.0f;
@@ -367,6 +368,62 @@ namespace mygame {
 
             const float t = (wrapped - kSegmentDuration) / kSegmentDuration;
             return maxBrightness + (kMinBrightness - maxBrightness) * std::clamp(t, 0.0f, 1.0f);
+        }
+
+        float EvaluateLightPulseBrightness(float elapsedSeconds)
+        {
+            constexpr float kPeakBrightness = 1.2f;
+            constexpr float kInitialDarkHold = 0.6f;
+            constexpr float kRampDuration = 0.2f;
+            constexpr float kPeakHoldDuration = 0.2f;
+            constexpr float kLongDarkHold = 0.3f;
+            constexpr float kLoopDuration =
+                kInitialDarkHold +
+                kRampDuration +
+                kPeakHoldDuration +
+                kRampDuration +
+                kLongDarkHold +
+                kRampDuration +
+                kRampDuration +
+                kRampDuration +
+                kRampDuration;
+
+            const float wrapped = std::fmod(std::max(elapsedSeconds, 0.0f), kLoopDuration);
+            float t = wrapped;
+
+            if (t < kInitialDarkHold)
+                return 0.0f;
+            t -= kInitialDarkHold;
+
+            if (t < kRampDuration)
+                return kPeakBrightness * std::clamp(t / kRampDuration, 0.0f, 1.0f);
+            t -= kRampDuration;
+
+            if (t < kPeakHoldDuration)
+                return kPeakBrightness;
+            t -= kPeakHoldDuration;
+
+            if (t < kRampDuration)
+                return kPeakBrightness * (1.0f - std::clamp(t / kRampDuration, 0.0f, 1.0f));
+            t -= kRampDuration;
+
+            if (t < kLongDarkHold)
+                return 0.0f;
+            t -= kLongDarkHold;
+
+            if (t < kRampDuration)
+                return kPeakBrightness * std::clamp(t / kRampDuration, 0.0f, 1.0f);
+            t -= kRampDuration;
+
+            if (t < kRampDuration)
+                return kPeakBrightness * (1.0f - std::clamp(t / kRampDuration, 0.0f, 1.0f));
+            t -= kRampDuration;
+
+            if (t < kRampDuration)
+                return kPeakBrightness * std::clamp(t / kRampDuration, 0.0f, 1.0f);
+            t -= kRampDuration;
+
+            return kPeakBrightness * (1.0f - std::clamp(t / kRampDuration, 0.0f, 1.0f));
         }
 
         bool ResolveLevelEntryCutsceneAssets(const std::filesystem::path& levelPath,
@@ -702,6 +759,7 @@ namespace mygame {
                 gBushPulseStates.clear();
                 gBushPulseLevelPath.clear();
                 gBushPulseElapsed = 0.0f;
+                gLightPulseElapsed = 0.0f;
                 return;
             }
 
@@ -712,12 +770,17 @@ namespace mygame {
                 gBushPulseStates.clear();
                 gBushPulseLevelPath = currentLevelPath;
                 gBushPulseElapsed = 0.0f;
+                gLightPulseElapsed = 0.0f;
             }
 
             constexpr float kBushPulseLoopDuration = 4.0f;
+            constexpr float kLightPulseLoopDuration = 2.3f;
             gBushPulseElapsed = std::fmod(gBushPulseElapsed + std::max(dt, 0.0f), kBushPulseLoopDuration);
             if (gBushPulseElapsed < 0.0f)
                 gBushPulseElapsed += kBushPulseLoopDuration;
+            gLightPulseElapsed = std::fmod(gLightPulseElapsed + std::max(dt, 0.0f), kLightPulseLoopDuration);
+            if (gLightPulseElapsed < 0.0f)
+                gLightPulseElapsed += kLightPulseLoopDuration;
 
             std::unordered_set<Framework::GOCId> seenBushes;
             for (auto const& [id, ptr] : factory->Objects())
@@ -734,13 +797,18 @@ namespace mygame {
                 auto* sprite = obj->GetComponentType<Framework::SpriteComponent>(
                     Framework::ComponentTypeId::CT_SpriteComponent);
 
-                if (render->blendMode == Framework::BlendMode::Alpha &&
-                    HasRenderHintToken(*obj, *render, sprite, "light"))
+                const bool hasLightHint = HasRenderHintToken(*obj, *render, sprite, "light");
+                const bool hasBushHint = HasRenderHintToken(*obj, *render, sprite, "bush");
+
+                if (hasLightHint)
                 {
                     render->blendMode = Framework::BlendMode::Add;
+                    render->brightness = EvaluateLightPulseBrightness(gLightPulseElapsed);
+                    gBushPulseStates.erase(id);
+                    continue;
                 }
 
-                if (!HasRenderHintToken(*obj, *render, sprite, "bush"))
+                if (!hasBushHint)
                 {
                     gBushPulseStates.erase(id);
                     continue;
