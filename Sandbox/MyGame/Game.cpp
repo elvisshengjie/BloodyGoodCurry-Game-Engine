@@ -1295,7 +1295,6 @@ namespace mygame {
             {
                 if (gLogicSystem && gLogicSystem->hitBoxSystem)
                     gLogicSystem->hitBoxSystem->Update(dt);
-                UpdateGameSpecificRenderHints(dt);
                 UpdateEnemyClearFlashComponents(dt);
             });
         }
@@ -1392,6 +1391,7 @@ namespace mygame {
         TryGuard::Run([&] {
             stateAdvanceInputBlockTimer = std::max(0.0f, stateAdvanceInputBlockTimer - dt);
             SoundManager::getInstance().update(dt);
+            UpdateGameSpecificRenderHints(dt);
             const bool editorMode = Framework::RenderSystem::IsEditorVisible();
             const bool systemsUpdating = (currentState == GameState::PLAYING && editorSimulationRunning);
             if (!systemsUpdating && gInputSystem) {
