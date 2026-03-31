@@ -2159,7 +2159,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 5,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2212,7 +2212,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -4064,7 +4064,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -4725,7 +4725,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -4908,7 +4908,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5091,7 +5091,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5274,7 +5274,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5457,7 +5457,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5646,7 +5646,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5835,7 +5835,7 @@
             "w": 0.30000001192092896
           },
           "RigidBodyComponent": {
-            "height": 0.14,
+            "height": 0.14000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
@@ -5928,7 +5928,7 @@
           "FlashComponent": {
             "activate_on_enemy_clear": true,
             "duration": 0.0,
-            "frequency": 8.0,
+            "frequency": 1.0,
             "hide_until_activated": true,
             "start_visible": true
           },
@@ -5940,7 +5940,7 @@
             "h": 0.10000000149011612,
             "layer": 0,
             "r": 1.0,
-            "visible": true,
+            "visible": false,
             "w": 0.10000000149011612
           },
           "TransformComponent": {
@@ -5959,7 +5959,7 @@
           "FlashComponent": {
             "activate_on_enemy_clear": true,
             "duration": 0.0,
-            "frequency": 8.0,
+            "frequency": 1.0,
             "hide_until_activated": true,
             "start_visible": true
           },
@@ -5971,7 +5971,7 @@
             "h": 0.20000000298023224,
             "layer": 0,
             "r": 1.0,
-            "visible": true,
+            "visible": false,
             "w": 0.15000000596046448
           },
           "TransformComponent": {
@@ -5989,4 +5989,3 @@
     "name": "RealLevel1"
   }
 }
-

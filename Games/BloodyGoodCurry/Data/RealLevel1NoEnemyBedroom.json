@@ -2159,7 +2159,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 5,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2212,7 +2212,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 3,
+                "currentFrame": 4,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -4452,7 +4452,7 @@
           "FlashComponent": {
             "activate_on_enemy_clear": true,
             "duration": 0.0,
-            "frequency": 8.0,
+            "frequency": 1.0,
             "hide_until_activated": true,
             "start_visible": true
           },
@@ -4483,7 +4483,7 @@
           "FlashComponent": {
             "activate_on_enemy_clear": true,
             "duration": 0.0,
-            "frequency": 8.0,
+            "frequency": 1.0,
             "hide_until_activated": true,
             "start_visible": true
           },
@@ -4514,7 +4514,7 @@
           "FlashComponent": {
             "activate_on_enemy_clear": true,
             "duration": 0.0,
-            "frequency": 8.0,
+            "frequency": 1.0,
             "hide_until_activated": true,
             "start_visible": true
           },
