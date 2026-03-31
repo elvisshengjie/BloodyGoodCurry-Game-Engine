@@ -135,43 +135,6 @@ namespace Framework {
             return out;
         }
 
-        inline bool ContainsToken(std::string_view value, std::string_view token)
-        {
-            return ToLower(std::string(value)).find(std::string(token)) != std::string::npos;
-        }
-
-        inline bool IsBushHinted(const GOC& object, const RenderComponent& render, const SpriteComponent* sprite)
-        {
-            return ContainsToken(object.GetObjectName(), "bush") ||
-                ContainsToken(render.texture_path, "bush") ||
-                ContainsToken(render.texture_key, "bush") ||
-                (sprite && (ContainsToken(sprite->texture_key, "bush") || ContainsToken(sprite->path, "bush")));
-        }
-
-        inline float EvaluateBushPulseBrightness(float peakBrightness, float elapsedSeconds)
-        {
-            constexpr float kBushPulseMinBrightness = 1.0f;
-            constexpr float kBushPulseSegmentDuration = 2.0f;
-            constexpr float kBushPulseDuration = kBushPulseSegmentDuration * 2.0f;
-
-            const float clampedPeak = std::max(peakBrightness, 0.0f);
-            if (clampedPeak <= 0.0f)
-                return 0.0f;
-
-            const float minBrightness = std::min(kBushPulseMinBrightness, clampedPeak);
-            const float maxBrightness = std::max(kBushPulseMinBrightness, clampedPeak);
-            const float wrapped = std::fmod(std::max(elapsedSeconds, 0.0f), kBushPulseDuration);
-
-            if (wrapped < kBushPulseSegmentDuration)
-            {
-                const float t = wrapped / kBushPulseSegmentDuration;
-                return minBrightness + (maxBrightness - minBrightness) * std::clamp(t, 0.0f, 1.0f);
-            }
-
-            const float t = (wrapped - kBushPulseSegmentDuration) / kBushPulseSegmentDuration;
-            return maxBrightness + (minBrightness - maxBrightness) * std::clamp(t, 0.0f, 1.0f);
-        }
-
         /*************************************************************************************
           \brief  Check whether the current GL context supports min/max blend equations.
           \return True when Lighten/Darken style blending can be used safely.
@@ -2480,10 +2443,6 @@ namespace Framework {
         UpdateGameViewport();
     }
 
-    void RenderSystem::Update(float dt)
-    {
-        bushPulseElapsed += std::max(dt, 0.0f);
-    }
     /*************************************************************************************
       \brief  Prepare GL state for drawing the main menu pages (screen-space).
       \note   Uses full-window viewport and identity VP so UI is not camera-affected.
@@ -3129,8 +3088,6 @@ namespace Framework {
                             b = rc->b;
                             a = rc->a;
                             brightness = std::max(rc->brightness, 0.0f);
-                            if (IsBushHinted(*obj, *rc, sp))
-                                brightness = EvaluateBushPulseBrightness(brightness, bushPulseElapsed);
                             blendMode = rc->blendMode;
                         }
 
@@ -3260,8 +3217,6 @@ namespace Framework {
                         {
                             const BlendMode blendMode = rc->blendMode;
                             float brightness = std::max(rc->brightness, 0.0f);
-                            if (IsBushHinted(*obj, *rc, nullptr))
-                                brightness = EvaluateBushPulseBrightness(brightness, bushPulseElapsed);
                             applyBlendMode(blendMode);
 
                             unsigned rectTex = rc->texture_id;

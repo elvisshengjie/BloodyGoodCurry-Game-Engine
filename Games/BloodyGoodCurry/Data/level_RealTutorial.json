@@ -55,7 +55,7 @@
       {
         "Components": {
           "RenderComponent": {
-            "a": 1.0,
+            "a": 0.25,
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,
@@ -7868,7 +7868,7 @@
             "start_visible": true
           },
           "RenderComponent": {
-            "a": 1.0,
+            "a": 0.25,
             "b": 1.0,
             "blend_mode": "alpha",
             "g": 1.0,

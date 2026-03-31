@@ -28,6 +28,7 @@
 #include "Memory/ObjectAllocator.h"
 #include "Component/FlashComponent.h"
 #include "Component/RenderComponent.h"
+#include "Component/SpriteComponent.h"
 #include "Physics/Dynamics/RigidBodyComponent.h"
 #include "Video/VideoPlayer.hpp"
 #include <algorithm>
@@ -40,6 +41,8 @@
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <unordered_set>
 #include <MainMenuPage.hpp>
 #include <PauseMenuPage.hpp>
 #include <DefeatScreenPage.hpp>
@@ -87,6 +90,17 @@ namespace mygame {
         bool levelMusicInitialized = false;
 
         std::string currentLevelMusic = "";
+
+        struct BushPulseState
+        {
+            float peakBrightness{ 2.0f };
+            float appliedBrightness{ 1.0f };
+            bool initialized{ false };
+        };
+
+        std::unordered_map<Framework::GOCId, BushPulseState> gBushPulseStates;
+        std::filesystem::path gBushPulseLevelPath;
+        float gBushPulseElapsed = 0.0f;
 
         //Timer
         float bgmFadeTimer = 0.0f;
@@ -318,6 +332,41 @@ namespace mygame {
             std::transform(value.begin(), value.end(), value.begin(),
                 [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
             return value;
+        }
+
+        bool ContainsToken(std::string_view value, std::string_view token)
+        {
+            return ToLowerAscii(std::string(value)).find(std::string(token)) != std::string::npos;
+        }
+
+        bool HasRenderHintToken(const Framework::GOC& object,
+            const Framework::RenderComponent& render,
+            const Framework::SpriteComponent* sprite,
+            std::string_view token)
+        {
+            return ContainsToken(object.GetObjectName(), token) ||
+                ContainsToken(render.texture_path, token) ||
+                ContainsToken(render.texture_key, token) ||
+                (sprite && (ContainsToken(sprite->texture_key, token) || ContainsToken(sprite->path, token)));
+        }
+
+        float EvaluateBushPulseBrightness(float peakBrightness, float elapsedSeconds)
+        {
+            constexpr float kMinBrightness = 1.0f;
+            constexpr float kSegmentDuration = 2.0f;
+            constexpr float kLoopDuration = kSegmentDuration * 2.0f;
+
+            const float maxBrightness = std::max(peakBrightness, kMinBrightness);
+            const float wrapped = std::fmod(std::max(elapsedSeconds, 0.0f), kLoopDuration);
+
+            if (wrapped < kSegmentDuration)
+            {
+                const float t = wrapped / kSegmentDuration;
+                return kMinBrightness + (maxBrightness - kMinBrightness) * std::clamp(t, 0.0f, 1.0f);
+            }
+
+            const float t = (wrapped - kSegmentDuration) / kSegmentDuration;
+            return maxBrightness + (kMinBrightness - maxBrightness) * std::clamp(t, 0.0f, 1.0f);
         }
 
         bool ResolveLevelEntryCutsceneAssets(const std::filesystem::path& levelPath,
@@ -643,6 +692,86 @@ namespace mygame {
                 {
                     render->visible = false;
                 }
+            }
+        }
+
+        void UpdateGameSpecificRenderHints(float dt)
+        {
+            if (!gLogicSystem || !gLogicSystem->Factory())
+            {
+                gBushPulseStates.clear();
+                gBushPulseLevelPath.clear();
+                gBushPulseElapsed = 0.0f;
+                return;
+            }
+
+            auto* factory = gLogicSystem->Factory();
+            const auto currentLevelPath = factory->LastLevelPath();
+            if (currentLevelPath != gBushPulseLevelPath)
+            {
+                gBushPulseStates.clear();
+                gBushPulseLevelPath = currentLevelPath;
+                gBushPulseElapsed = 0.0f;
+            }
+
+            constexpr float kBushPulseLoopDuration = 4.0f;
+            gBushPulseElapsed = std::fmod(gBushPulseElapsed + std::max(dt, 0.0f), kBushPulseLoopDuration);
+            if (gBushPulseElapsed < 0.0f)
+                gBushPulseElapsed += kBushPulseLoopDuration;
+
+            std::unordered_set<Framework::GOCId> seenBushes;
+            for (auto const& [id, ptr] : factory->Objects())
+            {
+                auto* obj = ptr.get();
+                if (!obj)
+                    continue;
+
+                auto* render = obj->GetComponentType<Framework::RenderComponent>(
+                    Framework::ComponentTypeId::CT_RenderComponent);
+                if (!render)
+                    continue;
+
+                auto* sprite = obj->GetComponentType<Framework::SpriteComponent>(
+                    Framework::ComponentTypeId::CT_SpriteComponent);
+
+                if (render->blendMode == Framework::BlendMode::Alpha &&
+                    HasRenderHintToken(*obj, *render, sprite, "light"))
+                {
+                    render->blendMode = Framework::BlendMode::Add;
+                }
+
+                if (!HasRenderHintToken(*obj, *render, sprite, "bush"))
+                {
+                    gBushPulseStates.erase(id);
+                    continue;
+                }
+
+                seenBushes.insert(id);
+
+                auto& pulseState = gBushPulseStates[id];
+                const float liveBrightness = std::max(render->brightness, 0.0f);
+                if (!pulseState.initialized)
+                {
+                    pulseState.peakBrightness =
+                        (std::abs(liveBrightness - 1.0f) < 0.001f) ? 2.0f : std::max(liveBrightness, 1.0f);
+                    pulseState.initialized = true;
+                }
+                else if (std::abs(liveBrightness - pulseState.appliedBrightness) > 0.001f)
+                {
+                    pulseState.peakBrightness = std::max(liveBrightness, 1.0f);
+                }
+
+                pulseState.appliedBrightness =
+                    EvaluateBushPulseBrightness(pulseState.peakBrightness, gBushPulseElapsed);
+                render->brightness = pulseState.appliedBrightness;
+            }
+
+            for (auto it = gBushPulseStates.begin(); it != gBushPulseStates.end();)
+            {
+                if (seenBushes.find(it->first) == seenBushes.end())
+                    it = gBushPulseStates.erase(it);
+                else
+                    ++it;
             }
         }
 
@@ -1098,6 +1227,7 @@ namespace mygame {
             {
                 if (gLogicSystem && gLogicSystem->hitBoxSystem)
                     gLogicSystem->hitBoxSystem->Update(dt);
+                UpdateGameSpecificRenderHints(dt);
                 UpdateEnemyClearFlashComponents(dt);
             });
         }
