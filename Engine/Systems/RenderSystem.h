@@ -86,10 +86,10 @@ namespace Framework {
         void Initialize() override;
 
         /*************************************************************************
-          \brief  No-op for now (rendering is driven in draw()).
+          \brief  Advance render-only timers used by draw-time effects.
           \param  dt  Delta time in seconds.
         *************************************************************************/
-        void Update(float dt) override { (void)dt; }
+        void Update(float dt) override;
 
         /*************************************************************************
           \brief  System name for profiling / diagnostics.
@@ -352,6 +352,7 @@ namespace Framework {
         GlowBrushSettings glowBrush{};
 
         float         globalBrightness = 1.0f;
+        float         bushPulseElapsed = 0.0f;
 
         // --- Game camera -----------------------------------------------------------------
         gfx::Camera2D camera;                 //!< In-game camera.

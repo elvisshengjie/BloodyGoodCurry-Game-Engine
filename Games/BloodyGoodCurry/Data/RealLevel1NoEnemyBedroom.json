@@ -4262,7 +4262,7 @@
             "width": 0.10000000149011612
           },
           "ShadowComponent": {
-            "a": 0.5,
+            "a": 0.25,
             "b": 0.20000000298023224,
             "blend_mode": "multiply",
             "enabled": true,
@@ -4457,7 +4457,7 @@
             "start_visible": true
           },
           "RenderComponent": {
-            "a": 1.0,
+            "a": 0.25,
             "b": 1.0,
             "blend_mode": "add",
             "g": 1.0,
@@ -4488,7 +4488,7 @@
             "start_visible": true
           },
           "RenderComponent": {
-            "a": 1.0,
+            "a": 0.25,
             "b": 1.0,
             "blend_mode": "add",
             "g": 1.0,
@@ -4519,7 +4519,7 @@
             "start_visible": true
           },
           "RenderComponent": {
-            "a": 1.0,
+            "a": 0.25,
             "b": 1.0,
             "blend_mode": "add",
             "g": 1.0,

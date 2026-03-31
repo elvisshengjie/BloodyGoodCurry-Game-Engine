@@ -135,6 +135,43 @@ namespace Framework {
             return out;
         }
 
+        inline bool ContainsToken(std::string_view value, std::string_view token)
+        {
+            return ToLower(std::string(value)).find(std::string(token)) != std::string::npos;
+        }
+
+        inline bool IsBushHinted(const GOC& object, const RenderComponent& render, const SpriteComponent* sprite)
+        {
+            return ContainsToken(object.GetObjectName(), "bush") ||
+                ContainsToken(render.texture_path, "bush") ||
+                ContainsToken(render.texture_key, "bush") ||
+                (sprite && (ContainsToken(sprite->texture_key, "bush") || ContainsToken(sprite->path, "bush")));
+        }
+
+        inline float EvaluateBushPulseBrightness(float peakBrightness, float elapsedSeconds)
+        {
+            constexpr float kBushPulseMinBrightness = 1.0f;
+            constexpr float kBushPulseSegmentDuration = 2.0f;
+            constexpr float kBushPulseDuration = kBushPulseSegmentDuration * 2.0f;
+
+            const float clampedPeak = std::max(peakBrightness, 0.0f);
+            if (clampedPeak <= 0.0f)
+                return 0.0f;
+
+            const float minBrightness = std::min(kBushPulseMinBrightness, clampedPeak);
+            const float maxBrightness = std::max(kBushPulseMinBrightness, clampedPeak);
+            const float wrapped = std::fmod(std::max(elapsedSeconds, 0.0f), kBushPulseDuration);
+
+            if (wrapped < kBushPulseSegmentDuration)
+            {
+                const float t = wrapped / kBushPulseSegmentDuration;
+                return minBrightness + (maxBrightness - minBrightness) * std::clamp(t, 0.0f, 1.0f);
+            }
+
+            const float t = (wrapped - kBushPulseSegmentDuration) / kBushPulseSegmentDuration;
+            return maxBrightness + (minBrightness - maxBrightness) * std::clamp(t, 0.0f, 1.0f);
+        }
+
         /*************************************************************************************
           \brief  Check whether the current GL context supports min/max blend equations.
           \return True when Lighten/Darken style blending can be used safely.
@@ -2442,6 +2479,11 @@ namespace Framework {
         HandleShortcuts();
         UpdateGameViewport();
     }
+
+    void RenderSystem::Update(float dt)
+    {
+        bushPulseElapsed += std::max(dt, 0.0f);
+    }
     /*************************************************************************************
       \brief  Prepare GL state for drawing the main menu pages (screen-space).
       \note   Uses full-window viewport and identity VP so UI is not camera-affected.
@@ -3069,6 +3111,7 @@ namespace Framework {
                     {
                         float sx = 1.f, sy = 1.f;
                         float r = 1.f, g = 1.f, b = 1.f, a = 1.f;
+                        float brightness = 1.f;
                         BlendMode blendMode = BlendMode::Alpha;
 
                         // If a RenderComponent is present, use its size/tint AND visibility
@@ -3085,6 +3128,9 @@ namespace Framework {
                             g = rc->g;
                             b = rc->b;
                             a = rc->a;
+                            brightness = std::max(rc->brightness, 0.0f);
+                            if (IsBushHinted(*obj, *rc, sp))
+                                brightness = EvaluateBushPulseBrightness(brightness, bushPulseElapsed);
                             blendMode = rc->blendMode;
                         }
 
@@ -3155,7 +3201,7 @@ namespace Framework {
                         model = glm::rotate(model, tr->rot, glm::vec3(0, 0, 1));
                         model = glm::scale(model, glm::vec3(sx * tr->scaleX, sy * tr->scaleY, 1.0f));
                         instance.model = model;
-                        instance.tint = glm::vec4(r, g, b, a);
+                        instance.tint = glm::vec4(r * brightness, g * brightness, b * brightness, a);
                         instance.uv = uvRect;
 
                         if (useSolidColor)
@@ -3171,7 +3217,7 @@ namespace Framework {
                                 tex = idleTex ? idleTex : playerTex; // or any known valid texture
 
                             // Draw ONE instance using instanced path, but tell shader to ignore texture
-                            gfx::Graphics::EnableSolidColor(true, r, g, b, a);  // you add this helper (below)
+                            gfx::Graphics::EnableSolidColor(true, r * brightness, g * brightness, b * brightness, a);  // you add this helper (below)
                             gfx::Graphics::renderSpriteBatchInstanced(tex, &instance, 1);
                             gfx::Graphics::EnableSolidColor(false, 1, 1, 1, 1);
 
@@ -3213,6 +3259,9 @@ namespace Framework {
                             Framework::ComponentTypeId::CT_SpriteComponent))
                         {
                             const BlendMode blendMode = rc->blendMode;
+                            float brightness = std::max(rc->brightness, 0.0f);
+                            if (IsBushHinted(*obj, *rc, nullptr))
+                                brightness = EvaluateBushPulseBrightness(brightness, bushPulseElapsed);
                             applyBlendMode(blendMode);
 
                             unsigned rectTex = rc->texture_id;
@@ -3227,19 +3276,19 @@ namespace Framework {
                             {
                                 gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
                                     scaledW, scaledH,
-                                    rc->r, rc->g, rc->b, rc->a);
+                                    rc->r * brightness, rc->g * brightness, rc->b * brightness, rc->a);
                             }
                             else if (rectTex)
                             {
                                 gfx::Graphics::renderSprite(rectTex, tr->x, tr->y, tr->rot,
                                     scaledW, scaledH,
-                                    rc->r, rc->g, rc->b, rc->a);
+                                    rc->r * brightness, rc->g * brightness, rc->b * brightness, rc->a);
                             }
                             else
                             {
                                 gfx::Graphics::renderRectangle(tr->x, tr->y, tr->rot,
                                     scaledW, scaledH,
-                                    rc->r, rc->g, rc->b, rc->a);
+                                    rc->r * brightness, rc->g * brightness, rc->b * brightness, rc->a);
                             }
 
 

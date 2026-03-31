@@ -633,11 +633,11 @@ namespace mygame {
                     render->visible = flash->hide_until_activated
                         ? true
                         : flash->cachedVisible;
-                    render->r = 1.0f;
-                    render->g = 1.0f;
-                    render->b = 1.0f;
+                    render->r = flash->cachedR;
+                    render->g = flash->cachedG;
+                    render->b = flash->cachedB;
                     render->a = flash->cachedA;
-                    render->blendMode = Framework::BlendMode::Add;
+                    render->blendMode = flash->cachedBlendMode;
                 }
                 else
                 {

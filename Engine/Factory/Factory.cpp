@@ -38,6 +38,8 @@
 #include <fstream>
 #include <iomanip>
 #include <algorithm>
+#include <cmath>
+#include <cctype>
 
 #include "Component/TransformComponent.h"
 #include "Component/RenderComponent.h"
@@ -62,6 +64,53 @@
 //   data-driven loader can build GOCs from JSON files
 
 namespace Framework {
+
+    namespace
+    {
+        std::string ToLowerAscii(std::string_view value)
+        {
+            std::string lowered;
+            lowered.reserve(value.size());
+            for (unsigned char c : value)
+                lowered.push_back(static_cast<char>(std::tolower(c)));
+            return lowered;
+        }
+
+        bool ContainsToken(std::string_view value, std::string_view token)
+        {
+            return ToLowerAscii(value).find(std::string(token)) != std::string::npos;
+        }
+
+        void ApplyAutoBlendModeHints(GameObjectComposition& object)
+        {
+            auto* render = object.GetComponentType<RenderComponent>(ComponentTypeId::CT_RenderComponent);
+            if (!render || render->blendMode != BlendMode::Alpha)
+                return;
+
+            auto* sprite = object.GetComponentType<SpriteComponent>(ComponentTypeId::CT_SpriteComponent);
+
+            const bool hasLightHint =
+                ContainsToken(object.GetObjectName(), "light") ||
+                ContainsToken(render->texture_path, "light") ||
+                ContainsToken(render->texture_key, "light") ||
+                (sprite && (ContainsToken(sprite->texture_key, "light") || ContainsToken(sprite->path, "light")));
+
+            const bool hasBushHint =
+                ContainsToken(object.GetObjectName(), "bush") ||
+                ContainsToken(render->texture_path, "bush") ||
+                ContainsToken(render->texture_key, "bush") ||
+                (sprite && (ContainsToken(sprite->texture_key, "bush") || ContainsToken(sprite->path, "bush")));
+
+            if (hasLightHint)
+                render->blendMode = BlendMode::Add;
+            else if (hasBushHint)
+            {
+                constexpr float kBushDefaultBrightness = 2.0f;
+                if (std::abs(render->brightness - 1.0f) < 0.001f)
+                    render->brightness = kBushDefaultBrightness;
+            }
+        }
+    }
 
     /// Global singleton pointer to the active factory instance. Non-owning.
     GameObjectFactory* FACTORY = nullptr;
@@ -211,6 +260,7 @@ namespace Framework {
             }
             stream.ExitObject();
         }
+        ApplyAutoBlendModeHints(*goc);
         return IdGameObject(std::move(goc));
     }
 
@@ -336,6 +386,7 @@ namespace Framework {
                {"g", rc.g},
                {"b", rc.b},
                {"a", rc.a},
+               {"brightness", rc.brightness},
                {"blend_mode", BlendModeToString(rc.blendMode)},
                {"visible", rc.visible},
                {"layer", rc.layer}
@@ -873,6 +924,7 @@ namespace Framework {
             rc.g = defaults.g;
             rc.b = defaults.b;
             rc.a = defaults.a;
+            rc.brightness = defaults.brightness;
             rc.layer = defaults.layer;
             rc.texture_id = defaults.texture_id;
             rc.texture_key = defaults.texture_key;
@@ -886,6 +938,7 @@ namespace Framework {
             readFloat("g", rc.g);
             readFloat("b", rc.b);
             readFloat("a", rc.a);
+            readFloat("brightness", rc.brightness);
             readInt("layer", rc.layer);
             readBool("visible", rc.visible);
             readString("texture_key", rc.texture_key);
@@ -1204,6 +1257,8 @@ namespace Framework {
                 goc->AddComponent(creator->TypeId, std::move(comp));
             }
         }
+
+        ApplyAutoBlendModeHints(*goc);
 
         // 2. Register with a NEW ID (do NOT pass desiredId)
         GOC* raw = IdGameObject(std::move(goc));

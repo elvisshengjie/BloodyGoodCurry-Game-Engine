@@ -132,8 +132,9 @@ namespace mygame {
             const float scale = std::max(0.6f, static_cast<float>(viewportH) / refHeight);
 
             const float iconH = 56.0f * scale;
-            const float iconW = iconH * (2.0f / 3.0f);
-            const float iconX = 18.0f * scale;
+            const float baseIconW = iconH * (2.0f / 3.0f);
+            const float iconW = baseIconW * 0.9f;
+            const float iconX = (18.0f * scale) + ((baseIconW - iconW) * 0.5f);
             const float iconY = (viewportH * 0.5f) - (iconH * 0.5f);
 
             if (const unsigned keyTexture = ResolveKeyUiTexture())

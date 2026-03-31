@@ -128,6 +128,7 @@ namespace Framework {
     public:
         float w{ 64.f }, h{ 64.f };               ///< Width and height (treated as scale factors in NDC)
         float r{ 1.f }, g{ 1.f }, b{ 1.f }, a{ 1.f }; ///< RGBA tint color values (default white)
+        float brightness{ 1.f };                 ///< Multiplies RGB at draw time without changing alpha.
         int layer = 0;
 
         unsigned int texture_id{ 0 };
@@ -194,6 +195,7 @@ namespace Framework {
             if (s.HasKey("g")) StreamRead(s, "g", g);
             if (s.HasKey("b")) StreamRead(s, "b", b);
             if (s.HasKey("a")) StreamRead(s, "a", a);
+            if (s.HasKey("brightness")) StreamRead(s, "brightness", brightness);
             if (s.HasKey("texture_key")) StreamRead(s, "texture_key", texture_key);
             if (s.HasKey("texture_path")) StreamRead(s, "texture_path", texture_path);
             if (s.HasKey("layer")) StreamRead(s, "layer", layer);
@@ -227,6 +229,7 @@ namespace Framework {
             copy->g = g;
             copy->b = b;
             copy->a = a;
+            copy->brightness = brightness;
             copy->texture_key = texture_key;
             copy->texture_id = texture_id;
             copy->texture_path = texture_path;

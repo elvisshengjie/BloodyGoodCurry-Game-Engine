@@ -428,6 +428,8 @@ namespace
             render.a = color[3];
         }
 
+        ImGui::DragFloat("Brightness", &render.brightness, 0.01f, 0.0f, 4.0f, "%.2f");
+
         // Visibility flag
         ImGui::Checkbox("Visible", &render.visible);
 

@@ -488,7 +488,7 @@ namespace gfx {
             SOFASPUDS_GLSL_FRAGMENT_PREAMBLE
             "out vec4 FragColor;\n"
             "uniform vec4 uColor;\n"
-            "void main(){ FragColor = uColor; }\n";
+            "void main(){ FragColor = vec4(uColor.rgb * uColor.a, uColor.a); }\n";
         objectShader = createShaderProgram(objVertexSrc, objFragmentSrc);
 
         // ----- Glow shader (circle with radial falloff) -----
