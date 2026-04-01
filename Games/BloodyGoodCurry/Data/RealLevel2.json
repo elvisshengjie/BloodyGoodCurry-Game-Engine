@@ -3350,7 +3350,7 @@
             "texture_key": "door_key_pickup",
             "texture_path": "Textures/UI/Key.png",
             "visible": true,
-            "w": 0.07000000029802322
+            "w": 0.06300000101327896
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,

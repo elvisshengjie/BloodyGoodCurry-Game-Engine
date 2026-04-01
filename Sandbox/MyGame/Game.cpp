@@ -373,20 +373,21 @@ namespace mygame {
         float EvaluateLightPulseBrightness(float elapsedSeconds)
         {
             constexpr float kPeakBrightness = 1.2f;
-            constexpr float kInitialDarkHold = 0.6f;
-            constexpr float kRampDuration = 0.2f;
-            constexpr float kPeakHoldDuration = 0.2f;
-            constexpr float kLongDarkHold = 0.3f;
+            constexpr float kInitialDarkHold = 0.7f;
+            constexpr float kRampDuration = 0.3f;
+            constexpr float kPeakHoldDuration = 0.3f;
+            constexpr float kLongDarkHold = 0.4f;
+            constexpr float kQuickBlinkDuration = 0.2f;
             constexpr float kLoopDuration =
                 kInitialDarkHold +
                 kRampDuration +
                 kPeakHoldDuration +
                 kRampDuration +
                 kLongDarkHold +
-                kRampDuration +
-                kRampDuration +
-                kRampDuration +
-                kRampDuration;
+                kQuickBlinkDuration +
+                kQuickBlinkDuration +
+                kQuickBlinkDuration +
+                kQuickBlinkDuration;
 
             const float wrapped = std::fmod(std::max(elapsedSeconds, 0.0f), kLoopDuration);
             float t = wrapped;
@@ -411,19 +412,19 @@ namespace mygame {
                 return 0.0f;
             t -= kLongDarkHold;
 
-            if (t < kRampDuration)
-                return kPeakBrightness * std::clamp(t / kRampDuration, 0.0f, 1.0f);
-            t -= kRampDuration;
+            if (t < kQuickBlinkDuration)
+                return kPeakBrightness * std::clamp(t / kQuickBlinkDuration, 0.0f, 1.0f);
+            t -= kQuickBlinkDuration;
 
-            if (t < kRampDuration)
-                return kPeakBrightness * (1.0f - std::clamp(t / kRampDuration, 0.0f, 1.0f));
-            t -= kRampDuration;
+            if (t < kQuickBlinkDuration)
+                return kPeakBrightness * (1.0f - std::clamp(t / kQuickBlinkDuration, 0.0f, 1.0f));
+            t -= kQuickBlinkDuration;
 
-            if (t < kRampDuration)
-                return kPeakBrightness * std::clamp(t / kRampDuration, 0.0f, 1.0f);
-            t -= kRampDuration;
+            if (t < kQuickBlinkDuration)
+                return kPeakBrightness * std::clamp(t / kQuickBlinkDuration, 0.0f, 1.0f);
+            t -= kQuickBlinkDuration;
 
-            return kPeakBrightness * (1.0f - std::clamp(t / kRampDuration, 0.0f, 1.0f));
+            return kPeakBrightness * (1.0f - std::clamp(t / kQuickBlinkDuration, 0.0f, 1.0f));
         }
 
         bool ResolveLevelEntryCutsceneAssets(const std::filesystem::path& levelPath,
@@ -774,7 +775,7 @@ namespace mygame {
             }
 
             constexpr float kBushPulseLoopDuration = 4.0f;
-            constexpr float kLightPulseLoopDuration = 2.3f;
+            constexpr float kLightPulseLoopDuration = 2.8f;
             gBushPulseElapsed = std::fmod(gBushPulseElapsed + std::max(dt, 0.0f), kBushPulseLoopDuration);
             if (gBushPulseElapsed < 0.0f)
                 gBushPulseElapsed += kBushPulseLoopDuration;
