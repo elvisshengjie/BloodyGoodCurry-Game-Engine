@@ -46,6 +46,10 @@ namespace mygame {
         bool gTriedLoadEnemyHealthFrameTexture = false;
         unsigned gEnemyHealthSliderTexture = 0u;
         bool gTriedLoadEnemyHealthSliderTexture = false;
+        unsigned gBossHealthFrameTexture = 0u;
+        bool gTriedLoadBossHealthFrameTexture = false;
+        unsigned gBossHealthSliderTexture = 0u;
+        bool gTriedLoadBossHealthSliderTexture = false;
 
         constexpr float kEnemyHealthFrameTextureWidth = 274.0f;
         constexpr float kEnemyHealthFrameTextureHeight = 34.0f;
@@ -55,6 +59,15 @@ namespace mygame {
             (kEnemyHealthFrameTextureWidth - kEnemyHealthSliderTextureWidth) * 0.5f;
         constexpr float kEnemyHealthInnerInsetY =
             (kEnemyHealthFrameTextureHeight - kEnemyHealthSliderTextureHeight) * 0.5f;
+        constexpr float kBossHealthFrameTextureWidth = 1020.0f;
+        constexpr float kBossHealthFrameTextureHeight = 212.0f;
+        constexpr float kBossHealthSliderTextureWidth = 992.0f;
+        constexpr float kBossHealthSliderTextureHeight = 40.0f;
+        constexpr float kBossHealthInnerInsetX =
+            (kBossHealthFrameTextureWidth - kBossHealthSliderTextureWidth) * 0.5f;
+        constexpr float kBossHealthInnerInsetY =
+            (kBossHealthFrameTextureHeight - kBossHealthSliderTextureHeight) * 0.5f;
+        constexpr float kBossHealthSliderDownOffset = 40.0f;
 
         /*************************************************************************************
          \brief  Lazily loads a UI texture from the active project and caches its handle.
@@ -125,6 +138,26 @@ namespace mygame {
         {
             return ResolveUiTexture(gEnemyHealthSliderTexture, gTriedLoadEnemyHealthSliderTexture,
                 "enemy_health_slider", "Textures/UI/Health Bar/Enemy Health_Slider.png");
+        }
+
+        /*************************************************************************************
+         \brief  Lazily loads the static boss health-bar frame texture.
+         \return OpenGL texture id, or 0 when loading fails.
+        *************************************************************************************/
+        unsigned ResolveBossHealthFrameTexture()
+        {
+            return ResolveUiTexture(gBossHealthFrameTexture, gTriedLoadBossHealthFrameTexture,
+                "boss_health_frame", "Textures/UI/Health Bar/Boss Health.png");
+        }
+
+        /*************************************************************************************
+         \brief  Lazily loads the boss health-bar slider fill texture.
+         \return OpenGL texture id, or 0 when loading fails.
+        *************************************************************************************/
+        unsigned ResolveBossHealthSliderTexture()
+        {
+            return ResolveUiTexture(gBossHealthSliderTexture, gTriedLoadBossHealthSliderTexture,
+                "boss_health_slider", "Textures/UI/Health Bar/Boss Health_Slider.png");
         }
 
         /*************************************************************************************
@@ -260,24 +293,30 @@ namespace mygame {
         }
 
         /*************************************************************************************
-         \brief  Draws a textured enemy health bar using a frame and clipped slider fill.
+         \brief  Draws a textured health bar using a frame and clipped slider fill.
          \param  centerX      Screen-space x center in the active gameplay viewport.
          \param  centerY      Screen-space y center in the active gameplay viewport.
          \param  frameWidth   Desired frame width in pixels.
          \param  healthRatio  Current health normalized to [0,1].
+         \param  frameTexture Static frame texture.
+         \param  sliderTexture Foreground slider fill texture.
+         \param  frameTextureWidth  Source frame width in pixels.
+         \param  frameTextureHeight Source frame height in pixels.
+         \param  innerInsetX  Horizontal inset from frame edge to slider area.
+         \param  innerInsetY  Vertical inset from frame edge to slider area.
          \param  viewportW    Active gameplay viewport width in pixels.
          \param  viewportH    Active gameplay viewport height in pixels.
         *************************************************************************************/
-        void DrawEnemyHealthBarUi(float centerX, float centerY, float frameWidth, float healthRatio,
+        void DrawTexturedHealthBarUi(float centerX, float centerY, float frameWidth, float healthRatio,
+            unsigned frameTexture, unsigned sliderTexture,
+            float frameTextureWidth, float frameTextureHeight,
+            float innerInsetX, float innerInsetY, float sliderDownOffset,
             int viewportW, int viewportH)
         {
             healthRatio = std::clamp(healthRatio, 0.0f, 1.0f);
 
-            const unsigned frameTexture = ResolveEnemyHealthFrameTexture();
-            const unsigned sliderTexture = ResolveEnemyHealthSliderTexture();
-
             const float frameHeight =
-                frameWidth * (kEnemyHealthFrameTextureHeight / kEnemyHealthFrameTextureWidth);
+                frameWidth * (frameTextureHeight / frameTextureWidth);
             const float frameLeft = centerX - (frameWidth * 0.5f);
             const float frameBottom = centerY - (frameHeight * 0.5f);
 
@@ -308,8 +347,9 @@ namespace mygame {
             if (sliderTexture == 0u || healthRatio <= 0.0f)
                 return;
 
-            const float insetX = frameWidth * (kEnemyHealthInnerInsetX / kEnemyHealthFrameTextureWidth);
-            const float insetY = frameHeight * (kEnemyHealthInnerInsetY / kEnemyHealthFrameTextureHeight);
+            const float insetX = frameWidth * (innerInsetX / frameTextureWidth);
+            const float insetY = frameHeight * (innerInsetY / frameTextureHeight);
+            const float downOffsetY = frameHeight * (sliderDownOffset / frameTextureHeight);
             const float sliderAreaWidth = std::max(0.0f, frameWidth - (insetX * 2.0f));
             const float sliderAreaHeight = std::max(0.0f, frameHeight - (insetY * 2.0f));
             const float visibleSliderWidth = sliderAreaWidth * healthRatio;
@@ -318,10 +358,38 @@ namespace mygame {
                 return;
 
             gfx::Graphics::renderSpriteUISubRect(sliderTexture,
-                frameLeft + insetX, frameBottom + insetY,
+                frameLeft + insetX, frameBottom + insetY - downOffsetY,
                 visibleSliderWidth, sliderAreaHeight,
                 0.0f, 0.0f, healthRatio, 1.0f,
                 1.0f, 1.0f, 1.0f, 1.0f,
+                viewportW, viewportH);
+        }
+
+        /*************************************************************************************
+         \brief  Draws a textured enemy health bar using the regular enemy art set.
+        *************************************************************************************/
+        void DrawEnemyHealthBarUi(float centerX, float centerY, float frameWidth, float healthRatio,
+            int viewportW, int viewportH)
+        {
+            DrawTexturedHealthBarUi(
+                centerX, centerY, frameWidth, healthRatio,
+                ResolveEnemyHealthFrameTexture(), ResolveEnemyHealthSliderTexture(),
+                kEnemyHealthFrameTextureWidth, kEnemyHealthFrameTextureHeight,
+                kEnemyHealthInnerInsetX, kEnemyHealthInnerInsetY, 0.0f,
+                viewportW, viewportH);
+        }
+
+        /*************************************************************************************
+         \brief  Draws a textured boss health bar using the boss art set.
+        *************************************************************************************/
+        void DrawBossHealthBarUi(float centerX, float centerY, float frameWidth, float healthRatio,
+            int viewportW, int viewportH)
+        {
+            DrawTexturedHealthBarUi(
+                centerX, centerY, frameWidth, healthRatio,
+                ResolveBossHealthFrameTexture(), ResolveBossHealthSliderTexture(),
+                kBossHealthFrameTextureWidth, kBossHealthFrameTextureHeight,
+                kBossHealthInnerInsetX, kBossHealthInnerInsetY, kBossHealthSliderDownOffset,
                 viewportW, viewportH);
         }
     } // namespace
@@ -496,10 +564,20 @@ namespace mygame {
             const float barCenterX = isHeiBang ? (viewportW * 0.5f) : screenPos.first;
             const float barCenterY = isHeiBang ? (viewportH * 0.08f) : screenPos.second;
 
-            DrawEnemyHealthBarUi(
-                barCenterX, barCenterY,
-                barWidth, healthRatio,
-                viewportW, viewportH);
+            if (isHeiBang)
+            {
+                DrawBossHealthBarUi(
+                    barCenterX, barCenterY,
+                    barWidth, healthRatio,
+                    viewportW, viewportH);
+            }
+            else
+            {
+                DrawEnemyHealthBarUi(
+                    barCenterX, barCenterY,
+                    barWidth, healthRatio,
+                    viewportW, viewportH);
+            }
         }
 
         DrawKeyInventoryUi(render, viewportW, viewportH);

@@ -261,6 +261,52 @@ namespace mygame
     }
 
     /*****************************************************************************************
+      \brief Returns true when the named active sprite-sheet animation has reached its end frame.
+      \param goc  Game object composition to inspect.
+      \param name Expected active animation name.
+      \return True only when the requested animation is active and its current frame is the last one.
+    *****************************************************************************************/
+    inline bool IsActiveAnimationAtEnd(Framework::GOC* goc, std::string_view name)
+    {
+        if (!goc)
+            return false;
+
+        auto* anim = goc->GetComponentType<Framework::SpriteAnimationComponent>(
+            Framework::ComponentTypeId::CT_SpriteAnimationComponent);
+        const auto* active = anim ? anim->ActiveAnimation() : nullptr;
+        if (!active || !EqualsIgnoreCase(active->name, name))
+            return false;
+
+        const int totalFrames = std::max(1, active->config.totalFrames);
+        const int startFrame = std::clamp(active->config.startFrame, 0, totalFrames - 1);
+        const int endFrame = active->config.endFrame >= 0
+            ? std::clamp(active->config.endFrame, startFrame, totalFrames - 1)
+            : totalFrames - 1;
+
+        return active->currentFrame >= endFrame;
+    }
+
+    /*****************************************************************************************
+      \brief Clears queued ranged-shot state after a fire enemy attack completes or is interrupted.
+      \param ai Decision-tree runtime state to reset.
+      \param clearPendingProjectile When true, drops any queued projectile spawn.
+    *****************************************************************************************/
+    inline void ResetRangedAttackState(Framework::EnemyDecisionTreeComponent* ai,
+        bool clearPendingProjectile = true)
+    {
+        if (!ai)
+            return;
+
+        ai->rangedAttackActive = false;
+        ai->rangedProjectileFired = false;
+        ai->rangedAttackTimer = 0.0f;
+        ai->rangedAttackDuration = 0.0f;
+
+        if (clearPendingProjectile)
+            ai->pendingProjectile = false;
+    }
+
+    /*****************************************************************************************
       \brief Searches the factory object list for the first object with a PlayerComponent.
       \return Pointer to the player game object, or nullptr if none exists.
     *****************************************************************************************/
@@ -539,6 +585,9 @@ namespace mygame
         // KNOCKBACK GUARD
         if (ai->knockbackTimer > 0.0f)
         {
+            if (ai->rangedAttackActive || ai->pendingProjectile)
+                ResetRangedAttackState(ai, true);
+
             ai->knockbackTimer -= ctx.dt;
             rb->velX = 0.0f;
             rb->velY = 0.0f;
@@ -1100,20 +1149,36 @@ namespace mygame
             rb->velY = 0.0f;
             FaceTargetHorizontally(enemy, ai, ai->pendingProjectileDirX);
             ai->rangedAttackTimer += ctx.dt;
-            if (ai->rangedAttackTimer >= ai->rangedAttackDuration)
+
+            const bool attackAnimStillActive = EqualsIgnoreCase(ActiveAnimName(enemy), "rangeattack");
+            const bool attackAnimReachedEnd = IsActiveAnimationAtEnd(enemy, "rangeattack");
+            const float attackTimeout = std::max(ai->rangedAttackDuration + 0.25f, 0.25f);
+
+            if (!attackAnimStillActive)
             {
-                if (ai->pendingProjectile)
+                ResetRangedAttackState(ai, true);
+                return;
+            }
+
+            if (!ai->rangedProjectileFired && ai->pendingProjectile && attackAnimReachedEnd)
+            {
+                ctx.spawnProjectile(enemy,
+                    ai->pendingProjectileSpawnX, ai->pendingProjectileSpawnY,
+                    ai->pendingProjectileDirX, ai->pendingProjectileDirY,
+                    kEnemyProjectileBaseSpeed, 0.15f, 0.08f,
+                    static_cast<float>(attack->damage), 3.0f);
+                ai->pendingProjectile = false;
+                ai->rangedProjectileFired = true;
+            }
+
+            if (attackAnimReachedEnd || ai->rangedAttackTimer >= attackTimeout)
+            {
+                if (ai->rangedAttackTimer >= attackTimeout && !attackAnimReachedEnd)
                 {
-                    ctx.spawnProjectile(enemy,
-                        ai->pendingProjectileSpawnX, ai->pendingProjectileSpawnY,
-                        ai->pendingProjectileDirX, ai->pendingProjectileDirY,
-                        kEnemyProjectileBaseSpeed, 0.15f, 0.08f,
-                        static_cast<float>(attack->damage), 3.0f);
                     ai->pendingProjectile = false;
                 }
-                ai->rangedAttackActive = false;
-                ai->rangedAttackTimer = 0.0f;
-                ai->rangedAttackDuration = 0.0f;
+
+                ResetRangedAttackState(ai, false);
                 ai->rangedMovePauseTimer = 0.18f;
                 PlayAnim(enemy, "idle");
             }
@@ -1288,6 +1353,7 @@ namespace mygame
             }
             PlayAnim(enemy, "rangeattack");
             ai->rangedAttackActive = true;
+            ai->rangedProjectileFired = false;
             ai->rangedAttackTimer = 0.0f;
             ai->rangedAttackDuration = GetAnimDuration(enemy, "rangeattack");
             rb->velX = 0.0f;

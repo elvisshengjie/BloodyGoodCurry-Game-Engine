@@ -46,8 +46,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 154.4044189453125,
-            "y": 154.14456176757813
+            "x": 154.76422119140625,
+            "y": 154.50436401367188
           }
         },
         "layer": "Gameplay:0",
@@ -289,6 +289,7 @@
             "h": 0.5,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_03.png",
             "visible": true,
             "w": 0.5
           },
@@ -345,6 +346,7 @@
             "h": 0.5,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 2_ Living + Kitchen/Floor/Woodfloor_05.png",
             "visible": true,
             "w": 0.5
           },
@@ -938,6 +940,7 @@
             "h": 0.699999988079071,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Carpet.png",
             "visible": true,
             "w": 0.8999999761581421
           },
@@ -948,7 +951,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.3366925716400146,
+            "x": 1.3346999883651733,
             "y": -0.6619985103607178
           }
         },
@@ -974,13 +977,13 @@
           },
           "TransformComponent": {
             "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.5002175569534302,
-            "y": -0.6245233416557312
+            "scale_x": 1.2142366170883179,
+            "scale_y": 0.9793316125869751,
+            "x": 1.3849817514419556,
+            "y": -0.5195695161819458
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:1",
         "name": "artassets"
       },
       {
@@ -1023,6 +1026,7 @@
             "h": 0.20000000298023224,
             "layer": -5,
             "r": 1.0,
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bedside Lamp.png",
             "visible": true,
             "w": 0.15000000596046448
           },
@@ -1417,7 +1421,7 @@
             "y": -0.49146711826324463
           }
         },
-        "layer": "Gameplay:2",
+        "layer": "Gameplay:1",
         "name": "Rect"
       },
       {
@@ -1532,17 +1536,17 @@
             "w": 0.5
           },
           "RigidBodyComponent": {
-            "height": 0.4399999976158142,
+            "height": 0.41999998688697815,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
-            "width": 0.5
+            "width": 0.8799999952316284
           },
           "TransformComponent": {
             "rot": 0.0,
-            "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.4750341176986694,
-            "y": -0.6537831425666809
+            "scale_x": 1.2494759559631348,
+            "scale_y": 0.941655158996582,
+            "x": 1.4730416536331177,
+            "y": -0.5422170758247375
           }
         },
         "layer": "Gameplay:2",
@@ -1703,7 +1707,7 @@
             "texture_key": "door_key_pickup",
             "texture_path": "Textures/UI/Key.png",
             "visible": true,
-            "w": 0.07999999821186066
+            "w": 0.07000000029802322
           },
           "RigidBodyComponent": {
             "height": 0.10000000149011612,
@@ -2344,7 +2348,7 @@
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "add",
-            "brightness": 1.1998790502548218,
+            "brightness": 1.0977287292480469,
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,
@@ -2391,8 +2395,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.6829522848129272,
-            "y": -0.23118606209754944
+            "x": 1.6911320686340332,
+            "y": -0.21278151869773865
           }
         },
         "layer": "Gameplay:13",
@@ -2421,8 +2425,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.6769927740097046,
-            "y": -0.8821784853935242
+            "x": 1.6806155443191528,
+            "y": -0.8658760786056519
           }
         },
         "layer": "Gameplay:13",

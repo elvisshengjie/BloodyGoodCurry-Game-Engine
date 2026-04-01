@@ -11,7 +11,7 @@
         "texture_key": "door_key_pickup"
       },
       "RenderComponent": {
-        "w": 0.08,
+        "w": 0.07,
         "h": 0.12,
         "r": 1.0,
         "g": 1.0,
