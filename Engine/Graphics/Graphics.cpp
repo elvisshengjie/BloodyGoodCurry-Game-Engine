@@ -1052,6 +1052,25 @@ namespace gfx {
     void Graphics::renderSpriteUI(unsigned int tex, float x, float y, float w, float h,
         float r, float g, float b, float a,
         int screenW, int screenH) {
+        renderSpriteUISubRect(tex, x, y, w, h,
+            0.0f, 0.0f, 1.0f, 1.0f,
+            r, g, b, a,
+            screenW, screenH);
+    }
+
+    /*****************************************************************************************
+     \brief  Draw a clipped UI sprite in pixel-space using a UV sub-rectangle.
+     \param  tex      GL texture handle.
+     \param  x,y,w,h  Pixel-space rect where the sprite is drawn.
+     \param  uOffset,vOffset  Lower-left UV offset inside the texture.
+     \param  uScale,vScale    UV span sampled across the quad.
+     \param  r,g,b,a  Tint.
+     \param  screenW,screenH  Current framebuffer size.
+    ******************************************************************************************/
+    void Graphics::renderSpriteUISubRect(unsigned int tex, float x, float y, float w, float h,
+        float uOffset, float vOffset, float uScale, float vScale,
+        float r, float g, float b, float a,
+        int screenW, int screenH) {
         if (!tex || !spriteShader || !VAO_sprite)
             return;
 
@@ -1066,8 +1085,8 @@ namespace gfx {
 
         glUniformMatrix4fv(glGetUniformLocation(spriteShader, "uMVP"), 1, GL_FALSE, glm::value_ptr(mvp));
         glUniform4f(glGetUniformLocation(spriteShader, "uTint"), r, g, b, a);
-        glUniform2f(glGetUniformLocation(spriteShader, "uUVOffset"), 0.0f, 0.0f);
-        glUniform2f(glGetUniformLocation(spriteShader, "uUVScale"), 1.0f, 1.0f);
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVOffset"), uOffset, vOffset);
+        glUniform2f(glGetUniformLocation(spriteShader, "uUVScale"), uScale, vScale);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, tex);
@@ -1078,7 +1097,7 @@ namespace gfx {
         glBindVertexArray(0);
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
-        GL_THROW_IF_ERROR("renderSpriteUI");
+        GL_THROW_IF_ERROR("renderSpriteUISubRect");
     }
 
     /*****************************************************************************************

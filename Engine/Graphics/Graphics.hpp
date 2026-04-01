@@ -120,6 +120,12 @@ namespace gfx {
             float r, float g, float b, float a,
             int screenW, int screenH);
 
+        // Draw a clipped UI sprite in pixel coordinates using UV offset/scale.
+        static void renderSpriteUISubRect(unsigned int tex, float x, float y, float w, float h,
+            float uOffset, float vOffset, float uScale, float vScale,
+            float r, float g, float b, float a,
+            int screenW, int screenH);
+
         /// Query the width/height (level 0) of a 2D texture. Returns false if unavailable.
         static bool getTextureSize(unsigned int tex, int& outW, int& outH);
 

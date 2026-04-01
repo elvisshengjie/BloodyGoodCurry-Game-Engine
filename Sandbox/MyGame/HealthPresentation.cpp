@@ -42,6 +42,50 @@ namespace mygame {
         bool gTriedLoadKeyUiTexture = false;
         unsigned gAimArrowTexture = 0u;
         bool gTriedLoadAimArrowTexture = false;
+        unsigned gEnemyHealthFrameTexture = 0u;
+        bool gTriedLoadEnemyHealthFrameTexture = false;
+        unsigned gEnemyHealthSliderTexture = 0u;
+        bool gTriedLoadEnemyHealthSliderTexture = false;
+
+        constexpr float kEnemyHealthFrameTextureWidth = 274.0f;
+        constexpr float kEnemyHealthFrameTextureHeight = 34.0f;
+        constexpr float kEnemyHealthSliderTextureWidth = 264.0f;
+        constexpr float kEnemyHealthSliderTextureHeight = 24.0f;
+        constexpr float kEnemyHealthInnerInsetX =
+            (kEnemyHealthFrameTextureWidth - kEnemyHealthSliderTextureWidth) * 0.5f;
+        constexpr float kEnemyHealthInnerInsetY =
+            (kEnemyHealthFrameTextureHeight - kEnemyHealthSliderTextureHeight) * 0.5f;
+
+        /*************************************************************************************
+         \brief  Lazily loads a UI texture from the active project and caches its handle.
+         \param  cachedTexture  Stored OpenGL texture id.
+         \param  attemptedLoad  Guard that prevents repeated failed load attempts.
+         \param  textureKey     Resource-manager cache key.
+         \param  texturePath    Relative project asset path.
+         \return Loaded texture id, or 0 when loading fails.
+        *************************************************************************************/
+        unsigned ResolveUiTexture(unsigned& cachedTexture,
+            bool& attemptedLoad,
+            const char* textureKey,
+            const char* texturePath)
+        {
+            if (cachedTexture != 0u || attemptedLoad)
+                return cachedTexture;
+
+            attemptedLoad = true;
+
+            if (const unsigned cached = Resource_Manager::getTexture(textureKey))
+            {
+                cachedTexture = cached;
+                return cachedTexture;
+            }
+
+            const std::string resolvedPath = Framework::ResolveAssetPath(texturePath).string();
+            if (Resource_Manager::load(textureKey, resolvedPath))
+                cachedTexture = Resource_Manager::getTexture(textureKey);
+
+            return cachedTexture;
+        }
 
         /*************************************************************************************
          \brief  Lazily loads and returns the key UI icon texture.
@@ -49,23 +93,8 @@ namespace mygame {
         *************************************************************************************/
         unsigned ResolveKeyUiTexture()
         {
-            if (gKeyUiTexture != 0u || gTriedLoadKeyUiTexture)
-                return gKeyUiTexture;
-
-            gTriedLoadKeyUiTexture = true;
-            constexpr const char* kTextureKey = "hud_key_icon";
-
-            if (const unsigned cached = Resource_Manager::getTexture(kTextureKey))
-            {
-                gKeyUiTexture = cached;
-                return gKeyUiTexture;
-            }
-
-            const std::string texturePath = Framework::ResolveAssetPath("Textures/UI/Key.png").string();
-            if (Resource_Manager::load(kTextureKey, texturePath))
-                gKeyUiTexture = Resource_Manager::getTexture(kTextureKey);
-
-            return gKeyUiTexture;
+            return ResolveUiTexture(gKeyUiTexture, gTriedLoadKeyUiTexture,
+                "hud_key_icon", "Textures/UI/Key.png");
         }
 
         /*************************************************************************************
@@ -74,23 +103,28 @@ namespace mygame {
         *************************************************************************************/
         unsigned ResolveAimArrowTexture()
         {
-            if (gAimArrowTexture != 0u || gTriedLoadAimArrowTexture)
-                return gAimArrowTexture;
+            return ResolveUiTexture(gAimArrowTexture, gTriedLoadAimArrowTexture,
+                "hud_aim_arrow", "Textures/UI/Arrow.png");
+        }
 
-            gTriedLoadAimArrowTexture = true;
-            constexpr const char* kTextureKey = "hud_aim_arrow";
+        /*************************************************************************************
+         \brief  Lazily loads the static enemy health-bar frame texture.
+         \return OpenGL texture id, or 0 when loading fails.
+        *************************************************************************************/
+        unsigned ResolveEnemyHealthFrameTexture()
+        {
+            return ResolveUiTexture(gEnemyHealthFrameTexture, gTriedLoadEnemyHealthFrameTexture,
+                "enemy_health_frame", "Textures/UI/Health Bar/Enemy Health.png");
+        }
 
-            if (const unsigned cached = Resource_Manager::getTexture(kTextureKey))
-            {
-                gAimArrowTexture = cached;
-                return gAimArrowTexture;
-            }
-
-            const std::string texturePath = Framework::ResolveAssetPath("Textures/UI/Arrow.png").string();
-            if (Resource_Manager::load(kTextureKey, texturePath))
-                gAimArrowTexture = Resource_Manager::getTexture(kTextureKey);
-
-            return gAimArrowTexture;
+        /*************************************************************************************
+         \brief  Lazily loads the enemy health-bar slider fill texture.
+         \return OpenGL texture id, or 0 when loading fails.
+        *************************************************************************************/
+        unsigned ResolveEnemyHealthSliderTexture()
+        {
+            return ResolveUiTexture(gEnemyHealthSliderTexture, gTriedLoadEnemyHealthSliderTexture,
+                "enemy_health_slider", "Textures/UI/Health Bar/Enemy Health_Slider.png");
         }
 
         /*************************************************************************************
@@ -223,6 +257,72 @@ namespace mygame {
                 arrowScale,
                 1.0f, 1.0f, 1.0f, 1.0f);
             gfx::Graphics::resetViewProjection();
+        }
+
+        /*************************************************************************************
+         \brief  Draws a textured enemy health bar using a frame and clipped slider fill.
+         \param  centerX      Screen-space x center in the active gameplay viewport.
+         \param  centerY      Screen-space y center in the active gameplay viewport.
+         \param  frameWidth   Desired frame width in pixels.
+         \param  healthRatio  Current health normalized to [0,1].
+         \param  viewportW    Active gameplay viewport width in pixels.
+         \param  viewportH    Active gameplay viewport height in pixels.
+        *************************************************************************************/
+        void DrawEnemyHealthBarUi(float centerX, float centerY, float frameWidth, float healthRatio,
+            int viewportW, int viewportH)
+        {
+            healthRatio = std::clamp(healthRatio, 0.0f, 1.0f);
+
+            const unsigned frameTexture = ResolveEnemyHealthFrameTexture();
+            const unsigned sliderTexture = ResolveEnemyHealthSliderTexture();
+
+            const float frameHeight =
+                frameWidth * (kEnemyHealthFrameTextureHeight / kEnemyHealthFrameTextureWidth);
+            const float frameLeft = centerX - (frameWidth * 0.5f);
+            const float frameBottom = centerY - (frameHeight * 0.5f);
+
+            if (frameTexture == 0u && sliderTexture == 0u)
+            {
+                gfx::Graphics::renderRectangleUI(
+                    frameLeft, frameBottom,
+                    frameWidth, frameHeight,
+                    0.2f, 0.2f, 0.2f, 1.0f,
+                    viewportW, viewportH);
+
+                gfx::Graphics::renderRectangleUI(
+                    frameLeft, frameBottom,
+                    frameWidth * healthRatio, frameHeight,
+                    0.0f, 1.0f, 0.0f, 1.0f,
+                    viewportW, viewportH);
+                return;
+            }
+
+            if (frameTexture != 0u)
+            {
+                gfx::Graphics::renderSpriteUI(frameTexture,
+                    frameLeft, frameBottom, frameWidth, frameHeight,
+                    1.0f, 1.0f, 1.0f, 1.0f,
+                    viewportW, viewportH);
+            }
+
+            if (sliderTexture == 0u || healthRatio <= 0.0f)
+                return;
+
+            const float insetX = frameWidth * (kEnemyHealthInnerInsetX / kEnemyHealthFrameTextureWidth);
+            const float insetY = frameHeight * (kEnemyHealthInnerInsetY / kEnemyHealthFrameTextureHeight);
+            const float sliderAreaWidth = std::max(0.0f, frameWidth - (insetX * 2.0f));
+            const float sliderAreaHeight = std::max(0.0f, frameHeight - (insetY * 2.0f));
+            const float visibleSliderWidth = sliderAreaWidth * healthRatio;
+
+            if (visibleSliderWidth <= 0.0f || sliderAreaHeight <= 0.0f)
+                return;
+
+            gfx::Graphics::renderSpriteUISubRect(sliderTexture,
+                frameLeft + insetX, frameBottom + insetY,
+                visibleSliderWidth, sliderAreaHeight,
+                0.0f, 0.0f, healthRatio, 1.0f,
+                1.0f, 1.0f, 1.0f, 1.0f,
+                viewportW, viewportH);
         }
     } // namespace
 
@@ -393,20 +493,12 @@ namespace mygame {
 
             const bool isHeiBang = EqualsIgnoreCase(gocPtr->GetObjectName(), "heibang");
             const float barWidth = isHeiBang ? viewportW * 0.34f : viewportW * 0.05f;
-            const float barHeight = isHeiBang ? viewportH * 0.04f : viewportH * 0.015f;
             const float barCenterX = isHeiBang ? (viewportW * 0.5f) : screenPos.first;
             const float barCenterY = isHeiBang ? (viewportH * 0.08f) : screenPos.second;
 
-            gfx::Graphics::renderRectangleUI(
-                barCenterX - barWidth * 0.5f, barCenterY - barHeight * 0.5f,
-                barWidth, barHeight,
-                0.2f, 0.2f, 0.2f, 1.0f,
-                viewportW, viewportH);
-
-            gfx::Graphics::renderRectangleUI(
-                barCenterX - barWidth * 0.5f, barCenterY - barHeight * 0.5f,
-                barWidth * healthRatio, barHeight,
-                0.0f, 1.0f, 0.0f, 1.0f,
+            DrawEnemyHealthBarUi(
+                barCenterX, barCenterY,
+                barWidth, healthRatio,
                 viewportW, viewportH);
         }
 
