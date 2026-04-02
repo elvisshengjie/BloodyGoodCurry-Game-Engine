@@ -23,12 +23,12 @@
           "path": "Textures/UI/How To Play/WASD_Sprite.png"
         },
         "label": {
-          "key": "howto_wasd_label",
-          "path": "Textures/UI/How To Play/WASD to move.png"
+          "key": "howto_move_label",
+          "path": "Textures/UI/How To Play/Move.png"
         },
         "fps": 8.0,
         "iconAspect": 0.9,
-        "labelAspect": 2.6
+        "labelAspect": 2.0
       },
       {
         "icon": {
@@ -36,12 +36,25 @@
           "path": "Textures/UI/How To Play/ESC_Sprite.png"
         },
         "label": {
-          "key": "howto_esc_label",
-          "path": "Textures/UI/How To Play/Esc to pause.png"
+          "key": "howto_pause_label",
+          "path": "Textures/UI/How To Play/Pause.png"
         },
         "fps": 8.0,
         "iconAspect": 1.8,
-        "labelAspect": 3.1
+        "labelAspect": 2.0
+      },
+      {
+        "icon": {
+          "key": "howto_freeze_icon",
+          "path": "Textures/UI/How To Play/F.png"
+        },
+        "label": {
+          "key": "howto_freeze_label",
+          "path": "Textures/UI/How To Play/Freeze.png"
+        },
+        "fps": 8.0,
+        "iconAspect": 1.0,
+        "labelAspect": 2.5
       },
       {
         "icon": {
@@ -50,7 +63,7 @@
         },
         "label": {
           "key": "howto_melee_label",
-          "path": "Textures/UI/How To Play/For melee attack.png"
+          "path": "Textures/UI/How To Play/Melee atk.png"
         },
         "fps": 8.0,
         "iconAspect": 0.72,
@@ -63,7 +76,7 @@
         },
         "label": {
           "key": "howto_range_label",
-          "path": "Textures/UI/How To Play/For Range attack.png"
+          "path": "Textures/UI/How To Play/Range atk.png"
         },
         "fps": 8.0,
         "iconAspect": 0.72,
