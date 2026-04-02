@@ -590,6 +590,7 @@ struct AudioManager::Impl
         std::string path;
         bool loop{};
         bool is3D{};
+        bool browserLoaded{};
     };
 
     struct FadeInfo
@@ -611,6 +612,37 @@ struct AudioManager::Impl
     float masterVolume{ 1.0f };
     std::vector<FadeInfo> fades;
 };
+
+/*************************************************************************************
+  \brief Ensure one registered sound has been materialized into browser playback state.
+
+  \param impl  Web-audio implementation storage.
+  \param name  Logical sound id to materialize on demand.
+  \return True when the sound is ready for browser playback, false otherwise.
+
+  Web builds previously converted every sound file into a Blob/object URL during
+  startup. That made initial page-open audio hitch badly because the main thread had
+  to copy and wrap the entire audio library up front. We now register sounds cheaply
+  at startup and only do the expensive browser-side load the first time a sound is
+  actually needed.
+*************************************************************************************/
+template <typename ImplT>
+bool EnsureBrowserSoundLoaded(ImplT& impl, const std::string& name)
+{
+    auto it = impl.sounds.find(name);
+    if (it == impl.sounds.end())
+        return false;
+
+    auto& info = it->second;
+    if (info.browserLoaded)
+        return true;
+
+    if (SofaWebAudio_LoadSound(name.c_str(), info.path.c_str(), info.loop ? 1 : 0) == 0)
+        return false;
+
+    info.browserLoaded = true;
+    return true;
+}
 
 AudioManager::AudioManager()
     : pImpl(new Impl())
@@ -698,8 +730,8 @@ void AudioManager::update(float dt)
   Steps:
   - Resolve the incoming path against the project's packaged Assets folders.
   - Verify the file exists in the Emscripten-visible filesystem.
-  - Ask the browser bridge to load the sound bytes and create an object URL.
   - Cache sound metadata and default logical volume in the C++ side tables.
+  - Defer the expensive browser-side Blob/object-URL creation until first playback.
 *************************************************************************************/
 bool AudioManager::loadSound(const std::string& name, const std::string& filePath, bool loop, bool is3D)
 {
@@ -720,11 +752,23 @@ bool AudioManager::loadSound(const std::string& name, const std::string& filePat
         return false;
     }
 
-    if (SofaWebAudio_LoadSound(name.c_str(), fullPath.c_str(), loop ? 1 : 0) == 0)
-        return false;
+    const auto existing = pImpl->sounds.find(name);
+    if (existing != pImpl->sounds.end())
+    {
+        if (existing->second.path == fullPath)
+        {
+            existing->second.loop = loop;
+            existing->second.is3D = is3D;
+            if (existing->second.browserLoaded)
+                SofaWebAudio_SetSoundLoop(name.c_str(), loop ? 1 : 0);
+            return true;
+        }
 
-    pImpl->sounds[name] = { fullPath, loop, is3D };
-    pImpl->soundVolumes[name] = 1.0f;
+        unloadSound(name);
+    }
+
+    pImpl->sounds[name] = { fullPath, loop, is3D, false };
+    pImpl->soundVolumes.try_emplace(name, 1.0f);
     return true;
 }
 
@@ -832,7 +876,7 @@ void AudioManager::unloadAllSounds()
   \return True on success, false otherwise.
 
   Steps:
-  - Ensure the requested sound is already loaded.
+  - Ensure the requested sound has been materialized into browser playback state.
   - Remove stale channel bookkeeping before starting new playback.
   - Forward the play request to the browser bridge.
   - Remember the latest logical per-sound volume for later fades/slider updates.
@@ -840,6 +884,9 @@ void AudioManager::unloadAllSounds()
 bool AudioManager::playSound(const std::string& name, float volume, float pitch, bool loop)
 {
     if (!pImpl || pImpl->sounds.find(name) == pImpl->sounds.end())
+        return false;
+
+    if (!EnsureBrowserSoundLoaded(*pImpl, name))
         return false;
 
     pruneStoppedChannels();
@@ -946,7 +993,8 @@ void AudioManager::setSoundVolume(const std::string& name, float volume)
         return;
 
     pImpl->soundVolumes[name] = ClampVolume(volume);
-    SofaWebAudio_SetSoundVolume(name.c_str(), pImpl->soundVolumes[name]);
+    if (pImpl->sounds[name].browserLoaded)
+        SofaWebAudio_SetSoundVolume(name.c_str(), pImpl->soundVolumes[name]);
 }
 
 /*************************************************************************************
@@ -960,7 +1008,8 @@ void AudioManager::setSoundPitch(const std::string& name, float pitch)
     if (!pImpl || pImpl->sounds.find(name) == pImpl->sounds.end())
         return;
 
-    SofaWebAudio_SetSoundPitch(name.c_str(), NormalizePitch(pitch));
+    if (pImpl->sounds[name].browserLoaded)
+        SofaWebAudio_SetSoundPitch(name.c_str(), NormalizePitch(pitch));
 }
 
 /*************************************************************************************
@@ -975,21 +1024,22 @@ void AudioManager::setSoundLoop(const std::string& name, bool loop)
         return;
 
     pImpl->sounds[name].loop = loop;
-    SofaWebAudio_SetSoundLoop(name.c_str(), loop ? 1 : 0);
+    if (pImpl->sounds[name].browserLoaded)
+        SofaWebAudio_SetSoundLoop(name.c_str(), loop ? 1 : 0);
 }
 
 /*************************************************************************************
   \brief Report whether one logical sound id is currently loaded.
 
   \param name  Logical sound id.
-  \return True when the browser bridge still knows about the sound, otherwise false.
+  \return True when the sound has been registered with the web backend, otherwise false.
 *************************************************************************************/
 bool AudioManager::isSoundLoaded(const std::string& name) const
 {
     if (!pImpl)
         return false;
 
-    return SofaWebAudio_IsSoundLoaded(name.c_str()) != 0;
+    return pImpl->sounds.find(name) != pImpl->sounds.end();
 }
 
 /*************************************************************************************
@@ -1096,6 +1146,9 @@ AudioManager::ChannelID AudioManager::playSoundChannel(
     (void)vel;
 
     if (!pImpl || pImpl->sounds.find(name) == pImpl->sounds.end())
+        return 0;
+
+    if (!EnsureBrowserSoundLoaded(*pImpl, name))
         return 0;
 
     pruneStoppedChannels();

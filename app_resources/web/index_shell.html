@@ -51,6 +51,34 @@
       e.preventDefault();
     }, { capture: true });
 
+    // Optional hosting helper:
+    // - window.SOFASPUDS_DATA_BASE_URL = "https://example.com/path"
+    // - ?dataBaseUrl=https://example.com/path
+    // This lets us keep the large Emscripten .data bundle on separate storage
+    // while the HTML/JS/wasm stay on a static host.
+    function sofaNormalizeBaseUrl(value) {
+      value = (value || "").trim();
+      if (!value) return "";
+      return value.replace(/\/+$/, "");
+    }
+
+    function sofaJoinUrl(baseUrl, path) {
+      if (!baseUrl) return path;
+      return baseUrl + "/" + String(path || "").replace(/^\/+/, "");
+    }
+
+    function sofaReadQueryValue(name) {
+      try {
+        return new URLSearchParams(window.location.search).get(name) || "";
+      } catch (e) {
+        return "";
+      }
+    }
+
+    var sofaDataBaseUrl = sofaNormalizeBaseUrl(
+      window.SOFASPUDS_DATA_BASE_URL || sofaReadQueryValue("dataBaseUrl")
+    );
+
     // Emscripten reads the global Module object during startup.
     // The generated JS will:
     // 1. use this canvas
@@ -63,6 +91,12 @@
       webglContextAttributes: {
         majorVersion: 2,
         minorVersion: 0
+      },
+      locateFile: function(path, prefix) {
+        if (sofaDataBaseUrl && /\.data$/i.test(path)) {
+          return sofaJoinUrl(sofaDataBaseUrl, path);
+        }
+        return (prefix || "") + path;
       },
       // Status text shown while the JS runtime loads wasm and packaged assets.
       setStatus: function(text) {
