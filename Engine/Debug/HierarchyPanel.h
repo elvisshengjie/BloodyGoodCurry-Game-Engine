@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      HierarchyPanel.h
  \par       SofaSpuds
- \author    
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Declaration of the ImGui hierarchy panel.
  \details   Exposes a single entry point to draw a Name/ID table sourced from the Factory.
             Selection state is managed externally via Selection.h utilities used in the .cpp.

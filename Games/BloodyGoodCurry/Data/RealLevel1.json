@@ -1177,7 +1177,7 @@
             "w": 0.20000000298023224
           },
           "RigidBodyComponent": {
-            "height": 0.5,
+            "height": 0.4000000059604645,
             "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.20000000298023224
@@ -2237,7 +2237,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 1,
+                "currentFrame": 2,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2291,7 +2291,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 9,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -2373,7 +2373,7 @@
                   "startFrame": 0,
                   "totalFrames": 3
                 },
-                "currentFrame": 2,
+                "currentFrame": 0,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Sleeping_Cat_Sprite.png",
                 "textureKey": "sleep_cat_sheet"
@@ -5054,7 +5054,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.14000000059604645,
-            "velocity_x": 0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5422,7 +5422,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.14000000059604645,
-            "velocity_x": 0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -5606,7 +5606,7 @@
           },
           "RigidBodyComponent": {
             "height": 0.14000000059604645,
-            "velocity_x": 0.6000000238418579,
+            "velocity_x": 0.0,
             "velocity_y": 0.0,
             "width": 0.10000000149011612
           },
@@ -6143,7 +6143,7 @@
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "add",
-            "brightness": 0.8002147078514099,
+            "brightness": 0.0003770828479900956,
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,
@@ -6173,7 +6173,7 @@
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "add",
-            "brightness": 0.8002147078514099,
+            "brightness": 0.0003770828479900956,
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,

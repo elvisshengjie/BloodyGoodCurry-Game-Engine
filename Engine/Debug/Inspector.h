@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      Inspector.h
  \par       SofaSpuds
- \author    
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
  \brief     Declares the ImGui inspector panel that surfaces the properties of the
             currently selected game object. The inspector mirrors the active selection that

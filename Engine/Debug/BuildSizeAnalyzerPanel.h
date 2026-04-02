@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      BuildSizeAnalyzerPanel.h
  \par       SofaSpuds
- \author    OpenAI Codex - Primary Author, 100%
+ \author    erika.ishii (erika.ishii@digipen.edu),  - Main Author, 100%
  \brief     Declares an editor window that analyzes project asset sizes and exports selections.
  \details   The Build Size Analyzer scans the active project's asset directory, displays each
             asset with its file size, allows users to choose assets for export, persists the
