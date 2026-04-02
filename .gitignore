@@ -1,6 +1,8 @@
 # Generated build directories
 /build/
 /build_*/
+/deploy/
+/.wrangler/
 
 # Visual Studio user state
 /.vs/
