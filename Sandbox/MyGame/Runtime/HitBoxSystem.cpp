@@ -10,6 +10,7 @@
 
 #include "Systems/HitBoxSystem.h"
 #include "Components/EnemyComponent.h"
+#include "Components/EnemyAttackComponent.h"
 #include "Components/EnemyDecisionTreeComponent.h"
 #include "Components/EnemyHealthComponent.h"
 #include "Components/EnemyTypeComponent.h"
@@ -414,6 +415,7 @@ namespace Framework
             bool hitAnything = false;
             bool hitEnemy = false;
             bool ineffectiveHit = false;
+            bool enemySurvivedHit = false;
 
             if (it->isProjectile && it->hitGraceTimer > 0.0f)
                 it->hitGraceTimer = std::max(0.0f, it->hitGraceTimer - dt);
@@ -513,6 +515,7 @@ namespace Framework
                         enemyHealth->TakeDamage(static_cast<int>(finalDamage));
                         validTargetHit = true;
                         hitEnemy = true;
+                        enemySurvivedHit = (enemyHealth->enemyHealth > 0);
 
                         if (HB->team == HitBoxComponent::Team::PlayerSlow)
                         {
@@ -554,9 +557,17 @@ namespace Framework
                         std::string objName = obj->GetObjectName();
                         std::transform(objName.begin(), objName.end(), objName.begin(),
                             [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
-                        const bool isBoss = (objName == "heibang" || objName == "nancie");
+                        const bool isHeiBang = (objName == "heibang");
+                        const bool isNancie = (objName == "nancie");
+                        const bool suppressPhysicalKnockback = (isHeiBang || isNancie);
+                        const bool playerCausedHit =
+                            HB->team == HitBoxComponent::Team::Player ||
+                            HB->team == HitBoxComponent::Team::Thrown ||
+                            HB->team == HitBoxComponent::Team::PlayerSlow;
+                        const bool shouldFlinchNancie =
+                            isNancie && isEnemy && playerCausedHit && enemySurvivedHit;
 
-                        if (!isBoss)
+                        if (!suppressPhysicalKnockback)
                         {
                             auto* attackerTr = attacker->GetComponentType<TransformComponent>(
                                 ComponentTypeId::CT_TransformComponent);
@@ -588,13 +599,61 @@ namespace Framework
                                 }
                             }
                         }
+                        else if (shouldFlinchNancie)
+                        {
+                            for (auto& activeHitBox : activeHitBoxes)
+                            {
+                                if (activeHitBox.ownerId == obj->GetId() && activeHitBox.hitbox)
+                                    activeHitBox.hitbox->active = false;
+                            }
+
+                            if (auto* enemyAttack = obj->GetComponentType<EnemyAttackComponent>(
+                                ComponentTypeId::CT_EnemyAttackComponent))
+                            {
+                                enemyAttack->attack_timer = 0.0f;
+                                enemyAttack->hitboxElapsed = 0.0f;
+                                enemyAttack->attack2BeamPhaseActive = false;
+                                enemyAttack->attack2BeamDamageSpawned = false;
+                                enemyAttack->attack2BeamStartX = 0.0f;
+                                enemyAttack->attack2BeamStartY = 0.0f;
+                                enemyAttack->attack2BeamTargetX = 0.0f;
+                                enemyAttack->attack2BeamTargetY = 0.0f;
+                                enemyAttack->attack2BeamThickness = 0.0f;
+                                enemyAttack->attack2BeamRuntimeHitbox = nullptr;
+                                enemyAttack->attack3VolleySpawned = false;
+                                enemyAttack->hitbox->DeactivateHurtBox();
+                            }
+
+                            if (auto* anim = obj->GetComponentType<SpriteAnimationComponent>(
+                                ComponentTypeId::CT_SpriteAnimationComponent))
+                            {
+                                const int idx = FindAnimationIndex(anim, "knockback");
+                                if (idx >= 0)
+                                    anim->SetActiveAnimation(idx);
+                            }
+                        }
 
                         if (isEnemy)
                         {
                             if (auto* dtComp = obj->GetComponentType<EnemyDecisionTreeComponent>(
                                 ComponentTypeId::CT_EnemyDecisionTreeComponent))
                             {
-                                if (!isBoss)
+                                if (shouldFlinchNancie)
+                                {
+                                    dtComp->knockbackTimer = 0.2f;
+                                    dtComp->meleeAttackActive = false;
+                                    dtComp->pendingMeleeHitbox = false;
+                                    dtComp->meleeAttackElapsed = 0.0f;
+                                    dtComp->meleeAttackDuration = 0.0f;
+                                    dtComp->meleeHitboxDelay = 0.0f;
+                                    dtComp->meleeHitboxDuration = 0.0f;
+                                    dtComp->rangedAttackActive = false;
+                                    dtComp->rangedProjectileFired = false;
+                                    dtComp->pendingProjectile = false;
+                                    dtComp->rangedAttackTimer = 0.0f;
+                                    dtComp->rangedAttackDuration = 0.0f;
+                                }
+                                else if (!suppressPhysicalKnockback)
                                     dtComp->knockbackTimer = 0.5f;
                             }
                         }
