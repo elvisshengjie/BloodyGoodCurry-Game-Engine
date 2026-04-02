@@ -46,8 +46,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 155.03407287597656,
-            "y": 154.7742156982422
+            "x": 155.1240234375,
+            "y": 154.86416625976563
           }
         },
         "layer": "Gameplay:0",
@@ -2345,36 +2345,6 @@
       },
       {
         "Components": {
-          "RenderComponent": {
-            "a": 1.0,
-            "b": 1.0,
-            "blend_mode": "add",
-            "brightness": 0.9327526092529297,
-            "g": 1.0,
-            "h": 0.4000000059604645,
-            "layer": 0,
-            "r": 1.0,
-            "texture_key": "window_light",
-            "texture_path": "Textures/Environment/lvl 2_ Living + Kitchen/Window Light.png",
-            "visible": true,
-            "w": 0.30000001192092896
-          },
-          "SpriteComponent": {
-            "texture_key": "window_light"
-          },
-          "TransformComponent": {
-            "rot": -3.134488344192505,
-            "scale_x": 1.5874629020690918,
-            "scale_y": 2.221085548400879,
-            "x": 0.9014148712158203,
-            "y": -0.06623981893062592
-          }
-        },
-        "layer": "Gameplay:13",
-        "name": "Window_Light"
-      },
-      {
-        "Components": {
           "GlowComponent": {
             "b": 0.6074827313423157,
             "brightness": 0.5,
@@ -2432,6 +2402,34 @@
         },
         "layer": "Gameplay:13",
         "name": "Glow"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "add",
+            "brightness": 1.133678913116455,
+            "g": 1.0,
+            "h": 0.6800000071525574,
+            "layer": -5,
+            "r": 1.0,
+            "visible": true,
+            "w": 0.6600000262260437
+          },
+          "SpriteComponent": {
+            "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Light.png"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 1.0,
+            "scale_y": 1.0,
+            "x": 0.8998558521270752,
+            "y": -0.04451391100883484
+          }
+        },
+        "layer": "Gameplay:10",
+        "name": "artassets"
       }
     ],
     "name": "RealLevel3"
