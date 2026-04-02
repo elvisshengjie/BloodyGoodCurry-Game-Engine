@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      WayPointComponent.h
  \par       SofaSpuds
- \author
+ \author    jianwei.c (jianwei.c@digipen.edu)- Primary Author, 100%
  \brief     Declares the waypoint component used for navigation graph connectivity.
  \details   Stores neighboring waypoint ids so game-side navigation systems can rebuild
             traversal links from serialized level data.

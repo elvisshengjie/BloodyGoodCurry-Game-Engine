@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      Inspector.cpp
  \par       SofaSpuds
- \author    ChatGPT (OpenAI)
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
 
  \brief     Implements the ImGui inspector panel. The panel mirrors the active editor
             selection and exposes commonly-used component fields so designers can quickly

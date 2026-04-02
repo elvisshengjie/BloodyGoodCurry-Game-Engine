@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      AudioManagerWeb.cpp
  \par       SofaSpuds
- \author    OpenAI Codex - Documentation pass, 100%
+ \author     elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Implements the browser-backed AudioManager used by Emscripten/web builds.
             Replaces the native FMOD runtime with a JavaScript/HTML audio bridge while
             preserving the same engine-facing AudioManager API used by the rest of the codebase.
