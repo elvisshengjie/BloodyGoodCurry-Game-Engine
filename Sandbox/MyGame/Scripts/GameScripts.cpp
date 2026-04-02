@@ -16,11 +16,17 @@
             - VfxCleanup      : Cleans up one-shot impact VFX objects when animation finishes.
             - GateLogic       : Handles level transition when player collides with gate and
                                all enemies are cleared.
+            - Key/Gate flows  : Tracks progression objects such as keys, doors, and gate
+                               transition guards.
 
             A small amount of shared state is stored in file-scope statics:
             - gLogicSystem            : Bound from LogicSystem to access input/factory/level ops.
             - gPendingGateTransition  : Prevents repeated level load triggers.
             - gPlayerStates           : Per-player controller state keyed by object ID.
+
+            Recent gameplay updates documented here include tighter coordination between
+            player knockback animation state and god mode so combat testing can bypass
+            disruptive hit-reaction playback without changing the rest of the controller flow.
 
  \copyright
             Copyright (c) 2025 DigiPen Institute of Technology Singapore.

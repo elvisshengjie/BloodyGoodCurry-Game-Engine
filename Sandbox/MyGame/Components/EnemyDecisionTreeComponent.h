@@ -12,12 +12,13 @@
             engine's ECS architecture. When initialized, it automatically constructs a
             default decision tree for the owning GameObjectComposition via
             CreateDefaultEnemyTree(). The component stores additional runtime data such
-            as movement direction, chase timers, and flags indicating whether the player
-            has been seen.
+            as movement direction, chase timers, projectile sequencing, and animation-timed
+            melee attack state used by the updated enemy combat flow.
 
             Responsibilities:
             - Owns and updates an AI DecisionTree instance.
-            - Tracks state data like chase direction, pause timers, and player detection.
+            - Tracks state data like chase direction, pause timers, pending attack state,
+              and player detection.
             - Provides a framework for extensible enemy AI logic.
 
  \copyright
@@ -113,6 +114,8 @@ namespace Framework {
           \details
               - Retrieves the owning GameObjectComposition.
               - Constructs a default DecisionTree using CreateDefaultEnemyTree().
+              - Resets projectile and timed-melee runtime fields so combat state does not
+                leak across loads, prefab duplication, or component reuse.
               - Logs a debug message upon successful initialization.
         *************************************************************************************/
         void initialize() override

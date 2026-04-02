@@ -1,13 +1,15 @@
 /*********************************************************************************************
  \file      AudioManagerWeb.cpp
  \par       SofaSpuds
- \author     elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
+ \author     elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 80%
+             yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Implements the browser-backed AudioManager used by Emscripten/web builds.
             Replaces the native FMOD runtime with a JavaScript/HTML audio bridge while
             preserving the same engine-facing AudioManager API used by the rest of the codebase.
  \details   Responsibilities:
             - Initialize and tear down a shared browser-side audio state object.
-            - Load packaged audio assets from Emscripten's virtual filesystem.
+            - Register packaged audio assets from Emscripten's virtual filesystem and
+              materialize them lazily on first playback to reduce web startup hitching.
             - Play, pause, stop, unload, and query sounds through HTMLAudioElement instances.
             - Preserve existing SoundManager / AudioManager call patterns so gameplay code
               does not need separate desktop vs web branches.
@@ -15,6 +17,8 @@
               and ChannelID-based bookkeeping used by existing game systems.
             - Gracefully handle browser autoplay restrictions by retrying blocked playback
               after the user's next input event.
+            - Support hosted web deployments where large packaged assets may be loaded
+              separately from the main HTML/JS/wasm shell.
             Current limitations:
             - Web playback is non-spatial for now; 3D listener/source updates are accepted
               but treated as no-ops so the public API stays platform-consistent.

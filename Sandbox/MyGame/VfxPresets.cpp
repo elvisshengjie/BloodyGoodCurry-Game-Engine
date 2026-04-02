@@ -1,10 +1,14 @@
 /*********************************************************************************************
  \file      VfxPresets.cpp
  \par       SofaSpuds
- \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 100%
+ \author    erika.ishii (erika.ishii@digipen.edu) - Primary Author, 80%
+            yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Implements sandbox-specific combat VFX presets and bindings.
- \details   Builds the current game's hit-impact sprite and particle effects, then
-            binds them into engine combat callbacks from the game layer.
+ \details   Builds the current game's hit-impact sprite, fire-impact, and HeiBang beam
+            effects, then binds them into engine combat callbacks from the game layer.
+            Recent tuning documented here includes refining the beam origin placement so
+            HeiBang's attack2 laser lines up more closely with the visible mouth position
+            during the attack animation.
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.

@@ -5,7 +5,10 @@
  \brief     Game-side implementation of Framework::HitBoxSystem.
  \details   The public HitBoxSystem interface remains in Engine/, but BloodyGoodCurry now
             owns the concrete implementation so game combat behavior is not compiled into
-            the engine target.
+            the engine target. This file resolves player, enemy, projectile, and boss
+            hit interactions; applies damage, knockback, and combat VFX; and now documents
+            the game-specific god mode hooks that suppress incoming player damage/knockback
+            while boosting outgoing player attacks for testing.
 *********************************************************************************************/
 
 #include "Systems/HitBoxSystem.h"
