@@ -3,6 +3,9 @@
  \par       SofaSpuds
  \author    erika.ishii (erika.ishii@digipen.edu) - Main Author, 100%
  \brief     Lightweight immediate-mode GUI system for in-game/menu buttons.
+ \copyright
+            All content (c) 2025 DigiPen Institute of Technology Singapore.
+            All rights reserved.
 *********************************************************************************************/
 
 #include "GUISystem.hpp"
@@ -22,6 +25,10 @@
 
 namespace
 {
+    /*************************************************************************************
+      \struct VisualRect
+      \brief  Render-time rectangle after hover/press scaling is applied.
+    *************************************************************************************/
     struct VisualRect
     {
         float x{};
@@ -38,6 +45,11 @@ namespace
     constexpr float kPressedHighlightAlpha = 0.08f;
     constexpr double kPressFeedbackDuration = 0.12;
 
+    /*************************************************************************************
+      \brief  Compute the rectangle actually drawn for a button.
+      \param  button  Source button state.
+      \return Rectangle expanded or shrunk around the button center for feedback.
+    *************************************************************************************/
     VisualRect MakeVisualRect(const GUISystem::Button& button)
     {
         const float scale = button.pressed ? kPressedScale : (button.hovered ? kHoverScale : 1.0f);
@@ -53,6 +65,9 @@ namespace
     }
 }
 
+/*************************************************************************************
+  \brief  Clear buttons and reset pending interaction state.
+*************************************************************************************/
 void GUISystem::Clear()
 {
     buttons_.clear();
@@ -63,6 +78,9 @@ void GUISystem::Clear()
     pendingCallback_ = nullptr;  // FIX: clear stored callback too
 }
 
+/*************************************************************************************
+  \brief  Register a text-only button in the GUI list.
+*************************************************************************************/
 void GUISystem::AddButton(float x, float y, float w, float h,
     const std::string& label,
     std::function<void()> onClick)
@@ -77,6 +95,11 @@ void GUISystem::AddButton(float x, float y, float w, float h,
     buttons_.push_back(std::move(b));
 }
 
+/*************************************************************************************
+  \brief  Register a texture-backed button in the GUI list.
+  \details Adds a basic button first, then augments the appended entry with texture
+           handles and texture-specific label behavior.
+*************************************************************************************/
 void GUISystem::AddButton(float x, float y, float w, float h,
     const std::string& label,
     unsigned idleTexture,
@@ -96,11 +119,17 @@ void GUISystem::AddButton(float x, float y, float w, float h,
     b.drawLabelOnTexture = drawLabelOnTexture;
 }
 
+/*************************************************************************************
+  \brief  Test whether a point lies inside a button rectangle.
+*************************************************************************************/
 bool GUISystem::Contains(const Button& b, double mx, double my)
 {
     return (mx >= b.x && mx <= b.x + b.w && my >= b.y && my <= b.y + b.h);
 }
 
+/*************************************************************************************
+  \brief  Detect a left-click rising edge and update the cached previous state.
+*************************************************************************************/
 bool GUISystem::RisingEdgeLeftClick(bool now, bool& prev)
 {
     const bool edge = (now && !prev);
@@ -108,6 +137,12 @@ bool GUISystem::RisingEdgeLeftClick(bool now, bool& prev)
     return edge;
 }
 
+/*************************************************************************************
+  \brief  Poll mouse state and update hover/press interaction for every button.
+  \details Uses the current GLFW context window to read cursor position and button
+           state, tracks hover-enter events, delays click callbacks slightly so the
+           pressed visual state is visible, then dispatches the stored callback.
+*************************************************************************************/
 void GUISystem::Update(Framework::InputSystem* /*input*/)
 {
     GLFWwindow* w = glfwGetCurrentContext();
@@ -153,12 +188,9 @@ void GUISystem::Update(Framework::InputSystem* /*input*/)
                 activeButtonIndex_ = static_cast<int>(i);
                 callbackDispatchTime_ = now + kPressFeedbackDuration;
                 callbackPending_ = true;
-
-                // FIX: capture the callback immediately at click time, before BuildGui()
-                // can clear and rebuild the button list and invalidate the index
+                // Capture the callback now in case the menu rebuilds before dispatch.
                 pendingCallback_ = buttons_[i].onClick;
-
-                // FIX: fire the select sound immediately on click, not after the delay
+                // Fire the shared select feedback immediately on click.
                 if (onSelectSound_)
                     onSelectSound_();
 
@@ -172,8 +204,7 @@ void GUISystem::Update(Framework::InputSystem* /*input*/)
     }
 
     if (callbackPending_ && now >= callbackDispatchTime_) {
-        // FIX: use the captured callback, not buttons_[activeButtonIndex_].onClick
-        // The button list may have been rebuilt by BuildGui() during the delay window
+        // Use the stored callback instead of re-reading a potentially rebuilt button list.
         std::function<void()> onClick = std::move(pendingCallback_);
         pendingCallback_ = nullptr;
 
@@ -187,6 +218,12 @@ void GUISystem::Update(Framework::InputSystem* /*input*/)
     }
 }
 
+/*************************************************************************************
+  \brief  Draw all registered buttons using textures or fallback rectangles.
+  \details Textured buttons receive a subtle hover/press overlay. Labels are drawn
+           when no texture is used, when label-over-texture is requested, or when
+           textured rendering did not occur.
+*************************************************************************************/
 void GUISystem::Draw(Framework::RenderSystem* render)
 {
     const int screenW = render ? render->ScreenWidth() : 1280;
@@ -235,13 +272,19 @@ void GUISystem::Draw(Framework::RenderSystem* render)
     }
 }
 
+/*************************************************************************************
+  \brief  Assign a hover callback to the most recently added button.
+*************************************************************************************/
 void GUISystem::SetLastHoverCallback(std::function<void()> onHover)
 {
     if (!buttons_.empty())
         buttons_.back().onHover = std::move(onHover);
 }
 
-// FIX: new method — set once, fires for every button click anywhere in the GUI
+/*************************************************************************************
+  \brief  Set the shared callback fired when any button is selected.
+  \details Intended for click/select sounds or other global GUI feedback.
+*************************************************************************************/
 void GUISystem::SetSelectSoundCallback(std::function<void()> onSelect)
 {
     onSelectSound_ = std::move(onSelect);
