@@ -141,16 +141,19 @@ namespace {
 
         config.rows = {
             { MakeTextureField("howto_wasd_icon", "Textures/UI/How To Play/WASD_Sprite.png"),
-                MakeTextureField("howto_wasd_label", "Textures/UI/How To Play/WASD to move.png"),
-                 0, 8.0f, 0.9f, 2.6f },
+                MakeTextureField("howto_move_label", "Textures/UI/How To Play/Move.png"),
+                 0, 8.0f, 0.9f, 2.0f },
             { MakeTextureField("howto_esc_icon", "Textures/UI/How To Play/ESC_Sprite.png"),
-                MakeTextureField("howto_esc_label", "Textures/UI/How To Play/Esc to pause.png"),
-                 0, 8.0f, 1.05f, 3.1f },
+                MakeTextureField("howto_pause_label", "Textures/UI/How To Play/Pause.png"),
+                 0, 8.0f, 1.8f, 2.0f },
+            { MakeTextureField("howto_freeze_icon", "Textures/UI/How To Play/F.png"),
+                MakeTextureField("howto_freeze_label", "Textures/UI/How To Play/Freeze.png"),
+                0, 8.0f, 1.0f, 2.5f },
             { MakeTextureField("howto_melee_icon", "Textures/UI/How To Play/Left_Mouse_Sprite.png"),
-                MakeTextureField("howto_melee_label", "Textures/UI/How To Play/For melee attack.png"),
+                MakeTextureField("howto_melee_label", "Textures/UI/How To Play/Melee atk.png"),
                 0, 8.0f, 0.72f, 3.1f },
             { MakeTextureField("howto_range_icon", "Textures/UI/How To Play/Right_Mouse_Sprite.png"),
-                MakeTextureField("howto_range_label", "Textures/UI/How To Play/For Range attack.png"),
+                MakeTextureField("howto_range_label", "Textures/UI/How To Play/Range atk.png"),
                 0, 8.0f, 0.72f, 3.1f },
         };
 
@@ -745,7 +748,7 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
 
         const float iconHeightBase = rowHeight * 0.78f;
         const float labelHeightBase = rowHeight * 0.70f;
-        const float baseLeftPad = howToPopup.w * 0.20f;   // base position for labels
+        const float baseLeftPad = howToPopup.w * 0.20f;
         const float rightPad = howToPopup.w * 0.14f;
         const float iconAnchorX = howToPopup.x + howToPopup.w - rightPad;
 
@@ -753,9 +756,16 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
         gfx::Graphics::setViewProjection(glm::mat4(1.0f), uiOrtho);
 
         for (size_t i = 0; i < howToRows.size(); ++i) {
-            // Icons bigger for first two; slightly upscaled labels for readability
-            const float iconScale = (i == 0) ? 1.55f : (i == 1 ? 1.65f : (i == 2 ? 1.55f : (i == 3 ? 1.55f : 1.0f)));
-            const float labelScale = (i < 2) ? 0.6f : 1.0f;
+            float iconScale = 1.55f;
+            if (i == 0)       iconScale = 1.72f;
+            else if (i == 1)  iconScale = 1.74f;
+            else if (i == 2)  iconScale = 2.18f;
+            else if (i >= 3) iconScale = 1.90f;
+
+            float labelScale = 1.0f;
+            if (i == 0)       labelScale = 0.66f;
+            else if (i <= 2)  labelScale = 0.6f;
+            else if (i >= 3) labelScale = 1.22f;
 
             const float iconHeight = iconHeightBase * iconScale;
             const float labelHeight = labelHeightBase * labelScale;
@@ -764,12 +774,12 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
             const float iconY = rowBaseY + (rowHeight - iconHeight) * 0.5f;
             float labelY = rowBaseY + (rowHeight - labelHeight) * 0.5f;
 
-            // Per-row label vertical tweaks (copied from MainMenu)
             float labelOffsetY = 0.0f;
-            if (i == 0)       labelOffsetY = -howToPopup.h * -0.05f;
-            else if (i == 1)  labelOffsetY = -howToPopup.h * -0.085f;
-            else if (i == 2)  labelOffsetY = -howToPopup.h * -0.08f;
-            else if (i == 3)  labelOffsetY = -howToPopup.h * -0.04f;
+            if (i == 0)       labelOffsetY = howToPopup.h * 0.04f;
+            else if (i == 1)  labelOffsetY = howToPopup.h * 0.075f;
+            else if (i == 2)  labelOffsetY = howToPopup.h * 0.090f;
+            else if (i == 3)  labelOffsetY = howToPopup.h * 0.070f;
+            else if (i == 4)  labelOffsetY = howToPopup.h * 0.040f;
             labelY += labelOffsetY;
 
             // Icon
@@ -782,22 +792,20 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
                     (static_cast<float>(rows) / static_cast<float>(cols));
                 const float iconW = iconHeight * iconAspectVal;
 
-                // Nudge WASD/ESC left (same as MainMenu)
-                float iconNudgeLeft = 0.0f;
-                if (i == 0) iconNudgeLeft = howToPopup.w * 0.15f;
-                else if (i == 1) iconNudgeLeft = howToPopup.w * 0.13f;
-                else if (i == 2) iconNudgeLeft = howToPopup.w * 0.12f;
-                else if (i == 3) iconNudgeLeft = howToPopup.w * 0.11f;
+                float iconNudgeLeft = howToPopup.w * 0.11f;
+                if (i == 0)       iconNudgeLeft = howToPopup.w * 0.15f;
+                else if (i == 1)  iconNudgeLeft = howToPopup.w * 0.13f;
+                else if (i == 2)  iconNudgeLeft = howToPopup.w * 0.12f;
+                else if (i == 3)  iconNudgeLeft = howToPopup.w * 0.12f;
                 const float iconX = iconAnchorX - iconW - iconNudgeLeft;
 
-                // Per-row icon vertical tweaks (copied from MainMenu)
                 float iconOffsetY = 0.0f;
-                if (i == 0)      iconOffsetY = howToPopup.h * 0.05f;
-                else if (i == 1) iconOffsetY = howToPopup.h * 0.09f;
-                else if (i == 2) iconOffsetY = howToPopup.h * 0.08f;
-                else if (i == 3) iconOffsetY = howToPopup.h * 0.05f;
-
-                float finalIconY = iconY + iconOffsetY;
+                if (i == 0)       iconOffsetY = howToPopup.h * 0.06f;
+                else if (i == 1)  iconOffsetY = howToPopup.h * 0.09f;
+                else if (i == 2)  iconOffsetY = howToPopup.h * 0.09f;
+                else if (i == 3)  iconOffsetY = howToPopup.h * 0.08f;
+                else if (i == 4)  iconOffsetY = howToPopup.h * 0.05f;
+                const float finalIconY = iconY + iconOffsetY;
 
                 const float fps = howToRows[i].fps > 0.0f ? howToRows[i].fps : 8.0f;
                 const int frameIndex = (frames > 1)
@@ -814,11 +822,9 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
             // Label
             if (howToRows[i].labelTex) {
                 float labelOffsetX = 0.0f;
-                if (i == 0)       labelOffsetX = howToPopup.w * 0.00f;
-                else if (i == 1)  labelOffsetX = howToPopup.w * 0.02f;
-                else if (i == 2)  labelOffsetX = howToPopup.w * 0.04f;
-                else if (i == 3)  labelOffsetX = howToPopup.w * 0.04f;
-
+                if (i == 1)       labelOffsetX = howToPopup.w * 0.02f;
+                else if (i == 2)  labelOffsetX = howToPopup.w * 0.03f;
+                else if (i >= 3)  labelOffsetX = howToPopup.w * 0.04f;
                 const float labelX = howToPopup.x + baseLeftPad + labelOffsetX;
 
                 const float labelAspectVal = textureAspect(howToRows[i].labelTex, howToRows[i].labelAspectFallback);
@@ -835,18 +841,6 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
         }
 
         gfx::Graphics::resetViewProjection();
-
-        if (render && render->IsTextReadyHint()) {
-            const float talismanTextX = howToPopup.x + baseLeftPad + (howToPopup.w * 0.04f);
-            const float talismanTextY = howToPopup.y + (howToPopup.h * 0.09f);
-            const float talismanTextScale = std::clamp(howToPopup.h / 900.0f, 0.45f, 0.70f);
-            render->GetTextHint().RenderText(
-                "Press F for tailsman",
-                talismanTextX,
-                talismanTextY,
-                talismanTextScale,
-                glm::vec3(0.32f, 0.18f, 0.08f));
-        }
     }
     else {
         if (noteTex) {
@@ -1092,9 +1086,10 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
     };
 
     // How To Play
-    const float howToScale = 1.15f;
-    const float howToBtnW = btnW * howToScale;
-    const float howToBtnH = btnH * howToScale;
+    const float howToWidthScale = 1.18f;
+    const float howToHeightScale = 1.08f;
+    const float howToBtnW = btnW * howToWidthScale;
+    const float howToBtnH = btnH * howToHeightScale;
     const float howToMoveRight = note.w * 0.02f;
     howToBtn = {
         btnX - (howToBtnW - btnW) * 0.5f + howToMoveRight,
@@ -1103,10 +1098,11 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
     };
 
     // Main Menu
-    const float mainMenuScale = 1.10f;
-    const float mainMenuBtnW = btnW * mainMenuScale;
-    const float mainMenuBtnH = btnH * mainMenuScale;
-    const float mainMenuMoveRight = note.w * 0.015f;
+    const float mainMenuWidthScale = 1.12f;
+    const float mainMenuHeightScale = 1.02f;
+    const float mainMenuBtnW = btnW * mainMenuWidthScale;
+    const float mainMenuBtnH = btnH * mainMenuHeightScale;
+    const float mainMenuMoveRight = note.w * 0.025f;
     quitBtn = {
         btnX - (mainMenuBtnW - btnW) * 0.5f + mainMenuMoveRight,
         firstBtnY - 3.f * (spacing + btnH) + quitNudge - (mainMenuBtnH - btnH) * 0.5f,
