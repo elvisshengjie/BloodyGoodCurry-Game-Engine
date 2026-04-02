@@ -1092,17 +1092,25 @@ void PauseMenuPage::SyncLayout(int screenW, int screenH)
     };
 
     // How To Play
+    const float howToScale = 1.15f;
+    const float howToBtnW = btnW * howToScale;
+    const float howToBtnH = btnH * howToScale;
+    const float howToMoveRight = note.w * 0.02f;
     howToBtn = {
-        btnX,
-        firstBtnY - 2.f * (spacing + btnH) + howToNudge,
-        btnW, btnH
+        btnX - (howToBtnW - btnW) * 0.5f + howToMoveRight,
+        firstBtnY - 2.f * (spacing + btnH) + howToNudge - (howToBtnH - btnH) * 0.5f,
+        howToBtnW, howToBtnH
     };
 
     // Main Menu
+    const float mainMenuScale = 1.10f;
+    const float mainMenuBtnW = btnW * mainMenuScale;
+    const float mainMenuBtnH = btnH * mainMenuScale;
+    const float mainMenuMoveRight = note.w * 0.015f;
     quitBtn = {
-        btnX,
-        firstBtnY - 3.f * (spacing + btnH) + quitNudge,
-        btnW, btnH
+        btnX - (mainMenuBtnW - btnW) * 0.5f + mainMenuMoveRight,
+        firstBtnY - 3.f * (spacing + btnH) + quitNudge - (mainMenuBtnH - btnH) * 0.5f,
+        mainMenuBtnW, mainMenuBtnH
     };
 
     const float defaultPopupAspect = 0.75f;
