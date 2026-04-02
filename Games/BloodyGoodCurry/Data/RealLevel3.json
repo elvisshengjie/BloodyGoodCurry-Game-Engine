@@ -46,8 +46,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 154.8541717529297,
-            "y": 154.5943145751953
+            "x": 155.03407287597656,
+            "y": 154.7742156982422
           }
         },
         "layer": "Gameplay:0",
@@ -475,7 +475,7 @@
             "y": -1.1580451726913452
           }
         },
-        "layer": "Gameplay:4",
+        "layer": "Gameplay:5",
         "name": "artassets"
       },
       {
@@ -645,7 +645,7 @@
             "y": -1.3279999494552612
           }
         },
-        "layer": "Gameplay:4",
+        "layer": "Gameplay:5",
         "name": "artassets"
       },
       {
@@ -898,7 +898,7 @@
             "y": -1.1573562622070313
           }
         },
-        "layer": "Gameplay:3",
+        "layer": "Gameplay:4",
         "name": "artassets"
       },
       {
@@ -995,7 +995,7 @@
             "blend_mode": "alpha",
             "brightness": 1.0,
             "g": 1.0,
-            "h": 0.20000000298023224,
+            "h": 0.30000001192092896,
             "layer": -5,
             "r": 1.0,
             "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bedside Lamp.png",
@@ -1010,10 +1010,10 @@
             "scale_x": 1.0,
             "scale_y": 1.0,
             "x": 1.676519751548767,
-            "y": -0.9291195869445801
+            "y": -0.9700000286102295
           }
         },
-        "layer": "Gameplay:0",
+        "layer": "Gameplay:3",
         "name": "artassets"
       },
       {
@@ -1024,7 +1024,7 @@
             "blend_mode": "alpha",
             "brightness": 1.0,
             "g": 1.0,
-            "h": 0.20000000298023224,
+            "h": 0.30000001192092896,
             "layer": -5,
             "r": 1.0,
             "texture_key": "Assets/Textures/Environment/lvl 4_Bedroom/Bedside Lamp.png",
@@ -2120,8 +2120,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 0.31035614013671875,
-            "y": -0.8819851279258728
+            "x": 0.10802152752876282,
+            "y": -0.9988895654678345
           }
         },
         "layer": "Gameplay:2",
@@ -2247,13 +2247,13 @@
                 "textureKey": "nancie_slam2"
               },
               {
-                  "config": {
-                    "columns": 5,
-                    "endFrame": 4,
-                    "fps": 25.0,
-                    "loop": false,
-                    "rows": 1,
-                    "startFrame": 0,
+                "config": {
+                  "columns": 5,
+                  "endFrame": 4,
+                  "fps": 25.0,
+                  "loop": false,
+                  "rows": 1,
+                  "startFrame": 0,
                   "totalFrames": 5
                 },
                 "currentFrame": 0,
@@ -2308,7 +2308,7 @@
             "y": -0.5100411772727966
           }
         },
-        "layer": "Gameplay:2",
+        "layer": "Gameplay:1",
         "name": "nancie"
       },
       {
@@ -2349,7 +2349,7 @@
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "add",
-            "brightness": 0.0,
+            "brightness": 0.9327526092529297,
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,
@@ -2395,9 +2395,9 @@
           "TransformComponent": {
             "rot": 0.0,
             "scale_x": 1.0,
-            "scale_y": 1.0,
-            "x": 1.6911320686340332,
-            "y": -0.21278151869773865
+            "scale_y": 1.0113019943237305,
+            "x": 1.6846736669540405,
+            "y": -0.17672264575958252
           }
         },
         "layer": "Gameplay:13",
@@ -2426,8 +2426,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.6806155443191528,
-            "y": -0.8658760786056519
+            "x": 1.6810187101364136,
+            "y": -0.8658342957496643
           }
         },
         "layer": "Gameplay:13",
