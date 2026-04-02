@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      BuildSizeAnalyzerPanel.cpp
  \par       SofaSpuds
- \author    OpenAI Codex - Primary Author, 100%
+ \author   erika.ishii (erika.ishii@digipen.edu),  - Main Author, 100%
  \brief     Implements the editor window used to review asset sizes before export.
  \details   Recursively scans the project's Assets folder, renders an ImGui table with
             per-file sizes, tracks checkbox selection state, persists that state under the

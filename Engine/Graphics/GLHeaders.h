@@ -1,7 +1,7 @@
 /*********************************************************************************************
  \file      GLHeaders.h
  \par       SofaSpuds
- \author
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
  \brief     Provides the platform-appropriate OpenGL header includes for the engine.
  \details   Uses GLES headers for Emscripten/WebGL builds and glad for native desktop builds.
  \copyright

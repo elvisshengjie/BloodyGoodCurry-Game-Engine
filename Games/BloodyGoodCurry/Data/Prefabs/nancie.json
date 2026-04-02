@@ -57,7 +57,7 @@
             "config": {
               "columns": 5,
               "endFrame": 4,
-              "fps": 10.0,
+              "fps": 25.0,
               "loop": false,
               "rows": 1,
               "startFrame": 0,
