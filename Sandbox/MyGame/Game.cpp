@@ -3,6 +3,11 @@
  \par       SofaSpuds
  \author    All TEAM MEMBERS
  \brief     Game lifecycle management + Main Menu transition (GUISystem-backed)
+ \details   Owns the main sandbox game state machine, menu flow, staged level loading,
+            gameplay bootstrap, and cross-system runtime queries exported through
+            EngineCall.hpp. Recent additions documented here include keyboard cheat-code
+            handling for rapid level-jump testing and god mode toggling used to speed up
+            gameplay iteration, combat verification, and progression checks.
 *********************************************************************************************/
 
 #include "Graphics/Window.hpp"

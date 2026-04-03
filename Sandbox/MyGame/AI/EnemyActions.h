@@ -5,9 +5,11 @@
             yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Declares and defines game-specific AI action helpers for enemy behaviour execution.
  \details   Provides reusable helpers and action routines used by the sandbox enemy AI layer to
-            drive movement, attacks, animation selection, and special-case boss behaviour.
-            The file now covers generic melee/ranged enemies plus custom handling for HeiBang's
-            dash-and-laser attack cycle and Nancie's facing/orientation fixes.
+            drive patrol, chase, melee, ranged, and boss-specific combat behaviour.
+            Recent gameplay updates documented here include timed melee hitbox emission tied to
+            attack animation playback, improved facing/orientation handling for Nancie and ranged
+            attacks, and tuned chase retention for HeiBang so combat presentation lines up more
+            closely with visible enemy animations.
 
  \changelog
             Applied slowTimer/slowMultiplier from EnemyComponent to all
@@ -666,8 +668,11 @@ namespace mygame
       \param ctx BehaviorContext containing owner, dt, spawnHitBox callback, and blackboard.
       \details
       - Accelerates toward the player until within kMeleeAttackDist.
-      - Spawns a hitbox when attack_timer exceeds attack_speed.
-      - Holds position and waits for the hitbox duration to expire before re-enabling input.
+      - Standard melee enemies can use a timed slash animation that emits the hitbox partway
+        through the swing, keeping damage timing aligned with the visible attack.
+      - Falls back to the legacy immediate-hitbox flow for enemies that do not use the timed
+        melee animation path.
+      - Holds position and waits for the hitbox or timed melee state to finish before resuming.
       - Tracks chase retention; clears hasSeenPlayer if the player is out of range too long.
       - HeiBang overrides the generic chase with scripted dash points and an attack2 beam phase.
       - Nancie updates sprite facing to track the player before movement/attack decisions.
