@@ -2237,7 +2237,7 @@
                   "startFrame": 0,
                   "totalFrames": 6
                 },
-                "currentFrame": 2,
+                "currentFrame": 3,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/TV_Sprite.png",
                 "textureKey": "tv_sheet"
@@ -2291,7 +2291,7 @@
                   "startFrame": 0,
                   "totalFrames": 10
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/PendulumSprite.png",
                 "textureKey": "pendulum_sheet"
@@ -2373,7 +2373,7 @@
                   "startFrame": 0,
                   "totalFrames": 3
                 },
-                "currentFrame": 0,
+                "currentFrame": 1,
                 "name": "idle",
                 "spriteSheetPath": "Textures/Environment/lvl 2_ Living + Kitchen/Sleeping_Cat_Sprite.png",
                 "textureKey": "sleep_cat_sheet"
@@ -4950,8 +4950,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.801004409790039,
-            "y": -0.09337147325277328
+            "x": 1.497556209564209,
+            "y": -0.32095766067504883
           }
         },
         "layer": "Gameplay:0",
@@ -5134,8 +5134,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.7005045413970947,
-            "y": -0.07087534666061401
+            "x": 1.3401597738265991,
+            "y": -0.08193857967853546
           }
         },
         "layer": "Gameplay:0",
@@ -5876,8 +5876,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.8007023334503174,
-            "y": -0.7691999077796936
+            "x": 1.59882390499115,
+            "y": -0.7364628911018372
           }
         },
         "layer": "Gameplay:0",
@@ -6066,8 +6066,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.8022432327270508,
-            "y": -0.4153680205345154
+            "x": 1.6603827476501465,
+            "y": -0.131646990776062
           }
         },
         "layer": "Gameplay:0",
@@ -6143,7 +6143,7 @@
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "add",
-            "brightness": 0.0003770828479900956,
+            "brightness": 0.0,
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,
@@ -6173,7 +6173,7 @@
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "add",
-            "brightness": 0.0003770828479900956,
+            "brightness": 0.0,
             "g": 1.0,
             "h": 0.4000000059604645,
             "layer": 0,
