@@ -45,7 +45,9 @@ void DefeatScreenPage::Init(int screenW, int screenH)
 
     defeatScreenTex = ResolveTexture("defeat_screen", "Textures/UI/Defeat Menu/Defeat screen.jpg");
     tryAgainTex = ResolveTexture("defeat_try_again", "Textures/UI/Defeat Menu/Try again.png");
-
+    auto& sm = SoundManager::getInstance();
+    sm.loadSound("UIHoverNew1", "UIHoverNew1.wav", false);
+    sm.loadSound("UISelectSmall1", "UISelectSmall1.wav", false);
     SyncLayout(screenW, screenH);
     BuildGui();
 }
@@ -77,7 +79,17 @@ void DefeatScreenPage::BuildGui()
     gui.Clear();
     gui.AddButton(tryAgainBtn.x, tryAgainBtn.y, tryAgainBtn.w, tryAgainBtn.h,
         "Try Again", tryAgainTex, tryAgainTex,
-        [this]() { tryAgainLatched = true; }, false);
+        [this]() {
+            auto& sm = SoundManager::getInstance();
+            if (sm.isSoundLoaded("UISelectSmall1"))
+                sm.playSound("UISelectSmall1", 1.0f, 1.0f, false);
+            tryAgainLatched = true;
+        }, false);
+    gui.SetLastHoverCallback([this]() {
+        auto& sm = SoundManager::getInstance();
+        if (sm.isSoundLoaded("UIHoverNew1"))
+            sm.playSound("UIHoverNew1", 1.0f, 1.0f, false);
+        });
     layoutDirty = false;
 }
 

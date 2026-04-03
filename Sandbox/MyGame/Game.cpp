@@ -1836,7 +1836,7 @@ namespace mygame {
                 }
                 if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
-                    SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
+                    SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, 0.5f);
                     gameplayBGMPlaying = false;
                 }
 
@@ -1869,7 +1869,7 @@ namespace mygame {
                     }
 
                     defeatSoundStarted = false;
-
+                    boilingStarted = false;
                     
                     if (RequestReloadLevel(false))
                     {
