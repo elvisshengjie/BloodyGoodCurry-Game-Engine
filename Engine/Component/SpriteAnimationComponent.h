@@ -511,12 +511,31 @@ namespace Framework {
 
             const float invCols = 1.0f / static_cast<float>(columns);
             const float invRows = 1.0f / static_cast<float>(rows);
+            float insetU = 0.0f;
+            float insetV = 0.0f;
+
+            int textureWidth = 0;
+            int textureHeight = 0;
+            if (sample.texture != 0 &&
+                gfx::Graphics::getTextureSize(sample.texture, textureWidth, textureHeight) &&
+                textureWidth > 0 && textureHeight > 0)
+            {
+                // Keep UVs slightly inside the current cell to avoid linear-filter bleed
+                // from neighboring frames on tightly packed sprite sheets.
+                insetU = 0.5f / static_cast<float>(textureWidth);
+                insetV = 0.5f / static_cast<float>(textureHeight);
+            }
+
+            const float u = static_cast<float>(col) * invCols;
+            const float v = static_cast<float>(row) * invRows;
+            const float uvWidth = std::max(0.0f, invCols - (2.0f * insetU));
+            const float uvHeight = std::max(0.0f, invRows - (2.0f * insetV));
 
             sample.uv = glm::vec4(
-                static_cast<float>(col) * invCols,
-                static_cast<float>(row) * invRows,
-                invCols,
-                invRows
+                u + insetU,
+                v + insetV,
+                uvWidth,
+                uvHeight
             );
 
             return sample;

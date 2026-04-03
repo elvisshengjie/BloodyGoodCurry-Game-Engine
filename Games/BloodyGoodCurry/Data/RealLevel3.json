@@ -2278,13 +2278,13 @@
               },
               {
                 "config": {
-                  "columns": 23,
-                  "endFrame": 22,
+                  "columns": 16,
+                  "endFrame": 15,
                   "fps": 12.0,
                   "loop": false,
                   "rows": 1,
                   "startFrame": 0,
-                  "totalFrames": 23
+                  "totalFrames": 16
                 },
                 "currentFrame": 0,
                 "name": "death",

@@ -2,9 +2,22 @@
   "GameObject": {
     "name": "nancie",
     "Components": {
-      "TransformComponent": { "x": 0.0, "y": 0.0, "rot": 0.0 },
-      "RenderComponent": { "w": 0.3, "h": 0.3, "r": 1, "g": 1, "b": 1, "a": 1 },
-      "SpriteComponent": { "texture_key": "nancie_idle" },
+      "TransformComponent": {
+        "x": 0.0,
+        "y": 0.0,
+        "rot": 0.0
+      },
+      "RenderComponent": {
+        "w": 0.3,
+        "h": 0.3,
+        "r": 1,
+        "g": 1,
+        "b": 1,
+        "a": 1
+      },
+      "SpriteComponent": {
+        "texture_key": "nancie_idle"
+      },
       "SpriteAnimationComponent": {
         "activeAnimation": 0,
         "animations": [
@@ -104,7 +117,12 @@
         "loop": true,
         "play": true
       },
-      "RigidBodyComponent": { "velocity_x": 0, "velocity_y": 0, "width": 0.1, "height": 0.21 },
+      "RigidBodyComponent": {
+        "velocity_x": 0,
+        "velocity_y": 0,
+        "width": 0.1,
+        "height": 0.21
+      },
       "EnemyComponent": {},
       "EnemyAttackComponent": {
         "damage": 2,
@@ -115,15 +133,39 @@
         "enemyMaxhealth": 15
       },
       "EnemyDecisionTreeComponent": {},
-      "BehaviorTreeComponent": { "treeType": "nancie" },
-      "EnemyTypeComponent": { "type": "neutral" },
+      "BehaviorTreeComponent": {
+        "treeType": "nancie"
+      },
+      "EnemyTypeComponent": {
+        "type": "neutral"
+      },
       "AudioComponent": {
         "sounds": {
-        "GhostHurt1": { "id": "GhostHurt1", "loop": false, "spatial": true },
-        "GhostHurt2": { "id": "GhostHurt2", "loop": false, "spatial": true },
-        "GhostHurt3": { "id": "GhostHurt3", "loop": false, "spatial": true },
-        "WaterGhostAttack": { "id": "WaterGhostAttack", "loop": false, "spatial": true },
-        "WaterGhostExplosion": { "id": "WaterGhostExplosion", "loop": false, "spatial": true }
+          "GhostHurt1": {
+            "id": "GhostHurt1",
+            "loop": false,
+            "spatial": true
+          },
+          "GhostHurt2": {
+            "id": "GhostHurt2",
+            "loop": false,
+            "spatial": true
+          },
+          "GhostHurt3": {
+            "id": "GhostHurt3",
+            "loop": false,
+            "spatial": true
+          },
+          "WaterGhostAttack": {
+            "id": "WaterGhostAttack",
+            "loop": false,
+            "spatial": true
+          },
+          "WaterGhostExplosion": {
+            "id": "WaterGhostExplosion",
+            "loop": false,
+            "spatial": true
+          }
         },
         "volume": 1.0
       }

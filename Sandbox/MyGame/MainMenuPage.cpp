@@ -60,6 +60,10 @@ namespace {
             float scale = 0.60f;
             float leftAlign = 0.23f;
             float downOffset = 180.f;
+            float logoWidthPct = 0.35f;
+            float logoLeftPct = 0.055f;
+            float logoTopPct = 0.075f;
+            float logoMaxHeightPct = 0.42f;
         } layout;
         std::vector<MenuButtonJson> buttons;
     };
@@ -218,6 +222,10 @@ namespace {
                 if (l.contains("scale_factor")) config.layout.scale = l["scale_factor"];
                 if (l.contains("left_align_pct")) config.layout.leftAlign = l["left_align_pct"];
                 if (l.contains("downward_offset")) config.layout.downOffset = l["downward_offset"];
+                if (l.contains("logo_width_pct")) config.layout.logoWidthPct = l["logo_width_pct"];
+                if (l.contains("logo_left_pct")) config.layout.logoLeftPct = l["logo_left_pct"];
+                if (l.contains("logo_top_pct")) config.layout.logoTopPct = l["logo_top_pct"];
+                if (l.contains("logo_max_height_pct")) config.layout.logoMaxHeightPct = l["logo_max_height_pct"];
             }
 
             if (j.contains("buttons") && j["buttons"].is_array()) {
@@ -1108,24 +1116,19 @@ void MainMenuPage::SyncLayout(int screenW, int screenH)
         };
 
     const float logoAspect = textureAspect(menuLogoTex, 2.6f);
-    float logoW = btnW * 3.8f;
+    float logoW = sw * std::clamp(l.logoWidthPct, 0.15f, 0.60f);
     float logoH = logoW / logoAspect;
-    const float maxLogoH = sh * 0.62f;
+    const float maxLogoH = sh * std::clamp(l.logoMaxHeightPct, 0.20f, 0.70f);
     if (logoH > maxLogoH) {
         logoH = maxLogoH;
         logoW = logoH * logoAspect;
     }
 
-    const float topButtonY = bottomY + ((count > 0 ? static_cast<float>(count - 1) : 0.0f) * (btnH + vSpace));
-    const float topButtonTop = topButtonY + btnH;
-    const float logoGap = sh * 0.15f;
-    const float logoTopMargin = sh * 0.002f;
-    const float logoVerticalNudge = sh * 0.2f;
-    const float logoTopOverflow = sh * 0.04f;
-    const float logoCenterX = leftAlignedX + (btnW * 0.5f) - (btnW * 0.08f);
-    const float logoX = std::clamp(logoCenterX - (logoW * 0.5f), 0.0f, static_cast<float>(sw) - logoW);
-    const float baseLogoY = std::min(topButtonTop + logoGap, static_cast<float>(sh) - logoH - logoTopMargin);
-    const float logoY = std::clamp(baseLogoY + logoVerticalNudge, 0.0f, static_cast<float>(sh) - logoH + logoTopOverflow);
+    const float logoLeftMargin = sw * std::clamp(l.logoLeftPct, 0.0f, 0.30f);
+    const float logoTopMargin = sh * std::clamp(l.logoTopPct, 0.0f, 0.25f);
+    const float logoX = std::clamp(logoLeftMargin, 0.0f, static_cast<float>(sw) - logoW);
+    const float logoY = std::clamp(static_cast<float>(sh) - logoTopMargin - logoH,
+        0.0f, static_cast<float>(sh) - logoH);
 
     menuLogo = {
         logoX,
