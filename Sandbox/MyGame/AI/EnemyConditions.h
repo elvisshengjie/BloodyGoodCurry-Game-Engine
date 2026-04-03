@@ -5,6 +5,8 @@
  \brief     Declares and implements game-specific condition helpers for enemy AI decision logic.
  \details   Contains condition predicates used by the sandbox enemy AI to evaluate
             player distance, line-of-sight, attack readiness, and similar gameplay checks.
+            Recent tuning adds dedicated HeiBang arena-scale aggro values while preserving the
+            existing melee and ranged enemy thresholds used by the rest of the sandbox AI layer.
  \copyright
             All content ©2025 DigiPen Institute of Technology Singapore.
             All rights reserved.
@@ -29,6 +31,8 @@ namespace mygame
       Melee enemies have a tighter detection radius but shorter retention range,
       making them aggressive only up close and quick to disengage.
       Ranged enemies detect slightly further and retain the chase longer.
+      HeiBang uses a separate boss-sized detection and retention pair so the fight can stay
+      active across the larger arena without making standard enemies over-aggressive.
       kDetectionRadius and kChaseRetentionRadius are aliases for the ranged values,
       used by EnemyActions.h for backwards-compatible projectile fire distance checks.
     *****************************************************************************************/
@@ -48,7 +52,8 @@ namespace mygame
       \return True if the enemy has the player in aggro range or is still in chase retention.
       \details
       - Iterates the factory to locate the owner's AI/transform components and the player transform.
-      - Selects detection and retention radii based on EnemyTypeComponent (melee vs ranged).
+      - Selects detection and retention radii based on EnemyTypeComponent, with a dedicated
+        boss override for HeiBang.
       - Sets hasSeenPlayer and syncs the blackboard when the player enters detection radius.
       - Clears hasSeenPlayer when the player moves beyond the retention radius.
       - Once aggroed, the enemy remains in chase state until the player exceeds retentionR,

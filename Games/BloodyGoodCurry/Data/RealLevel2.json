@@ -46,8 +46,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 179.7804718017578,
-            "y": 179.52061462402344
+            "x": 180.2602081298828,
+            "y": 180.00035095214844
           }
         },
         "layer": "Gameplay:0",
@@ -1678,8 +1678,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.5378875732421875,
-            "y": -0.758817195892334
+            "x": 1.228660225868225,
+            "y": -0.8969485759735107
           }
         },
         "layer": "Gameplay:0",
@@ -2100,7 +2100,7 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.897444248199463,
+            "x": 1.9961073398590088,
             "y": -0.5116569399833679
           }
         },
@@ -2394,8 +2394,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.5930817127227783,
-            "y": -0.43393850326538086
+            "x": 1.1942073106765747,
+            "y": -0.42334890365600586
           }
         },
         "layer": "Gameplay:2",
@@ -2584,8 +2584,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.5875577926635742,
-            "y": -0.1931503713130951
+            "x": 1.273079514503479,
+            "y": -0.642405092716217
           }
         },
         "layer": "Gameplay:2",
@@ -3142,8 +3142,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.533318042755127,
-            "y": -0.6629384160041809
+            "x": 0.6755617260932922,
+            "y": -0.6523487567901611
           }
         },
         "layer": "Gameplay:2",
@@ -3326,8 +3326,8 @@
             "rot": 0.0,
             "scale_x": 1.0,
             "scale_y": 1.0,
-            "x": 1.492581844329834,
-            "y": -0.35345062613487244
+            "x": 1.019580364227295,
+            "y": -0.7946832180023193
           }
         },
         "layer": "Gameplay:2",
@@ -3835,7 +3835,7 @@
             "a": 1.0,
             "b": 1.0,
             "blend_mode": "add",
-            "brightness": 1.099416732788086,
+            "brightness": 0.0,
             "g": 1.0,
             "h": 0.5,
             "layer": -5,
@@ -3856,6 +3856,91 @@
         },
         "layer": "Gameplay:19",
         "name": "artassets"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "brightness": 1.0,
+            "g": 1.0,
+            "h": 0.4000000059604645,
+            "layer": 0,
+            "r": 1.0,
+            "texture_key": "sink_sheet",
+            "texture_path": "Textures/Environment/lvl 3_Bathroom/Sink_Sprite.png",
+            "visible": true,
+            "w": 0.30000001192092896
+          },
+          "SpriteAnimationComponent": {
+            "activeAnimation": 0,
+            "animations": [
+              {
+                "config": {
+                  "columns": 7,
+                  "endFrame": 6,
+                  "fps": 6.0,
+                  "loop": true,
+                  "rows": 1,
+                  "startFrame": 0,
+                  "totalFrames": 7
+                },
+                "currentFrame": 0,
+                "name": "idle",
+                "spriteSheetPath": "Textures/Environment/lvl 3_Bathroom/Sink_Sprite.png",
+                "textureKey": "sink_sheet"
+              }
+            ],
+            "fps": 6.0,
+            "frames": [],
+            "loop": true,
+            "play": true
+          },
+          "SpriteComponent": {
+            "texture_key": "sink_sheet"
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 2.375056743621826,
+            "scale_y": 1.3494322299957275,
+            "x": 1.6233317852020264,
+            "y": -0.6495236158370972
+          }
+        },
+        "layer": "Background:20",
+        "name": "Sink_Animated"
+      },
+      {
+        "Components": {
+          "RenderComponent": {
+            "a": 1.0,
+            "b": 1.0,
+            "blend_mode": "alpha",
+            "brightness": 1.0,
+            "g": 1.0,
+            "h": 0.5,
+            "layer": 0,
+            "r": 1.0,
+            "visible": false,
+            "w": 0.5
+          },
+          "RigidBodyComponent": {
+            "height": 0.44999998807907104,
+            "velocity_x": 0.0,
+            "velocity_y": 0.0,
+            "width": 0.5
+          },
+          "TransformComponent": {
+            "rot": 0.0,
+            "scale_x": 0.996712327003479,
+            "scale_y": 0.996712327003479,
+            "x": 1.7307665348052979,
+            "y": -0.6395567059516907
+          }
+        },
+        "layer": "Gameplay:2",
+        "name": "Rect"
       }
     ],
     "name": "RealLevel2"

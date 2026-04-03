@@ -3,6 +3,11 @@
  \par       SofaSpuds
  \author    All TEAM MEMBERS
  \brief     Game lifecycle management + Main Menu transition (GUISystem-backed)
+ \details   Owns the main sandbox game state machine, menu flow, staged level loading,
+            gameplay bootstrap, and cross-system runtime queries exported through
+            EngineCall.hpp. Recent additions documented here include keyboard cheat-code
+            handling for rapid level-jump testing and god mode toggling used to speed up
+            gameplay iteration, combat verification, and progression checks.
 *********************************************************************************************/
 
 #include "Graphics/Window.hpp"
@@ -1836,7 +1841,7 @@ namespace mygame {
                 }
                 if (gameplayBGMPlaying && SoundManager::getInstance().isSoundLoaded(GAMEPLAY_BGM))
                 {
-                    SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, kBGMFadeDuration);
+                    SoundManager::getInstance().fadeOutMusic(GAMEPLAY_BGM, 0.5f);
                     gameplayBGMPlaying = false;
                 }
 
@@ -1869,7 +1874,7 @@ namespace mygame {
                     }
 
                     defeatSoundStarted = false;
-
+                    boilingStarted = false;
                     
                     if (RequestReloadLevel(false))
                     {

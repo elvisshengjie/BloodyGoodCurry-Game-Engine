@@ -1,16 +1,18 @@
 /*********************************************************************************************
  \file      EngineCall.hpp
  \par       SofaSpuds
- \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 100%
-
+ \author    elvisshengjie.lim ( elvisshengjie.lim@digipen.edu) - Primary Author, 80%
+            yimo.kong ( yimo.kong@digipen.edu) - Author, 20%
  \brief     Declares the game-layer hook function used by the engine to register all
             gameplay scripts/behaviours into the LogicSystem.
 
  \details
             The engine calls RegisterMyGameScripts() to allow the game project (namespace
             mygame) to bind any required behaviour context and register behaviour callback
-            tables/functions. This keeps gameplay logic in the sandbox/game layer while
-            the engine remains generic.
+            tables/functions. This header also exposes the game-to-engine bridge used by
+            combat, level loading, and HUD systems, including runtime queries for session
+            state such as god mode and player damage overrides. This keeps gameplay logic
+            in the sandbox/game layer while the engine remains generic.
 
  \copyright
             All content Â© 2025 DigiPen Institute of Technology Singapore.
