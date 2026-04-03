@@ -757,9 +757,9 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
 
         for (size_t i = 0; i < howToRows.size(); ++i) {
             float iconScale = 1.55f;
-            if (i == 0)       iconScale = 1.72f;
-            else if (i == 1)  iconScale = 1.74f;
-            else if (i == 2)  iconScale = 2.18f;
+            if (i == 0)       iconScale = 1.82f;
+            else if (i == 1)  iconScale = 1.95f;
+            else if (i == 2)  iconScale = 2.45f;
             else if (i >= 3) iconScale = 1.90f;
 
             float labelScale = 1.0f;
@@ -795,14 +795,14 @@ void PauseMenuPage::Draw(Framework::RenderSystem* render)
                 float iconNudgeLeft = howToPopup.w * 0.11f;
                 if (i == 0)       iconNudgeLeft = howToPopup.w * 0.15f;
                 else if (i == 1)  iconNudgeLeft = howToPopup.w * 0.13f;
-                else if (i == 2)  iconNudgeLeft = howToPopup.w * 0.12f;
+                else if (i == 2)  iconNudgeLeft = howToPopup.w * 0.10f;
                 else if (i == 3)  iconNudgeLeft = howToPopup.w * 0.12f;
                 const float iconX = iconAnchorX - iconW - iconNudgeLeft;
 
                 float iconOffsetY = 0.0f;
                 if (i == 0)       iconOffsetY = howToPopup.h * 0.06f;
                 else if (i == 1)  iconOffsetY = howToPopup.h * 0.09f;
-                else if (i == 2)  iconOffsetY = howToPopup.h * 0.09f;
+                else if (i == 2)  iconOffsetY = howToPopup.h * 0.11f;
                 else if (i == 3)  iconOffsetY = howToPopup.h * 0.08f;
                 else if (i == 4)  iconOffsetY = howToPopup.h * 0.05f;
                 const float finalIconY = iconY + iconOffsetY;
