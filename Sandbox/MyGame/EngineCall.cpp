@@ -27,6 +27,7 @@
 #include "Audio/GameAudioSetup.h"
 #include "Composition/Composition.h"
 #include "Component/AudioComponent.h"
+#include "Component/TransformComponent.h"
 #include "Runtime/HealthSystem.h"
 #include "Systems/CombatAudioEvents.h"
 #include "Systems/HitBoxSystem.h"
@@ -89,6 +90,15 @@ namespace mygame {
             if (!audio)
                 return;
 
+            float posX = 0.0f;
+            float posY = 0.0f;
+            if (auto* transform = obj->GetComponentType<Framework::TransformComponent>(
+                Framework::ComponentTypeId::CT_TransformComponent))
+            {
+                posX = transform->x;
+                posY = transform->y;
+            }
+
             switch (event)
             {
             case Framework::CombatAudioEvent::PlayerHurt:
@@ -106,13 +116,13 @@ namespace mygame {
             case Framework::CombatAudioEvent::EnemyHurt:
             {
                 mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Enemy);
-                gameAudio.PlayHurt();
+                gameAudio.PlayHurt(posX, posY);
                 break;
             }
             case Framework::CombatAudioEvent::EnemyDeath:
             {
                 mygame::GameAudio gameAudio(audio, mygame::GameAudio::Entity::Enemy);
-                gameAudio.PlayDeath();
+                gameAudio.PlayDeath(posX, posY);
                 break;
             }
             case Framework::CombatAudioEvent::PlayerAttackHit:
