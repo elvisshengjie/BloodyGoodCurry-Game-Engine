@@ -94,7 +94,7 @@ if exist "%BUILD_DIR%\CMakeCache.txt" (
 echo.
 if "%FORCE_CONFIGURE%"=="1" (
     echo [1/2] Configuring CMake...
-    cmake --preset %PRESET% -DSOFASPUDS_GAME_NAME=%GAME_NAME% -DCMAKE_MAKE_PROGRAM=%NINJA_EXE%
+    cmake --fresh --preset %PRESET% -DSOFASPUDS_GAME_NAME=%GAME_NAME% -DCMAKE_MAKE_PROGRAM=%NINJA_EXE%
     if errorlevel 1 (
         echo [ERROR] CMake configure failed.
         exit /b 1
@@ -113,6 +113,7 @@ if errorlevel 1 (
 
 set "HTML_FILE=%~dp0build\%PRESET%\Sandbox\%GAME_NAME%.html"
 if not exist "%HTML_FILE%" set "HTML_FILE=%~dp0build\%PRESET%\%GAME_NAME%.html"
+for %%I in ("%HTML_FILE%") do set "HTML_DIR=%%~dpI"
 echo.
 if exist "%HTML_FILE%" (
     echo [OK] HTML generated:
@@ -126,7 +127,7 @@ if "%AUTO_SERVE%"=="1" (
     echo.
     echo [3/3] Starting local web server on http://localhost:8000/
     echo Press Ctrl+C to stop the server.
-    python -m http.server 8000 -d build\web-release-split\Sandbox
+    python -m http.server 8000 -d "%HTML_DIR%"
     exit /b %ERRORLEVEL%
 )
 
